@@ -1,0 +1,113 @@
+@import "tailwindcss";
+
+/* Base styles */
+body {
+  background-color: #111;
+  margin: 0;
+  font-family: 'VT323', monospace;
+}
+
+/* Custom scrollbar for retro feel */
+::-webkit-scrollbar {
+  width: 12px;
+  background: #232323;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #DC0A2D;
+  border: 2px solid #232323;
+}
+
+/* Custom scrollbar class */
+.custom-scrollbar::-webkit-scrollbar {
+  width: 8px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-track {
+  background: #1a1a1a;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background: #4a4a4a;
+  border-radius: 4px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: #5a5a5a;
+}
+
+/* Scanlines overlay effect */
+.scanlines {
+  background: linear-gradient(
+    to bottom,
+    rgba(255, 255, 255, 0),
+    rgba(255, 255, 255, 0) 50%,
+    rgba(0, 0, 0, 0.1) 50%,
+    rgba(0, 0, 0, 0.1)
+  );
+  background-size: 100% 4px;
+  pointer-events: none;
+}
+
+/* Pixel border effect */
+.pixel-border {
+  box-shadow: 
+    -2px 0 0 0 #000,
+    2px 0 0 0 #000,
+    0 -2px 0 0 #000,
+    0 2px 0 0 #000;
+}
+
+/* Retro shadow effect */
+.retro-shadow {
+  box-shadow: 4px 4px 0px 0px rgba(0, 0, 0, 0.3);
+}
+
+/* Inset shadow for depth */
+.inset-shadow {
+  box-shadow: inset 2px 2px 5px rgba(0, 0, 0, 0.5);
+}
+
+/* Animation utilities */
+@keyframes blink {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0; }
+}
+
+.animate-blink {
+  animation: blink 1s step-end infinite;
+}
+
+/* Slide in animation */
+@keyframes slide-in-from-top {
+  from {
+    transform: translateY(-100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+.animate-in.slide-in-from-top-2 {
+  animation: slide-in-from-top 0.2s ease-out;
+}
+
+/* Custom Theme Extensions */
+@theme {
+  --font-mono: 'VT323', monospace;
+  --font-retro: 'Press Start 2P', cursive;
+  
+  --color-dex-red: #DC0A2D;
+  --color-dex-darkRed: #89061C;
+  --color-dex-screen: #232323;
+  --color-dex-screenBg: #98CB98;
+  --color-dex-ui: #DEDEDE;
+  --color-dex-blue: #2AB5FF;
+  --color-dex-yellow: #FACC15;
+  --color-dex-green: #4ADE80;
+  
+  --animate-pulse-fast: pulse 1.5s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+  --animate-blink: blink 1s step-end infinite;
+}

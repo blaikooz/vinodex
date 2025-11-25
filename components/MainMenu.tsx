@@ -1,0 +1,94 @@
+
+import React from 'react';
+import { Grape, Map, Layers, Utensils, Search } from 'lucide-react';
+import DeviceLayout from './DeviceLayout';
+import { EntryCategory } from '../types';
+
+interface MainMenuProps {
+  onNavigate: (category: EntryCategory) => void;
+}
+
+const MainMenu: React.FC<MainMenuProps> = ({ onNavigate }) => {
+  return (
+    <DeviceLayout
+      title=""
+      subtitle=""
+      showBack={false}
+      onHome={() => {}}
+      hideHeader={true}
+    >
+      <div className="h-full w-full flex flex-col items-center bg-dex-screen relative overflow-hidden">
+        
+        {/* Retro Grid Background */}
+        <div 
+          className="absolute inset-0 opacity-10 pointer-events-none" 
+          style={{ 
+            backgroundImage: 'linear-gradient(rgba(50, 255, 50, 0.3) 1px, transparent 1px), linear-gradient(90deg, rgba(50, 255, 50, 0.3) 1px, transparent 1px)', 
+            backgroundSize: '30px 30px' 
+          }} 
+        />
+
+        {/* Main Interface Container - Fixed, no scroll */}
+        <div className="relative w-full h-full z-10 flex flex-col p-6 gap-6 justify-between">
+            
+            {/* Top Row */}
+            <div className="flex gap-4 w-full flex-1 min-h-0">
+                <button 
+                  onClick={() => onNavigate('GRAPES')}
+                  className="flex-1 bg-purple-500 border-b-[6px] border-purple-800 rounded-xl shadow-lg active:translate-y-1 active:border-b-0 transition-all flex flex-col items-center justify-center group hover:bg-purple-400 relative overflow-hidden"
+                >
+                    <div className="absolute inset-0 bg-gradient-to-br from-white/10 to-transparent pointer-events-none"></div>
+                    <Grape size={48} className="text-white mb-2 group-hover:scale-110 transition-transform drop-shadow-md sm:w-16 sm:h-16" />
+                    <span className="font-retro text-sm sm:text-xl text-white tracking-widest drop-shadow-md">GRAPES</span>
+                </button>
+                
+                <button 
+                  onClick={() => onNavigate('REGIONS')}
+                  className="flex-1 bg-green-500 border-b-[6px] border-green-800 rounded-xl shadow-lg active:translate-y-1 active:border-b-0 transition-all flex flex-col items-center justify-center group hover:bg-green-400 relative overflow-hidden"
+                >
+                    <div className="absolute inset-0 bg-gradient-to-br from-white/10 to-transparent pointer-events-none"></div>
+                    <Map size={48} className="text-white mb-2 group-hover:scale-110 transition-transform drop-shadow-md sm:w-16 sm:h-16" />
+                    <span className="font-retro text-sm sm:text-xl text-white tracking-widest drop-shadow-md">REGIONS</span>
+                </button>
+            </div>
+
+            {/* Middle Search Button - Fixed Size */}
+            <div className="flex justify-center shrink-0">
+               <button 
+                 onClick={() => onNavigate('MASTER_SEARCH')}
+                 className="w-24 h-24 sm:w-32 sm:h-32 rounded-full bg-dex-yellow border-[6px] border-yellow-600 shadow-[0_0_25px_rgba(250,204,21,0.4)] flex items-center justify-center active:scale-95 active:border-yellow-700 transition-all relative overflow-hidden group hover:bg-yellow-300 z-10"
+               >
+                  <div className="absolute inset-0 bg-white/20 animate-pulse rounded-full"></div>
+                  <Search size={40} className="text-yellow-900 relative z-10 group-hover:scale-110 transition-transform sm:w-16 sm:h-16" />
+               </button>
+            </div>
+
+            {/* Bottom Row */}
+            <div className="flex gap-4 w-full flex-1 min-h-0">
+                <button 
+                  onClick={() => onNavigate('STYLES')}
+                  className="flex-1 bg-orange-500 border-b-[6px] border-orange-800 rounded-xl shadow-lg active:translate-y-1 active:border-b-0 transition-all flex flex-col items-center justify-center group hover:bg-orange-400 relative overflow-hidden"
+                >
+                    <div className="absolute inset-0 bg-gradient-to-br from-white/10 to-transparent pointer-events-none"></div>
+                    <Layers size={48} className="text-white mb-2 group-hover:scale-110 transition-transform drop-shadow-md sm:w-16 sm:h-16" />
+                    <span className="font-retro text-sm sm:text-xl text-white tracking-widest drop-shadow-md">STYLES</span>
+                </button>
+                
+                <button 
+                  disabled
+                  className="flex-1 bg-stone-700 border-b-[6px] border-stone-900 rounded-xl shadow-lg opacity-80 flex flex-col items-center justify-center cursor-not-allowed relative overflow-hidden"
+                >
+                    <div className="absolute inset-0 bg-black/20 pointer-events-none"></div>
+                    <Utensils size={48} className="text-stone-500 mb-2 drop-shadow-md sm:w-16 sm:h-16" />
+                    <span className="font-retro text-sm sm:text-xl text-stone-500 tracking-widest drop-shadow-md">LOCKED</span>
+                </button>
+            </div>
+
+        </div>
+
+      </div>
+    </DeviceLayout>
+  );
+};
+
+export default MainMenu;
