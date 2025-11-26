@@ -3,6 +3,8 @@ export type EntryCategory = 'GRAPES' | 'REGIONS' | 'STYLES' | 'FLAVORS' | 'MASTE
 
 export type RarityTier = 'common' | 'uncommon' | 'rare' | 'epic' | 'noble';
 
+export type ClimateClass = 'maritime' | 'continental' | 'cool' | 'warm' | 'mediterranean';
+
 export interface GrapeCharacteristics {
   tannin: number;        // 0–5
   acid: number;          // 0–5
@@ -62,6 +64,8 @@ export interface WineEntry {
   icon?: string; // Icon identifier
   wineType?: string; // legacy
   tastingProfile?: TastingNote[];
+  climate?: ClimateClass;
+  climateDescription?: string;
   details: {
     origin?: string;
     acidity?: string;
@@ -70,6 +74,7 @@ export interface WineEntry {
     keyRegions?: string[];
     synonyms?: string[];
     classification?: string;
+    subclass?: string;
     soilType?: string;
     notableGrapes?: string[];
     appellations?: string[];

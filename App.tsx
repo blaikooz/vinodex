@@ -4,10 +4,10 @@ import MainMenu from './components/MainMenu';
 import EncyclopediaList from './components/FoodPairingsScreen';
 import EntryDetail from './components/PairingDetail';
 import RegionMapScreen from './components/RegionMapScreen';
-import { WineEntry, EntryCategory } from './types';
+import { WineEntry, EntryCategory, ClimateClass } from './types';
 
 type Screen = 'HOME' | 'LIST' | 'DETAIL' | 'REGION_MAP';
-type FilterMode = 'REGION' | 'TYPE' | 'TASTING' | 'SOIL' | 'ORIGIN' | 'RARITY' | 'SYSTEM' | null;
+type FilterMode = 'REGION' | 'TYPE' | 'TASTING' | 'SOIL' | 'ORIGIN' | 'RARITY' | 'SYSTEM' | 'CLIMATE' | null;
 
 interface AppState {
   screen: Screen;
@@ -78,7 +78,7 @@ const App: React.FC = () => {
       let countries: string[] = [];
       switch(continent) {
           case 'EUROPE': 
-            countries = ['France', 'Italy', 'Spain', 'Germany', 'Portugal', 'Hungary', 'Austria', 'Greece']; 
+            countries = ['France', 'Italy', 'Spain', 'Germany', 'Portugal', 'Hungary', 'Austria', 'Greece', 'Georgia']; 
             break;
           case 'NORTH_AMERICA': 
             countries = ['USA', 'Canada']; 
@@ -93,7 +93,7 @@ const App: React.FC = () => {
             countries = ['South Africa']; 
             break;
           case 'ASIA':
-            countries = ['China', 'Japan', 'India']; 
+            countries = ['China', 'Japan', 'India', 'Georgia']; 
             break;
           default:
             countries = [];
@@ -134,6 +134,11 @@ const App: React.FC = () => {
       pushState({ screen: 'LIST', category: 'GRAPES', filterMode: 'RARITY', filterValue: rarity });
   };
 
+  // 8. Filter by Climate
+  const handleFilterByClimate = (climate: ClimateClass) => {
+      pushState({ screen: 'LIST', category: 'REGIONS', filterMode: 'CLIMATE', filterValue: climate });
+  };
+
   return (
     <div className="antialiased text-gray-900 bg-gray-900 min-h-screen">
       {currentState.screen === 'HOME' && (
@@ -161,6 +166,7 @@ const App: React.FC = () => {
           onFilterByType={handleFilterByType}
           onFilterByNote={handleFilterByNote}
           onFilterByOrigin={handleFilterByOrigin}
+          onFilterByClimate={handleFilterByClimate}
         />
       )}
 
@@ -175,6 +181,7 @@ const App: React.FC = () => {
           onFilterBySoil={handleFilterBySoil}
           onFilterByOrigin={handleFilterByOrigin}
           onFilterByRarity={handleFilterByRarity}
+          onFilterByClimate={handleFilterByClimate}
         />
       )}
     </div>

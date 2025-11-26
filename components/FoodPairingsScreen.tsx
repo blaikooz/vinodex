@@ -1,14 +1,15 @@
 
 import React, { useState, useMemo, useEffect } from "react";
-import { Search, List, Map, Droplet, Grape, Mountain, MapPin, Star, Shield } from "lucide-react";
+import { Search, List, Map, Droplet, Grape, Mountain, MapPin, Star, Shield, Wind } from "lucide-react";
 import EntryTile from "./PairingTile";
 import DeviceLayout from "./DeviceLayout";
 import { WINE_ENTRIES } from "../constants";
-import { WineEntry, EntryCategory } from "../types";
+import { WineEntry, EntryCategory, ClimateClass } from "../types";
+import { CLIMATE_CLASS_MAP, CLIMATE_CLASSES } from "../data/climateClasses";
 
 interface EncyclopediaListProps {
   category: EntryCategory;
-  filterMode: 'REGION' | 'TYPE' | 'TASTING' | 'SOIL' | 'ORIGIN' | 'RARITY' | 'SYSTEM' | null;
+  filterMode: 'REGION' | 'TYPE' | 'TASTING' | 'SOIL' | 'ORIGIN' | 'RARITY' | 'SYSTEM' | 'CLIMATE' | null;
   filterValue: string | string[] | null;
   onSelect: (entry: WineEntry) => void;
   onBack: () => void;
@@ -17,9 +18,10 @@ interface EncyclopediaListProps {
   onFilterByType?: (type: string) => void;
   onFilterByNote?: (note: string) => void;
   onFilterByOrigin?: (origin: string) => void;
+  onFilterByClimate?: (climate: ClimateClass) => void;
 }
 
-export default function EncyclopediaList({ category, filterMode, filterValue, onSelect, onBack, onHome, onFilterByRarity, onFilterByType, onFilterByNote, onFilterByOrigin }: EncyclopediaListProps) {
+export default function EncyclopediaList({ category, filterMode, filterValue, onSelect, onBack, onHome, onFilterByRarity, onFilterByType, onFilterByNote, onFilterByOrigin, onFilterByClimate }: EncyclopediaListProps) {
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedStyle, setSelectedStyle] = useState<string | null>(null);
   const [selectedFlavorClass, setSelectedFlavorClass] = useState<'SWEET' | 'SOUR' | 'SALTY' | 'BITTER' | 'UMAMI' | null>(null);
@@ -74,6 +76,7 @@ export default function EncyclopediaList({ category, filterMode, filterValue, on
         China: ['GI'],
         Japan: ['GI'],
         India: ['GI'],
+        Georgia: ['PDO'],
       };
       const countryEntries: WineEntry[] = countries.map((ct, idx) => ({
         id: `CT-${idx}`,
@@ -119,6 +122,8 @@ export default function EncyclopediaList({ category, filterMode, filterValue, on
              matchesFilter = !!e.details.classification && e.details.classification.toLowerCase() === activeFilterValue.toLowerCase();
         } else if (activeFilterMode === 'RARITY' && typeof activeFilterValue === 'string') {
              matchesFilter = (e.rarity || e.grapeCard?.rarityTier?.toUpperCase()) === activeFilterValue;
+        } else if (activeFilterMode === 'CLIMATE' && typeof activeFilterValue === 'string') {
+             matchesFilter = !!e.climate && e.climate.toLowerCase() === activeFilterValue.toLowerCase();
         }
 
         // Deductive filter for MASTER_SEARCH (grape hunt)
@@ -148,11 +153,12 @@ export default function EncyclopediaList({ category, filterMode, filterValue, on
 
   const getTitle = () => {
       if (category === 'MASTER_SEARCH') return 'DEDUCTIVE SCAN';
-      if (activeFilterMode === 'REGION') return category === 'COUNTRY_GATE' ? "CONTINENT SCAN" : "SECTOR SCAN";
+      if (activeFilterMode === 'REGION') return category === 'COUNTRY_GATE' ? "AREA SCAN" : "SECTOR SCAN";
       if (activeFilterMode === 'TYPE') return "STYLE SCAN";
       if (activeFilterMode === 'TASTING') return "FLAVOR SCAN";
       if (activeFilterMode === 'SOIL') return "GEOLOGY SCAN";
-      if (activeFilterMode === 'ORIGIN') return "ORIGIN SCAN";
+      if (activeFilterMode === 'ORIGIN') return "REGION SCAN";
+      if (activeFilterMode === 'CLIMATE') return "CLIMATE SCAN";
       if (activeFilterMode === 'SYSTEM') return "SYSTEM SCAN";
       
       switch(effectiveCategory) {
@@ -173,6 +179,7 @@ export default function EncyclopediaList({ category, filterMode, filterValue, on
       if (activeFilterMode === 'ORIGIN') return <MapPin size={14} className="text-red-500" />;
       if (activeFilterMode === 'RARITY') return <Star size={14} className="text-yellow-500" />;
       if (activeFilterMode === 'SYSTEM') return <Shield size={14} className="text-amber-500" />;
+      if (activeFilterMode === 'CLIMATE') return <Wind size={14} className="text-sky-400" />;
       return null;
   }
 
@@ -182,9 +189,13 @@ export default function EncyclopediaList({ category, filterMode, filterValue, on
       if (activeFilterMode === 'TYPE') return `FILTER: ${val}`;
       if (activeFilterMode === 'TASTING') return `FILTER: ${val}`;
       if (activeFilterMode === 'SOIL') return `FILTER: ${val}`;
-      if (activeFilterMode === 'ORIGIN') return `FILTER: ${val}`;
+      if (activeFilterMode === 'ORIGIN') return `FILTER: REGION ${val}`;
       if (activeFilterMode === 'RARITY') return `FILTER: ${val} RARITY`;
       if (activeFilterMode === 'SYSTEM') return `FILTER: ${val} SYSTEM`;
+      if (activeFilterMode === 'CLIMATE') {
+        const label = typeof activeFilterValue === 'string' ? CLIMATE_CLASS_MAP[activeFilterValue as ClimateClass]?.name || val : val;
+        return `FILTER: ${label} CLIMATE`;
+      }
       return "";
   }
 
@@ -286,6 +297,7 @@ export default function EncyclopediaList({ category, filterMode, filterValue, on
                               onFilterByType={onFilterByType}
                               onFilterByNote={onFilterByNote}
                               onFilterByOrigin={onFilterByOrigin}
+                              onFilterByClimate={onFilterByClimate}
                           />
                           ))}
                   </div>
@@ -349,6 +361,7 @@ export default function EncyclopediaList({ category, filterMode, filterValue, on
                               onPress={onSelect}
                               index={index}
                               onFilterByRarity={onFilterByRarity}
+                              onFilterByClimate={onFilterByClimate}
                           />
                           ))}
                   </div>

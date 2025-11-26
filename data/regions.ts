@@ -1,8 +1,71 @@
-import { WineEntry } from '../types';
+import { WineEntry, ClimateClass } from '../types';
 
 const C = { deepBordeaux: '#722F37', rubyRed: '#9B2335', burgundy: '#800020', merlot: '#73343A', rose: '#C48B8B', blush: '#D4A5A5', golden: '#C9A227', champagne: '#D4B896', amber: '#C67530', mahogany: '#5D3A1A' };
 
-export const REGIONS: WineEntry[] = [
+const REGION_CLIMATES: Record<string, { climate: ClimateClass; description?: string }> = {
+  R001: { climate: 'maritime', description: 'Atlantic influence moderates growing seasons.' },
+  R002: { climate: 'continental' },
+  R003: { climate: 'cool' },
+  R004: { climate: 'warm' },
+  R005: { climate: 'cool' },
+  R006: { climate: 'continental' },
+  R007: { climate: 'mediterranean' },
+  R008: { climate: 'continental' },
+  R009: { climate: 'mediterranean' },
+  R010: { climate: 'cool' },
+  R011: { climate: 'maritime' },
+  R012: { climate: 'cool' },
+  R013: { climate: 'warm' },
+  R014: { climate: 'maritime', description: 'Pacific fog and breezes temper ripening.' },
+  R015: { climate: 'cool' },
+  R016: { climate: 'warm' },
+  R017: { climate: 'continental' },
+  R018: { climate: 'cool', description: 'Ocean-cooled valleys with strong diurnal shift.' },
+  R019: { climate: 'cool' },
+  R020: { climate: 'warm' },
+  R021: { climate: 'mediterranean' },
+  R022: { climate: 'continental' },
+  R023: { climate: 'continental' },
+  R024: { climate: 'mediterranean' },
+  R025: { climate: 'mediterranean' },
+  R026: { climate: 'cool' },
+  R027: { climate: 'cool' },
+  R028: { climate: 'mediterranean' },
+  R029: { climate: 'mediterranean' },
+  R030: { climate: 'continental' },
+  R031: { climate: 'continental' },
+  R032: { climate: 'mediterranean' },
+  R033: { climate: 'maritime' },
+  R034: { climate: 'continental' },
+  R035: { climate: 'warm' },
+  R036: { climate: 'warm' },
+  R037: { climate: 'maritime' },
+  R038: { climate: 'cool' },
+  R039: { climate: 'cool' },
+  R040: { climate: 'continental' },
+  R041: { climate: 'warm' },
+  R042: { climate: 'maritime' },
+  R043: { climate: 'cool' },
+  R044: { climate: 'cool' },
+  R045: { climate: 'continental' },
+  R046: { climate: 'warm' },
+  R047: { climate: 'warm' },
+  R048: { climate: 'mediterranean' },
+  R049: { climate: 'continental' },
+  R050: { climate: 'continental' },
+  R051: { climate: 'cool' },
+  R052: { climate: 'cool' },
+  R053: { climate: 'warm' },
+  R054: { climate: 'warm' },
+  R055: { climate: 'warm' },
+  R056: { climate: 'cool' },
+  R057: { climate: 'warm' },
+  R058: { climate: 'continental' },
+  R059: { climate: 'continental' },
+  R060: { climate: 'continental' },
+};
+
+const REGION_BASE: WineEntry[] = [
   { id: "R001", name: "Bordeaux", description: "The world's most famous wine region, renowned for its prestigious blends of Cabernet Sauvignon and Merlot. Its classification system and château culture have set the standard for fine wine globally.", category: "REGIONS", color: C.deepBordeaux, icon: "mountain", tags: ["France", "Blends"], details: { origin: "France", notableGrapes: ["Cabernet Sauvignon", "Merlot", "Cabernet Franc"], classification: "AOC", appellations: ["Pauillac", "Margaux", "Saint-Julien", "Saint-Émilion", "Pomerol", "Pessac-Léognan", "Sauternes"] } },
   { id: "R002", name: "Burgundy", description: "The spiritual home of Pinot Noir and Chardonnay, where terroir is expressed with unmatched precision. Its complex hierarchy of vineyards spans from regional wines to legendary Grand Crus.", category: "REGIONS", color: C.rubyRed, icon: "mountain", tags: ["France", "Terroir"], details: { origin: "France", notableGrapes: ["Pinot Noir", "Chardonnay"], classification: "AOC", appellations: ["Gevrey-Chambertin", "Vosne-Romanée", "Meursault", "Puligny-Montrachet", "Nuits-Saint-Georges", "Pommard"] } },
   { id: "R003", name: "Champagne", description: "The only region that can legally produce true Champagne, using the traditional method of secondary fermentation in bottle. Its chalky soils and cool climate create wines of exceptional finesse and elegance.", category: "REGIONS", color: C.champagne, icon: "sparkles", tags: ["France", "Sparkling"], details: { origin: "France", notableGrapes: ["Chardonnay", "Pinot Noir", "Pinot Meunier"], classification: "AOC", appellations: ["Montagne de Reims", "Côte des Blancs", "Vallée de la Marne"] } },
@@ -60,4 +123,17 @@ export const REGIONS: WineEntry[] = [
   { id: "R055", name: "Swartland", description: "Swartland's old bush vines and granite soils craft textured Chenin Blanc and soulful Rhône-style reds with minimal intervention.", category: "REGIONS", color: C.mahogany, icon: "flame", tags: ["South Africa", "Chenin"], details: { origin: "South Africa", notableGrapes: ["Chenin Blanc", "Syrah", "Grenache"], classification: "WO", soilType: "Granite, shale" } },
   { id: "R056", name: "Walker Bay", description: "A cool, ocean-swept corner famed for Hemel-en-Aarde Pinot Noir and Chardonnay, delivering Burgundian elegance with South African sunshine.", category: "REGIONS", color: C.rose, icon: "droplet", tags: ["South Africa", "Cool Climate"], details: { origin: "South Africa", notableGrapes: ["Pinot Noir", "Chardonnay"], classification: "WO", soilType: "Clay, shale" } },
   { id: "R057", name: "Paarl & Franschhoek", description: "Historic valleys east of Stellenbosch producing rich reds, fynbos-scented whites, and South Africa's marquee Cap Classique sparklers.", category: "REGIONS", color: C.deepBordeaux, icon: "sparkles", tags: ["South Africa", "Cap Classique"], details: { origin: "South Africa", notableGrapes: ["Cabernet Sauvignon", "Chenin Blanc", "Pinotage"], classification: "WO", soilType: "Granite, sandstone" } },
+  { id: "R058", name: "Kakheti", description: "Georgia's eastern cradle of wine, famous for skin-contact amber wines and powerful Saperavi reds fermented in buried qvevri.", category: "REGIONS", color: C.amber, icon: "sun", tags: ["Georgia", "Qvevri"], details: { origin: "Georgia", notableGrapes: ["Saperavi", "Rkatsiteli", "Kisi"], classification: "PDO", soilType: "Alluvial, clay" } },
+  { id: "R059", name: "Kartli", description: "Highland vineyards near Tbilisi yielding elegant sparkling Chinuri and balanced qvevri whites with alpine freshness.", category: "REGIONS", color: C.champagne, icon: "sparkles", tags: ["Georgia", "Highland"], details: { origin: "Georgia", notableGrapes: ["Chinuri", "Goruli Mtsvane"], classification: "PDO", soilType: "Limestone, clay" } },
+  { id: "R060", name: "Imereti", description: "Western Georgia's humid hills where partial qvevri fermentations craft brighter, mineral-driven amber and red wines.", category: "REGIONS", color: C.golden, icon: "leaf", tags: ["Georgia", "Mineral"], details: { origin: "Georgia", notableGrapes: ["Tsolikouri", "Otskhanuri Sapere"], classification: "PDO", soilType: "Clay, sandstone" } },
 ];
+
+export const REGIONS: WineEntry[] = REGION_BASE.map((region) => {
+  const climate = REGION_CLIMATES[region.id];
+  if (!climate) return region;
+  return {
+    ...region,
+    climate: climate.climate,
+    climateDescription: climate.description,
+  };
+});

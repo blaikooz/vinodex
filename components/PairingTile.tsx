@@ -1,6 +1,8 @@
 import React from 'react';
-import { WineEntry } from '../types';
+import { ClimateClass, WineEntry } from '../types';
 import { ChevronRight, Droplet, Heart, Sun, Cloud, Castle, Mountain, Triangle, Sparkles, Circle, Shield, Grape, Leaf, Flame, Zap, Globe, Cherry, Wine, Citrus, Flower2, Apple, Sprout, Gem, Trees, Wind, GlassWater, Droplets, Scale, Box } from 'lucide-react';
+import { getStylePalette } from '../stylePalette';
+import { CLIMATE_CLASS_MAP } from '../data/climateClasses';
 
 interface EntryTileProps {
   entry: WineEntry;
@@ -10,6 +12,7 @@ interface EntryTileProps {
   onFilterByType?: (type: string) => void;
   onFilterByNote?: (note: string) => void;
   onFilterByOrigin?: (origin: string) => void;
+  onFilterByClimate?: (climate: ClimateClass) => void;
 }
 
 // Generic icons for non-grape entries
@@ -42,8 +45,26 @@ const ICON_MAP: Record<string, React.ReactNode> = {
   default: <Grape size={20} fill="currentColor" className="text-white opacity-90" />
 };
 
+const isLightColor = (hex: string) => {
+  const clean = hex.replace('#', '');
+  const r = parseInt(clean.substring(0, 2), 16);
+  const g = parseInt(clean.substring(2, 4), 16);
+  const b = parseInt(clean.substring(4, 6), 16);
+  return (0.299 * r + 0.587 * g + 0.114 * b) > 160;
+};
+
+const getClimateStyle = (climate?: ClimateClass) => {
+  if (!climate) return null;
+  const meta = CLIMATE_CLASS_MAP[climate];
+  if (!meta) return null;
+  return { backgroundColor: meta.colors.bg, borderColor: meta.colors.border, color: meta.colors.text };
+};
+
 // Get grape icon color based on wine type and body - red grapes get red shades, white grapes get gold shades
 const getGrapeIconColor = (wineType: string | undefined, body: string | undefined) => {
+  const palette = getStylePalette(wineType);
+  if (palette) return palette.primary;
+
   if (!wineType) return '#78716c';
   
   const type = wineType.toLowerCase();
@@ -78,6 +99,12 @@ const getGrapeIconColor = (wineType: string | undefined, body: string | undefine
 
 // Get wine type text style for badge
 const getWineTypeStyle = (wineType: string | undefined) => {
+  const palette = getStylePalette(wineType);
+  if (palette) {
+    const textColor = isLightColor(palette.primary) ? palette.secondary : '#fff';
+    return { bg: '', text: '', border: '', style: { backgroundColor: palette.primary, borderColor: palette.secondary, color: textColor } as React.CSSProperties };
+  }
+
   if (!wineType) return { bg: 'bg-stone-600', text: 'text-stone-200', border: 'border-stone-500' };
   
   const type = wineType.toLowerCase();
@@ -146,6 +173,18 @@ const getGrapeIcon = (entry: WineEntry): React.ReactNode => {
   return <Grape size={20} fill="currentColor" className="text-white opacity-90" />;
 };
 
+const getGrapeFlavorIcon = (entry: WineEntry): React.ReactNode => {
+  const note = entry.tastingProfile?.[0];
+  if (!note) return getGrapeIcon(entry);
+  const IconComp = ICON_MAP[note.icon] || ICON_MAP['default'];
+  return React.isValidElement(IconComp)
+    ? React.cloneElement(IconComp as React.ReactElement, {
+        className: 'opacity-90',
+        style: { color: note.color },
+      })
+    : IconComp;
+};
+
 const getStyleClassType = (name: string, classification?: string) => {
   const normalized = name.toLowerCase();
   const classOverride = classification?.toUpperCase();
@@ -203,6 +242,54 @@ const getFlavorClassStyle = (cls?: string) => {
   }
 };
 
+const getFlavorSubclassStyle = (sub?: string) => {
+  switch ((sub || '').toUpperCase()) {
+    case 'VEGETAL': return { bg: 'bg-emerald-950', text: 'text-emerald-100', border: 'border-emerald-700' };
+    case 'EARTH': return { bg: 'bg-stone-800', text: 'text-stone-100', border: 'border-stone-600' };
+    case 'SPICE': return { bg: 'bg-amber-900', text: 'text-amber-100', border: 'border-amber-600' };
+    case 'HERBAL': return { bg: 'bg-teal-900', text: 'text-teal-100', border: 'border-teal-600' };
+    case 'MARINE': return { bg: 'bg-sky-900', text: 'text-sky-100', border: 'border-sky-600' };
+    case 'CITRUS': return { bg: 'bg-amber-950', text: 'text-amber-100', border: 'border-amber-600' };
+    case 'ORCHARD_FRUIT': return { bg: 'bg-lime-800', text: 'text-lime-50', border: 'border-lime-600' };
+    case 'STONE_FRUIT': return { bg: 'bg-amber-900', text: 'text-amber-50', border: 'border-amber-600' };
+    case 'TROPICAL': return { bg: 'bg-yellow-900', text: 'text-yellow-100', border: 'border-yellow-700' };
+    case 'RED_FRUIT': return { bg: 'bg-red-900', text: 'text-red-100', border: 'border-red-600' };
+    case 'DARK_FRUIT': return { bg: 'bg-purple-900', text: 'text-purple-100', border: 'border-purple-700' };
+    case 'BAKING': return { bg: 'bg-orange-900', text: 'text-orange-100', border: 'border-orange-600' };
+    case 'WAX': return { bg: 'bg-amber-950', text: 'text-amber-100', border: 'border-amber-700' };
+    case 'NUT': return { bg: 'bg-amber-900', text: 'text-amber-100', border: 'border-amber-600' };
+    case 'FLORAL': return { bg: 'bg-pink-900', text: 'text-pink-100', border: 'border-pink-600' };
+    default: return { bg: 'bg-stone-700', text: 'text-stone-200', border: 'border-stone-500' };
+  }
+};
+
+const formatLabel = (label?: string) => {
+  if (!label) return '';
+  return label
+    .toLowerCase()
+    .split('_')
+    .map(part => part.charAt(0).toUpperCase() + part.slice(1))
+    .join(' ');
+};
+
+const formatLabelUpper = (label?: string) => {
+  if (!label) return '';
+  return label.replace(/_/g, ' ').toUpperCase();
+};
+
+const formatTitle = (value?: string) => {
+  if (!value) return '';
+  return value
+    .split(/[\s_-]+/)
+    .map(part => part.charAt(0).toUpperCase() + part.slice(1))
+    .join(' ');
+};
+
+const formatUpper = (value?: string) => {
+  if (!value) return '';
+  return value.replace(/_/g, ' ').toUpperCase();
+};
+
 // Get country color
 const getCountryColor = (country: string) => {
   const colors: Record<string, { bg: string, text: string, border: string }> = {
@@ -224,6 +311,7 @@ const getCountryColor = (country: string) => {
     'China': { bg: 'bg-yellow-800', text: 'text-yellow-50', border: 'border-yellow-600' },
     'Japan': { bg: 'bg-rose-800', text: 'text-rose-50', border: 'border-rose-600' },
     'India': { bg: 'bg-amber-800', text: 'text-amber-50', border: 'border-amber-600' },
+    'Georgia': { bg: 'bg-amber-900', text: 'text-amber-50', border: 'border-amber-600' },
     'Uruguay': { bg: 'bg-purple-900', text: 'text-purple-100', border: 'border-purple-700' },
     'Croatia': { bg: 'bg-blue-800', text: 'text-blue-50', border: 'border-blue-600' },
   };
@@ -247,6 +335,9 @@ const getClassificationStyle = (classification?: string) => {
 };
 
 const getIconInnerColor = (wineType?: string) => {
+  const palette = getStylePalette(wineType);
+  if (palette) return palette.secondary;
+
   const t = wineType?.toLowerCase() || '';
   if (t.includes('full-bodied red') || t.includes('full bodied red')) return '#5a0f18'; // Deep Garnet
   if (t.includes('bright red')) return '#dc143c'; // Crimson
@@ -263,17 +354,18 @@ const getIconInnerColor = (wineType?: string) => {
   return '#ffffff';
 };
 
-const EntryTile: React.FC<EntryTileProps> = ({ entry, onPress, index, onFilterByRarity, onFilterByType, onFilterByNote, onFilterByOrigin }) => {
+const EntryTile: React.FC<EntryTileProps> = ({ entry, onPress, index, onFilterByRarity, onFilterByType, onFilterByNote, onFilterByOrigin, onFilterByClimate }) => {
   const isGrape = entry.category === 'GRAPES';
   const isRegion = entry.category === 'REGIONS';
   const isCountryGate = entry.category === 'COUNTRY_GATE';
   const isStyle = entry.category === 'STYLES';
   const isFlavor = entry.category === 'FLAVORS';
   const grapeCard = entry.grapeCard;
+  const climateMeta = entry.climate ? CLIMATE_CLASS_MAP[entry.climate] : undefined;
   
   // Get icon and color for grapes based on wine type
   const wineTypeStyle = isGrape ? getWineTypeStyle(grapeCard?.style || entry.wineType) : null;
-  const grapeIconElement = isGrape ? getGrapeIcon({ ...entry, wineType: grapeCard?.style || entry.wineType } as WineEntry) : null;
+  const grapeIconElement = isGrape ? getGrapeFlavorIcon({ ...entry, wineType: grapeCard?.style || entry.wineType } as WineEntry) : null;
   const genericIcon = ICON_MAP[entry.icon || 'default'] || ICON_MAP['default'];
   
   // Get country for regions
@@ -285,6 +377,7 @@ const EntryTile: React.FC<EntryTileProps> = ({ entry, onPress, index, onFilterBy
   const styleColorStyle = getColorTypeStyle(styleColorType);
   const styleCountryStyle = entry.details.origin ? getCountryColor(entry.details.origin) : null;
   const flavorClassStyle = isFlavor ? getFlavorClassStyle(entry.details.classification) : null;
+  const flavorSubclassStyle = isFlavor ? getFlavorSubclassStyle(entry.details.subclass) : null;
 
   const getRarityStyle = (rarity: string) => {
     switch (rarity) {
@@ -293,34 +386,6 @@ const EntryTile: React.FC<EntryTileProps> = ({ entry, onPress, index, onFilterBy
       case 'RARE': return 'bg-blue-900 text-blue-300 border-blue-700';
       case 'NOBLE': return 'bg-purple-900 text-purple-200 border-purple-700';
       default: return 'bg-stone-600 text-stone-200 border-stone-500';
-    }
-  };
-
-  const handleRarityClick = (e: React.MouseEvent) => {
-    e.stopPropagation();
-    if (onFilterByRarity) {
-      onFilterByRarity(entry.rarity);
-    }
-  };
-
-  const handleTypeClick = (e: React.MouseEvent, type?: string) => {
-    e.stopPropagation();
-    if (type && onFilterByType) {
-      onFilterByType(type);
-    }
-  };
-
-  const handleNoteClick = (e: React.MouseEvent, note?: string) => {
-    e.stopPropagation();
-    if (note && onFilterByNote) {
-      onFilterByNote(note);
-    }
-  };
-
-  const handleOriginClick = (e: React.MouseEvent, origin?: string) => {
-    e.stopPropagation();
-    if (origin && onFilterByOrigin) {
-      onFilterByOrigin(origin);
     }
   };
 
@@ -362,17 +427,13 @@ const EntryTile: React.FC<EntryTileProps> = ({ entry, onPress, index, onFilterBy
       const badge = getFlagBadge(entry.details.origin || entry.name);
       return { backgroundImage: badge.colors, color: '#fff' } as React.CSSProperties;
     }
-    return { backgroundColor: getIconBgColor(), color: isGrape ? iconColor : undefined } as React.CSSProperties;
+    return { backgroundColor: getIconBgColor() } as React.CSSProperties;
   };
 
-  const iconColor = isGrape ? getIconInnerColor(grapeCard?.style || entry.wineType) : '#ffffff';
   const renderedIcon = isCountryGate
     ? null
     : isGrape && React.isValidElement(grapeIconElement)
-      ? React.cloneElement(grapeIconElement as React.ReactElement, {
-          className: 'opacity-90',
-          style: { ...(grapeIconElement as React.ReactElement).props.style, color: iconColor }
-        })
+      ? grapeIconElement
       : genericIcon;
 
   return (
@@ -407,20 +468,19 @@ const EntryTile: React.FC<EntryTileProps> = ({ entry, onPress, index, onFilterBy
                 <>
                   {/* Wine Type Tag */}
                   {grapeCard?.style && wineTypeStyle && (
-                    <button
+                    <span
                       className={`px-1.5 py-0.5 text-[9px] font-mono border rounded-sm tracking-wide shrink-0 ${wineTypeStyle.bg} ${wineTypeStyle.text} ${wineTypeStyle.border}`}
-                      onClick={(e) => handleTypeClick(e, grapeCard.style)}
+                      style={wineTypeStyle.style}
                     >
                       {grapeCard.style.toUpperCase()}
-                    </button>
+                    </span>
                   )}
-                  {/* Rarity Tag - Clickable */}
+                  {/* Rarity Tag */}
                   <span 
-                    className={`px-1.5 py-0.5 text-[9px] font-mono border rounded-sm tracking-wide shrink-0 cursor-pointer hover:brightness-125 transition-all ${getRarityStyle(entry.rarity)}`}
-                    onClick={handleRarityClick}
-                    title="Click to filter by rarity"
+                    className={`px-1.5 py-0.5 text-[9px] font-mono border rounded-sm tracking-wide shrink-0 ${getRarityStyle(entry.rarity)}`}
+                    title="Rarity"
                   >
-                    {entry.rarity || grapeCard?.rarityTier?.toUpperCase()}
+                    {formatTitle(entry.rarity || grapeCard?.rarityTier)}
                   </span>
                 </>
               )}
@@ -428,21 +488,28 @@ const EntryTile: React.FC<EntryTileProps> = ({ entry, onPress, index, onFilterBy
               {/* REGIONS: Show only Country */}
               {isRegion && countryStyle && (
                 <>
-                  <button
+                  <span
                     className={`px-1.5 py-0.5 text-[9px] font-mono border rounded-sm tracking-wide shrink-0 ${countryStyle.bg} ${countryStyle.text} ${countryStyle.border}`}
-                    onClick={(e) => handleOriginClick(e, country)}
                   >
-                    {country.toUpperCase()}
-                  </button>
+                    {formatUpper(country)}
+                  </span>
                   {entry.details.classification && (
                     (() => {
                       const clsStyle = getClassificationStyle(entry.details.classification);
                       return (
                         <span className={`px-1.5 py-0.5 text-[9px] font-mono border rounded-sm tracking-wide shrink-0 ${clsStyle.bg} ${clsStyle.text} ${clsStyle.border}`}>
-                          {entry.details.classification.toUpperCase()}
+                          {formatUpper(entry.details.classification)}
                         </span>
                       );
                     })()
+                  )}
+                  {climateMeta && getClimateStyle(entry.climate) && (
+                    <span
+                      className="px-1.5 py-0.5 text-[9px] font-mono border rounded-sm tracking-wide shrink-0"
+                      style={getClimateStyle(entry.climate) as React.CSSProperties}
+                    >
+                      {formatUpper(climateMeta.name)}
+                    </span>
                   )}
                 </>
               )}
@@ -452,7 +519,7 @@ const EntryTile: React.FC<EntryTileProps> = ({ entry, onPress, index, onFilterBy
                 <>
                   {entry.tags.map((tag, i) => (
                     <span key={i} className="px-1.5 py-0.5 bg-stone-800 text-amber-200 border border-amber-600 text-[9px] font-mono rounded-sm tracking-wide shrink-0">
-                      {tag.toUpperCase()}
+                      {formatTitle(tag)}
                     </span>
                   ))}
                 </>
@@ -462,29 +529,43 @@ const EntryTile: React.FC<EntryTileProps> = ({ entry, onPress, index, onFilterBy
               {!isGrape && !isRegion && !isCountryGate && (
                 <>
                   {isStyle && styleClassType && (
-                    <span className={`px-1.5 py-0.5 text-[9px] font-mono border rounded-sm tracking-wide shrink-0 ${styleClassStyle.bg} ${styleClassStyle.text} ${styleClassStyle.border}`}>
-                      {styleClassType}
-                    </span>
+                    <button
+                      onClick={() => onFilterByNote?.(styleClassType)}
+                      className={`px-1.5 py-0.5 text-[9px] font-mono border rounded-sm tracking-wide shrink-0 ${styleClassStyle.bg} ${styleClassStyle.text} ${styleClassStyle.border}`}
+                    >
+                      {formatTitle(styleClassType)}
+                    </button>
                   )}
                   {isStyle && styleColorType && (
-                    <span className={`px-1.5 py-0.5 text-[9px] font-mono border rounded-sm tracking-wide shrink-0 ${styleColorStyle.bg} ${styleColorStyle.text} ${styleColorStyle.border}`}>
-                      {styleColorType}
-                    </span>
+                    <button
+                      onClick={() => onFilterByType?.(styleColorType)}
+                      className={`px-1.5 py-0.5 text-[9px] font-mono border rounded-sm tracking-wide shrink-0 ${styleColorStyle.bg} ${styleColorStyle.text} ${styleColorStyle.border}`}
+                    >
+                      {formatTitle(styleColorType)}
+                    </button>
                   )}
                   {isStyle && styleClassType === 'ORIGIN' && styleCountryStyle && (
                     <button
+                      onClick={() => entry.details.origin && onFilterByOrigin?.(entry.details.origin)}
                       className={`px-1.5 py-0.5 text-[9px] font-mono border rounded-sm tracking-wide shrink-0 ${styleCountryStyle.bg} ${styleCountryStyle.text} ${styleCountryStyle.border}`}
-                      onClick={(e) => handleOriginClick(e, entry.details.origin)}
                     >
-                      {(entry.details.origin || '').toUpperCase()}
+                      {formatUpper(entry.details.origin || '')}
                     </button>
                   )}
                   {isFlavor && flavorClassStyle && (
                     <button
+                      onClick={() => onFilterByNote?.(entry.details.classification || 'FLAVOR')}
                       className={`px-1.5 py-0.5 text-[9px] font-mono border rounded-sm tracking-wide shrink-0 ${flavorClassStyle.bg} ${flavorClassStyle.text} ${flavorClassStyle.border}`}
-                      onClick={(e) => handleNoteClick(e, entry.details.classification || entry.name)}
                     >
-                      {(entry.details.classification || 'FLAVOR').toUpperCase()}
+                      {formatLabelUpper(entry.details.classification || 'FLAVOR')}
+                    </button>
+                  )}
+                  {isFlavor && flavorSubclassStyle && (
+                    <button
+                      onClick={() => onFilterByNote?.(entry.details.subclass || 'SUBCLASS')}
+                      className={`px-1.5 py-0.5 text-[9px] font-mono border rounded-sm tracking-wide shrink-0 ${flavorSubclassStyle.bg} ${flavorSubclassStyle.text} ${flavorSubclassStyle.border}`}
+                    >
+                      {formatLabelUpper(entry.details.subclass || 'SUBCLASS')}
                     </button>
                   )}
                 </>
