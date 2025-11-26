@@ -21,6 +21,7 @@ const DeviceLayout: React.FC<DeviceLayoutProps> = ({
   onHome,
   hideHeader = false
 }) => {
+
   return (
     <div className="flex justify-center items-center min-h-screen bg-neutral-900 p-0 md:p-4 font-mono h-screen md:h-auto overflow-hidden">
       {/* Device Chassis - Red Pokedex Style */}
@@ -37,9 +38,9 @@ const DeviceLayout: React.FC<DeviceLayoutProps> = ({
               </div>
            </div>
            
-           {/* Center: Logo Text - Smaller & Centered */}
-           <div className="relative z-20 ml-6"> 
-              <h1 className="font-retro text-4xl text-white italic tracking-tighter drop-shadow-md transform -skew-x-12 whitespace-nowrap" style={{ textShadow: '2px 2px 0px #89061C' }}>
+           {/* Center: Logo Text */}
+           <div className="relative z-20 flex flex-col items-center justify-center gap-1">
+              <h1 className="font-retro text-3xl md:text-4xl text-white italic tracking-tighter drop-shadow-md transform -skew-x-12 whitespace-nowrap px-2" style={{ textShadow: '2px 2px 0px #89061C' }}>
                 VINODEX
               </h1>
            </div>
@@ -60,7 +61,7 @@ const DeviceLayout: React.FC<DeviceLayoutProps> = ({
             
             {/* Top Status Bar (Software) - Conditionally Rendered */}
             {!hideHeader && (
-              <div className="h-14 bg-dex-red shrink-0 flex justify-between items-center px-4 z-30 border-b-2 border-dex-darkRed shadow-sm">
+              <div className="h-16 bg-dex-red shrink-0 flex justify-between items-center px-4 z-30 border-b-2 border-dex-darkRed shadow-sm">
                 <div className="flex items-center w-12">
                   {showBack && (
                     <button onClick={onBack} className="text-white hover:text-yellow-300 transition-colors active:scale-90 p-2 -ml-2">
@@ -69,9 +70,16 @@ const DeviceLayout: React.FC<DeviceLayoutProps> = ({
                   )}
                 </div>
                 
-                <h1 className="text-white font-retro text-sm sm:text-base uppercase tracking-widest truncate text-center flex-1">
-                  {title}
-                </h1>
+                <div className="flex flex-col items-center flex-1 min-w-0">
+                  <h1 className="text-white font-retro text-base sm:text-lg uppercase tracking-widest truncate text-center w-full leading-tight">
+                    {title}
+                  </h1>
+                  {subtitle && (
+                    <p className="text-yellow-200 font-mono text-xs sm:text-sm tracking-widest text-center truncate w-full">
+                      {subtitle}
+                    </p>
+                  )}
+                </div>
                 
                 <div className="flex items-center w-12 justify-end">
                   <button onClick={onHome} className="text-white hover:text-yellow-300 transition-colors active:scale-90 p-2 -mr-2">

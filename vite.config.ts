@@ -71,6 +71,9 @@ export default defineConfig({
       '@': path.resolve(__dirname, '.'),
     }
   },
+  build: {
+    target: 'es2019'
+  },
   css: {
     postcss: './postcss.config.js'
   }

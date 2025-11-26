@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { Grape, Map, Layers, Utensils, Search } from 'lucide-react';
+import { Grape, Map, Layers, Search, Utensils } from 'lucide-react';
 import DeviceLayout from './DeviceLayout';
 import { EntryCategory } from '../types';
 
@@ -75,12 +75,12 @@ const MainMenu: React.FC<MainMenuProps> = ({ onNavigate }) => {
                 </button>
                 
                 <button 
-                  disabled
-                  className="flex-1 bg-stone-700 border-b-[6px] border-stone-900 rounded-xl shadow-lg opacity-80 flex flex-col items-center justify-center cursor-not-allowed relative overflow-hidden"
+                  onClick={() => onNavigate('FLAVORS')}
+                  className="flex-1 bg-emerald-500 border-b-[6px] border-emerald-800 rounded-xl shadow-lg active:translate-y-1 active:border-b-0 transition-all flex flex-col items-center justify-center group hover:bg-emerald-400 relative overflow-hidden"
                 >
-                    <div className="absolute inset-0 bg-black/20 pointer-events-none"></div>
-                    <Utensils size={48} className="text-stone-500 mb-2 drop-shadow-md sm:w-16 sm:h-16" />
-                    <span className="font-retro text-sm sm:text-xl text-stone-500 tracking-widest drop-shadow-md">LOCKED</span>
+                    <div className="absolute inset-0 bg-gradient-to-br from-white/10 to-transparent pointer-events-none"></div>
+                    <Utensils size={48} className="text-white mb-2 group-hover:scale-110 transition-transform drop-shadow-md sm:w-16 sm:h-16" />
+                    <span className="font-retro text-sm sm:text-xl text-white tracking-widest drop-shadow-md">FLAVORS</span>
                 </button>
             </div>
 

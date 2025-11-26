@@ -1,9 +1,54 @@
 
-export type EntryCategory = 'GRAPES' | 'REGIONS' | 'STYLES' | 'PAIRINGS' | 'MASTER_SEARCH';
+export type EntryCategory = 'GRAPES' | 'REGIONS' | 'STYLES' | 'FLAVORS' | 'MASTER_SEARCH' | 'COUNTRY_GATE';
+
+export type RarityTier = 'common' | 'uncommon' | 'rare' | 'epic' | 'noble';
+
+export interface GrapeCharacteristics {
+  tannin: number;        // 0–5
+  acid: number;          // 0–5
+  colorIntensity: number;// 0–5
+  aromatics: number;     // 0–5
+  body: number;          // 0–5
+}
+
+export interface RegionAffinity {
+  region: string;
+  bonus: string; // e.g. "+2 Structure"
+}
+
+export interface GrapeCard {
+  id: string;
+  name: string;
+  type: 'red' | 'white';
+  style: string; // e.g., "full-bodied red"
+  countryOfOrigin: string;
+  alternateNames: string[];
+  rarityTier: RarityTier;
+  evolutionLine?: string[];
+  signatureMove?: string;
+  discoveryYear?: number;
+  regionAffinity?: RegionAffinity[];
+  characteristics: GrapeCharacteristics;
+  tastingProfile: string[];
+  notableRegions: string[];
+  info: string;
+  // cross-links
+  styleId?: string;
+}
+
+export interface WineStyle {
+  id: string;
+  name: string;
+  type: 'red' | 'white';
+  description: string;
+  tastingProfile?: TastingNote[];
+  notableGrapes?: string[];
+  keyRegions?: string[];
+}
 
 export interface TastingNote {
   note: string;
-  icon: 'circle' | 'triangle' | 'leaf' | 'cloud' | 'sun' | 'mountain' | 'sparkles' | 'flame' | 'droplet' | 'shield';
+  icon: 'circle' | 'triangle' | 'leaf' | 'cloud' | 'sun' | 'mountain' | 'sparkles' | 'flame' | 'droplet' | 'shield' | 'flower' | 'fruit' | 'herb' | 'spice' | 'mineral' | 'oak' | 'smoke' | 'stone' | 'tropical' | 'flag' | 'honey' | 'nut' | 'default';
   color: string;
 }
 
@@ -12,11 +57,10 @@ export interface WineEntry {
   name: string;
   description: string;
   category: EntryCategory;
-  rarity?: 'COMMON' | 'UNCOMMON' | 'RARE' | 'LEGENDARY'; // Only used for GRAPES
   tags: string[];
   color: string; // The primary color for the card/badge
   icon?: string; // Icon identifier
-  wineType?: string; // e.g., "Full-Bodied Red", "Zesty White"
+  wineType?: string; // legacy
   tastingProfile?: TastingNote[];
   details: {
     origin?: string;
@@ -28,8 +72,10 @@ export interface WineEntry {
     classification?: string;
     soilType?: string;
     notableGrapes?: string[];
-    appellations?: string[]; // For regions with sub-appellations or crus
+    appellations?: string[];
   };
+  rarity?: 'COMMON' | 'UNCOMMON' | 'RARE' | 'NOBLE';
+  grapeCard?: GrapeCard;
 }
 
 export interface Pairing {

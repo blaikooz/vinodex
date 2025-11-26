@@ -99,8 +99,7 @@ vinodex/
 │   ├── FoodPairingsScreen.tsx  # List view
 │   ├── PairingDetail.tsx   # Detail view
 │   ├── PairingTile.tsx     # List item component
-│   ├── RegionMapScreen.tsx # Interactive map
-│   └── PairingModal.tsx    # Modal component
+│   └── RegionMapScreen.tsx # Interactive map
 ├── public/              # Static assets
 │   └── icon.svg           # App icon
 ├── App.tsx             # Main app component

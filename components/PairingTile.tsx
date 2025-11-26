@@ -1,12 +1,15 @@
 import React from 'react';
 import { WineEntry } from '../types';
-import { ChevronRight, Droplet, Heart, Sun, Cloud, Castle, Mountain, Triangle, Sparkles, Circle, Shield, Grape, Leaf, Flame, Zap, Globe, Cherry, Wine, Citrus, Coffee } from 'lucide-react';
+import { ChevronRight, Droplet, Heart, Sun, Cloud, Castle, Mountain, Triangle, Sparkles, Circle, Shield, Grape, Leaf, Flame, Zap, Globe, Cherry, Wine, Citrus, Flower2, Apple, Sprout, Gem, Trees, Wind, GlassWater, Droplets, Scale, Box } from 'lucide-react';
 
 interface EntryTileProps {
   entry: WineEntry;
   onPress: (entry: WineEntry) => void;
   index: number;
   onFilterByRarity?: (rarity: string) => void;
+  onFilterByType?: (type: string) => void;
+  onFilterByNote?: (note: string) => void;
+  onFilterByOrigin?: (origin: string) => void;
 }
 
 // Generic icons for non-grape entries
@@ -24,6 +27,18 @@ const ICON_MAP: Record<string, React.ReactNode> = {
   leaf: <Leaf size={20} fill="currentColor" className="text-white opacity-90" />,
   flame: <Flame size={20} fill="currentColor" className="text-white opacity-90" />,
   zap: <Zap size={20} fill="currentColor" className="text-white opacity-90" />,
+  flower: <Flower2 size={20} fill="currentColor" className="text-white opacity-90" />,
+  fruit: <Apple size={20} fill="currentColor" className="text-white opacity-90" />,
+  herb: <Sprout size={20} fill="currentColor" className="text-white opacity-90" />,
+  spice: <Flame size={20} fill="currentColor" className="text-white opacity-90" />,
+  mineral: <Gem size={20} fill="currentColor" className="text-white opacity-90" />,
+  oak: <Trees size={20} fill="currentColor" className="text-white opacity-90" />,
+  smoke: <Wind size={20} fill="currentColor" className="text-white opacity-90" />,
+  citrus: <Citrus size={20} fill="currentColor" className="text-white opacity-90" />,
+  honey: <Sparkles size={20} fill="currentColor" className="text-white opacity-90" />,
+  tropical: <Sun size={20} fill="currentColor" className="text-white opacity-90" />,
+  nut: <Triangle size={20} fill="currentColor" className="text-white opacity-90" />,
+  stone: <Mountain size={20} fill="currentColor" className="text-white opacity-90" />,
   default: <Grape size={20} fill="currentColor" className="text-white opacity-90" />
 };
 
@@ -86,83 +101,197 @@ const getWineTypeStyle = (wineType: string | undefined) => {
   return { bg: 'bg-stone-600', text: 'text-stone-200', border: 'border-stone-500' };
 };
 
-// Get icon based on grape characteristics (tasting profile or wine type)
+// Get icon based on wine type
 const getGrapeIcon = (entry: WineEntry): React.ReactNode => {
   const wineType = entry.wineType?.toLowerCase() || '';
-  const tastingNotes = entry.tastingProfile?.map(t => t.note.toLowerCase()) || [];
-  
-  // Check tasting profile first for unique icons
-  if (tastingNotes.some(n => n.includes('cherry') || n.includes('berry') || n.includes('fruit'))) {
-    return <Cherry size={20} fill="currentColor" className="text-white opacity-90" />;
-  }
-  if (tastingNotes.some(n => n.includes('citrus') || n.includes('lime') || n.includes('lemon'))) {
-    return <Citrus size={20} fill="currentColor" className="text-white opacity-90" />;
-  }
-  if (tastingNotes.some(n => n.includes('earth') || n.includes('mineral') || n.includes('soil'))) {
-    return <Mountain size={20} fill="currentColor" className="text-white opacity-90" />;
-  }
-  if (tastingNotes.some(n => n.includes('floral') || n.includes('rose') || n.includes('violet'))) {
-    return <Sparkles size={20} fill="currentColor" className="text-white opacity-90" />;
-  }
-  if (tastingNotes.some(n => n.includes('spice') || n.includes('pepper') || n.includes('smoke'))) {
-    return <Flame size={20} fill="currentColor" className="text-white opacity-90" />;
-  }
-  if (tastingNotes.some(n => n.includes('herb') || n.includes('grass') || n.includes('leaf'))) {
-    return <Leaf size={20} fill="currentColor" className="text-white opacity-90" />;
-  }
-  
-  // Fallback based on wine type
-  if (wineType.includes('red')) {
+
+  if (wineType.includes('full-bodied red') || wineType.includes('full bodied red')) {
     return <Wine size={20} fill="currentColor" className="text-white opacity-90" />;
   }
-  if (wineType.includes('white')) {
-    return <Droplet size={20} fill="currentColor" className="text-white opacity-90" />;
+  if (wineType.includes('bright red')) {
+    return <Sparkles size={20} fill="currentColor" className="text-white opacity-90" />;
   }
-  
+  if (wineType.includes('light-bodied red') || wineType.includes('light bodied red')) {
+    return <GlassWater size={20} fill="currentColor" className="text-white opacity-90" />;
+  }
+  if (wineType.includes('dark red')) {
+    return <Grape size={20} fill="currentColor" className="text-white opacity-90" />;
+  }
+  if (wineType.includes('medium-bodied red') || wineType.includes('medium bodied red')) {
+    return <Scale size={20} className="text-white opacity-90" />;
+  }
+  if (wineType.includes('pink') || wineType.includes('rosé') || wineType.includes('rose')) {
+    return <Droplets size={20} className="text-white opacity-90" />;
+  }
+
+  if (wineType.includes('light-bodied white') || wineType.includes('light bodied white')) {
+    return <GlassWater size={20} fill="currentColor" className="text-white opacity-90" />;
+  }
+  if (wineType.includes('aromatic white')) {
+    return <Wind size={20} className="text-white opacity-90" />;
+  }
+  if (wineType.includes('high-acid white') || wineType.includes('high acid white')) {
+    return <Citrus size={20} fill="currentColor" className="text-white opacity-90" />;
+  }
+  if (wineType.includes('full-bodied white') || wineType.includes('full bodied white')) {
+    return <Box size={20} className="text-white opacity-90" />;
+  }
+  if (wineType.includes('sweet white')) {
+    return <Sun size={20} fill="currentColor" className="text-white opacity-90" />;
+  }
+  if (wineType.includes('medium-bodied white') || wineType.includes('medium bodied white')) {
+    return <Circle size={20} fill="currentColor" className="text-white opacity-90" />;
+  }
+
   return <Grape size={20} fill="currentColor" className="text-white opacity-90" />;
+};
+
+const getStyleClassType = (name: string, classification?: string) => {
+  const normalized = name.toLowerCase();
+  const classOverride = classification?.toUpperCase();
+
+  if (classOverride === 'ORIGIN' || classOverride === 'METHOD' || classOverride === 'TYPE') return classOverride;
+
+  const originKeywords = ['champagne', 'port', 'sherry', 'prosecco', 'crémant', 'cremant', 'cru beaujolais', 'super tuscan'];
+  const methodKeywords = ['sparkling', 'fortified', 'dessert', 'late harvest', 'ice wine', 'botrytis', 'pétillant', 'petillant', 'natural wine', 'orange wine'];
+  const typeKeywords = ['full-bodied', 'full bodied', 'light-bodied', 'light bodied', 'medium-bodied', 'medium bodied', 'aromatic', 'white', 'red', 'rosé', 'rose', 'sweet white', 'sparkling wine'];
+
+  if (originKeywords.some(k => normalized.includes(k))) return 'ORIGIN';
+  if (typeKeywords.some(k => normalized.includes(k))) return 'TYPE';
+  if (methodKeywords.some(k => normalized.includes(k))) return 'METHOD';
+  return 'STYLE';
+};
+
+const getClassTypeStyle = (type: 'STYLE' | 'METHOD' | 'ORIGIN' | 'TYPE' | undefined) => {
+  switch (type) {
+    case 'STYLE': return { bg: 'bg-stone-900', text: 'text-green-200', border: 'border-green-500' };
+    case 'METHOD': return { bg: 'bg-indigo-900', text: 'text-purple-100', border: 'border-purple-500' };
+    case 'ORIGIN': return { bg: 'bg-amber-900', text: 'text-amber-100', border: 'border-amber-600' };
+    case 'TYPE': return { bg: 'bg-slate-900', text: 'text-cyan-100', border: 'border-cyan-500' };
+    default: return { bg: 'bg-stone-900', text: 'text-green-200', border: 'border-green-500' };
+  }
+};
+
+const getColorType = (name: string) => {
+  const n = name.toLowerCase();
+  if (n.includes('orange')) return 'ORANGE';
+  if (n.includes('rosé') || n.includes('rose')) return 'ROSÉ';
+  if (n.includes('red')) return 'RED';
+  if (n.includes('white')) return 'WHITE';
+  return 'DUAL';
+};
+
+const getColorTypeStyle = (type?: string) => {
+  switch (type) {
+    case 'RED': return { bg: 'bg-red-950', text: 'text-red-200', border: 'border-red-600' };
+    case 'WHITE': return { bg: 'bg-lime-900', text: 'text-lime-100', border: 'border-lime-600' };
+    case 'ROSÉ': return { bg: 'bg-pink-900', text: 'text-pink-100', border: 'border-pink-600' };
+    case 'ORANGE': return { bg: 'bg-amber-950', text: 'text-amber-100', border: 'border-amber-600' };
+    case 'DUAL': return { bg: 'bg-cyan-950', text: 'text-cyan-100', border: 'border-cyan-600' };
+    default: return { bg: 'bg-stone-700', text: 'text-stone-200', border: 'border-stone-500' };
+  }
+};
+
+const getFlavorClassStyle = (cls?: string) => {
+  switch ((cls || '').toUpperCase()) {
+    case 'SWEET': return { bg: 'bg-amber-900', text: 'text-amber-100', border: 'border-amber-600' };
+    case 'SOUR': return { bg: 'bg-lime-900', text: 'text-lime-100', border: 'border-lime-600' };
+    case 'SALTY': return { bg: 'bg-sky-900', text: 'text-sky-100', border: 'border-sky-600' };
+    case 'BITTER': return { bg: 'bg-purple-900', text: 'text-purple-100', border: 'border-purple-600' };
+    case 'UMAMI': return { bg: 'bg-emerald-900', text: 'text-emerald-100', border: 'border-emerald-600' };
+    default: return { bg: 'bg-stone-700', text: 'text-stone-200', border: 'border-stone-500' };
+  }
 };
 
 // Get country color
 const getCountryColor = (country: string) => {
   const colors: Record<string, { bg: string, text: string, border: string }> = {
-    'France': { bg: 'bg-blue-900', text: 'text-blue-200', border: 'border-blue-700' },
-    'Italy': { bg: 'bg-green-900', text: 'text-green-200', border: 'border-green-700' },
-    'Spain': { bg: 'bg-red-900', text: 'text-red-200', border: 'border-red-700' },
-    'USA': { bg: 'bg-indigo-900', text: 'text-indigo-200', border: 'border-indigo-700' },
-    'Germany': { bg: 'bg-yellow-900', text: 'text-yellow-200', border: 'border-yellow-700' },
-    'Portugal': { bg: 'bg-emerald-900', text: 'text-emerald-200', border: 'border-emerald-700' },
-    'Australia': { bg: 'bg-amber-900', text: 'text-amber-200', border: 'border-amber-700' },
-    'New Zealand': { bg: 'bg-teal-900', text: 'text-teal-200', border: 'border-teal-700' },
-    'Argentina': { bg: 'bg-sky-900', text: 'text-sky-200', border: 'border-sky-700' },
-    'Chile': { bg: 'bg-rose-900', text: 'text-rose-200', border: 'border-rose-700' },
-    'South Africa': { bg: 'bg-orange-900', text: 'text-orange-200', border: 'border-orange-700' },
-    'Austria': { bg: 'bg-fuchsia-900', text: 'text-fuchsia-200', border: 'border-fuchsia-700' },
-    'Greece': { bg: 'bg-cyan-900', text: 'text-cyan-200', border: 'border-cyan-700' },
-    'Hungary': { bg: 'bg-lime-900', text: 'text-lime-200', border: 'border-lime-700' },
-    'Canada': { bg: 'bg-red-800', text: 'text-red-100', border: 'border-red-600' },
+    'France': { bg: 'bg-blue-900', text: 'text-blue-100', border: 'border-blue-600' },
+    'Italy': { bg: 'bg-emerald-900', text: 'text-emerald-100', border: 'border-emerald-700' },
+    'Spain': { bg: 'bg-red-900', text: 'text-red-100', border: 'border-red-700' },
+    'USA': { bg: 'bg-indigo-900', text: 'text-indigo-100', border: 'border-indigo-700' },
+    'Germany': { bg: 'bg-amber-900', text: 'text-amber-100', border: 'border-amber-700' },
+    'Portugal': { bg: 'bg-green-900', text: 'text-green-100', border: 'border-green-700' },
+    'Australia': { bg: 'bg-orange-900', text: 'text-orange-100', border: 'border-orange-700' },
+    'New Zealand': { bg: 'bg-teal-900', text: 'text-teal-100', border: 'border-teal-700' },
+    'Argentina': { bg: 'bg-sky-900', text: 'text-sky-100', border: 'border-sky-700' },
+    'Chile': { bg: 'bg-rose-900', text: 'text-rose-100', border: 'border-rose-700' },
+    'South Africa': { bg: 'bg-orange-800', text: 'text-orange-50', border: 'border-orange-600' },
+    'Austria': { bg: 'bg-fuchsia-900', text: 'text-fuchsia-100', border: 'border-fuchsia-700' },
+    'Greece': { bg: 'bg-cyan-900', text: 'text-cyan-100', border: 'border-cyan-700' },
+    'Hungary': { bg: 'bg-lime-900', text: 'text-lime-100', border: 'border-lime-700' },
+    'Canada': { bg: 'bg-red-800', text: 'text-red-50', border: 'border-red-600' },
+    'China': { bg: 'bg-yellow-800', text: 'text-yellow-50', border: 'border-yellow-600' },
+    'Japan': { bg: 'bg-rose-800', text: 'text-rose-50', border: 'border-rose-600' },
+    'India': { bg: 'bg-amber-800', text: 'text-amber-50', border: 'border-amber-600' },
+    'Uruguay': { bg: 'bg-purple-900', text: 'text-purple-100', border: 'border-purple-700' },
+    'Croatia': { bg: 'bg-blue-800', text: 'text-blue-50', border: 'border-blue-600' },
   };
   return colors[country] || { bg: 'bg-stone-700', text: 'text-stone-200', border: 'border-stone-500' };
 };
 
-const EntryTile: React.FC<EntryTileProps> = ({ entry, onPress, index, onFilterByRarity }) => {
+const getClassificationStyle = (classification?: string) => {
+  const map: Record<string, { bg: string; text: string; border: string }> = {
+    'AOC': { bg: 'bg-red-950', text: 'text-red-100', border: 'border-red-700' },
+    'DOCG': { bg: 'bg-amber-950', text: 'text-amber-100', border: 'border-amber-700' },
+    'DOC': { bg: 'bg-orange-950', text: 'text-orange-100', border: 'border-orange-700' },
+    'DOCA': { bg: 'bg-yellow-950', text: 'text-yellow-100', border: 'border-yellow-700' },
+    'AVA': { bg: 'bg-indigo-950', text: 'text-indigo-100', border: 'border-indigo-700' },
+    'GI': { bg: 'bg-emerald-950', text: 'text-emerald-100', border: 'border-emerald-700' },
+    'PDO': { bg: 'bg-purple-950', text: 'text-purple-100', border: 'border-purple-700' },
+    'PGI': { bg: 'bg-teal-950', text: 'text-teal-100', border: 'border-teal-700' },
+    'IGP': { bg: 'bg-lime-950', text: 'text-lime-100', border: 'border-lime-700' },
+  };
+  const key = classification?.toUpperCase() || '';
+  return map[key] || { bg: 'bg-stone-700', text: 'text-stone-200', border: 'border-stone-500' };
+};
+
+const getIconInnerColor = (wineType?: string) => {
+  const t = wineType?.toLowerCase() || '';
+  if (t.includes('full-bodied red') || t.includes('full bodied red')) return '#5a0f18'; // Deep Garnet
+  if (t.includes('bright red')) return '#dc143c'; // Crimson
+  if (t.includes('light-bodied red') || t.includes('light bodied red')) return '#8b3f4c'; // Rosewood
+  if (t.includes('dark red')) return '#70193d'; // Mulberry
+  if (t.includes('medium-bodied red') || t.includes('medium bodied red')) return '#e96b6b'; // Coral Rose
+  if (t.includes('pink') || t.includes('rosé') || t.includes('rose')) return '#f6b6c0'; // Blush
+  if (t.includes('light-bodied white') || t.includes('light bodied white')) return '#d4e6a5'; // Pale Celery
+  if (t.includes('aromatic white')) return '#daa520'; // Goldenrod
+  if (t.includes('high-acid white') || t.includes('high acid white')) return '#f8f7f4'; // Chalk White
+  if (t.includes('full-bodied white') || t.includes('full bodied white')) return '#f4a261'; // Apricot
+  if (t.includes('sweet white')) return '#b5651d'; // Caramel
+  if (t.includes('medium-bodied white') || t.includes('medium bodied white')) return '#d6bfa3'; // Warm Sand
+  return '#ffffff';
+};
+
+const EntryTile: React.FC<EntryTileProps> = ({ entry, onPress, index, onFilterByRarity, onFilterByType, onFilterByNote, onFilterByOrigin }) => {
   const isGrape = entry.category === 'GRAPES';
   const isRegion = entry.category === 'REGIONS';
+  const isCountryGate = entry.category === 'COUNTRY_GATE';
+  const isStyle = entry.category === 'STYLES';
+  const isFlavor = entry.category === 'FLAVORS';
+  const grapeCard = entry.grapeCard;
   
   // Get icon and color for grapes based on wine type
-  const wineTypeStyle = isGrape ? getWineTypeStyle(entry.wineType) : null;
-  const grapeIcon = isGrape ? getGrapeIcon(entry) : null;
+  const wineTypeStyle = isGrape ? getWineTypeStyle(grapeCard?.style || entry.wineType) : null;
+  const grapeIconElement = isGrape ? getGrapeIcon({ ...entry, wineType: grapeCard?.style || entry.wineType } as WineEntry) : null;
   const genericIcon = ICON_MAP[entry.icon || 'default'] || ICON_MAP['default'];
   
   // Get country for regions
   const country = entry.details.origin || '';
   const countryStyle = isRegion ? getCountryColor(country) : null;
+  const styleClassType = isStyle ? getStyleClassType(entry.name, entry.details.classification) : undefined;
+  const styleColorType = isStyle ? getColorType(entry.name) : undefined;
+  const styleClassStyle = getClassTypeStyle(styleClassType as 'STYLE' | 'METHOD' | 'ORIGIN' | 'TYPE' | undefined);
+  const styleColorStyle = getColorTypeStyle(styleColorType);
+  const styleCountryStyle = entry.details.origin ? getCountryColor(entry.details.origin) : null;
+  const flavorClassStyle = isFlavor ? getFlavorClassStyle(entry.details.classification) : null;
 
   const getRarityStyle = (rarity: string) => {
     switch (rarity) {
       case 'COMMON': return 'bg-stone-600 text-stone-200 border-stone-500';
       case 'UNCOMMON': return 'bg-green-900 text-green-300 border-green-700';
       case 'RARE': return 'bg-blue-900 text-blue-300 border-blue-700';
-      case 'LEGENDARY': return 'bg-yellow-900 text-yellow-300 border-yellow-700';
+      case 'NOBLE': return 'bg-purple-900 text-purple-200 border-purple-700';
       default: return 'bg-stone-600 text-stone-200 border-stone-500';
     }
   };
@@ -174,13 +303,77 @@ const EntryTile: React.FC<EntryTileProps> = ({ entry, onPress, index, onFilterBy
     }
   };
 
+  const handleTypeClick = (e: React.MouseEvent, type?: string) => {
+    e.stopPropagation();
+    if (type && onFilterByType) {
+      onFilterByType(type);
+    }
+  };
+
+  const handleNoteClick = (e: React.MouseEvent, note?: string) => {
+    e.stopPropagation();
+    if (note && onFilterByNote) {
+      onFilterByNote(note);
+    }
+  };
+
+  const handleOriginClick = (e: React.MouseEvent, origin?: string) => {
+    e.stopPropagation();
+    if (origin && onFilterByOrigin) {
+      onFilterByOrigin(origin);
+    }
+  };
+
   // Determine icon background color - grapes use wine type/body color
   const getIconBgColor = () => {
     if (isGrape) {
-      return getGrapeIconColor(entry.wineType, entry.details.body);
+      return getGrapeIconColor(grapeCard?.style || entry.wineType, entry.details.body);
     }
     return entry.color || '#78716c';
   };
+
+  const getFlagBadge = (origin?: string) => {
+    const map: Record<string, { colors: string }> = {
+      france: { colors: 'linear-gradient(90deg,#1f3f99 33%,#ffffff 33%,#ffffff 66%,#c53030 66%)' },
+      italy: { colors: 'linear-gradient(90deg,#1b9b4c 33%,#ffffff 33%,#ffffff 66%,#c53030 66%)' },
+      spain: { colors: 'linear-gradient(#c53030 0 20%,#f6ad55 20% 80%,#c53030 80% 100%)' },
+      portugal: { colors: 'linear-gradient(90deg,#046c4e 45%,#7f1d1d 45%)' },
+      germany: { colors: 'linear-gradient(#0f172a 33%,#b91c1c 33% 66%,#f59e0b 66%)' },
+      austria: { colors: 'linear-gradient(#c53030 33%,#ffffff 33% 66%,#c53030 66%)' },
+      greece: { colors: 'linear-gradient(#2563eb 33%,#e2e8f0 33% 66%,#2563eb 66%)' },
+      hungary: { colors: 'linear-gradient(#b91c1c 33%,#ffffff 33% 66%,#16a34a 66%)' },
+      usa: { colors: 'linear-gradient(#1d4ed8 0 40%,#e11d48 40% 100%)' },
+      canada: { colors: 'linear-gradient(#c53030 25%,#ffffff 25% 75%,#c53030 75%)' },
+      argentina: { colors: 'linear-gradient(#38bdf8 33%,#e5e7eb 33% 66%,#38bdf8 66%)' },
+      chile: { colors: 'linear-gradient(#1d4ed8 33%,#ffffff 33% 66%,#c53030 66%)' },
+      'south africa': { colors: 'linear-gradient(90deg,#065f46 20%,#111827 20% 40%,#eab308 40% 50%,#e11d48 50% 70%,#1d4ed8 70%)' },
+      australia: { colors: 'linear-gradient(#0f172a 50%,#e11d48 50%)' },
+      'new zealand': { colors: 'linear-gradient(#0f172a 60%,#e11d48 60%)' },
+      china: { colors: 'linear-gradient(#b91c1c 70%,#f59e0b 70%)' },
+      japan: { colors: 'radial-gradient(circle at 50% 50%,#b91c1c 0 40%,#f8fafc 40%)' },
+      india: { colors: 'linear-gradient(#f97316 33%,#ffffff 33% 66%,#16a34a 66%)' },
+    };
+    const key = origin ? Object.keys(map).find(k => origin.toLowerCase().includes(k)) : undefined;
+    return key ? map[key] : { colors: 'linear-gradient(#374151,#111827)' };
+  };
+
+  const getIconStyle = () => {
+    if (isCountryGate) {
+      const badge = getFlagBadge(entry.details.origin || entry.name);
+      return { backgroundImage: badge.colors, color: '#fff' } as React.CSSProperties;
+    }
+    return { backgroundColor: getIconBgColor(), color: isGrape ? iconColor : undefined } as React.CSSProperties;
+  };
+
+  const iconColor = isGrape ? getIconInnerColor(grapeCard?.style || entry.wineType) : '#ffffff';
+  const renderedIcon = isCountryGate
+    ? null
+    : isGrape && React.isValidElement(grapeIconElement)
+      ? React.cloneElement(grapeIconElement as React.ReactElement, {
+          className: 'opacity-90',
+          style: { ...(grapeIconElement as React.ReactElement).props.style, color: iconColor }
+        })
+      : genericIcon;
 
   return (
     <button
@@ -195,15 +388,15 @@ const EntryTile: React.FC<EntryTileProps> = ({ entry, onPress, index, onFilterBy
       {/* Left: Large Icon Identifier */}
       <div 
         className="shrink-0 w-12 h-12 rounded-lg shadow-inner flex items-center justify-center border-2 border-black/20 self-start"
-        style={{ backgroundColor: getIconBgColor() }}
+        style={getIconStyle()}
       >
-        {isGrape ? grapeIcon : genericIcon}
+        {renderedIcon}
       </div>
       
       {/* Middle: Title and Tags */}
       <div className="flex flex-col flex-1 min-w-0 justify-center h-full items-start py-1">
           {/* Title - Optimized for wrapping without truncation */}
-          <h3 className="font-retro text-sm text-white leading-tight group-hover:text-green-400 transition-colors w-full text-left mb-2 tracking-tight whitespace-normal break-words">
+          <h3 className="font-retro text-base text-white leading-tight group-hover:text-green-400 transition-colors w-full text-left mb-2 tracking-tight whitespace-normal break-words">
             {entry.name.toUpperCase()}
           </h3>
 
@@ -213,10 +406,13 @@ const EntryTile: React.FC<EntryTileProps> = ({ entry, onPress, index, onFilterBy
               {isGrape && (
                 <>
                   {/* Wine Type Tag */}
-                  {entry.wineType && wineTypeStyle && (
-                    <span className={`px-1.5 py-0.5 text-[9px] font-mono border rounded-sm tracking-wide shrink-0 ${wineTypeStyle.bg} ${wineTypeStyle.text} ${wineTypeStyle.border}`}>
-                      {entry.wineType.toUpperCase()}
-                    </span>
+                  {grapeCard?.style && wineTypeStyle && (
+                    <button
+                      className={`px-1.5 py-0.5 text-[9px] font-mono border rounded-sm tracking-wide shrink-0 ${wineTypeStyle.bg} ${wineTypeStyle.text} ${wineTypeStyle.border}`}
+                      onClick={(e) => handleTypeClick(e, grapeCard.style)}
+                    >
+                      {grapeCard.style.toUpperCase()}
+                    </button>
                   )}
                   {/* Rarity Tag - Clickable */}
                   <span 
@@ -224,26 +420,73 @@ const EntryTile: React.FC<EntryTileProps> = ({ entry, onPress, index, onFilterBy
                     onClick={handleRarityClick}
                     title="Click to filter by rarity"
                   >
-                    {entry.rarity}
+                    {entry.rarity || grapeCard?.rarityTier?.toUpperCase()}
                   </span>
                 </>
               )}
 
               {/* REGIONS: Show only Country */}
               {isRegion && countryStyle && (
-                <span className={`px-1.5 py-0.5 text-[9px] font-mono border rounded-sm tracking-wide shrink-0 ${countryStyle.bg} ${countryStyle.text} ${countryStyle.border}`}>
-                  {country.toUpperCase()}
-                </span>
+                <>
+                  <button
+                    className={`px-1.5 py-0.5 text-[9px] font-mono border rounded-sm tracking-wide shrink-0 ${countryStyle.bg} ${countryStyle.text} ${countryStyle.border}`}
+                    onClick={(e) => handleOriginClick(e, country)}
+                  >
+                    {country.toUpperCase()}
+                  </button>
+                  {entry.details.classification && (
+                    (() => {
+                      const clsStyle = getClassificationStyle(entry.details.classification);
+                      return (
+                        <span className={`px-1.5 py-0.5 text-[9px] font-mono border rounded-sm tracking-wide shrink-0 ${clsStyle.bg} ${clsStyle.text} ${clsStyle.border}`}>
+                          {entry.details.classification.toUpperCase()}
+                        </span>
+                      );
+                    })()
+                  )}
+                </>
               )}
 
-              {/* STYLES: Show only Tags (no rarity) */}
-              {!isGrape && !isRegion && (
+              {/* COUNTRY GATE: Show classification tags */}
+              {isCountryGate && (
                 <>
-                  {entry.tags.slice(0, 2).map((tag, i) => (
-                    <span key={i} className="px-1.5 py-0.5 bg-stone-800 text-stone-400 border border-stone-600 text-[9px] font-mono rounded-sm tracking-wide shrink-0">
+                  {entry.tags.map((tag, i) => (
+                    <span key={i} className="px-1.5 py-0.5 bg-stone-800 text-amber-200 border border-amber-600 text-[9px] font-mono rounded-sm tracking-wide shrink-0">
                       {tag.toUpperCase()}
                     </span>
                   ))}
+                </>
+              )}
+
+              {/* STYLES & FLAVORS: Show class chips */}
+              {!isGrape && !isRegion && !isCountryGate && (
+                <>
+                  {isStyle && styleClassType && (
+                    <span className={`px-1.5 py-0.5 text-[9px] font-mono border rounded-sm tracking-wide shrink-0 ${styleClassStyle.bg} ${styleClassStyle.text} ${styleClassStyle.border}`}>
+                      {styleClassType}
+                    </span>
+                  )}
+                  {isStyle && styleColorType && (
+                    <span className={`px-1.5 py-0.5 text-[9px] font-mono border rounded-sm tracking-wide shrink-0 ${styleColorStyle.bg} ${styleColorStyle.text} ${styleColorStyle.border}`}>
+                      {styleColorType}
+                    </span>
+                  )}
+                  {isStyle && styleClassType === 'ORIGIN' && styleCountryStyle && (
+                    <button
+                      className={`px-1.5 py-0.5 text-[9px] font-mono border rounded-sm tracking-wide shrink-0 ${styleCountryStyle.bg} ${styleCountryStyle.text} ${styleCountryStyle.border}`}
+                      onClick={(e) => handleOriginClick(e, entry.details.origin)}
+                    >
+                      {(entry.details.origin || '').toUpperCase()}
+                    </button>
+                  )}
+                  {isFlavor && flavorClassStyle && (
+                    <button
+                      className={`px-1.5 py-0.5 text-[9px] font-mono border rounded-sm tracking-wide shrink-0 ${flavorClassStyle.bg} ${flavorClassStyle.text} ${flavorClassStyle.border}`}
+                      onClick={(e) => handleNoteClick(e, entry.details.classification || entry.name)}
+                    >
+                      {(entry.details.classification || 'FLAVOR').toUpperCase()}
+                    </button>
+                  )}
                 </>
               )}
           </div>

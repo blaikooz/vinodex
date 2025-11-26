@@ -7,7 +7,7 @@ import RegionMapScreen from './components/RegionMapScreen';
 import { WineEntry, EntryCategory } from './types';
 
 type Screen = 'HOME' | 'LIST' | 'DETAIL' | 'REGION_MAP';
-type FilterMode = 'REGION' | 'TYPE' | 'TASTING' | 'SOIL' | 'ORIGIN' | 'RARITY' | null;
+type FilterMode = 'REGION' | 'TYPE' | 'TASTING' | 'SOIL' | 'ORIGIN' | 'RARITY' | 'SYSTEM' | null;
 
 interface AppState {
   screen: Screen;
@@ -64,6 +64,10 @@ const App: React.FC = () => {
   };
 
   const handleSelectEntry = (entry: WineEntry) => {
+    if (entry.category === 'COUNTRY_GATE') {
+      pushState({ screen: 'LIST', category: 'REGIONS', filterMode: 'ORIGIN', filterValue: entry.name, entry: null });
+      return;
+    }
     pushState({ screen: 'DETAIL', entry });
   };
 
@@ -71,33 +75,36 @@ const App: React.FC = () => {
 
   // 1. Region Map Selection
   const handleContinentSelect = (continent: string) => {
-      let keywords: string[] = [];
+      let countries: string[] = [];
       switch(continent) {
           case 'EUROPE': 
-            keywords = ['France', 'Italy', 'Spain', 'Germany', 'Portugal', 'Hungary', 'Austria', 'Greece', 'Bordeaux', 'Tuscany', 'Burgundy', 'Rhône', 'Rioja', 'Piedmont', 'Champagne', 'Alsace', 'Beaujolais', 'Provence', 'Chablis', 'Sauternes', 'Douro', 'Priorat', 'Rias Baixas', 'Jerez', 'Puglia', 'Sicily', 'Tokaj']; 
+            countries = ['France', 'Italy', 'Spain', 'Germany', 'Portugal', 'Hungary', 'Austria', 'Greece']; 
             break;
           case 'NORTH_AMERICA': 
-            keywords = ['USA', 'Canada', 'Napa', 'Sonoma', 'Washington', 'Willamette', 'California', 'Oregon', 'New York']; 
+            countries = ['USA', 'Canada']; 
             break;
           case 'SOUTH_AMERICA': 
-            keywords = ['Argentina', 'Chile', 'Mendoza', 'Maipo', 'Casablanca', 'Colchagua', 'Salta']; 
+            countries = ['Argentina', 'Chile', 'Uruguay']; 
             break;
           case 'OCEANIA': 
-            keywords = ['Australia', 'New Zealand', 'Marlborough', 'Barossa', 'Coonawarra', 'Margaret River', 'Tasmania']; 
+            countries = ['Australia', 'New Zealand']; 
             break;
           case 'AFRICA': 
-            keywords = ['South Africa', 'Stellenbosch', 'Swartland']; 
+            countries = ['South Africa']; 
+            break;
+          case 'ASIA':
+            countries = ['China', 'Japan', 'India']; 
             break;
           default:
-            keywords = [];
+            countries = [];
       }
       
-      pushState({ screen: 'LIST', category: 'REGIONS', filterMode: 'REGION', filterValue: keywords });
+      pushState({ screen: 'LIST', category: 'COUNTRY_GATE', filterMode: 'REGION', filterValue: countries });
   };
 
   // 2. Manual Search
   const handleManualSearch = () => {
-      pushState({ screen: 'LIST', category: 'MASTER_SEARCH', filterMode: null, filterValue: null });
+      pushState({ screen: 'LIST', category: 'REGIONS', filterMode: null, filterValue: null });
   };
 
   // 3. Filter by Wine Type (from Detail Screen)
@@ -107,7 +114,7 @@ const App: React.FC = () => {
 
   // 4. Filter by Tasting Note (from Detail Screen)
   const handleFilterByNote = (note: string) => {
-      pushState({ screen: 'LIST', category: 'GRAPES', filterMode: 'TASTING', filterValue: note });
+      pushState({ screen: 'LIST', category: 'FLAVORS', filterMode: 'TASTING', filterValue: note });
   };
 
   // 5. Filter by Soil Type
@@ -117,16 +124,14 @@ const App: React.FC = () => {
 
   // 6. Filter by Origin
   const handleFilterByOrigin = (origin: string) => {
-      // Often origins are countries or broad regions. We might want to search Master or Grapes/Regions depending on context.
-      // Usually "Origin" on a Grape card implies where it is from, so we might look for regions or other grapes from there.
-      // Let's use MASTER_SEARCH or just filter REGIONS? 
-      // User said "cross link location tiles to filter for locations".
-      pushState({ screen: 'LIST', category: 'MASTER_SEARCH', filterMode: 'ORIGIN', filterValue: origin });
+      // Route origin filters to regions list so we don't trigger the deductive scan screen.
+      pushState({ screen: 'LIST', category: 'REGIONS', filterMode: 'ORIGIN', filterValue: origin });
   };
 
   // 7. Filter by Rarity
   const handleFilterByRarity = (rarity: string) => {
-      pushState({ screen: 'LIST', category: 'MASTER_SEARCH', filterMode: 'RARITY', filterValue: rarity });
+      // Keep rarity filtering within grapes to avoid redirecting into deductive scan.
+      pushState({ screen: 'LIST', category: 'GRAPES', filterMode: 'RARITY', filterValue: rarity });
   };
 
   return (
@@ -153,6 +158,9 @@ const App: React.FC = () => {
           onBack={handleBack}
           onHome={handleHome}
           onFilterByRarity={handleFilterByRarity}
+          onFilterByType={handleFilterByType}
+          onFilterByNote={handleFilterByNote}
+          onFilterByOrigin={handleFilterByOrigin}
         />
       )}
 

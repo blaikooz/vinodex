@@ -31,14 +31,14 @@ const RegionMapScreen: React.FC<RegionMapScreenProps> = ({ onSelectContinent, on
 
   const decorativeStyle = {
     fill: 'none',
-    stroke: '#4ADE80',
-    strokeWidth: 0.5,
-    opacity: 0.3
+    stroke: '#6EE7B7',
+    strokeWidth: 0.7,
+    opacity: 0.25
   };
 
   return (
     <DeviceLayout
-      title="PLANETARY SCAN"
+      title="REGION SCAN"
       subtitle="SECTOR SELECT"
       onBack={onBack}
       showBack={true}
@@ -154,7 +154,7 @@ const RegionMapScreen: React.FC<RegionMapScreenProps> = ({ onSelectContinent, on
               onMouseLeave={() => setHoveredRegion(null)}
             />
 
-            {/* ASIA - Decorative outline (not clickable wine region) */}
+            {/* ASIA */}
             <path 
               d="M 565,60 L 600,50 L 650,45 L 700,50 L 750,60 L 800,55 L 850,65 L 890,80 
                  L 920,100 L 940,130 L 950,165 L 945,200 L 930,230 L 905,255 L 875,275 
@@ -162,15 +162,11 @@ const RegionMapScreen: React.FC<RegionMapScreenProps> = ({ onSelectContinent, on
                  L 585,235 L 570,205 L 560,175 L 555,145 L 555,115 L 560,85 Z
                  M 705,165 L 730,155 L 760,160 L 785,175 L 800,200 L 790,225 L 765,235 
                  L 735,230 L 710,210 L 700,185 Z"
-              style={{
-                fill: 'none',
-                stroke: '#4ADE80',
-                strokeWidth: 1,
-                opacity: 0.35,
-                strokeDasharray: '4,2'
-              }}
+              style={getRegionStyle('ASIA')}
+              onClick={() => handleRegionClick('ASIA')}
+              onMouseEnter={() => setHoveredRegion('ASIA')}
+              onMouseLeave={() => setHoveredRegion(null)}
             />
-            <text x="720" y="150" fill="#4ADE80" fontSize="10" opacity="0.4" fontFamily="monospace">RESTRICTED</text>
 
             {/* Japan - decorative */}
             <path 
@@ -218,12 +214,13 @@ const RegionMapScreen: React.FC<RegionMapScreenProps> = ({ onSelectContinent, on
             />
 
             {/* Region Labels */}
-            <g className="pointer-events-none" style={{ fontFamily: 'monospace', fontSize: '9px', fill: '#4ADE80', opacity: 0.7 }}>
+            <g className="pointer-events-none" style={{ fontFamily: 'monospace', fontSize: '11px', fill: '#6EE7B7', opacity: 0.8 }}>
               <text x="130" y="150">N.AMERICA</text>
               <text x="195" y="350">S.AMERICA</text>
               <text x="470" y="100">EUROPE</text>
               <text x="475" y="290">AFRICA</text>
               <text x="800" y="375">OCEANIA</text>
+              <text x="720" y="145">ASIA</text>
             </g>
 
             {/* Coordinate markers */}
@@ -261,13 +258,13 @@ const RegionMapScreen: React.FC<RegionMapScreenProps> = ({ onSelectContinent, on
         </div>
 
         {/* Bottom Search Button Area */}
-        <div className="p-4 border-t border-green-900/50 bg-black/80 relative z-30 flex justify-center">
+        <div className="p-4 border-t border-green-900/50 bg-black/70 relative z-30 flex justify-center">
           <button 
             onClick={onSearch}
-            className="group flex items-center gap-3 px-8 py-3 bg-green-900/10 border border-green-600 rounded-full hover:bg-green-500 hover:text-black hover:border-green-400 transition-all duration-300 hover:shadow-[0_0_15px_rgba(74,222,128,0.6)]"
+            className="group flex items-center gap-3 px-8 py-3 bg-green-400 text-black border border-green-200 rounded-full hover:bg-green-300 hover:border-white transition-all duration-300 shadow-[0_0_20px_rgba(74,222,128,0.4)]"
           >
             <Search size={16} className="group-hover:scale-110 transition-transform" />
-            <span className="font-retro tracking-widest text-sm">SEARCH DATABASE</span>
+            <span className="font-retro tracking-widest text-sm">SEARCH REGIONS</span>
           </button>
         </div>
 
