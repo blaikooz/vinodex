@@ -129,7 +129,7 @@ const DeviceLayout: React.FC<DeviceLayoutProps> = ({
             {onHome && (
               <button
                 onClick={onHome}
-                className="relative -translate-y-2 w-14 h-14 md:w-16 md:h-16 rounded-full bg-gradient-to-b from-amber-200 to-amber-500 border-[3px] border-amber-700 shadow-[inset_0_3px_5px_rgba(255,255,255,0.55),0_8px_12px_rgba(0,0,0,0.45)] active:translate-y-[2px] active:shadow-[inset_0_4px_7px_rgba(0,0,0,0.45)] overflow-hidden transition-transform"
+                className="relative -translate-y-2 w-14 h-14 md:w-16 md:h-16 rounded-full bg-gradient-to-b from-amber-200 to-amber-500 border-[3px] border-amber-700 shadow-[inset_0_3px_5px_rgba(255,255,255,0.55),0_8px_12px_rgba(0,0,0,0.45)] active:scale-[0.98] active:shadow-[inset_0_4px_7px_rgba(0,0,0,0.45)] overflow-hidden transition-transform"
                 aria-label="Home"
               >
                 <div className="absolute inset-0 bg-gradient-to-br from-white/35 via-transparent to-black/25 pointer-events-none"></div>

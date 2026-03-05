@@ -290,20 +290,8 @@ const EntryDetail: React.FC<EntryDetailProps> = ({ entry, onBack, onHome, onSele
   const grapeAlternateNames = isGrapes ? (grapeCard?.alternateNames || entry.details.synonyms || []) : [];
   const grapeNotableRegions = isGrapes ? (grapeCard?.notableRegions || entry.details.keyRegions || []) : [];
   const flavorTileContainerClass = isGrapes
-    ? 'grid grid-cols-2 gap-3 sm:grid-cols-3 items-stretch'
-    : 'flex justify-between gap-2';
-  const flavorTileWidthClass = isGrapes ? 'w-full' : 'flex-1';
-  const renderFlavorIcon = (note: { icon: string; color: string }) => {
-    const iconNode = ICON_MAP[note.icon] || ICON_MAP['default'];
-    const resolvedIcon = React.isValidElement(iconNode)
-      ? React.cloneElement(iconNode as React.ReactElement, {
-          size: 18,
-          className: 'text-current',
-          style: { ...(iconNode.props.style || {}), color: note.color },
-        })
-      : iconNode;
-    return resolvedIcon;
-  };
+    ? 'grid grid-cols-1 gap-2 sm:grid-cols-2 xl:grid-cols-3 items-stretch'
+    : 'grid grid-cols-1 gap-2 sm:grid-cols-2 items-stretch';
 
   const getFlavorTileVisual = (note: { note: string; icon: string; color: string }) => {
     const relatedFlavor = getExactFlavorEntry(note.note);
@@ -320,6 +308,7 @@ const EntryDetail: React.FC<EntryDetailProps> = ({ entry, onBack, onHome, onSele
         relatedFlavor,
         iconNode,
         borderColor: iconColor || note.color,
+        bgColor: relatedFlavor.color || '#0b0f19',
         label: relatedFlavor.name
       };
     }
@@ -328,6 +317,7 @@ const EntryDetail: React.FC<EntryDetailProps> = ({ entry, onBack, onHome, onSele
       relatedFlavor,
       iconNode: buildIconNode('default', '#e5e7eb', 18),
       borderColor: '#475569',
+      bgColor: '#0b0f19',
       label: note.note
     };
   };
@@ -508,6 +498,17 @@ const EntryDetail: React.FC<EntryDetailProps> = ({ entry, onBack, onHome, onSele
     return '#78716c';
   };
 
+  const darkenHex = (hex: string, amount = 0.35) => {
+    const clean = hex.replace('#', '');
+    if (clean.length !== 6) return hex;
+    const toChannel = (start: number) => {
+      const channel = parseInt(clean.substring(start, start + 2), 16);
+      const darkened = Math.max(0, Math.min(255, Math.round(channel * (1 - amount))));
+      return darkened.toString(16).padStart(2, '0');
+    };
+    return `#${toChannel(0)}${toChannel(2)}${toChannel(4)}`;
+  };
+
   const getGrapeIcon = (grape?: WineEntry): React.ReactNode => {
     const wineType = grape?.wineType?.toLowerCase() || '';
     if (wineType.includes('full-bodied red') || wineType.includes('full bodied red')) return <Wine size={20} fill="currentColor" className="text-white opacity-90" />;
@@ -547,6 +548,17 @@ const EntryDetail: React.FC<EntryDetailProps> = ({ entry, onBack, onHome, onSele
       });
     }
     return iconNode;
+  };
+
+  const addIconOutline = (iconNode: React.ReactNode, outlineColor?: string): React.ReactNode => {
+    if (!React.isValidElement(iconNode)) return iconNode;
+    const color = outlineColor || '#e5e7eb';
+    return React.cloneElement(iconNode as React.ReactElement, {
+      style: {
+        ...(iconNode.props.style || {}),
+        filter: `drop-shadow(1px 0 0 ${color}) drop-shadow(-1px 0 0 ${color}) drop-shadow(0 1px 0 ${color}) drop-shadow(0 -1px 0 ${color})`
+      }
+    });
   };
 
   const getStyleColorTypeColor = (type?: string) => {
@@ -617,6 +629,22 @@ const EntryDetail: React.FC<EntryDetailProps> = ({ entry, onBack, onHome, onSele
     }
   };
 
+  const getGrapePrimaryFlavorVisual = (grapeEntry: WineEntry) => {
+    const primaryNote = grapeEntry.tastingProfile?.[0];
+    const typeColor = getGrapeIconColor(grapeEntry.grapeCard?.style || grapeEntry.wineType, grapeEntry.details.body);
+    const iconOutline = darkenHex(typeColor, 0.4);
+    const relatedFlavor = primaryNote?.note ? getExactFlavorEntry(primaryNote.note) : undefined;
+    const iconColor = relatedFlavor
+      ? getFlavorSubclassIconColor(relatedFlavor.details.subclass)
+      : primaryNote?.color;
+    const iconKey = primaryNote?.icon || grapeEntry.icon || 'default';
+    return {
+      icon: addIconOutline(buildIconNode(iconKey, iconColor), iconOutline),
+      bg: typeColor,
+      color: iconColor
+    };
+  };
+
   interface EntryIconDisplay {
     icon: React.ReactNode;
     bg: string;
@@ -631,12 +659,11 @@ const EntryDetail: React.FC<EntryDetailProps> = ({ entry, onBack, onHome, onSele
       return { icon: ICON_MAP['default'], bg: '#444', color: undefined, outline: undefined };
     }
     if (relatedEntry.category === 'GRAPES') {
-      const iconKey = relatedEntry.icon || 'default';
-      const iconColor = relatedEntry.tastingProfile?.[0]?.color;
+      const grapeVisual = getGrapePrimaryFlavorVisual(relatedEntry);
       return {
-        icon: buildIconNode(iconKey, iconColor),
-        bg: getGrapeIconColor(relatedEntry.grapeCard?.style || relatedEntry.wineType, relatedEntry.details.body),
-        color: iconColor,
+        icon: grapeVisual.icon,
+        bg: grapeVisual.bg,
+        color: grapeVisual.color,
         outline: undefined
       };
     }
@@ -647,7 +674,10 @@ const EntryDetail: React.FC<EntryDetailProps> = ({ entry, onBack, onHome, onSele
       return {
         icon: React.isValidElement(ICON_MAP[relatedEntry.icon || 'default'])
           ? React.cloneElement(ICON_MAP[relatedEntry.icon || 'default'] as React.ReactElement, {
-              style: { color: iconColor }
+              style: {
+                color: iconColor,
+                filter: 'drop-shadow(1px 0 0 #000) drop-shadow(-1px 0 0 #000) drop-shadow(0 1px 0 #000) drop-shadow(0 -1px 0 #000)'
+              }
             })
           : ICON_MAP[relatedEntry.icon || 'default'] || ICON_MAP['default'],
         bg: getRegionCountryIconBg(relatedEntry.details.origin),
@@ -670,10 +700,10 @@ const EntryDetail: React.FC<EntryDetailProps> = ({ entry, onBack, onHome, onSele
       const iconColor = getFlavorSubclassIconColor(relatedEntry.details.subclass);
       const iconKey = relatedEntry.icon || 'default';
       return {
-        icon: buildIconNode(iconKey, iconColor),
+        icon: addIconOutline(buildIconNode(iconKey, iconColor), iconColor),
         bg: relatedEntry.color || '#444',
         color: iconColor,
-        outline: undefined
+        outline: iconColor
       };
     }
     const iconKey = relatedEntry.icon || 'default';
@@ -1343,20 +1373,25 @@ const EntryDetail: React.FC<EntryDetailProps> = ({ entry, onBack, onHome, onSele
                 {matchedFlavorNotes.length > 0 ? (
                   <div className={flavorTileContainerClass}>
                       {matchedFlavorNotes.map((note, i) => {
-                          const { relatedFlavor, iconNode, borderColor, label } = getFlavorTileVisual(note);
+                          const { relatedFlavor, iconNode, borderColor, bgColor, label } = getFlavorTileVisual(note);
                           return (
                           <button 
                               key={i} 
                               onClick={() => relatedFlavor ? onSelectRelated(relatedFlavor) : onFilterByNote(label, 'FLAVORS', 'TASTING')}
-                              className={`${flavorTileWidthClass} flex flex-col items-center gap-3 p-3 bg-stone-900 border-2 border-stone-800 rounded-lg hover:border-green-500 hover:bg-stone-800 transition-all active:scale-95 group h-full`}
+                              className={`w-full bg-stone-900 border-2 rounded p-3 flex flex-col items-center justify-center gap-2 relative overflow-hidden group transition-all text-center min-h-[7rem] ${
+                                relatedFlavor ? 'border-stone-700 hover:border-green-500 hover:bg-stone-800 active:translate-y-0.5' : 'border-stone-800 opacity-70 cursor-default'
+                              }`}
+                              disabled={!relatedFlavor}
                           >
+                              <div className="absolute top-0 right-0 w-2 h-2 border-t-2 border-r-2 border-stone-600 group-hover:border-green-400 transition-colors"></div>
+                              <div className="absolute bottom-0 left-0 w-2 h-2 border-b-2 border-l-2 border-stone-600 group-hover:border-green-400 transition-colors"></div>
                               <div 
-                                  className="w-12 h-12 rounded-lg flex items-center justify-center shadow-inner group-hover:scale-110 transition-transform border-2"
-                                  style={{ backgroundColor: '#0b0f19', borderColor }}
+                                  className="shrink-0 w-12 h-12 rounded-lg flex items-center justify-center shadow-inner border-2 border-black/20"
+                                  style={{ backgroundColor: bgColor, borderColor }}
                               >
                                   {iconNode}
                               </div>
-                              <span className={`font-retro ${isGrapes ? 'text-xs' : 'text-sm'} text-white uppercase text-center leading-tight group-hover:text-green-300`}>
+                              <span className="font-retro text-sm text-white uppercase leading-tight break-words group-hover:text-green-300 max-w-full">
                                 {label}
                               </span>
                           </button>

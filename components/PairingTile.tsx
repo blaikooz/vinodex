@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { ClimateClass, EntryCategory, WineEntry } from '../types';
 import { ChevronRight, Droplet, Heart, Sun, Cloud, Castle, Mountain, Triangle, Sparkles, Circle, Shield, Grape, Leaf, Flame, Zap, Globe, Cherry, Wine, Citrus, Flower2, Apple, Sprout, Gem, Trees, Wind, GlassWater, Droplets, Scale, Box, MapPin } from 'lucide-react';
 import { getStylePalette } from '../stylePalette';
@@ -6,6 +6,7 @@ import { CLIMATE_CLASS_MAP } from '../data/climateClasses';
 import { getFlagGradient } from '../data/flagGradients';
 import { getFlagImage } from '../data/flagImages';
 import { GRAPES } from '../data/grapes';
+import { loadAllEntries } from '../src/services/wineData';
 
 type FilterMode = 'REGION' | 'TYPE' | 'TASTING' | 'SOIL' | 'ORIGIN' | 'RARITY' | 'SYSTEM' | 'CLIMATE' | null;
 
@@ -72,6 +73,21 @@ const normalizeEntryKey = (value: string) =>
     .replace(/[\u0300-\u036f]/g, '')
     .replace(/[^a-z0-9]+/g, ' ')
     .trim();
+
+const darkenHex = (hex: string, amount = 0.35) => {
+  const clean = hex.replace('#', '');
+  if (clean.length !== 6) return hex;
+  const toChannel = (start: number) => {
+    const channel = parseInt(clean.substring(start, start + 2), 16);
+    const darkened = Math.max(0, Math.min(255, Math.round(channel * (1 - amount))));
+    return darkened.toString(16).padStart(2, '0');
+  };
+  return `#${toChannel(0)}${toChannel(2)}${toChannel(4)}`;
+};
+
+type FlavorSubclassColorMap = Map<string, string>;
+let cachedFlavorSubclassColorMap: FlavorSubclassColorMap | null = null;
+let flavorSubclassColorMapPromise: Promise<FlavorSubclassColorMap> | null = null;
 
 const GRAPE_ICON_COLOR_BY_NAME = (() => {
   const map = new Map<string, string>();
@@ -208,14 +224,32 @@ const getGrapeIcon = (entry: WineEntry): React.ReactNode => {
   return <Grape size={20} fill="currentColor" className="text-white opacity-90" />;
 };
 
-const getGrapeFlavorIcon = (entry: WineEntry): React.ReactNode => {
+const getGrapeFlavorIcon = (entry: WineEntry, iconColor?: string, outlineColor?: string): React.ReactNode => {
   const note = entry.tastingProfile?.[0];
-  if (!note) return getGrapeIcon(entry);
+  const outlineFilter = outlineColor
+    ? `drop-shadow(1px 0 0 ${outlineColor}) drop-shadow(-1px 0 0 ${outlineColor}) drop-shadow(0 1px 0 ${outlineColor}) drop-shadow(0 -1px 0 ${outlineColor})`
+    : undefined;
+
+  if (!note) {
+    const fallback = getGrapeIcon(entry);
+    return React.isValidElement(fallback)
+      ? React.cloneElement(fallback as React.ReactElement, {
+          style: {
+            ...(fallback.props.style || {}),
+            ...(iconColor ? { color: iconColor } : {}),
+            ...(outlineFilter ? { filter: outlineFilter } : {}),
+          },
+        })
+      : fallback;
+  }
   const IconComp = ICON_MAP[note.icon] || ICON_MAP['default'];
   return React.isValidElement(IconComp)
     ? React.cloneElement(IconComp as React.ReactElement, {
         className: 'opacity-90',
-        style: { color: note.color },
+        style: {
+          color: iconColor || note.color,
+          ...(outlineFilter ? { filter: outlineFilter } : {})
+        },
       })
     : IconComp;
 };
@@ -363,6 +397,32 @@ const getFlavorSubclassColor = (sub?: string) => {
     case 'NUT': return '#eab308';
     default: return '#e5e7eb';
   }
+};
+
+const loadFlavorSubclassColorMap = async (): Promise<FlavorSubclassColorMap> => {
+  if (cachedFlavorSubclassColorMap) return cachedFlavorSubclassColorMap;
+  if (flavorSubclassColorMapPromise) return flavorSubclassColorMapPromise;
+
+  flavorSubclassColorMapPromise = loadAllEntries()
+    .then((entries) => {
+      const map: FlavorSubclassColorMap = new Map();
+      for (const flavor of entries) {
+        if (flavor.category !== 'FLAVORS') continue;
+        const subclassColor = getFlavorSubclassColor(flavor.details.subclass);
+        map.set(normalizeEntryKey(flavor.name), subclassColor);
+        for (const synonym of flavor.details.synonyms || []) {
+          map.set(normalizeEntryKey(synonym), subclassColor);
+        }
+      }
+      cachedFlavorSubclassColorMap = map;
+      return map;
+    })
+    .catch(() => new Map())
+    .finally(() => {
+      flavorSubclassColorMapPromise = null;
+    });
+
+  return flavorSubclassColorMapPromise;
 };
 
 const formatLabel = (label?: string) => {
@@ -514,10 +574,32 @@ const EntryTile: React.FC<EntryTileProps> = ({ entry, onPress, index, onFilterBy
   const regionIconColor = isRegion ? (getRegionMainGrapeIconColor(entry) || systemColor || '#e5e7eb') : undefined;
   const originLabel = entry.details.origin || '';
   const grapeOriginStyle = isGrape && originLabel ? getCountryColor(originLabel) : null;
+  const [flavorSubclassColorMap, setFlavorSubclassColorMap] = useState<FlavorSubclassColorMap | null>(cachedFlavorSubclassColorMap);
+
+  useEffect(() => {
+    if (!isGrape || flavorSubclassColorMap) return;
+    let active = true;
+    loadFlavorSubclassColorMap()
+      .then((map) => {
+        if (active) setFlavorSubclassColorMap(map);
+      })
+      .catch(() => {});
+    return () => {
+      active = false;
+    };
+  }, [isGrape, flavorSubclassColorMap]);
   
   // Get icon and color for grapes based on wine type
   const wineTypeStyle = isGrape ? getWineTypeStyle(grapeCard?.style || entry.wineType) : null;
-  const grapeIconElement = isGrape ? getGrapeFlavorIcon({ ...entry, wineType: grapeCard?.style || entry.wineType } as WineEntry) : null;
+  const grapeTypeColor = isGrape ? getGrapeIconColor(grapeCard?.style || entry.wineType, entry.details.body) : undefined;
+  const firstGrapeFlavorNote = isGrape ? entry.tastingProfile?.[0] : undefined;
+  const grapeFlavorIconColor = isGrape
+    ? (firstGrapeFlavorNote?.note ? flavorSubclassColorMap?.get(normalizeEntryKey(firstGrapeFlavorNote.note)) : undefined) || firstGrapeFlavorNote?.color
+    : undefined;
+  const grapeIconOutlineColor = grapeTypeColor ? darkenHex(grapeTypeColor, 0.4) : undefined;
+  const grapeIconElement = isGrape
+    ? getGrapeFlavorIcon({ ...entry, wineType: grapeCard?.style || entry.wineType } as WineEntry, grapeFlavorIconColor, grapeIconOutlineColor)
+    : null;
   const genericIcon = ICON_MAP[entry.icon || 'default'] || ICON_MAP['default'];
   const styleClassType = isStyle ? getStyleClassType(entry.name, entry.details.classification) : undefined;
   const styleColorType = isStyle ? getColorType(entry.name) : undefined;
@@ -547,7 +629,7 @@ const EntryTile: React.FC<EntryTileProps> = ({ entry, onPress, index, onFilterBy
   // Determine icon background color - grapes use wine type/body color
   const getIconBgColor = () => {
     if (isGrape) {
-      return getGrapeIconColor(grapeCard?.style || entry.wineType, entry.details.body);
+      return grapeTypeColor || getGrapeIconColor(grapeCard?.style || entry.wineType, entry.details.body);
     }
     if (isStyle) {
       return getStyleClassBgColor(entry);
@@ -578,6 +660,12 @@ const EntryTile: React.FC<EntryTileProps> = ({ entry, onPress, index, onFilterBy
         boxShadow: climateOutline ? `0 0 0 2px ${climateOutline}` : undefined,
       } as React.CSSProperties;
     }
+    if (isFlavor) {
+      return {
+        backgroundColor: getIconBgColor(),
+        boxShadow: flavorSubclassColor ? `0 0 0 2px ${flavorSubclassColor}` : undefined
+      } as React.CSSProperties;
+    }
     return { backgroundColor: getIconBgColor() } as React.CSSProperties;
   };
 
@@ -587,10 +675,22 @@ const EntryTile: React.FC<EntryTileProps> = ({ entry, onPress, index, onFilterBy
       ? grapeIconElement
       : isStyle && React.isValidElement(styleIconElement)
         ? styleIconElement
-        : isRegion && React.isValidElement(genericIcon)
-          ? React.cloneElement(genericIcon as React.ReactElement, { style: { color: regionIconColor || '#fff' } })
+      : isRegion && React.isValidElement(genericIcon)
+          ? React.cloneElement(genericIcon as React.ReactElement, {
+              style: {
+                color: regionIconColor || '#fff',
+                filter: 'drop-shadow(1px 0 0 #000) drop-shadow(-1px 0 0 #000) drop-shadow(0 1px 0 #000) drop-shadow(0 -1px 0 #000)'
+              }
+            })
       : isFlavor && React.isValidElement(genericIcon)
-        ? React.cloneElement(genericIcon as React.ReactElement, { style: { color: flavorSubclassColor } })
+        ? React.cloneElement(genericIcon as React.ReactElement, {
+            style: {
+              color: flavorSubclassColor,
+              filter: flavorSubclassColor
+                ? `drop-shadow(1px 0 0 ${flavorSubclassColor}) drop-shadow(-1px 0 0 ${flavorSubclassColor}) drop-shadow(0 1px 0 ${flavorSubclassColor}) drop-shadow(0 -1px 0 ${flavorSubclassColor})`
+                : undefined
+            }
+          })
         : genericIcon;
 
   return (

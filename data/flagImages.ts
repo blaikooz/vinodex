@@ -23,6 +23,7 @@ import southAfricaFlag from '../flags/south_africa.png';
 import spainFlag from '../flags/spain.png';
 import unitedStatesFlag from '../flags/united_states.png';
 import uruguayFlag from '../flags/uruguay.png';
+import variousFlag from '../flags/various.svg';
 import washingtonFlag from '../flags/washington.png';
 
 interface FlagImageEntry {
@@ -56,6 +57,7 @@ const FLAG_IMAGES: FlagImageEntry[] = [
   { keys: ['spain'], image: spainFlag },
   { keys: ['united states', 'usa', 'us'], image: unitedStatesFlag },
   { keys: ['uruguay'], image: uruguayFlag },
+  { keys: ['various'], image: variousFlag },
   { keys: ['washington'], image: washingtonFlag },
 ];
 

@@ -36,6 +36,7 @@ export const FLAG_GRADIENTS: FlagGradient[] = [
   { key: 'japan', label: 'Japan', gradient: 'radial-gradient(circle at 50% 50%,#b91c1c 0 40%,#f8fafc 40%)' },
   { key: 'india', label: 'India', gradient: 'linear-gradient(90deg,#f97316 33%,#ffffff 33% 66%,#16a34a 66%)' },
   { key: 'georgia', label: 'Georgia', gradient: 'linear-gradient(5deg,#de2910 30%,#ffffff 30% 70%,#de2910 70%)' },
+  { key: 'various', label: 'Various', gradient: 'linear-gradient(90deg,#0f766e 0 25%,#1d4ed8 25% 50%,#7c3aed 50% 75%,#f59e0b 75% 100%)' },
 ];
 
 export const DEFAULT_FLAG_GRADIENT = 'linear-gradient(#374151,#111827)';
