@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-labelledby="title desc">
+  <title id="title">VINODEX logo</title>
+  <desc id="desc">A blocky white VINODEX mark on a red background.</desc>
+  <rect width="512" height="512" rx="92" fill="#DC0A2D"/>
+  <path fill="#89061C" d="M176 118h95l-34 86h40l26-66h96L294 394h-70l24-61h-44l-24 61H94l38-96h-34l78-180z"/>
+  <path fill="#FFFFFF" d="M156 102h95l-34 86h40l26-66h96L274 378h-70l24-61h-44l-24 61H74l38-96H78l78-180z"/>
+  <path fill="#FFFFFF" opacity="0.32" d="M156 102h95l-10 26h-95z"/>
+</svg>
