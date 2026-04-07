@@ -1,6 +1,6 @@
 # Vinodex - Wine Encyclopedia
 
-A retro-styled wine field guide for exploring grapes, regions, styles, and tasting profiles, built with React, TypeScript, and Tailwind CSS v4.
+A retro-styled wine encyclopedia Progressive Web App (PWA) built with React, TypeScript, and Tailwind CSS v4.
 
 ![Vinodex](public/vinodex-logo.png)
 
