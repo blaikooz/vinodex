@@ -6,6 +6,7 @@
   "scripts": {
     "dev": "vite",
     "build": "vite build",
+    "typecheck": "tsc --noEmit",
     "preview": "vite preview",
     "export:wine:excel": "ts-node --esm scripts/exportWineEntriesToExcel.ts",
     "build:wine:json": "ts-node --esm scripts/convertExcelToJson.ts"

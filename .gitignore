@@ -6,3 +6,4 @@ dist/
 .env.*
 node_modules
 .aider*
+node-v*-darwin-*/

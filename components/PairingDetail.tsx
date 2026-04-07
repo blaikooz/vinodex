@@ -20,6 +20,7 @@ interface EntryDetailProps {
   onFilterBySoil: (soil: string) => void;
   onFilterByOrigin: (origin: string) => void;
   onFilterByRarity?: (rarity: string) => void;
+  onFilterByClimate?: (climate: ClimateClass) => void;
 }
 
 const ICON_MAP: Record<string, React.ReactNode> = {
@@ -49,7 +50,7 @@ const ICON_MAP: Record<string, React.ReactNode> = {
   default: <Circle size={16} fill="currentColor" className="text-current" />,
 };
 
-const EntryDetail: React.FC<EntryDetailProps> = ({ entry, onBack, onHome, onSelectRelated, onFilterByType, onFilterByNote, onFilterBySoil, onFilterByOrigin, onFilterByRarity }) => {
+const EntryDetail: React.FC<EntryDetailProps> = ({ entry, onBack, onHome, onSelectRelated, onFilterByType, onFilterByNote, onFilterBySoil, onFilterByOrigin, onFilterByRarity, onFilterByClimate }) => {
   const scrollRef = useRef<HTMLDivElement>(null);
   const [allEntries, setAllEntries] = useState<WineEntry[]>([]);
 
@@ -122,6 +123,14 @@ const EntryDetail: React.FC<EntryDetailProps> = ({ entry, onBack, onHome, onSele
       .replace(/[^a-z0-9]+/g, ' ')
       .trim();
 
+  const normalizeLabel = (value: string) =>
+    value
+      .toLowerCase()
+      .normalize('NFD')
+      .replace(/[\u0300-\u036f]/g, '');
+
+  const isVariousOrigin = (origin?: string) => (origin || '').trim().toLowerCase() === 'various';
+
   const getExactFlavorEntry = (name: string) => {
     const cleanName = normalizeFlavorKey(name);
     return allEntries.find((e) => {
@@ -142,13 +151,13 @@ const EntryDetail: React.FC<EntryDetailProps> = ({ entry, onBack, onHome, onSele
 
   // Type Icon Selection
   const getTypeIcon = (typeStr: string = '', size: number = 28) => {
-      const t = typeStr.toLowerCase();
+      const t = normalizeLabel(typeStr);
       if (t.includes('full-bodied red') || t.includes('full bodied red')) return <Wine size={size} className="text-red-200" />;
       if (t.includes('bright red')) return <Sparkles size={size} className="text-pink-200" />;
       if (t.includes('light-bodied red') || t.includes('light bodied red')) return <GlassWater size={size} className="text-rose-200" />;
       if (t.includes('dark red')) return <Grape size={size} className="text-red-300" />;
       if (t.includes('medium-bodied red') || t.includes('medium bodied red')) return <Scale size={size} className="text-pink-300" />;
-      if (t.includes('pink') || t.includes('rosé') || t.includes('rose')) return <Droplets size={size} className="text-pink-200" />;
+      if (t.includes('pink') || t.includes('rose')) return <Droplets size={size} className="text-pink-200" />;
 
       if (t.includes('light-bodied white') || t.includes('light bodied white')) return <GlassWater size={size} className="text-emerald-100" />;
       if (t.includes('aromatic white')) return <Wind size={size} className="text-amber-200" />;
@@ -205,7 +214,7 @@ const EntryDetail: React.FC<EntryDetailProps> = ({ entry, onBack, onHome, onSele
     switch (type) {
       case 'RED': return { bg: '#4A0E0E', border: '#8B0000', text: '#ffe4e6' }; // full-bodied red palette
       case 'WHITE': return { bg: '#FAFAD2', border: '#DAA520', text: '#2d1b00' }; // light-bodied white palette
-      case 'ROSÉ': return { bg: '#4b1f2f', border: '#f9a8d4', text: '#ffe4e6' };
+      case 'ROSE': return { bg: '#4b1f2f', border: '#f9a8d4', text: '#ffe4e6' };
       case 'ORANGE': return { bg: '#4a2a0a', border: '#fb923c', text: '#ffedd5' };
       case 'DUAL': return { bg: '#4b0c2c', border: '#f472b6', text: '#ffe4f5' }; // pink palette
       default: return { bg: '#1f2937', border: '#22d3ee', text: '#cffafe' };
@@ -218,14 +227,14 @@ const EntryDetail: React.FC<EntryDetailProps> = ({ entry, onBack, onHome, onSele
   const isStyle = entry.category === 'STYLES';
   const isFlavor = entry.category === 'FLAVORS';
   const getStyleClassType = (name: string, classification?: string) => {
-    const normalized = name.toLowerCase();
+    const normalized = normalizeLabel(name);
     const classOverride = classification?.toUpperCase();
 
     if (classOverride === 'ORIGIN' || classOverride === 'METHOD' || classOverride === 'TYPE' || classOverride === 'BLEND') return classOverride;
 
-    const originKeywords = ['champagne', 'port', 'sherry', 'prosecco', 'crémant', 'cremant', 'cru beaujolais', 'super tuscan'];
-    const methodKeywords = ['sparkling', 'fortified', 'dessert', 'late harvest', 'ice wine', 'botrytis', 'pétillant', 'petillant', 'natural wine', 'orange wine'];
-    const typeKeywords = ['full-bodied', 'full bodied', 'light-bodied', 'light bodied', 'medium-bodied', 'medium bodied', 'aromatic', 'white', 'red', 'rosé', 'rose', 'sweet white', 'sparkling wine'];
+    const originKeywords = ['champagne', 'port', 'sherry', 'prosecco', 'cremant', 'cru beaujolais', 'super tuscan'];
+    const methodKeywords = ['sparkling', 'fortified', 'dessert', 'late harvest', 'ice wine', 'botrytis', 'petillant', 'natural wine', 'orange wine'];
+    const typeKeywords = ['full-bodied', 'full bodied', 'light-bodied', 'light bodied', 'medium-bodied', 'medium bodied', 'aromatic', 'white', 'red', 'rose', 'sweet white', 'sparkling wine'];
 
     if (originKeywords.some(k => normalized.includes(k))) return 'ORIGIN';
     if (typeKeywords.some(k => normalized.includes(k))) return 'TYPE';
@@ -241,9 +250,9 @@ const EntryDetail: React.FC<EntryDetailProps> = ({ entry, onBack, onHome, onSele
   const isBlendClassType = styleClassType === 'BLEND';
   const classTypeColors = getClassTypeColors(styleClassType as 'STYLE' | 'METHOD' | 'ORIGIN' | 'TYPE' | 'BLEND' | undefined);
   const getColorType = (name: string) => {
-    const n = name.toLowerCase();
+    const n = normalizeLabel(name);
     if (n.includes('orange')) return 'ORANGE';
-    if (n.includes('rosé') || n.includes('rose')) return 'ROSÉ';
+    if (n.includes('rose')) return 'ROSE';
     if (n.includes('red')) return 'RED';
     if (n.includes('white')) return 'WHITE';
     return 'DUAL';
@@ -447,7 +456,7 @@ const EntryDetail: React.FC<EntryDetailProps> = ({ entry, onBack, onHome, onSele
     if (t.includes('light-bodied red') || t.includes('light bodied red')) return { bg: '#4f1f28', border: '#8b3f4c', text: '#fee2e2' };
     if (t.includes('dark red')) return { bg: '#3f1024', border: '#70193d', text: '#fde2e4' };
     if (t.includes('medium-bodied red') || t.includes('medium bodied red')) return { bg: '#5e2b30', border: '#e96b6b', text: '#fff1f2' };
-    if (t.includes('pink') || t.includes('rosé') || t.includes('rose')) return { bg: '#5b2c36', border: '#f6b6c0', text: '#fff7f9' };
+    if (normalizeLabel(t).includes('pink') || normalizeLabel(t).includes('rose')) return { bg: '#5b2c36', border: '#f6b6c0', text: '#fff7f9' };
 
     if (t.includes('light-bodied white') || t.includes('light bodied white')) return { bg: '#334155', border: '#94a3b8', text: '#f8fafc' };
     if (t.includes('aromatic white')) return { bg: '#3f2e1a', border: '#daa520', text: '#fff4ce' };
@@ -469,7 +478,8 @@ const EntryDetail: React.FC<EntryDetailProps> = ({ entry, onBack, onHome, onSele
   };
   const getGrapeColorIcon = (related?: WineEntry) => {
     const t = related?.wineType?.toLowerCase() || '';
-    const isWhite = t.includes('white') || t.includes('rosé') || t.includes('rose');
+    const normalizedType = normalizeLabel(t);
+    const isWhite = normalizedType.includes('white') || normalizedType.includes('rose');
     if (isWhite) return <Droplet size={24} fill="#FACC15" className="text-amber-300" />;
     return <Droplet size={24} fill="#DC143C" className="text-red-400" />;
   };
@@ -493,7 +503,7 @@ const EntryDetail: React.FC<EntryDetailProps> = ({ entry, onBack, onHome, onSele
       if (bodyLevel.includes('full')) return '#B8860B';
       return '#DAA520';
     }
-    if (type.includes('rosé') || type.includes('rose')) return '#DB7093';
+    if (normalizeLabel(type).includes('rose')) return '#DB7093';
     if (type.includes('sweet')) return '#CD853F';
     return '#78716c';
   };
@@ -516,7 +526,7 @@ const EntryDetail: React.FC<EntryDetailProps> = ({ entry, onBack, onHome, onSele
     if (wineType.includes('light-bodied red') || wineType.includes('light bodied red')) return <GlassWater size={20} fill="currentColor" className="text-white opacity-90" />;
     if (wineType.includes('dark red')) return <Grape size={20} fill="currentColor" className="text-white opacity-90" />;
     if (wineType.includes('medium-bodied red') || wineType.includes('medium bodied red')) return <Scale size={20} className="text-white opacity-90" />;
-    if (wineType.includes('pink') || wineType.includes('rosé') || wineType.includes('rose')) return <Droplets size={20} className="text-white opacity-90" />;
+    if (normalizeLabel(wineType).includes('pink') || normalizeLabel(wineType).includes('rose')) return <Droplets size={20} className="text-white opacity-90" />;
     if (wineType.includes('light-bodied white') || wineType.includes('light bodied white')) return <GlassWater size={20} fill="currentColor" className="text-white opacity-90" />;
     if (wineType.includes('aromatic white')) return <Wind size={20} className="text-white opacity-90" />;
     if (wineType.includes('high-acid white') || wineType.includes('high acid white')) return <Citrus size={20} fill="currentColor" className="text-white opacity-90" />;
@@ -565,7 +575,7 @@ const EntryDetail: React.FC<EntryDetailProps> = ({ entry, onBack, onHome, onSele
     switch (type) {
       case 'RED': return '#8B0000'; // full-bodied red inner icon
       case 'WHITE': return '#FAFAD2'; // light-bodied white inner icon
-      case 'ROSÉ': return '#f9a8d4';
+      case 'ROSE': return '#f9a8d4';
       case 'ORANGE': return '#fdba74';
       case 'DUAL': return '#f472b6'; // pink inner icon
       default: return '#e5e7eb';
@@ -596,7 +606,7 @@ const EntryDetail: React.FC<EntryDetailProps> = ({ entry, onBack, onHome, onSele
     switch (colorType) {
       case 'RED': return <Wine size={20} fill="currentColor" style={{ color: iconColor }} />;
       case 'WHITE': return <GlassWater size={20} fill="currentColor" style={{ color: iconColor }} />;
-      case 'ROSÉ': return <Droplets size={20} style={{ color: iconColor }} />;
+      case 'ROSE': return <Droplets size={20} style={{ color: iconColor }} />;
       case 'ORANGE': return <Sun size={20} fill="currentColor" style={{ color: iconColor }} />;
       default: return <Grape size={20} fill="currentColor" style={{ color: iconColor }} />;
     }
@@ -689,11 +699,14 @@ const EntryDetail: React.FC<EntryDetailProps> = ({ entry, onBack, onHome, onSele
     }
     if (relatedEntry.category === 'STYLES') {
       const colorTypeColor = getStyleColorTypeColor(getColorType(relatedEntry.name));
+      const useFlagVisual = !isVariousOrigin(relatedEntry.details.origin);
       return {
         icon: getStyleIconShape(relatedEntry, colorTypeColor),
         bg: getStyleIconBg(relatedEntry),
         color: colorTypeColor,
-        outline: undefined
+        outline: undefined,
+        flagGradient: useFlagVisual ? getFlagGradient(relatedEntry.details.origin) : undefined,
+        flagImage: useFlagVisual ? getFlagImage(relatedEntry.details.origin) : undefined
       };
     }
     if (relatedEntry.category === 'FLAVORS') {
@@ -728,7 +741,7 @@ const EntryDetail: React.FC<EntryDetailProps> = ({ entry, onBack, onHome, onSele
           style: { ...(icon.props.style || {}), ...(iconColor ? { color: iconColor } : {}) }
         })
       : icon;
-    const showFlag = relatedEntry?.category === 'REGIONS' && Boolean(flagImage || flagGradient);
+    const showFlag = (relatedEntry?.category === 'REGIONS' || (relatedEntry?.category === 'STYLES' && !isVariousOrigin(relatedEntry.details.origin))) && Boolean(flagImage || flagGradient);
     const isRegionMeta = relatedEntry?.category === 'REGIONS' && options?.showRegionMetaTiles;
     const regionCountry = relatedEntry?.details.origin;
     const regionSystem = relatedEntry?.details.classification;
@@ -1159,7 +1172,7 @@ const EntryDetail: React.FC<EntryDetailProps> = ({ entry, onBack, onHome, onSele
                         style: { ...(icon.props.style || {}), ...(iconColor ? { color: iconColor } : {}) }
                       })
                     : icon;
-                  const showHeaderFlag = isRegion && Boolean(flagImage || flagGradient);
+                  const showHeaderFlag = (isRegion || (isStyle && !isVariousOrigin(entry.details.origin))) && Boolean(flagImage || flagGradient);
                   return (
                     <div
                       className="w-14 h-14 rounded-xl mb-3 flex items-center justify-center border-2 border-black/30 shadow-inner"

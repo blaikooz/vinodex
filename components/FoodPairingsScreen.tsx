@@ -49,10 +49,16 @@ export default function EncyclopediaList({ category, filterMode, filterValue, on
     setSearchQuery("");
   }, [category]);
 
+  const normalizeLabel = (value: string) =>
+    value
+      .toLowerCase()
+      .normalize('NFD')
+      .replace(/[\u0300-\u036f]/g, '');
+
   const getStyleColorType = (name: string) => {
-    const n = name.toLowerCase();
+    const n = normalizeLabel(name);
     if (n.includes('orange')) return 'ORANGE';
-    if (n.includes('rosé') || n.includes('rose')) return 'ROSÉ';
+    if (n.includes('rose')) return 'ROSE';
     if (n.includes('red')) return 'RED';
     if (n.includes('white')) return 'WHITE';
     return 'DUAL';
@@ -140,8 +146,8 @@ export default function EncyclopediaList({ category, filterMode, filterValue, on
                 e.name.toLowerCase().includes(keyword.toLowerCase())
              );
         } else if (activeFilterMode === 'TYPE' && typeof activeFilterValue === 'string') {
-             const typeMatch = !!(e.grapeCard?.style || e.wineType) && (e.grapeCard?.style || e.wineType)!.toLowerCase() === activeFilterValue.toLowerCase();
-             const styleColorMatch = effectiveCategory === 'STYLES' && getStyleColorType(e.name).toLowerCase() === activeFilterValue.toLowerCase();
+             const typeMatch = !!(e.grapeCard?.style || e.wineType) && normalizeLabel((e.grapeCard?.style || e.wineType)!) === normalizeLabel(activeFilterValue);
+             const styleColorMatch = effectiveCategory === 'STYLES' && normalizeLabel(getStyleColorType(e.name)) === normalizeLabel(activeFilterValue);
              matchesFilter = typeMatch || styleColorMatch;
         } else if (activeFilterMode === 'TASTING' && typeof activeFilterValue === 'string') {
              matchesFilter = (!!e.tastingProfile && e.tastingProfile.some(n => n.note.toLowerCase() === activeFilterValue.toLowerCase()))

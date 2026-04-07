@@ -74,6 +74,8 @@ const normalizeEntryKey = (value: string) =>
     .replace(/[^a-z0-9]+/g, ' ')
     .trim();
 
+const isVariousOrigin = (origin?: string) => (origin || '').trim().toLowerCase() === 'various';
+
 const darkenHex = (hex: string, amount = 0.35) => {
   const clean = hex.replace('#', '');
   if (clean.length !== 6) return hex;
@@ -659,6 +661,17 @@ const EntryTile: React.FC<EntryTileProps> = ({ entry, onPress, index, onFilterBy
         backgroundPosition: image ? 'center' : undefined,
         boxShadow: climateOutline ? `0 0 0 2px ${climateOutline}` : undefined,
       } as React.CSSProperties;
+    }
+    if (isStyle && entry.details.origin && !isVariousOrigin(entry.details.origin)) {
+      const gradient = getFlagGradient(entry.details.origin);
+      const image = getFlagImage(entry.details.origin);
+      if (image || gradient) {
+        return {
+          backgroundImage: image ? `url(${image})` : gradient,
+          backgroundSize: image ? 'cover' : undefined,
+          backgroundPosition: image ? 'center' : undefined,
+        } as React.CSSProperties;
+      }
     }
     if (isFlavor) {
       return {

@@ -23,7 +23,7 @@ import southAfricaFlag from '../flags/south_africa.png';
 import spainFlag from '../flags/spain.png';
 import unitedStatesFlag from '../flags/united_states.png';
 import uruguayFlag from '../flags/uruguay.png';
-import variousFlag from '../flags/various.svg';
+import variousFlag from '../flags/variousflags.png';
 import washingtonFlag from '../flags/washington.png';
 
 interface FlagImageEntry {
@@ -63,7 +63,25 @@ const FLAG_IMAGES: FlagImageEntry[] = [
 
 export const getFlagImage = (origin?: string) => {
   if (!origin) return undefined;
-  const lower = origin.toLowerCase();
-  const match = FLAG_IMAGES.find(({ keys }) => keys.some((key) => lower.includes(key)));
+  const normalizedOrigin = origin
+    .toLowerCase()
+    .replace(/_/g, ' ')
+    .replace(/\s+/g, ' ')
+    .trim();
+
+  const matchesKey = (key: string) => {
+    const normalizedKey = key
+      .toLowerCase()
+      .replace(/_/g, ' ')
+      .replace(/\s+/g, ' ')
+      .trim();
+
+    if (normalizedOrigin === normalizedKey) return true;
+    return normalizedOrigin.includes(` ${normalizedKey} `)
+      || normalizedOrigin.startsWith(`${normalizedKey} `)
+      || normalizedOrigin.endsWith(` ${normalizedKey}`);
+  };
+
+  const match = FLAG_IMAGES.find(({ keys }) => keys.some(matchesKey));
   return match?.image;
 };

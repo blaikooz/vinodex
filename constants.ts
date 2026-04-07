@@ -1,4 +1,4 @@
-import { EntryCategory, WineEntry } from './types.ts';
+import { EntryCategory, TastingNote, WineEntry } from './types.ts';
 import { GRAPES as LEGACY_GRAPES } from './data/grapes.ts';
 import { REGIONS } from './data/regions.ts';
 import { STYLES } from './data/styles.ts';
@@ -75,6 +75,37 @@ const FLAVOR_CLASS_COLORS: Record<FlavorClass, { color: string; icon: string; bo
   BITTER: { color: '#8b5cf6', icon: 'triangle', border: '#6d28d9', text: '#f3e8ff' },
   UMAMI: { color: '#14b8a6', icon: 'leaf', border: '#0d9488', text: '#e0f2f1' },
 };
+
+const TASTING_NOTE_ICON_KEYS: TastingNote['icon'][] = [
+  'circle',
+  'triangle',
+  'leaf',
+  'cloud',
+  'sun',
+  'mountain',
+  'sparkles',
+  'flame',
+  'droplet',
+  'shield',
+  'flower',
+  'fruit',
+  'herb',
+  'spice',
+  'mineral',
+  'oak',
+  'smoke',
+  'stone',
+  'tropical',
+  'flag',
+  'honey',
+  'nut',
+  'default',
+];
+
+const sanitizeTastingNoteIcon = (icon?: string): TastingNote['icon'] =>
+  icon && TASTING_NOTE_ICON_KEYS.includes(icon as TastingNote['icon'])
+    ? (icon as TastingNote['icon'])
+    : 'default';
 
 const SUBCLASS_TO_CLASS: Record<string, FlavorClass> = {
   CITRUS: 'SOUR',
@@ -162,7 +193,7 @@ const buildFlavorEntries = (grapeEntries: WineEntry[]): WineEntry[] => {
       color: clsColors.color,
       icon: flavor.icon,
       tastingProfile: [
-        { note: flavor.note, icon: flavor.icon as any, color: flavor.color || clsColors.border },
+        { note: flavor.note, icon: sanitizeTastingNoteIcon(flavor.icon), color: flavor.color || clsColors.border },
         ...related,
       ],
       details: {
