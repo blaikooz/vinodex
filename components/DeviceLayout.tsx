@@ -53,9 +53,8 @@ const DeviceLayout: React.FC<DeviceLayoutProps> = ({
               {!hideHeader && (
                 <div className="relative z-20 shrink-0 h-16 bg-dex-red border-b-2 border-dex-darkRed shadow-sm flex items-center px-3 pr-5 justify-between">
                   <div className="relative flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-full bg-blue-500 border-[3px] border-white flex items-center justify-center relative overflow-hidden shadow-inner">
-                      <div className="absolute top-1 left-2 w-3 h-3 bg-white rounded-full opacity-60 blur-[1px]"></div>
-                      <div className="w-full h-full bg-gradient-to-br from-blue-400 to-blue-700 opacity-90"></div>
+                    <div className="w-10 h-10 rounded-xl bg-white/10 border-[3px] border-white flex items-center justify-center relative overflow-hidden shadow-inner">
+                      <img src="/icon.svg" alt="VINODEX logo" className="w-full h-full object-cover" />
                     </div>
                     <div className="flex flex-col gap-1 mt-1">
                       <div className="w-2 h-2 rounded-full bg-red-600 border border-red-800 shadow-[0_0_3px_rgba(0,0,0,0.5)]"></div>

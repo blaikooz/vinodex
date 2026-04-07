@@ -12,11 +12,11 @@ export default defineConfig({
     react(),
     VitePWA({
       registerType: 'autoUpdate',
-      includeAssets: ['icon.svg'],
+      includeAssets: ['icon.svg', 'vinodex-logo.png'],
       manifest: {
         name: 'Vinodex - Wine Encyclopedia',
         short_name: 'Vinodex',
-        description: 'A retro wine encyclopedia app - explore grapes, regions, and wine styles',
+        description: 'A retro wine field guide for exploring grapes, regions, styles, and tasting profiles.',
         theme_color: '#DC0A2D',
         background_color: '#232323',
         display: 'standalone',
@@ -27,6 +27,12 @@ export default defineConfig({
             src: 'icon.svg',
             sizes: 'any',
             type: 'image/svg+xml',
+            purpose: 'any'
+          },
+          {
+            src: 'vinodex-logo.png',
+            sizes: '650x650',
+            type: 'image/png',
             purpose: 'any maskable'
           }
         ]
