@@ -2,7 +2,7 @@
 
 A retro-styled wine encyclopedia Progressive Web App (PWA) built with React, TypeScript, and Tailwind CSS v4.
 
-![Vinodex](public/vinodex-logo.svg)
+![Vinodex](public/vinodex-logo.png)
 
 ## Features
 
