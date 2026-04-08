@@ -68,10 +68,18 @@ const App: React.FC = () => {
 
   const handleSelectEntry = (entry: WineEntry) => {
     if (entry.category === 'COUNTRY_GATE') {
-      if ((entry.details.classification || '').toUpperCase() === 'STATE') {
+      const classification = (entry.details.classification || '').toUpperCase();
+      if (classification === 'STATE') {
         pushState({ screen: 'LIST', category: 'REGIONS', filterMode: 'STATE', filterValue: entry.name, entry: null });
         return;
       }
+
+      const hasCountryDetail = entry.details.keyRegions && entry.details.keyRegions.length > 0 && entry.description;
+      if (hasCountryDetail && classification !== 'STATE') {
+        pushState({ screen: 'DETAIL', entry });
+        return;
+      }
+
       if (entry.name.toUpperCase() === 'USA') {
         pushState({ screen: 'LIST', category: 'COUNTRY_GATE', filterMode: 'STATE', filterValue: USA_STATES, entry: null });
         return;
@@ -86,31 +94,10 @@ const App: React.FC = () => {
 
   // 1. Region Map Selection
   const handleContinentSelect = (continent: string) => {
-      let countries: string[] = [];
-      switch(continent) {
-          case 'EUROPE': 
-            countries = ['France', 'Italy', 'Spain', 'Germany', 'Portugal', 'Hungary', 'Austria', 'Greece', 'Georgia']; 
-            break;
-          case 'NORTH_AMERICA': 
-            countries = ['USA', 'Canada']; 
-            break;
-          case 'SOUTH_AMERICA': 
-            countries = ['Argentina', 'Chile', 'Uruguay']; 
-            break;
-          case 'OCEANIA': 
-            countries = ['Australia', 'New Zealand']; 
-            break;
-          case 'AFRICA': 
-            countries = ['South Africa']; 
-            break;
-          case 'ASIA':
-            countries = ['China', 'Japan', 'India']; 
-            break;
-          default:
-            countries = [];
+      const continentEntry = WINE_ENTRIES.find(entry => entry.id === `CONT_${continent}`);
+      if (continentEntry) {
+          pushState({ screen: 'DETAIL', entry: continentEntry });
       }
-      
-      pushState({ screen: 'LIST', category: 'COUNTRY_GATE', filterMode: 'REGION', filterValue: countries });
   };
 
   // 2. Manual Search

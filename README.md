@@ -73,4 +73,5 @@ types.ts      Shared TypeScript types
 ## Notes
 
 - `public/wine-entries.json` is the runtime dataset loaded by the app.
+- Optional Supabase support is available behind env vars; see [supabase/README.md](./supabase/README.md).
 - The repo no longer depends on a bundled platform-specific Node binary.

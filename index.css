@@ -1,6 +1,24 @@
 @import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&family=VT323&display=swap');
 @import "tailwindcss";
 
+/* Custom Theme Extensions */
+@theme {
+  --font-mono: 'VT323', monospace;
+  --font-retro: 'Press Start 2P', cursive;
+  
+  --color-dex-red: #DC0A2D;
+  --color-dex-darkRed: #89061C;
+  --color-dex-screen: #232323;
+  --color-dex-screenBg: #98CB98;
+  --color-dex-ui: #DEDEDE;
+  --color-dex-blue: #2AB5FF;
+  --color-dex-yellow: #FACC15;
+  --color-dex-green: #4ADE80;
+  
+  --animate-pulse-fast: pulse 1.5s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+  --animate-blink: blink 1s step-end infinite;
+}
+
 /* Base styles */
 body {
   background-color: #111;
@@ -93,22 +111,4 @@ body {
 
 .animate-in.slide-in-from-top-2 {
   animation: slide-in-from-top 0.2s ease-out;
-}
-
-/* Custom Theme Extensions */
-@theme {
-  --font-mono: 'VT323', monospace;
-  --font-retro: 'Press Start 2P', cursive;
-  
-  --color-dex-red: #DC0A2D;
-  --color-dex-darkRed: #89061C;
-  --color-dex-screen: #232323;
-  --color-dex-screenBg: #98CB98;
-  --color-dex-ui: #DEDEDE;
-  --color-dex-blue: #2AB5FF;
-  --color-dex-yellow: #FACC15;
-  --color-dex-green: #4ADE80;
-  
-  --animate-pulse-fast: pulse 1.5s cubic-bezier(0.4, 0, 0.6, 1) infinite;
-  --animate-blink: blink 1s step-end infinite;
 }

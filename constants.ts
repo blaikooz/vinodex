@@ -3,12 +3,16 @@ import { GRAPES as LEGACY_GRAPES } from './data/grapes.ts';
 import { REGIONS } from './data/regions.ts';
 import { STYLES } from './data/styles.ts';
 import { GRAPE_CARDS } from './data/grapeCards.ts';
+import { CONTINENTS } from './data/continents.ts';
+import { COUNTRIES } from './data/countries.ts';
 
 // Re-export individual collections
 export { GRAPES as GRAPES_LEGACY } from './data/grapes.ts';
 export { REGIONS } from './data/regions.ts';
 export { STYLES } from './data/styles.ts';
 export { GRAPE_CARDS } from './data/grapeCards.ts';
+export { CONTINENTS } from './data/continents.ts';
+export { COUNTRIES } from './data/countries.ts';
 
 const legacyColorMap: Record<string, { color: string; icon?: string; tastingProfile?: WineEntry['tastingProfile']; wineType?: string }> =
   LEGACY_GRAPES.reduce((acc, g) => {
@@ -212,6 +216,8 @@ const CATEGORY_CALLBACKS: Partial<Record<EntryCategory, { icon: string; tile: st
   REGIONS: { icon: 'region', tile: 'region' },
   STYLES: { icon: 'style', tile: 'style' },
   FLAVORS: { icon: 'flavor', tile: 'flavor' },
+  CONTINENTS: { icon: 'globe', tile: 'globe' },
+  COUNTRY_GATE: { icon: 'flag', tile: 'globe' },
 };
 
 const applyCategoryCallbacks = (entry: WineEntry): WineEntry => {
@@ -230,4 +236,6 @@ export const WINE_ENTRIES: WineEntry[] = [
   ...REGIONS,
   ...STYLES,
   ...buildFlavorEntries(GRAPE_ENTRIES),
+  ...CONTINENTS,
+  ...COUNTRIES,
 ].map(applyCategoryCallbacks);

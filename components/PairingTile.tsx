@@ -7,6 +7,7 @@ import { getFlagGradient } from '../data/flagGradients';
 import { getFlagImage } from '../data/flagImages';
 import { GRAPES } from '../data/grapes';
 import { loadAllEntries } from '../src/services/wineData';
+import { CONTAINER_SIZE_LIST, CONTAINER_BORDER_CLASS, CONTAINER_SHADOW_CLASS, CONTAINER_BORDER, ICON_SIZE_LIST } from '../src/services/iconRendering';
 
 type FilterMode = 'REGION' | 'TYPE' | 'TASTING' | 'SOIL' | 'ORIGIN' | 'RARITY' | 'SYSTEM' | 'CLIMATE' | null;
 
@@ -104,6 +105,16 @@ const GRAPE_ICON_COLOR_BY_NAME = (() => {
   return map;
 })();
 
+// ICON RENDERING SYSTEM
+// This matches the identical icon rendering logic in PairingDetail.renderMasterEntryIcon()
+// Both components use the same rules for all entry types:
+// - GRAPES: getGrapeFlavorIcon() with primary flavor color
+// - REGIONS: Region's icon (mountain/sparkles/etc) with main grape color + drop-shadow
+// - STYLES: getStyleIconByClass() with color type
+// - FLAVORS: ICON_MAP with flavor subclass color + drop-shadow outline
+// - COUNTRIES: No icon (flag only background)
+// Size difference: Lists use 20px icons, Headers use 28px
+
 const getRegionMainGrapeIconColor = (entry: WineEntry) => {
   const notableGrapes = entry.details.notableGrapes || [];
   for (const grapeName of notableGrapes) {
@@ -112,6 +123,67 @@ const getRegionMainGrapeIconColor = (entry: WineEntry) => {
   }
   return undefined;
 };
+
+const getRegionClassificationIconColor = (classification?: string) => {
+  const map: Record<string, string> = {
+    aoc: '#f43f5e',
+    docg: '#f59e0b',
+    doc: '#ea580c',
+    doca: '#fcd34d',
+    ava: '#6366f1',
+    gi: '#22c55e',
+    pdo: '#a855f7',
+    pgi: '#14b8a6',
+    igp: '#84cc16',
+  };
+  const key = classification ? classification.toLowerCase() : '';
+  return map[key] || '#e5e7eb';
+};
+
+// Get the main grape's flavor icon for regions
+const getRegionMainGrapeFlavorIcon = (entry: WineEntry): React.ReactNode => {
+  const notableGrapes = entry.details.notableGrapes || [];
+  if (notableGrapes.length === 0) {
+    return ICON_MAP['default'];
+  }
+  
+  // Find the first grape entry
+  const mainGrapeName = notableGrapes[0];
+  const mainGrape = GRAPES.find(g => normalizeEntryKey(g.name) === normalizeEntryKey(mainGrapeName));
+  
+  if (!mainGrape) {
+    return ICON_MAP['default'];
+  }
+  
+  // Get the tasting profile note and color
+  const note = mainGrape.tastingProfile?.[0];
+  const iconColor = note?.color || GRAPE_ICON_COLOR_BY_NAME.get(normalizeEntryKey(mainGrapeName));
+  
+  if (!note) {
+    const fallback = getGrapeIcon(mainGrape);
+    return React.isValidElement(fallback)
+      ? React.cloneElement(fallback as React.ReactElement, {
+          style: {
+            ...(fallback.props.style || {}),
+            ...(iconColor ? { color: iconColor } : {}),
+          },
+        })
+      : fallback;
+  }
+  
+  // Use the flavor icon with the flavor color and white outline
+  const IconComp = ICON_MAP[note.icon] || ICON_MAP['default'];
+  return React.isValidElement(IconComp)
+    ? React.cloneElement(IconComp as React.ReactElement, {
+        className: 'opacity-90',
+        style: {
+          color: iconColor || note.color,
+          filter: `drop-shadow(1px 0 0 #fff) drop-shadow(-1px 0 0 #fff) drop-shadow(0 1px 0 #fff) drop-shadow(0 -1px 0 #fff)`
+        },
+      })
+    : IconComp;
+};
+
 
 // Get grape icon color based on wine type and body - red grapes get red shades, white grapes get gold shades
 const getGrapeIconColor = (wineType: string | undefined, body: string | undefined) => {
@@ -688,13 +760,8 @@ const EntryTile: React.FC<EntryTileProps> = ({ entry, onPress, index, onFilterBy
       ? grapeIconElement
       : isStyle && React.isValidElement(styleIconElement)
         ? styleIconElement
-      : isRegion && React.isValidElement(genericIcon)
-          ? React.cloneElement(genericIcon as React.ReactElement, {
-              style: {
-                color: regionIconColor || '#fff',
-                filter: 'drop-shadow(1px 0 0 #000) drop-shadow(-1px 0 0 #000) drop-shadow(0 1px 0 #000) drop-shadow(0 -1px 0 #000)'
-              }
-            })
+      : isRegion
+        ? getRegionMainGrapeFlavorIcon(entry)
       : isFlavor && React.isValidElement(genericIcon)
         ? React.cloneElement(genericIcon as React.ReactElement, {
             style: {
@@ -718,7 +785,7 @@ const EntryTile: React.FC<EntryTileProps> = ({ entry, onPress, index, onFilterBy
 
       {/* Left: Large Icon Identifier */}
       <div 
-        className="shrink-0 w-12 h-12 rounded-lg shadow-inner flex items-center justify-center border-2 border-black/20 self-start"
+        className={`shrink-0 ${CONTAINER_SIZE_LIST} ${CONTAINER_BORDER_CLASS} ${CONTAINER_SHADOW_CLASS} flex items-center justify-center ${CONTAINER_BORDER} self-start`}
         style={getIconStyle()}
       >
         {renderedIcon}

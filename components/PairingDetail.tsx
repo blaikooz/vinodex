@@ -7,6 +7,7 @@ import { getFlagGradient } from '../data/flagGradients';
 import { getFlagImage } from '../data/flagImages';
 import { loadAllEntries } from '../src/services/wineData';
 import { getStylePalette } from '../stylePalette';
+import { CONTAINER_SIZE_HEADER, HEADER_BORDER_CLASS, CONTAINER_SHADOW_CLASS, HEADER_BORDER, CONTAINER_SIZE_LIST, CONTAINER_BORDER_CLASS, CONTAINER_BORDER, ICON_SIZE_LINKED } from '../src/services/iconRendering';
 
 type FilterMode = 'REGION' | 'TYPE' | 'TASTING' | 'SOIL' | 'ORIGIN' | 'RARITY' | 'SYSTEM' | 'CLIMATE' | null;
 
@@ -226,6 +227,8 @@ const EntryDetail: React.FC<EntryDetailProps> = ({ entry, onBack, onHome, onSele
   const isRegion = entry.category === 'REGIONS';
   const isStyle = entry.category === 'STYLES';
   const isFlavor = entry.category === 'FLAVORS';
+  const isContinent = entry.category === 'CONTINENTS';
+  const isCountry = entry.category === 'COUNTRY_GATE' && entry.details.classification?.toUpperCase() === 'COUNTRY';
   const getStyleClassType = (name: string, classification?: string) => {
     const normalized = normalizeLabel(name);
     const classOverride = classification?.toUpperCase();
@@ -265,9 +268,9 @@ const EntryDetail: React.FC<EntryDetailProps> = ({ entry, onBack, onHome, onSele
   const displayClass = isGrapes ? (grapeCard?.rarityTier?.toUpperCase() || entry.rarity) : entry.details.classification || entry.rarity;
 
   // List Data Selection
-  const listSectionTitle = isRegion ? 'NOTABLE GRAPES' : 'NOTABLE REGIONS';
-  const listSectionData = isRegion ? entry.details.notableGrapes : (isGrapes ? grapeCard?.notableRegions : entry.details.keyRegions);
-  const scanTitle = isGrapes ? 'GRAPE SCAN' : isRegion ? 'REGION SCAN' : isFlavor ? 'FLAVOR SCAN' : 'STYLE SCAN';
+  const listSectionTitle = isContinent ? 'COUNTRIES' : isCountry ? 'KEY REGIONS' : (isRegion ? 'NOTABLE GRAPES' : 'NOTABLE REGIONS');
+  const listSectionData = isContinent ? entry.details.keyRegions : (isRegion ? entry.details.notableGrapes : (isGrapes ? grapeCard?.notableRegions : entry.details.keyRegions));
+  const scanTitle = isGrapes ? 'GRAPE SCAN' : isRegion ? 'REGION SCAN' : isFlavor ? 'FLAVOR SCAN' : isContinent ? 'CONTINENT SCAN' : isCountry ? 'COUNTRY SCAN' : 'STYLE SCAN';
   const regionSoils = isRegion
     ? (entry.details.soilType
         ? entry.details.soilType.split(',').map((soil) => soil.trim()).filter(Boolean).slice(0, 3)
@@ -655,6 +658,111 @@ const EntryDetail: React.FC<EntryDetailProps> = ({ entry, onBack, onHome, onSele
     };
   };
 
+  // Get the main grape's flavor icon for regions
+  const getRegionMainGrapeFlavorIcon = (entry: WineEntry): React.ReactNode => {
+    const notableGrapes = entry.details.notableGrapes || [];
+    if (notableGrapes.length === 0) {
+      return buildIconNode('default', undefined);
+    }
+    
+    // Find the first grape
+    for (const grapeName of notableGrapes) {
+      const grapeEntry = getExactGrapeEntry(grapeName);
+      if (!grapeEntry) continue;
+      
+      // Use the grape's primary flavor visual
+      const visual = getGrapePrimaryFlavorVisual(grapeEntry);
+      return visual.icon;
+    }
+    
+    return buildIconNode('default', undefined);
+  };
+
+
+  // Master icon renderer - ensures consistent styling across all contexts
+  // NOTE: PairingTile.tsx uses this SAME rendering logic for regions in its local implementation
+  // Both components must maintain identical icon rendering logic:
+  // - GRAPES: Primary flavor icon with wine type outline
+  // - REGIONS: Region's icon with main grape color + drop-shadow
+  // - STYLES: Classification-based icon with color type
+  // - FLAVORS: Flavor subclass icon with color outline
+  // - COUNTRIES: White icon on flag background
+  // The only difference is the icon size parameter (20 for lists, 28 for headers)
+  const renderMasterEntryIcon = (entry: WineEntry | undefined, size: number = 20): React.ReactNode => {
+    if (!entry) {
+      return buildIconNode('default', undefined, size);
+    }
+
+    if (entry.category === 'GRAPES') {
+      const visual = getGrapePrimaryFlavorVisual(entry);
+      const scaledIcon = React.isValidElement(visual.icon)
+        ? React.cloneElement(visual.icon as React.ReactElement, { size })
+        : visual.icon;
+      return scaledIcon;
+    }
+
+    if (entry.category === 'REGIONS') {
+      const notableGrapes = entry.details.notableGrapes || [];
+      if (notableGrapes.length > 0) {
+        // Find the first grape's flavor visual
+        for (const grapeName of notableGrapes) {
+          const grapeEntry = getExactGrapeEntry(grapeName);
+          if (grapeEntry) {
+            const visual = getGrapePrimaryFlavorVisual(grapeEntry);
+            const climateColors = entry.climate ? CLIMATE_CLASS_MAP[entry.climate]?.colors : undefined;
+            
+            // Clone the icon and apply the grape's color + black outline
+            const scaledIcon = React.isValidElement(visual.icon)
+              ? React.cloneElement(visual.icon as React.ReactElement, { 
+                  size,
+                  style: { 
+                    color: visual.color,
+                    filter: `drop-shadow(0.5px 0.5px 0 #000) drop-shadow(-0.5px -0.5px 0 #000) drop-shadow(0.5px -0.5px 0 #000) drop-shadow(-0.5px 0.5px 0 #000) drop-shadow(1px 0 0 #fff) drop-shadow(-1px 0 0 #fff) drop-shadow(0 1px 0 #fff) drop-shadow(0 -1px 0 #fff)`
+                  }
+              })
+              : visual.icon;
+            return scaledIcon;
+          }
+        }
+      }
+      // Fallback if no grapes found
+      const iconNode = getRegionMainGrapeFlavorIcon(entry);
+      const scaledIcon = React.isValidElement(iconNode)
+        ? React.cloneElement(iconNode as React.ReactElement, { size, style: { filter: `drop-shadow(1px 0 0 #fff) drop-shadow(-1px 0 0 #fff) drop-shadow(0 1px 0 #fff) drop-shadow(0 -1px 0 #fff)` } })
+        : iconNode;
+      return scaledIcon;
+    }
+
+    if (entry.category === 'STYLES') {
+      const colorTypeColor = getStyleColorTypeColor(getColorType(entry.name));
+      const icon = getStyleIconShape(entry, colorTypeColor);
+      return React.isValidElement(icon)
+        ? React.cloneElement(icon as React.ReactElement, { size })
+        : icon;
+    }
+
+    if (entry.category === 'FLAVORS') {
+      const iconColor = getFlavorSubclassIconColor(entry.details.subclass);
+      const iconKey = entry.icon || 'default';
+      const baseIcon = buildIconNode(iconKey, iconColor, size);
+      return addIconOutline(baseIcon, iconColor);
+    }
+
+    if (entry.category === 'COUNTRY_GATE') {
+      const iconNode = React.isValidElement(ICON_MAP[entry.icon || 'default'])
+        ? React.cloneElement(ICON_MAP[entry.icon || 'default'] as React.ReactElement, {
+            style: { color: '#fff' }
+          })
+        : ICON_MAP[entry.icon || 'default'] || ICON_MAP['default'];
+      return React.isValidElement(iconNode)
+        ? React.cloneElement(iconNode as React.ReactElement, { size })
+        : iconNode;
+    }
+
+    // Default fallback
+    return buildIconNode(entry.icon || 'default', undefined, size);
+  };
+
   interface EntryIconDisplay {
     icon: React.ReactNode;
     bg: string;
@@ -697,6 +805,25 @@ const EntryDetail: React.FC<EntryDetailProps> = ({ entry, onBack, onHome, onSele
         flagImage: getFlagImage(relatedEntry.details.origin)
       };
     }
+    if (relatedEntry.category === 'COUNTRY_GATE') {
+      const origin = relatedEntry.details.origin || relatedEntry.name;
+      const flagGradient = getFlagGradient(origin);
+      const flagImage = getFlagImage(origin);
+      return {
+        icon: React.isValidElement(ICON_MAP[relatedEntry.icon || 'default'])
+          ? React.cloneElement(ICON_MAP[relatedEntry.icon || 'default'] as React.ReactElement, {
+              style: {
+                color: '#fff'
+              }
+            })
+          : ICON_MAP[relatedEntry.icon || 'default'] || ICON_MAP['default'],
+        bg: flagGradient || relatedEntry.color || '#444',
+        color: '#fff',
+        outline: undefined,
+        flagGradient,
+        flagImage
+      };
+    }
     if (relatedEntry.category === 'STYLES') {
       const colorTypeColor = getStyleColorTypeColor(getColorType(relatedEntry.name));
       const useFlagVisual = !isVariousOrigin(relatedEntry.details.origin);
@@ -734,14 +861,8 @@ const EntryDetail: React.FC<EntryDetailProps> = ({ entry, onBack, onHome, onSele
     const displayName = (relatedEntry?.name || label || 'UNKNOWN').toUpperCase();
     const isLinkable = !!relatedEntry;
     const classificationLabel = relatedEntry?.details.classification ? formatUpper(relatedEntry.details.classification) : undefined;
-    const iconNode = React.isValidElement(icon)
-      ? React.cloneElement(icon as React.ReactElement, {
-          size: 20,
-          className: icon.props.className,
-          style: { ...(icon.props.style || {}), ...(iconColor ? { color: iconColor } : {}) }
-        })
-      : icon;
-    const showFlag = (relatedEntry?.category === 'REGIONS' || (relatedEntry?.category === 'STYLES' && !isVariousOrigin(relatedEntry.details.origin))) && Boolean(flagImage || flagGradient);
+    const masterIconNode = renderMasterEntryIcon(relatedEntry, 20);
+    const showFlag = ((relatedEntry?.category === 'REGIONS' || relatedEntry?.category === 'COUNTRY_GATE') || (relatedEntry?.category === 'STYLES' && !isVariousOrigin(relatedEntry.details.origin))) && Boolean(flagImage || flagGradient);
     const isRegionMeta = relatedEntry?.category === 'REGIONS' && options?.showRegionMetaTiles;
     const regionCountry = relatedEntry?.details.origin;
     const regionSystem = relatedEntry?.details.classification;
@@ -764,7 +885,7 @@ const EntryDetail: React.FC<EntryDetailProps> = ({ entry, onBack, onHome, onSele
         <div className="absolute bottom-0 left-0 w-2 h-2 border-b-2 border-l-2 border-stone-600 group-hover:border-green-400 transition-colors"></div>
 
         <div
-          className={`shrink-0 w-12 h-12 rounded-lg shadow-inner flex items-center justify-center border-2 border-black/20 ${!isLinkable ? 'grayscale' : ''}`}
+          className={`shrink-0 ${CONTAINER_SIZE_LIST} ${CONTAINER_BORDER_CLASS} ${CONTAINER_SHADOW_CLASS} flex items-center justify-center ${CONTAINER_BORDER} ${!isLinkable ? 'grayscale' : ''}`}
           style={{
             backgroundColor: showFlag ? undefined : bg,
             backgroundImage: showFlag ? (flagImage ? `url(${flagImage})` : flagGradient) : undefined,
@@ -773,7 +894,7 @@ const EntryDetail: React.FC<EntryDetailProps> = ({ entry, onBack, onHome, onSele
             boxShadow: outline ? `0 0 0 2px ${outline}` : undefined
           }}
         >
-          {iconNode}
+          {relatedEntry?.category === 'REGIONS' ? masterIconNode : !showFlag ? masterIconNode : null}
         </div>
 
         <div className="flex-1 flex items-center gap-2 min-w-0">
@@ -881,6 +1002,10 @@ const EntryDetail: React.FC<EntryDetailProps> = ({ entry, onBack, onHome, onSele
       const labelStyle = "text-xs font-bold text-stone-500 uppercase tracking-widest mb-2 group-hover:text-green-500 z-10";
       const valueStyle = "text-sm font-bold text-white text-center leading-tight uppercase z-10 break-words w-full";
       
+      if (isCountry) {
+        return null;
+      }
+
       if (isGrapes) {
           const typeColors = getTypeTileColors(entry.wineType);
           const typeEntry = entry.wineType ? getRelatedEntry(entry.wineType) : undefined;
@@ -1165,17 +1290,12 @@ const EntryDetail: React.FC<EntryDetailProps> = ({ entry, onBack, onHome, onSele
              <div className="text-center z-10 w-full flex flex-col items-center px-2">
                 {(() => {
                   const { icon, bg, color: iconColor, outline, flagGradient, flagImage } = getEntryIconDisplay(entry);
-                  const iconNode = React.isValidElement(icon)
-                    ? React.cloneElement(icon as React.ReactElement, {
-                        size: 28,
-                        className: icon.props.className,
-                        style: { ...(icon.props.style || {}), ...(iconColor ? { color: iconColor } : {}) }
-                      })
-                    : icon;
-                  const showHeaderFlag = (isRegion || (isStyle && !isVariousOrigin(entry.details.origin))) && Boolean(flagImage || flagGradient);
+                  const masterIconNode = renderMasterEntryIcon(entry, 28);
+                  const showHeaderFlag = (isRegion || isCountry || (isStyle && !isVariousOrigin(entry.details.origin))) && Boolean(flagImage || flagGradient);
+                  const showInnerIcon = !showHeaderFlag;
                   return (
                     <div
-                      className="w-14 h-14 rounded-xl mb-3 flex items-center justify-center border-2 border-black/30 shadow-inner"
+                      className={`${CONTAINER_SIZE_HEADER} ${HEADER_BORDER_CLASS} mb-3 flex items-center justify-center ${HEADER_BORDER} ${CONTAINER_SHADOW_CLASS}`}
                       style={{
                         backgroundColor: showHeaderFlag ? undefined : bg,
                         backgroundImage: showHeaderFlag ? (flagImage ? `url(${flagImage})` : flagGradient) : undefined,
@@ -1184,7 +1304,7 @@ const EntryDetail: React.FC<EntryDetailProps> = ({ entry, onBack, onHome, onSele
                         boxShadow: outline ? `0 0 0 2px ${outline}` : undefined
                       }}
                     >
-                      {iconNode}
+                      {showInnerIcon ? masterIconNode : null}
                     </div>
                   );
                 })()}
@@ -1208,6 +1328,52 @@ const EntryDetail: React.FC<EntryDetailProps> = ({ entry, onBack, onHome, onSele
                   <p className="text-lg md:text-xl leading-relaxed text-green-200 font-medium break-words whitespace-normal normal-case">
                       {grapeCard?.info || entry.description}
                   </p>
+              </div>
+          </div>
+        )}
+
+        {/* Main Grapes Section - Countries */}
+        {isCountry && entry.details.notableGrapes && entry.details.notableGrapes.length > 0 && (
+          <div className="mb-6">
+              <div className="flex items-center gap-2 mb-2 border-b-2 border-green-800 pb-1">
+                  <Leaf size={18} className="text-green-500" />
+                  <span className="font-retro text-xs md:text-sm tracking-widest text-green-500">MAIN GRAPES</span>
+              </div>
+              <div className="space-y-2">
+                {entry.details.notableGrapes.slice(0, 3).map((grape, idx) => renderLinkedTile(grape, idx))}
+              </div>
+          </div>
+        )}
+
+        {/* System Section - Appellation Systems for Countries */}
+        {isCountry && entry.tags && entry.tags.length > 0 && (
+          <div className="mb-6">
+              <div className="flex items-center gap-2 mb-2 border-b-2 border-green-800 pb-1">
+                  <Shield size={18} className="text-green-500" />
+                  <span className="font-retro text-xs md:text-sm tracking-widest text-green-500">APPELLATION SYSTEMS</span>
+              </div>
+              <div className="flex flex-wrap gap-2">
+                {entry.tags.filter(tag => tag !== 'COUNTRY').map((system, idx) => {
+                  const systemColors = getClassificationColors(system);
+                  return (
+                    <span key={idx} className="px-3 py-2 rounded text-sm font-bold font-mono" style={{ backgroundColor: systemColors.bg, borderColor: systemColors.border, color: systemColors.text, border: `1px solid ${systemColors.border}` }}>
+                      {system}
+                    </span>
+                  );
+                })}
+              </div>
+          </div>
+        )}
+
+        {/* Key Regions Section - Countries with Regions */}
+        {isCountry && entry.details.keyRegions && entry.details.keyRegions.length > 0 && (
+          <div className="mb-6">
+              <div className="flex items-center gap-2 mb-2 border-b-2 border-green-800 pb-1">
+                  <MapPin size={18} className="text-green-500" />
+                  <span className="font-retro text-xs md:text-sm tracking-widest text-green-500">KEY REGIONS</span>
+              </div>
+              <div className="space-y-2">
+                {entry.details.keyRegions.slice(0, 6).map((item, idx) => renderLinkedTile(item, idx, { showRegionMetaTiles: true }))}
               </div>
           </div>
         )}
@@ -1315,6 +1481,19 @@ const EntryDetail: React.FC<EntryDetailProps> = ({ entry, onBack, onHome, onSele
                 </div>
                 <div className="grid grid-cols-1 gap-2">
                      {listSectionData.slice(0, 8).map((item, idx) => renderLinkedTile(item, idx))}
+                </div>
+            </div>
+        )}
+
+        {/* Countries Section - Continents */}
+        {isContinent && listSectionData && listSectionData.length > 0 && (
+            <div className="mb-6">
+                <div className="flex items-center gap-2 mb-3 border-b-2 border-green-800 pb-1">
+                   <List size={18} className="text-green-500" />
+                   <span className="font-retro text-xs md:text-sm tracking-widest text-green-500">{listSectionTitle}</span>
+                </div>
+                <div className="grid grid-cols-1 gap-2">
+                     {listSectionData.map((item, idx) => renderLinkedTile(item, idx))}
                 </div>
             </div>
         )}

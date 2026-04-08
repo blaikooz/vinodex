@@ -1,10 +1,12 @@
 import { WineEntry } from '../../types';
+import { WINE_ENTRIES } from '../../constants';
+import { isSupabaseEnabled, loadAllEntriesFromSupabase } from './supabaseWineData';
 
 let cachedEntries: WineEntry[] | null = null;
 let inFlight: Promise<WineEntry[]> | null = null;
 
 /**
- * Load all wine entries from the generated JSON file. Results are cached in-memory
+ * Load all wine entries from the generated dataset. Results are cached in-memory
  * for the lifetime of the session to avoid refetching across components.
  */
 export async function loadAllEntries(): Promise<WineEntry[]> {
@@ -12,13 +14,28 @@ export async function loadAllEntries(): Promise<WineEntry[]> {
   if (inFlight) return inFlight;
 
   inFlight = (async () => {
-    const res = await fetch('/wine-entries.json');
-    if (!res.ok) {
-      throw new Error(`Failed to load wine entries (${res.status})`);
+    if (isSupabaseEnabled()) {
+      try {
+        const remoteEntries = await loadAllEntriesFromSupabase();
+        const mergedById = new Map<string, WineEntry>();
+
+        remoteEntries.forEach((entry) => mergedById.set(entry.id, entry));
+        WINE_ENTRIES.forEach((entry) => {
+          if (!mergedById.has(entry.id)) {
+            mergedById.set(entry.id, entry);
+          }
+        });
+
+        const mergedEntries = Array.from(mergedById.values());
+        cachedEntries = mergedEntries;
+        return mergedEntries;
+      } catch (error) {
+        console.warn('Supabase load failed, falling back to local dataset.', error);
+      }
     }
-    const data = (await res.json()) as WineEntry[];
-    cachedEntries = data;
-    return data;
+
+    cachedEntries = WINE_ENTRIES;
+    return WINE_ENTRIES;
   })().finally(() => {
     inFlight = null;
   });

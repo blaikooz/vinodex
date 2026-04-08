@@ -1,5 +1,5 @@
 
-export type EntryCategory = 'GRAPES' | 'REGIONS' | 'STYLES' | 'FLAVORS' | 'MASTER_SEARCH' | 'COUNTRY_GATE';
+export type EntryCategory = 'GRAPES' | 'REGIONS' | 'STYLES' | 'FLAVORS' | 'MASTER_SEARCH' | 'COUNTRY_GATE' | 'CONTINENTS';
 
 export type RarityTier = 'common' | 'uncommon' | 'rare' | 'epic' | 'noble';
 
@@ -70,6 +70,7 @@ export interface WineEntry {
   climateDescription?: string;
   details: {
     origin?: string;
+    state?: string; // For US regions (e.g., "California", "Oregon")
     acidity?: string;
     body?: string;
     tannin?: string;
