@@ -1,13 +1,16 @@
 
-import React, { useState } from 'react';
+import React, { Suspense, lazy, useState } from 'react';
 import MainMenu from './components/MainMenu';
 import EncyclopediaList from './components/FoodPairingsScreen';
 import EntryDetail from './components/PairingDetail';
 import RegionMapScreen from './components/RegionMapScreen';
+import DeviceLayout from './components/DeviceLayout';
 import { WineEntry, EntryCategory, ClimateClass } from './types';
 import { WINE_ENTRIES } from './constants';
 
-type Screen = 'HOME' | 'LIST' | 'DETAIL' | 'REGION_MAP';
+const RetroGlobeScreen = lazy(() => import('./components/RetroGlobeScreen'));
+
+type Screen = 'HOME' | 'LIST' | 'DETAIL' | 'REGION_MAP' | 'RETRO_GLOBE';
 type FilterMode = 'REGION' | 'TYPE' | 'TASTING' | 'SOIL' | 'ORIGIN' | 'STATE' | 'RARITY' | 'SYSTEM' | 'CLIMATE' | null;
 
 interface AppState {
@@ -63,6 +66,8 @@ const App: React.FC = () => {
   const handleNavigateToCategory = (category: EntryCategory) => {
     if (category === 'REGIONS') {
         pushState({ screen: 'REGION_MAP', category, filterMode: null, filterValue: null });
+    } else if (category === 'RETRO_GLOBE') {
+      pushState({ screen: 'RETRO_GLOBE', category, filterMode: null, filterValue: null });
     } else {
         pushState({ screen: 'LIST', category, filterMode: null, filterValue: null });
     }
@@ -170,6 +175,32 @@ const App: React.FC = () => {
             onBack={handleBack}
             onHome={handleHome}
         />
+      )}
+
+      {currentState.screen === 'RETRO_GLOBE' && (
+        <Suspense
+          fallback={
+            <DeviceLayout
+              title="ORBITAL GLOBE"
+              subtitle="TACTILE VIEW"
+              showBack={true}
+              onBack={handleBack}
+              onHome={handleHome}
+              centerHeaderText={true}
+            >
+              <div className="flex-1 bg-black flex flex-col items-center justify-center gap-4">
+                <div className="w-16 h-16 rounded-full border-2 border-green-400 border-t-transparent animate-spin" />
+                <span className="font-retro text-green-300 tracking-widest text-sm">LOADING ORBITAL MODULE...</span>
+              </div>
+            </DeviceLayout>
+          }
+        >
+          <RetroGlobeScreen
+            onBack={handleBack}
+            onHome={handleHome}
+            onSelectContinent={handleContinentSelect}
+          />
+        </Suspense>
       )}
       
       {currentState.screen === 'LIST' && (

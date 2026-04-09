@@ -50,15 +50,23 @@ const MainMenu: React.FC<MainMenuProps> = ({ onNavigate }) => {
                 </button>
             </div>
 
-            {/* Middle Search Button - Fixed Size */}
-            <div className="flex justify-center shrink-0">
-               <button 
-                 onClick={() => onNavigate('MASTER_SEARCH')}
-                 className="w-24 h-24 sm:w-32 sm:h-32 rounded-full bg-dex-yellow border-[6px] border-yellow-600 shadow-[0_0_25px_rgba(250,204,21,0.4)] flex items-center justify-center active:scale-95 active:border-yellow-700 transition-all relative overflow-hidden group hover:bg-yellow-300 z-10"
-               >
-                  <div className="absolute inset-0 bg-white/20 animate-pulse rounded-full"></div>
-                  <Search size={40} className="text-yellow-900 relative z-10 group-hover:scale-110 transition-transform sm:w-16 sm:h-16" />
-               </button>
+            {/* Middle Search Button + Globe Shortcut */}
+            <div className="shrink-0 h-24 sm:h-32 flex items-center justify-center gap-3 sm:gap-4">
+              <button 
+                onClick={() => onNavigate('MASTER_SEARCH')}
+                className="w-24 h-24 sm:w-32 sm:h-32 rounded-full bg-dex-yellow border-[6px] border-yellow-600 shadow-[0_0_25px_rgba(250,204,21,0.4)] flex items-center justify-center active:scale-95 active:border-yellow-700 transition-all relative overflow-hidden group hover:bg-yellow-300 z-10"
+              >
+                <div className="absolute inset-0 bg-white/20 animate-pulse rounded-full"></div>
+                <Search size={40} className="text-yellow-900 relative z-10 group-hover:scale-110 transition-transform sm:w-16 sm:h-16" />
+              </button>
+
+              <button
+                onClick={() => onNavigate('RETRO_GLOBE')}
+                aria-label="Open regions"
+                className="w-14 h-14 sm:w-16 sm:h-16 rounded-full bg-blue-500 border-[4px] border-blue-800 shadow-[0_0_16px_rgba(42,181,255,0.4)] flex items-center justify-center active:scale-95 active:border-blue-900 transition-all group hover:bg-blue-400"
+              >
+                <Globe size={26} className="text-white group-hover:scale-110 transition-transform sm:w-8 sm:h-8" />
+              </button>
             </div>
 
             {/* Bottom Row */}
