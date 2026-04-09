@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Search, List, Map, Droplet, Grape, Mountain, MapPin, Star, Shield, Wind, AlertCircle } from "lucide-react";
 import EntryTile from "./PairingTile";
 import DeviceLayout from "./DeviceLayout";
@@ -10,6 +10,7 @@ interface EncyclopediaListProps {
   category: EntryCategory;
   filterMode: 'REGION' | 'TYPE' | 'TASTING' | 'SOIL' | 'ORIGIN' | 'STATE' | 'RARITY' | 'SYSTEM' | 'CLIMATE' | null;
   filterValue: string | string[] | null;
+  initialSearchQuery?: string;
   onSelect: (entry: WineEntry) => void;
   onBack: () => void;
   onHome: () => void;
@@ -20,11 +21,15 @@ interface EncyclopediaListProps {
   onFilterByClimate?: (climate: ClimateClass) => void;
 }
 
-export default function EncyclopediaList({ category, filterMode, filterValue, onSelect, onBack, onHome, onFilterByRarity, onFilterByType, onFilterByNote, onFilterByOrigin, onFilterByClimate }: EncyclopediaListProps) {
+export default function EncyclopediaList({ category, filterMode, filterValue, initialSearchQuery, onSelect, onBack, onHome, onFilterByRarity, onFilterByType, onFilterByNote, onFilterByOrigin, onFilterByClimate }: EncyclopediaListProps) {
   const [searchQuery, setSearchQuery] = useState("");
   const [entries, setEntries] = useState<WineEntry[]>([]);
   const [loading, setLoading] = useState(true);
   const [loadError, setLoadError] = useState<string | null>(null);
+  const SEARCH_INPUT_START_OFFSET = 16;
+  const [cursorOffset, setCursorOffset] = useState(SEARCH_INPUT_START_OFFSET);
+  const searchInputRef = useRef<HTMLInputElement>(null);
+  const searchMeasureRef = useRef<HTMLSpanElement>(null);
 
   const fetchEntries = () => {
     setLoading(true);
@@ -42,18 +47,56 @@ export default function EncyclopediaList({ category, filterMode, filterValue, on
   const activeFilterMode = filterMode;
   const activeFilterValue = filterValue;
   const isMasterSearch = category === 'MASTER_SEARCH';
+  const isWorldSearch = category === 'WORLD_SEARCH';
   const effectiveCategory = isMasterSearch ? 'GRAPES' : category;
-  const showTopSearchBar = effectiveCategory === 'GRAPES' || effectiveCategory === 'STYLES' || effectiveCategory === 'FLAVORS';
+  const showTopSearchBar = isMasterSearch || isWorldSearch || effectiveCategory === 'GRAPES' || effectiveCategory === 'STYLES' || effectiveCategory === 'FLAVORS';
 
   useEffect(() => {
-    setSearchQuery("");
-  }, [category]);
+    setSearchQuery(initialSearchQuery || '');
+  }, [category, initialSearchQuery]);
+
+  const updateSearchCursorOffset = useCallback(() => {
+    const inputEl = searchInputRef.current;
+    const measureEl = searchMeasureRef.current;
+    if (!inputEl || !measureEl) return;
+
+    const caretIndex = inputEl.selectionStart ?? inputEl.value.length;
+    measureEl.textContent = inputEl.value.slice(0, caretIndex);
+
+    const measuredWidth = measureEl.getBoundingClientRect().width;
+    const maxOffset = Math.max(SEARCH_INPUT_START_OFFSET, inputEl.clientWidth - 8);
+    setCursorOffset(Math.min(measuredWidth + SEARCH_INPUT_START_OFFSET, maxOffset));
+  }, [SEARCH_INPUT_START_OFFSET]);
+
+  useEffect(() => {
+    updateSearchCursorOffset();
+  }, [searchQuery, updateSearchCursorOffset]);
+
+  useEffect(() => {
+    const handleResize = () => updateSearchCursorOffset();
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, [updateSearchCursorOffset]);
 
   const normalizeLabel = (value: string) =>
     value
       .toLowerCase()
       .normalize('NFD')
       .replace(/[\u0300-\u036f]/g, '');
+
+  const normalizeTerm = (value: string) =>
+    normalizeLabel(value)
+      .replace(/[_\-/(),.;]+/g, ' ')
+      .replace(/\s+/g, ' ')
+      .trim();
+
+  const matchesWholeTerm = (candidate: string, term: string) => {
+    const normalizedCandidate = normalizeTerm(candidate);
+    const normalizedTerm = normalizeTerm(term);
+    if (!normalizedCandidate || !normalizedTerm) return false;
+    if (normalizedCandidate === normalizedTerm) return true;
+    return ` ${normalizedCandidate} `.includes(` ${normalizedTerm} `);
+  };
 
   const getStyleColorType = (name: string) => {
     const n = normalizeLabel(name);
@@ -126,7 +169,11 @@ export default function EncyclopediaList({ category, filterMode, filterValue, on
       return countryEntries;
     }
 
-    const allowedCategories = isMasterSearch ? ['GRAPES', 'REGIONS', 'STYLES'] : [effectiveCategory];
+    const allowedCategories = isMasterSearch
+      ? ['GRAPES', 'REGIONS', 'STYLES', 'FLAVORS', 'COUNTRY_GATE', 'CONTINENTS']
+      : isWorldSearch
+        ? ['REGIONS', 'COUNTRY_GATE', 'CONTINENTS']
+        : [effectiveCategory];
     const result = entries.filter(e => {
         // 1. Category Check
         const matchesCategory = allowedCategories.includes(e.category);
@@ -134,7 +181,13 @@ export default function EncyclopediaList({ category, filterMode, filterValue, on
         // 2. Search Bar
         const matchesSearch = !showTopSearchBar ||
           e.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-          e.description.toLowerCase().includes(searchQuery.toLowerCase());
+          e.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
+          (e.details.origin || '').toLowerCase().includes(searchQuery.toLowerCase()) ||
+          (e.details.state || '').toLowerCase().includes(searchQuery.toLowerCase()) ||
+          (e.details.classification || '').toLowerCase().includes(searchQuery.toLowerCase()) ||
+          (e.details.keyRegions || []).some((region) => region.toLowerCase().includes(searchQuery.toLowerCase())) ||
+          (e.details.synonyms || []).some((synonym) => synonym.toLowerCase().includes(searchQuery.toLowerCase())) ||
+          e.tags.some((tag) => tag.toLowerCase().includes(searchQuery.toLowerCase()));
 
         // 3. Active Filter Logic
         let matchesFilter = true;
@@ -155,8 +208,8 @@ export default function EncyclopediaList({ category, filterMode, filterValue, on
         } else if (activeFilterMode === 'SOIL' && typeof activeFilterValue === 'string') {
              matchesFilter = !!e.details.soilType && e.details.soilType.toLowerCase().includes(activeFilterValue.toLowerCase());
         } else if (activeFilterMode === 'ORIGIN' && typeof activeFilterValue === 'string') {
-             matchesFilter = (!!e.details.origin && e.details.origin.toLowerCase().includes(activeFilterValue.toLowerCase())) ||
-                             e.tags.some(t => t.toLowerCase().includes(activeFilterValue.toLowerCase()));
+             matchesFilter = (!!e.details.origin && matchesWholeTerm(e.details.origin, activeFilterValue)) ||
+                    e.tags.some(t => matchesWholeTerm(t, activeFilterValue));
         } else if (activeFilterMode === 'STATE' && typeof activeFilterValue === 'string') {
              matchesFilter =
                (e.details.origin || '').toUpperCase() === 'USA' &&
@@ -176,7 +229,8 @@ export default function EncyclopediaList({ category, filterMode, filterValue, on
   }, [category, effectiveCategory, showTopSearchBar, searchQuery, activeFilterMode, activeFilterValue, filterValue, entries]);
 
   const getTitle = () => {
-      if (category === 'MASTER_SEARCH') return 'SEARCH';
+      if (category === 'MASTER_SEARCH') return 'MASTER SEARCH';
+      if (category === 'WORLD_SEARCH') return 'WORLD SEARCH';
       if (activeFilterMode === 'REGION') return category === 'COUNTRY_GATE' ? "AREA SCAN" : "SECTOR SCAN";
       if (activeFilterMode === 'TYPE') return "STYLE SCAN";
       if (activeFilterMode === 'TASTING') return "FLAVOR SCAN";
@@ -231,7 +285,7 @@ export default function EncyclopediaList({ category, filterMode, filterValue, on
   return (
     <DeviceLayout
       title={getTitle()}
-      subtitle={isMasterSearch ? "SEARCH MODE" : "LIST MODE"}
+      subtitle={isMasterSearch ? "MASTER SEARCH MODE" : isWorldSearch ? "PLACE SEARCH MODE" : "LIST MODE"}
       onBack={onBack}
       showBack={true}
       centerHeaderText={true}
@@ -264,16 +318,32 @@ export default function EncyclopediaList({ category, filterMode, filterValue, on
           {showTopSearchBar && (
             <div className="relative z-10 mb-3">
               <div className="flex flex-row items-center justify-between h-12 bg-black border-2 border-stone-600 px-3 shadow-inner rounded-full">
-                <Search size={18} className="text-green-500 animate-pulse shrink-0" />
-                <input
-                  type="text"
-                  autoFocus={false}
-                  className="flex-1 text-base text-green-500 ml-3 outline-none bg-transparent placeholder-green-900 font-mono uppercase h-full"
-                  placeholder="INPUT SEARCH..."
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                />
-                <div className="w-2 h-4 bg-green-500 animate-blink shrink-0 ml-2"></div>
+                <Search size={22} className="text-green-500 animate-pulse shrink-0" />
+                <div className="relative flex-1 h-full ml-2">
+                  <span
+                    ref={searchMeasureRef}
+                    aria-hidden="true"
+                    className="absolute left-0 top-1/2 -translate-y-1/2 invisible whitespace-pre text-2xl leading-none font-mono font-bold uppercase"
+                  />
+                  <input
+                    ref={searchInputRef}
+                    type="text"
+                    autoFocus={false}
+                    className="w-full text-2xl leading-none font-bold text-green-500 outline-none bg-transparent placeholder-green-900 placeholder:font-bold font-mono uppercase h-full pl-4"
+                    placeholder="INPUT SEARCH..."
+                    value={searchQuery}
+                    onChange={(e) => {
+                      setSearchQuery(e.target.value);
+                    }}
+                    onClick={updateSearchCursorOffset}
+                    onKeyUp={updateSearchCursorOffset}
+                    onSelect={updateSearchCursorOffset}
+                  />
+                  <div
+                    className="absolute top-1/2 -translate-y-1/2 w-2 h-6 bg-green-500 animate-blink pointer-events-none"
+                    style={{ left: `${cursorOffset}px` }}
+                  ></div>
+                </div>
               </div>
             </div>
           )}

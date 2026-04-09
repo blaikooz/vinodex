@@ -5,6 +5,28 @@ import { isSupabaseEnabled, loadAllEntriesFromSupabase } from './supabaseWineDat
 let cachedEntries: WineEntry[] | null = null;
 let inFlight: Promise<WineEntry[]> | null = null;
 
+const canonicalizeGrapeName = (value: string) =>
+  /^syrah\s*\/\s*shiraz$/i.test(value.trim()) ? 'Syrah' : value;
+
+const canonicalizeEntry = (entry: WineEntry): WineEntry => ({
+  ...entry,
+  name: canonicalizeGrapeName(entry.name),
+  details: {
+    ...entry.details,
+    notableGrapes: entry.details.notableGrapes?.map(canonicalizeGrapeName),
+    synonyms: entry.details.synonyms?.map(canonicalizeGrapeName),
+  },
+  grapeCard: entry.grapeCard
+    ? {
+        ...entry.grapeCard,
+        name: canonicalizeGrapeName(entry.grapeCard.name),
+        alternateNames: entry.grapeCard.alternateNames.map(canonicalizeGrapeName),
+      }
+    : entry.grapeCard,
+});
+
+const canonicalizeEntries = (entries: WineEntry[]) => entries.map(canonicalizeEntry);
+
 /**
  * Load all wine entries from the generated dataset. Results are cached in-memory
  * for the lifetime of the session to avoid refetching across components.
@@ -26,7 +48,7 @@ export async function loadAllEntries(): Promise<WineEntry[]> {
           }
         });
 
-        const mergedEntries = Array.from(mergedById.values());
+        const mergedEntries = canonicalizeEntries(Array.from(mergedById.values()));
         cachedEntries = mergedEntries;
         return mergedEntries;
       } catch (error) {
@@ -34,8 +56,9 @@ export async function loadAllEntries(): Promise<WineEntry[]> {
       }
     }
 
-    cachedEntries = WINE_ENTRIES;
-    return WINE_ENTRIES;
+    const localEntries = canonicalizeEntries(WINE_ENTRIES);
+    cachedEntries = localEntries;
+    return localEntries;
   })().finally(() => {
     inFlight = null;
   });

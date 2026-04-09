@@ -22,8 +22,12 @@ export const HEADER_BORDER_CLASS = 'rounded-xl';          // For headers
 
 // Shadow styling
 export const CONTAINER_SHADOW_CLASS = 'shadow-inner';
-export const CONTAINER_BORDER = 'border-2 border-black/20';
+export const CONTAINER_BORDER = 'border border-black/20';
 export const HEADER_BORDER = 'border-2 border-black/30';
+
+// List tile typography law for mini chips/meta tiles
+export const LIST_TILE_META_CHIP_CLASS = 'px-1.5 py-0.5 font-retro text-[8px] md:text-[9px] tracking-normal leading-tight uppercase border rounded-sm shrink-0';
+export const LINKED_TILE_META_CHIP_CLASS = 'inline-flex items-center px-1.5 py-0.5 rounded border font-retro text-[8px] md:text-[9px] tracking-normal leading-tight uppercase';
 
 // Icon rendering modes
 export interface IconRenderConfig {

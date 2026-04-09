@@ -14,6 +14,9 @@ export { GRAPE_CARDS } from './data/grapeCards.ts';
 export { CONTINENTS } from './data/continents.ts';
 export { COUNTRIES } from './data/countries.ts';
 
+const canonicalizeGrapeName = (value: string) =>
+  /^syrah\s*\/\s*shiraz$/i.test(value.trim()) ? 'Syrah' : value;
+
 const legacyColorMap: Record<string, { color: string; icon?: string; tastingProfile?: WineEntry['tastingProfile']; wineType?: string }> =
   LEGACY_GRAPES.reduce((acc, g) => {
     acc[g.id] = { color: g.color, icon: g.icon, tastingProfile: g.tastingProfile, wineType: g.wineType };
@@ -31,7 +34,7 @@ const GRAPE_ENTRIES: WineEntry[] = GRAPE_CARDS.map((card) => {
   };
   return {
     id: card.id,
-    name: card.name,
+    name: canonicalizeGrapeName(card.name),
     description: card.info,
     category: 'GRAPES',
     tags: card.tastingProfile,
@@ -43,7 +46,7 @@ const GRAPE_ENTRIES: WineEntry[] = GRAPE_CARDS.map((card) => {
     rarity: rarityMap[card.rarityTier] || 'UNCOMMON',
     details: {
       origin: card.countryOfOrigin,
-      synonyms: card.alternateNames,
+      synonyms: card.alternateNames.map(canonicalizeGrapeName),
       keyRegions: card.notableRegions,
       body: card.style,
     }
@@ -238,4 +241,12 @@ export const WINE_ENTRIES: WineEntry[] = [
   ...buildFlavorEntries(GRAPE_ENTRIES),
   ...CONTINENTS,
   ...COUNTRIES,
-].map(applyCategoryCallbacks);
+].map((entry) => applyCategoryCallbacks({
+  ...entry,
+  name: canonicalizeGrapeName(entry.name),
+  details: {
+    ...entry.details,
+    notableGrapes: entry.details.notableGrapes?.map(canonicalizeGrapeName),
+    synonyms: entry.details.synonyms?.map(canonicalizeGrapeName),
+  },
+}));

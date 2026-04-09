@@ -16,6 +16,7 @@ interface AppState {
   entry: WineEntry | null;
   filterMode: FilterMode;
   filterValue: string | string[] | null;
+  initialSearchQuery?: string;
 }
 
 const INITIAL_STATE: AppState = {
@@ -23,7 +24,8 @@ const INITIAL_STATE: AppState = {
   category: 'GRAPES',
   entry: null,
   filterMode: null,
-  filterValue: null
+  filterValue: null,
+  initialSearchQuery: ''
 };
 
 const USA_STATES = ['New York', 'California', 'Oregon', 'Washington'];
@@ -36,12 +38,12 @@ const App: React.FC = () => {
 
   // Helper to push new state
   const pushState = (newState: Partial<AppState>) => {
-      setHistory(prev => [...prev, { ...prev[prev.length - 1], ...newState }]);
+      setHistory(prev => [...prev, { ...prev[prev.length - 1], initialSearchQuery: '', ...newState }]);
   };
 
   // Helper to replace current state (for simple tab switches if needed, though mostly we push)
   const replaceState = (newState: Partial<AppState>) => {
-      setHistory(prev => [...prev.slice(0, -1), { ...prev[prev.length - 1], ...newState }]);
+      setHistory(prev => [...prev.slice(0, -1), { ...prev[prev.length - 1], initialSearchQuery: '', ...newState }]);
   };
 
   const handleBack = () => {
@@ -102,7 +104,13 @@ const App: React.FC = () => {
 
   // 2. Manual Search
   const handleManualSearch = () => {
-      pushState({ screen: 'LIST', category: 'REGIONS', filterMode: null, filterValue: null });
+      pushState({
+        screen: 'LIST',
+        category: 'WORLD_SEARCH',
+        filterMode: null,
+        filterValue: null,
+        initialSearchQuery: '',
+      });
   };
 
   // 3. Filter by Wine Type (from Detail Screen)
@@ -177,6 +185,7 @@ const App: React.FC = () => {
           onFilterByNote={handleFilterByNote}
           onFilterByOrigin={handleFilterByOrigin}
           onFilterByClimate={handleFilterByClimate}
+          initialSearchQuery={currentState.initialSearchQuery}
         />
       )}
 

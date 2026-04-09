@@ -528,7 +528,7 @@
       "classification": "SWEET",
       "subclass": "BERRY",
       "notableGrapes": [
-        "Syrah / Shiraz",
+        "Syrah",
         "Tannat",
         "Cabernet Gernischt"
       ]
@@ -3081,7 +3081,7 @@
       "classification": "BITTER",
       "subclass": "SPICE",
       "notableGrapes": [
-        "Syrah / Shiraz",
+        "Syrah",
         "Grenache"
       ]
     },
@@ -3745,7 +3745,7 @@
       "classification": "UMAMI",
       "subclass": "EARTH",
       "notableGrapes": [
-        "Syrah / Shiraz",
+        "Syrah",
         "Aglianico",
         "Furmint"
       ]
@@ -5002,7 +5002,7 @@
   },
   {
     "id": "G005",
-    "name": "Syrah / Shiraz",
+    "name": "Syrah",
     "description": "A powerful grape producing intense wines with pepper, smoke, and dark fruit characteristics. Known as Syrah in France and Shiraz in Australia, it adapts dramatically to its climate.",
     "category": "GRAPES",
     "tags": [
@@ -5047,7 +5047,7 @@
     "rarity": "NOBLE",
     "grapeCard": {
       "id": "G005",
-      "name": "Syrah / Shiraz",
+      "name": "Syrah",
       "type": "red",
       "style": "Full-Bodied Red",
       "styleId": "noble-grapes",
@@ -13843,7 +13843,7 @@
         "Pinot Noir",
         "Chardonnay",
         "Merlot",
-        "Syrah / Shiraz",
+        "Syrah",
         "Sauvignon Blanc",
         "Riesling",
         "Nebbiolo"

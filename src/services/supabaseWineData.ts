@@ -34,10 +34,12 @@ function getSupabaseConfig() {
   const publishableKey = import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY?.trim();
   const anonKey = import.meta.env.VITE_SUPABASE_ANON_KEY?.trim();
   const dataSource = import.meta.env.VITE_DATA_SOURCE?.trim().toLowerCase();
+  const forceLocalData = import.meta.env.VITE_FORCE_LOCAL_DATA?.trim().toLowerCase();
   const clientKey = publishableKey || anonKey;
-  const useSupabase = dataSource === 'supabase' && !!url && !!clientKey;
+  const localModeForced = forceLocalData !== 'false';
+  const useSupabase = !localModeForced && dataSource === 'supabase' && !!url && !!clientKey;
 
-  return { url, clientKey, anonKey, publishableKey, dataSource, useSupabase };
+  return { url, clientKey, anonKey, publishableKey, dataSource, useSupabase, localModeForced };
 }
 
 async function fetchSupabasePage(

@@ -11,6 +11,12 @@ VITE_SUPABASE_PUBLISHABLE_KEY=...
 VITE_SUPABASE_ANON_KEY=...
 ```
 
+Temporary local-only mode is enabled by default. To opt in to Supabase, also set:
+
+```bash
+VITE_FORCE_LOCAL_DATA=false
+```
+
 If Supabase is missing or returns an error, the app falls back to `public/wine-entries.json`.
 
 ### Recommended rollout

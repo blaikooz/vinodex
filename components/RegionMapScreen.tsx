@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import DeviceLayout from './DeviceLayout';
 import { Search } from 'lucide-react';
-import worldlink from '../worldlink.png';
+import worldlink from '../src/assets/images/world-scan-map.png';
 
 interface RegionMapScreenProps {
   onSelectContinent: (continent: string) => void;

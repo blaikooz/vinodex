@@ -1,5 +1,5 @@
 import React from 'react';
-import { Grape, Map, Layers, Search, Utensils } from 'lucide-react';
+import { Grape, Globe, Leaf, Search, Wine } from 'lucide-react';
 import DeviceLayout from './DeviceLayout';
 import { EntryCategory } from '../types';
 
@@ -45,7 +45,7 @@ const MainMenu: React.FC<MainMenuProps> = ({ onNavigate }) => {
                   className="flex-1 bg-green-500 border-b-[6px] border-green-800 rounded-xl shadow-lg active:translate-y-1 active:border-b-0 transition-all flex flex-col items-center justify-center group hover:bg-green-400 relative overflow-hidden"
                 >
                     <div className="absolute inset-0 bg-gradient-to-br from-white/10 to-transparent pointer-events-none"></div>
-                    <Map size={48} className="text-white mb-2 group-hover:scale-110 transition-transform drop-shadow-md sm:w-16 sm:h-16" />
+                    <Globe size={48} className="text-white mb-2 group-hover:scale-110 transition-transform drop-shadow-md sm:w-16 sm:h-16" />
                     <span className="font-retro text-sm sm:text-xl text-white tracking-widest drop-shadow-md">REGIONS</span>
                 </button>
             </div>
@@ -68,7 +68,7 @@ const MainMenu: React.FC<MainMenuProps> = ({ onNavigate }) => {
                   className="flex-1 bg-orange-500 border-b-[6px] border-orange-800 rounded-xl shadow-lg active:translate-y-1 active:border-b-0 transition-all flex flex-col items-center justify-center group hover:bg-orange-400 relative overflow-hidden"
                 >
                     <div className="absolute inset-0 bg-gradient-to-br from-white/10 to-transparent pointer-events-none"></div>
-                    <Layers size={48} className="text-white mb-2 group-hover:scale-110 transition-transform drop-shadow-md sm:w-16 sm:h-16" />
+                    <Wine size={48} className="text-white mb-2 group-hover:scale-110 transition-transform drop-shadow-md sm:w-16 sm:h-16" />
                     <span className="font-retro text-sm sm:text-xl text-white tracking-widest drop-shadow-md">STYLES</span>
                 </button>
                 
@@ -77,7 +77,7 @@ const MainMenu: React.FC<MainMenuProps> = ({ onNavigate }) => {
                   className="flex-1 bg-emerald-500 border-b-[6px] border-emerald-800 rounded-xl shadow-lg active:translate-y-1 active:border-b-0 transition-all flex flex-col items-center justify-center group hover:bg-emerald-400 relative overflow-hidden"
                 >
                     <div className="absolute inset-0 bg-gradient-to-br from-white/10 to-transparent pointer-events-none"></div>
-                    <Utensils size={48} className="text-white mb-2 group-hover:scale-110 transition-transform drop-shadow-md sm:w-16 sm:h-16" />
+                    <Leaf size={48} className="text-white mb-2 group-hover:scale-110 transition-transform drop-shadow-md sm:w-16 sm:h-16" />
                     <span className="font-retro text-sm sm:text-xl text-white tracking-widest drop-shadow-md">FLAVORS</span>
                 </button>
             </div>

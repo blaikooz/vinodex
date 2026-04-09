@@ -1,36 +1,30 @@
-import africanUnionFlag from '../flags/african_union.png';
-import argentinaFlag from '../flags/argentina.png';
-import australiaFlag from '../flags/australia.png';
-import austriaFlag from '../flags/austria.png';
-import brazilFlag from '../flags/brazil.png';
-import canadaFlag from '../flags/canada.png';
-import californiaFlag from '../flags/california.png';
-import chileFlag from '../flags/chile.png';
-import chinaFlag from '../flags/china.png';
-import croatiaFlag from '../flags/croatia.png';
-import europeanUnionFlag from '../flags/european_union.png';
-import franceFlag from '../flags/france.png';
-import georgiaFlag from '../flags/georgia.png';
-import germanyFlag from '../flags/germany.png';
-import greeceFlag from '../flags/greece.png';
-import hungaryFlag from '../flags/hungary.png';
-import indiaFlag from '../flags/india.png';
-import italyFlag from '../flags/italy.png';
-import japanFlag from '../flags/japan.png';
-import moroccoFlag from '../flags/morocco.png';
-import natoFlag from '../flags/nato.png';
-import newYorkFlag from '../flags/new_york.png';
-import newZealandFlag from '../flags/new_zealand.png';
-import oregonFlag from '../flags/oregon_back.png';
-import portugalFlag from '../flags/portugal.png';
-import romaniaFlag from '../flags/romania.png';
-import southAfricaFlag from '../flags/south_africa.png';
-import spainFlag from '../flags/spain.png';
-import switzerlandFlag from '../flags/switzerland.png';
-import unitedStatesFlag from '../flags/united_states.png';
-import uruguayFlag from '../flags/uruguay.png';
-import variousFlag from '../flags/variousflags.png';
-import washingtonFlag from '../flags/washington.png';
+import argentinaFlag from '../pixelflags/South America/argentina/argentina.png';
+import australiaFlag from '../pixelflags/Oceania/australia/australia.png';
+import austriaFlag from '../pixelflags/Europe/austria/austria.png';
+import brazilFlag from '../pixelflags/South America/brazil/brazil.png';
+import canadaFlag from '../pixelflags/North America/canada/canada.png';
+import californiaFlag from '../pixelflags/North America/united_states/california/california.png';
+import chileFlag from '../pixelflags/South America/chile/chile.png';
+import chinaFlag from '../pixelflags/Asia/china/china.png';
+import croatiaFlag from '../pixelflags/Europe/croatia/croatia.png';
+import franceFlag from '../pixelflags/Europe/france/france.png';
+import georgiaFlag from '../pixelflags/North America/united_states/georgia/georgia.png';
+import germanyFlag from '../pixelflags/Europe/germany/germany.png';
+import greeceFlag from '../pixelflags/Europe/greece/greece.png';
+import hungaryFlag from '../pixelflags/Europe/hungary/hungary.png';
+import indiaFlag from '../pixelflags/Asia/india/india.png';
+import italyFlag from '../pixelflags/Europe/italy/italy.png';
+import japanFlag from '../pixelflags/Asia/japan/japan.png';
+import newYorkFlag from '../pixelflags/North America/united_states/new_york/new_york.png';
+import newZealandFlag from '../pixelflags/Oceania/new_zealand/new_zealand.png';
+import oregonFlag from '../pixelflags/North America/united_states/oregon/oregon_back.png';
+import portugalFlag from '../pixelflags/Europe/portugal/portugal.png';
+import southAfricaFlag from '../pixelflags/Africa/south_africa/south_africa.png';
+import spainFlag from '../pixelflags/Europe/spain/spain.png';
+import unitedStatesFlag from '../pixelflags/North America/united_states/united_states.png';
+import uruguayFlag from '../pixelflags/South America/uruguay/uruguay.png';
+import variousFlag from '../pixelflags/Other/Geographic-Historical/various.png';
+import washingtonFlag from '../pixelflags/North America/united_states/washington/washington.png';
 
 interface FlagImageEntry {
   keys: string[];
@@ -38,7 +32,6 @@ interface FlagImageEntry {
 }
 
 const FLAG_IMAGES: FlagImageEntry[] = [
-  { keys: ['african union', 'african_union'], image: africanUnionFlag },
   { keys: ['argentina'], image: argentinaFlag },
   { keys: ['australia'], image: australiaFlag },
   { keys: ['austria'], image: austriaFlag },
@@ -48,7 +41,6 @@ const FLAG_IMAGES: FlagImageEntry[] = [
   { keys: ['chile'], image: chileFlag },
   { keys: ['china'], image: chinaFlag },
   { keys: ['croatia'], image: croatiaFlag },
-  { keys: ['european union', 'european_union'], image: europeanUnionFlag },
   { keys: ['france'], image: franceFlag },
   { keys: ['georgia'], image: georgiaFlag },
   { keys: ['germany'], image: germanyFlag },
@@ -57,16 +49,12 @@ const FLAG_IMAGES: FlagImageEntry[] = [
   { keys: ['india'], image: indiaFlag },
   { keys: ['italy'], image: italyFlag },
   { keys: ['japan'], image: japanFlag },
-  { keys: ['morocco'], image: moroccoFlag },
-  { keys: ['nato'], image: natoFlag },
   { keys: ['new york', 'new_york'], image: newYorkFlag },
   { keys: ['new zealand', 'new_zealand'], image: newZealandFlag },
   { keys: ['oregon', 'oregon_back'], image: oregonFlag },
   { keys: ['portugal'], image: portugalFlag },
-  { keys: ['romania'], image: romaniaFlag },
   { keys: ['south africa', 'south_africa'], image: southAfricaFlag },
   { keys: ['spain'], image: spainFlag },
-  { keys: ['switzerland'], image: switzerlandFlag },
   { keys: ['united states', 'usa', 'us'], image: unitedStatesFlag },
   { keys: ['uruguay'], image: uruguayFlag },
   { keys: ['various'], image: variousFlag },

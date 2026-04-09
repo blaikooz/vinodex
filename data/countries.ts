@@ -2,13 +2,73 @@ import { WineEntry } from '../types';
 
 export const COUNTRIES: WineEntry[] = [
   {
+    id: 'SCA001',
+    name: 'California',
+    description: 'California is the leading U.S. wine state, spanning cool coastal valleys to warm inland zones with many benchmark AVAs.',
+    category: 'COUNTRY_GATE',
+    color: '#312e81',
+    icon: 'flag',
+    tags: ['AVA', 'STATE'],
+    details: {
+      origin: 'USA',
+      classification: 'STATE',
+      keyRegions: ['Napa Valley', 'Sonoma', 'Paso Robles', 'Santa Barbara', 'Lodi'],
+      notableGrapes: ['Cabernet Sauvignon', 'Chardonnay', 'Pinot Noir']
+    }
+  },
+  {
+    id: 'SNY001',
+    name: 'New York',
+    description: 'New York is a cool-climate U.S. wine state centered on lake and coastal zones, known for Riesling and Cabernet Franc.',
+    category: 'COUNTRY_GATE',
+    color: '#0f172a',
+    icon: 'flag',
+    tags: ['AVA', 'STATE'],
+    details: {
+      origin: 'USA',
+      classification: 'STATE',
+      keyRegions: ['Finger Lakes'],
+      notableGrapes: ['Riesling', 'Cabernet Franc', 'Chardonnay']
+    }
+  },
+  {
+    id: 'SOR001',
+    name: 'Oregon',
+    description: 'Oregon is a benchmark cool-climate U.S. state, with world-class Pinot Noir and Chardonnay in valley and hillside AVAs.',
+    category: 'COUNTRY_GATE',
+    color: '#14532d',
+    icon: 'flag',
+    tags: ['AVA', 'STATE'],
+    details: {
+      origin: 'USA',
+      classification: 'STATE',
+      keyRegions: ['Willamette Valley'],
+      notableGrapes: ['Pinot Noir', 'Chardonnay', 'Pinot Gris']
+    }
+  },
+  {
+    id: 'SWA001',
+    name: 'Washington',
+    description: 'Washington State combines warm continental fruit concentration with high-altitude freshness in top AVAs.',
+    category: 'COUNTRY_GATE',
+    color: '#1e1b4b',
+    icon: 'flag',
+    tags: ['AVA', 'STATE'],
+    details: {
+      origin: 'USA',
+      classification: 'STATE',
+      keyRegions: ['Walla Walla'],
+      notableGrapes: ['Cabernet Sauvignon', 'Merlot', 'Syrah']
+    }
+  },
+  {
     id: 'C001',
     name: 'France',
     description: 'France hosts the world’s most celebrated appellations, spanning Champagne, Bordeaux, Burgundy, and more.',
     category: 'COUNTRY_GATE',
     color: '#1f3f99',
     icon: 'flag',
-    tags: ['AOC', 'DOCG', 'DOC', 'COUNTRY'],
+    tags: ['AOP (Appellation d’Origine Protégée)', 'IGP (Indication Géographique Protégée)', 'VDF (Vin de France)', 'COUNTRY'],
     details: {
       origin: 'France',
       classification: 'COUNTRY',
@@ -182,7 +242,7 @@ export const COUNTRIES: WineEntry[] = [
     }
   },
   {
-    id: 'C012',
+    id: 'C012_CAN',
     name: 'Canada',
     description: 'Canada is known for ice wine and cool-climate whites, especially from Ontario and British Columbia.',
     category: 'COUNTRY_GATE',

@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { Tag, MapPin, Activity, Droplet, Clock, Zap, BarChart3, Grape, Mountain, ChevronRight, List, Circle, Triangle, Leaf, Cloud, Sun, Sparkles, Flame, Shield, Castle, Globe, BookOpen, MapPinned, Flower2, Apple, Sprout, Gem, Trees, Wind, Citrus, GlassWater, Droplets, Scale, Box, Wine, Star, Crown } from 'lucide-react';
 import DeviceLayout from './DeviceLayout';
 import { ClimateClass, EntryCategory, WineEntry } from '../types';
@@ -7,7 +7,8 @@ import { getFlagGradient } from '../data/flagGradients';
 import { getFlagImage } from '../data/flagImages';
 import { loadAllEntries } from '../src/services/wineData';
 import { getStylePalette } from '../stylePalette';
-import { CONTAINER_SIZE_HEADER, HEADER_BORDER_CLASS, CONTAINER_SHADOW_CLASS, HEADER_BORDER, CONTAINER_SIZE_LIST, CONTAINER_BORDER_CLASS, CONTAINER_BORDER, ICON_SIZE_LINKED } from '../src/services/iconRendering';
+import { CONTAINER_SIZE_HEADER, HEADER_BORDER_CLASS, CONTAINER_SHADOW_CLASS, HEADER_BORDER, CONTAINER_SIZE_LIST, CONTAINER_BORDER_CLASS, CONTAINER_BORDER, ICON_SIZE_HEADER, ICON_SIZE_LINKED, LINKED_TILE_META_CHIP_CLASS } from '../src/services/iconRendering';
+import { createEntryVisualResolver, resolveEntryIconVisual } from '../src/services/entryIconVisuals';
 
 type FilterMode = 'REGION' | 'TYPE' | 'TASTING' | 'SOIL' | 'ORIGIN' | 'RARITY' | 'SYSTEM' | 'CLIMATE' | null;
 
@@ -54,6 +55,7 @@ const ICON_MAP: Record<string, React.ReactNode> = {
 const EntryDetail: React.FC<EntryDetailProps> = ({ entry, onBack, onHome, onSelectRelated, onFilterByType, onFilterByNote, onFilterBySoil, onFilterByOrigin, onFilterByRarity, onFilterByClimate }) => {
   const scrollRef = useRef<HTMLDivElement>(null);
   const [allEntries, setAllEntries] = useState<WineEntry[]>([]);
+  const entryVisualResolver = useMemo(() => createEntryVisualResolver({ entries: allEntries }), [allEntries]);
 
   useEffect(() => {
     let cancelled = false;
@@ -87,28 +89,7 @@ const EntryDetail: React.FC<EntryDetailProps> = ({ entry, onBack, onHome, onSele
     return value ? value.toUpperCase() : 'N/A';
   };
 
-  // Helper to find related entry
-  const getRelatedEntry = (name: string) => {
-    const cleanName = name.toLowerCase().trim();
-    return allEntries.find(e => {
-        const entryName = e.name.toLowerCase();
-        
-        // 1. Direct Name Match
-        if (entryName === cleanName) return true;
-
-        // 2. Contains match (careful with short names, but generally ok here)
-        if (entryName.includes(cleanName) || cleanName.includes(entryName)) return true;
-
-        // 3. Synonym Match
-        if (e.details.synonyms && e.details.synonyms.some(s => s.toLowerCase() === cleanName)) {
-            return true;
-        }
-        
-        return false;
-    });
-  }
-
-  const normalizeFlavorKey = (value: string) =>
+  const normalizeEntryKey = (value: string) =>
     value
       .toLowerCase()
       .normalize('NFD')
@@ -116,7 +97,38 @@ const EntryDetail: React.FC<EntryDetailProps> = ({ entry, onBack, onHome, onSele
       .replace(/[^a-z0-9]+/g, ' ')
       .trim();
 
-  const normalizeEntryKey = (value: string) =>
+  const matchesEntryKey = (entry: WineEntry, cleanName: string) => {
+    if (normalizeEntryKey(entry.name) === cleanName) return true;
+    return !!(entry.details.synonyms && entry.details.synonyms.some((s) => normalizeEntryKey(s) === cleanName));
+  };
+
+  // Helper to find related entry
+  const getRelatedEntry = (name: string, preferredCategory?: EntryCategory) => {
+    const cleanName = normalizeEntryKey(name);
+    const exactInPreferred = preferredCategory
+      ? allEntries.find((entry) => entry.category === preferredCategory && matchesEntryKey(entry, cleanName))
+      : undefined;
+    if (exactInPreferred) return exactInPreferred;
+
+    const exactAny = allEntries.find((entry) => matchesEntryKey(entry, cleanName));
+    if (exactAny) return exactAny;
+
+    const fallbackPool = preferredCategory
+      ? [...allEntries.filter((entry) => entry.category === preferredCategory), ...allEntries.filter((entry) => entry.category !== preferredCategory)]
+      : allEntries;
+
+    const cleanTokens = cleanName.split(' ').filter(Boolean);
+    return fallbackPool.find((entry) => {
+      const entryKey = normalizeEntryKey(entry.name);
+      if (!entryKey) return false;
+
+      const entryTokens = entryKey.split(' ').filter(Boolean);
+      if (cleanTokens.length > 1 && entryTokens.length === 1) return false;
+      return entryKey.includes(cleanName) || cleanName.includes(entryKey);
+    });
+  };
+
+  const normalizeFlavorKey = (value: string) =>
     value
       .toLowerCase()
       .normalize('NFD')
@@ -129,6 +141,14 @@ const EntryDetail: React.FC<EntryDetailProps> = ({ entry, onBack, onHome, onSele
       .toLowerCase()
       .normalize('NFD')
       .replace(/[\u0300-\u036f]/g, '');
+
+  const isLightColor = (hex: string) => {
+    const clean = hex.replace('#', '');
+    const r = parseInt(clean.substring(0, 2), 16);
+    const g = parseInt(clean.substring(2, 4), 16);
+    const b = parseInt(clean.substring(4, 6), 16);
+    return (0.299 * r + 0.587 * g + 0.114 * b) > 160;
+  };
 
   const isVariousOrigin = (origin?: string) => (origin || '').trim().toLowerCase() === 'various';
 
@@ -153,22 +173,22 @@ const EntryDetail: React.FC<EntryDetailProps> = ({ entry, onBack, onHome, onSele
   // Type Icon Selection
   const getTypeIcon = (typeStr: string = '', size: number = 28) => {
       const t = normalizeLabel(typeStr);
-      if (t.includes('full-bodied red') || t.includes('full bodied red')) return <Wine size={size} className="text-red-200" />;
-      if (t.includes('bright red')) return <Sparkles size={size} className="text-pink-200" />;
-      if (t.includes('light-bodied red') || t.includes('light bodied red')) return <GlassWater size={size} className="text-rose-200" />;
-      if (t.includes('dark red')) return <Grape size={size} className="text-red-300" />;
-      if (t.includes('medium-bodied red') || t.includes('medium bodied red')) return <Scale size={size} className="text-pink-300" />;
-      if (t.includes('pink') || t.includes('rose')) return <Droplets size={size} className="text-pink-200" />;
+      if (t.includes('full-body red') || t.includes('full body red') || t.includes('full-bodied red') || t.includes('full bodied red')) return <Wine size={size} />;
+      if (t.includes('bright red')) return <Sparkles size={size} />;
+      if (t.includes('light-body red') || t.includes('light body red') || t.includes('light-bodied red') || t.includes('light bodied red')) return <GlassWater size={size} />;
+      if (t.includes('dark red')) return <Grape size={size} />;
+      if (t.includes('medium-body red') || t.includes('medium body red') || t.includes('medium-bodied red') || t.includes('medium bodied red')) return <Scale size={size} />;
+      if (t.includes('pink') || t.includes('rose')) return <Droplets size={size} />;
 
-      if (t.includes('light-bodied white') || t.includes('light bodied white')) return <GlassWater size={size} className="text-emerald-100" />;
-      if (t.includes('aromatic white')) return <Wind size={size} className="text-amber-200" />;
-      if (t.includes('high-acid white') || t.includes('high acid white')) return <Citrus size={size} className="text-slate-100" />;
-      if (t.includes('full-bodied white') || t.includes('full bodied white')) return <Box size={size} className="text-orange-200" />;
-      if (t.includes('sweet white')) return <Sun size={size} className="text-amber-300" />;
-      if (t.includes('medium-bodied white') || t.includes('medium bodied white')) return <Circle size={size} className="text-amber-200" />;
+      if (t.includes('light-body white') || t.includes('light body white') || t.includes('light-bodied white') || t.includes('light bodied white')) return <GlassWater size={size} />;
+      if (t.includes('aromatic white')) return <Wind size={size} />;
+      if (t.includes('high-acid white') || t.includes('high acid white')) return <Citrus size={size} />;
+      if (t.includes('full-body white') || t.includes('full body white') || t.includes('full-bodied white') || t.includes('full bodied white')) return <Box size={size} />;
+      if (t.includes('sweet white')) return <Sun size={size} />;
+      if (t.includes('medium-body white') || t.includes('medium body white') || t.includes('medium-bodied white') || t.includes('medium bodied white')) return <Circle size={size} />;
 
-      if (t.includes('sparkling')) return <Sparkles size={size} className="text-cyan-200" />;
-      return <Grape size={size} className="text-stone-300" />;
+      if (t.includes('sparkling')) return <Sparkles size={size} />;
+      return <Grape size={size} />;
   };
 
   // Soil Mapping
@@ -237,7 +257,7 @@ const EntryDetail: React.FC<EntryDetailProps> = ({ entry, onBack, onHome, onSele
 
     const originKeywords = ['champagne', 'port', 'sherry', 'prosecco', 'cremant', 'cru beaujolais', 'super tuscan'];
     const methodKeywords = ['sparkling', 'fortified', 'dessert', 'late harvest', 'ice wine', 'botrytis', 'petillant', 'natural wine', 'orange wine'];
-    const typeKeywords = ['full-bodied', 'full bodied', 'light-bodied', 'light bodied', 'medium-bodied', 'medium bodied', 'aromatic', 'white', 'red', 'rose', 'sweet white', 'sparkling wine'];
+    const typeKeywords = ['full-body', 'full body', 'full-bodied', 'full bodied', 'light-body', 'light body', 'light-bodied', 'light bodied', 'medium-body', 'medium body', 'medium-bodied', 'medium bodied', 'aromatic', 'white', 'red', 'rose', 'sweet white', 'sparkling wine'];
 
     if (originKeywords.some(k => normalized.includes(k))) return 'ORIGIN';
     if (typeKeywords.some(k => normalized.includes(k))) return 'TYPE';
@@ -308,18 +328,15 @@ const EntryDetail: React.FC<EntryDetailProps> = ({ entry, onBack, onHome, onSele
   const getFlavorTileVisual = (note: { note: string; icon: string; color: string }) => {
     const relatedFlavor = getExactFlavorEntry(note.note);
     if (relatedFlavor) {
-      const { icon, color: iconColor } = getEntryIconDisplay(relatedFlavor);
-      const iconNode = React.isValidElement(icon)
-        ? React.cloneElement(icon as React.ReactElement, {
-            size: 18,
-            className: icon.props.className,
-            style: { ...(icon.props.style || {}), ...(iconColor ? { color: iconColor } : {}) }
-          })
-        : icon;
+      const flavorVisual = resolveEntryIconVisual(relatedFlavor, {
+        size: 18,
+        resolver: entryVisualResolver,
+        includeRegionClimateOutline: true,
+      });
       return {
         relatedFlavor,
-        iconNode,
-        borderColor: iconColor || note.color,
+        iconNode: flavorVisual.iconNode,
+        borderColor: flavorVisual.iconColor || note.color,
         bgColor: relatedFlavor.color || '#0b0f19',
         label: relatedFlavor.name
       };
@@ -399,75 +416,20 @@ const EntryDetail: React.FC<EntryDetailProps> = ({ entry, onBack, onHome, onSele
     }
   };
 
-  const getRegionCountryIconBg = (country?: string) => {
-    const map: Record<string, string> = {
-      france: '#1f3f99',
-      italy: '#14532d',
-      spain: '#7f1d1d',
-      usa: '#312e81',
-      germany: '#713f12',
-      portugal: '#065f46',
-      australia: '#7c2d12',
-      'new zealand': '#0f172a',
-      argentina: '#0ea5e9',
-      chile: '#7f1d1d',
-      'south africa': '#312e81',
-      austria: '#831843',
-      greece: '#0e7490',
-      hungary: '#365314',
-      canada: '#7f1d1d',
-      china: '#854d0e',
-      japan: '#9f1239',
-      india: '#713f12',
-      uruguay: '#312e81',
-      croatia: '#1e293b',
-    };
-    if (!country) return '#374151';
-    return map[country.toLowerCase()] || '#374151';
-  };
-
-  const getRegionClassificationIconColor = (classification?: string) => {
-    const map: Record<string, string> = {
-      aoc: '#f43f5e',
-      docg: '#f59e0b',
-      doc: '#ea580c',
-      doca: '#fcd34d',
-      ava: '#6366f1',
-      gi: '#22c55e',
-      pdo: '#a855f7',
-      pgi: '#14b8a6',
-      igp: '#84cc16',
-    };
-    const key = classification ? classification.toLowerCase() : '';
-    return map[key] || '#e5e7eb';
-  };
-
-  const getRegionMainGrapeIconColor = (regionEntry?: WineEntry) => {
-    const notableGrapes = regionEntry?.details?.notableGrapes || [];
-    for (const grapeName of notableGrapes) {
-      const grape = getExactGrapeEntry(grapeName);
-      const color = grape?.tastingProfile?.[0]?.color;
-      if (color) return color;
-    }
-    return undefined;
-  };
-
   const getTypeTileColors = (wineType?: string) => {
-    const t = wineType?.toLowerCase() || '';
-    if (t.includes('full-bodied red') || t.includes('full bodied red')) return { bg: '#2b0a0e', border: '#5a0f18', text: '#f8fafc' };
-    if (t.includes('bright red')) return { bg: '#5b0f1f', border: '#dc143c', text: '#ffe4e6' };
-    if (t.includes('light-bodied red') || t.includes('light bodied red')) return { bg: '#4f1f28', border: '#8b3f4c', text: '#fee2e2' };
-    if (t.includes('dark red')) return { bg: '#3f1024', border: '#70193d', text: '#fde2e4' };
-    if (t.includes('medium-bodied red') || t.includes('medium bodied red')) return { bg: '#5e2b30', border: '#e96b6b', text: '#fff1f2' };
-    if (normalizeLabel(t).includes('pink') || normalizeLabel(t).includes('rose')) return { bg: '#5b2c36', border: '#f6b6c0', text: '#fff7f9' };
+    const palette = getStylePalette(wineType);
+    if (palette) {
+      const textColor = isLightColor(palette.primary) ? palette.secondary : '#ffffff';
+      return { bg: palette.primary, border: palette.secondary, text: textColor };
+    }
 
-    if (t.includes('light-bodied white') || t.includes('light bodied white')) return { bg: '#334155', border: '#94a3b8', text: '#f8fafc' };
-    if (t.includes('aromatic white')) return { bg: '#3f2e1a', border: '#daa520', text: '#fff4ce' };
-    if (t.includes('high-acid white') || t.includes('high acid white')) return { bg: '#1f2937', border: '#e5e7eb', text: '#f8fafc' };
-    if (t.includes('full-bodied white') || t.includes('full bodied white')) return { bg: '#3b2315', border: '#f4a261', text: '#ffe8d3' };
-    if (t.includes('sweet white')) return { bg: '#3a2412', border: '#b5651d', text: '#fce9d8' };
-    if (t.includes('medium-bodied white') || t.includes('medium bodied white')) return { bg: '#2f261b', border: '#d6bfa3', text: '#f7f1e8' };
-    return { bg: '#1f2937', border: '#4b5563', text: '#e5e7eb' };
+    const t = wineType?.toLowerCase() || '';
+    if (t.includes('red') || t.includes('bold')) return { bg: '#7f1d1d', border: '#b91c1c', text: '#fca5a5' };
+    if (t.includes('white') || t.includes('aromatic')) return { bg: '#92400e', border: '#d97706', text: '#fde68a' };
+    if (t.includes('rosé') || t.includes('rose')) return { bg: '#9d174d', border: '#db2777', text: '#fbcfe8' };
+    if (t.includes('sparkling')) return { bg: '#a16207', border: '#eab308', text: '#fef9c3' };
+    if (t.includes('sweet')) return { bg: '#9a3412', border: '#ea580c', text: '#fed7aa' };
+    return { bg: '#57534e', border: '#78716c', text: '#e7e5e4' };
   };
 
   const getRarityColors = (rarity?: string) => {
@@ -479,78 +441,6 @@ const EntryDetail: React.FC<EntryDetailProps> = ({ entry, onBack, onHome, onSele
       default: return { bg: '#3f3f46', border: '#52525b', text: '#e4e4e7' };
     }
   };
-  const getGrapeColorIcon = (related?: WineEntry) => {
-    const t = related?.wineType?.toLowerCase() || '';
-    const normalizedType = normalizeLabel(t);
-    const isWhite = normalizedType.includes('white') || normalizedType.includes('rose');
-    if (isWhite) return <Droplet size={24} fill="#FACC15" className="text-amber-300" />;
-    return <Droplet size={24} fill="#DC143C" className="text-red-400" />;
-  };
-
-  // Icon helpers aligned with EntryTile
-  const getGrapeIconColor = (wineType: string | undefined, body: string | undefined) => {
-    const palette = getStylePalette(wineType);
-    if (palette) return palette.primary;
-
-    if (!wineType) return '#78716c';
-    const type = wineType.toLowerCase();
-    const bodyLevel = body?.toLowerCase() || 'medium';
-
-    if (type.includes('red') || type.includes('bold')) {
-      if (bodyLevel.includes('light')) return '#DC143C';
-      if (bodyLevel.includes('full')) return '#4A0E0E';
-      return '#8B0000';
-    }
-    if (type.includes('white') || type.includes('aromatic')) {
-      if (bodyLevel.includes('light')) return '#FAFAD2';
-      if (bodyLevel.includes('full')) return '#B8860B';
-      return '#DAA520';
-    }
-    if (normalizeLabel(type).includes('rose')) return '#DB7093';
-    if (type.includes('sweet')) return '#CD853F';
-    return '#78716c';
-  };
-
-  const darkenHex = (hex: string, amount = 0.35) => {
-    const clean = hex.replace('#', '');
-    if (clean.length !== 6) return hex;
-    const toChannel = (start: number) => {
-      const channel = parseInt(clean.substring(start, start + 2), 16);
-      const darkened = Math.max(0, Math.min(255, Math.round(channel * (1 - amount))));
-      return darkened.toString(16).padStart(2, '0');
-    };
-    return `#${toChannel(0)}${toChannel(2)}${toChannel(4)}`;
-  };
-
-  const getGrapeIcon = (grape?: WineEntry): React.ReactNode => {
-    const wineType = grape?.wineType?.toLowerCase() || '';
-    if (wineType.includes('full-bodied red') || wineType.includes('full bodied red')) return <Wine size={20} fill="currentColor" className="text-white opacity-90" />;
-    if (wineType.includes('bright red')) return <Sparkles size={20} fill="currentColor" className="text-white opacity-90" />;
-    if (wineType.includes('light-bodied red') || wineType.includes('light bodied red')) return <GlassWater size={20} fill="currentColor" className="text-white opacity-90" />;
-    if (wineType.includes('dark red')) return <Grape size={20} fill="currentColor" className="text-white opacity-90" />;
-    if (wineType.includes('medium-bodied red') || wineType.includes('medium bodied red')) return <Scale size={20} className="text-white opacity-90" />;
-    if (normalizeLabel(wineType).includes('pink') || normalizeLabel(wineType).includes('rose')) return <Droplets size={20} className="text-white opacity-90" />;
-    if (wineType.includes('light-bodied white') || wineType.includes('light bodied white')) return <GlassWater size={20} fill="currentColor" className="text-white opacity-90" />;
-    if (wineType.includes('aromatic white')) return <Wind size={20} className="text-white opacity-90" />;
-    if (wineType.includes('high-acid white') || wineType.includes('high acid white')) return <Citrus size={20} fill="currentColor" className="text-white opacity-90" />;
-    if (wineType.includes('full-bodied white') || wineType.includes('full bodied white')) return <Box size={20} className="text-white opacity-90" />;
-    if (wineType.includes('sweet white')) return <Sun size={20} fill="currentColor" className="text-white opacity-90" />;
-    if (wineType.includes('medium-bodied white') || wineType.includes('medium bodied white')) return <Circle size={20} fill="currentColor" className="text-white opacity-90" />;
-    return <Grape size={20} fill="currentColor" className="text-white opacity-90" />;
-  };
-
-  const getGrapeFlavorIcon = (grape?: WineEntry): React.ReactNode => {
-    const note = grape?.tastingProfile?.[0];
-    if (!note) return getGrapeIcon(grape);
-    const IconComp = ICON_MAP[note.icon] || ICON_MAP['default'];
-    return React.isValidElement(IconComp)
-      ? React.cloneElement(IconComp as React.ReactElement, {
-          className: 'opacity-90',
-          style: { color: note.color },
-        })
-      : IconComp;
-  };
-
   const buildIconNode = (iconKey: string, color?: string, size = 20): React.ReactNode => {
     const iconNode = ICON_MAP[iconKey] || ICON_MAP['default'];
     if (React.isValidElement(iconNode)) {
@@ -563,306 +453,22 @@ const EntryDetail: React.FC<EntryDetailProps> = ({ entry, onBack, onHome, onSele
     return iconNode;
   };
 
-  const addIconOutline = (iconNode: React.ReactNode, outlineColor?: string): React.ReactNode => {
-    if (!React.isValidElement(iconNode)) return iconNode;
-    const color = outlineColor || '#e5e7eb';
-    return React.cloneElement(iconNode as React.ReactElement, {
-      style: {
-        ...(iconNode.props.style || {}),
-        filter: `drop-shadow(1px 0 0 ${color}) drop-shadow(-1px 0 0 ${color}) drop-shadow(0 1px 0 ${color}) drop-shadow(0 -1px 0 ${color})`
-      }
-    });
-  };
-
-  const getStyleColorTypeColor = (type?: string) => {
-    switch (type) {
-      case 'RED': return '#8B0000'; // full-bodied red inner icon
-      case 'WHITE': return '#FAFAD2'; // light-bodied white inner icon
-      case 'ROSE': return '#f9a8d4';
-      case 'ORANGE': return '#fdba74';
-      case 'DUAL': return '#f472b6'; // pink inner icon
-      default: return '#e5e7eb';
-    }
-  };
-
-  const getStyleClassBg = (styleEntry?: WineEntry) => {
-    const classType = styleEntry ? getStyleClassType(styleEntry.name, styleEntry.details.classification) : undefined;
-    switch (classType) {
-      case 'METHOD': return '#312e81';
-      case 'ORIGIN': return '#7c2d12';
-      case 'TYPE': return '#0f172a';
-      case 'STYLE': return '#064e3b';
-      case 'BLEND': return '#1d1b47';
-      default: return styleEntry?.color || '#78716c';
-    }
-  };
-
-  const getStyleIconShape = (styleEntry?: WineEntry, colorTypeColor?: string): React.ReactNode => {
-    const classType = styleEntry ? getStyleClassType(styleEntry.name, styleEntry.details.classification) : undefined;
-    const colorType = styleEntry ? getColorType(styleEntry.name) : undefined;
-    const iconColor = colorTypeColor || getStyleColorTypeColor(colorType);
-
-    if (classType === 'METHOD') return <Sparkles size={20} fill="currentColor" style={{ color: iconColor }} />;
-    if (classType === 'ORIGIN') return <MapPin size={20} style={{ color: iconColor }} />;
-    if (classType === 'TYPE') return <Shield size={20} fill="currentColor" style={{ color: iconColor }} />;
-
-    switch (colorType) {
-      case 'RED': return <Wine size={20} fill="currentColor" style={{ color: iconColor }} />;
-      case 'WHITE': return <GlassWater size={20} fill="currentColor" style={{ color: iconColor }} />;
-      case 'ROSE': return <Droplets size={20} style={{ color: iconColor }} />;
-      case 'ORANGE': return <Sun size={20} fill="currentColor" style={{ color: iconColor }} />;
-      default: return <Grape size={20} fill="currentColor" style={{ color: iconColor }} />;
-    }
-  };
-
-  const getStyleIconBg = (styleEntry?: WineEntry) => {
-    return getStyleClassBg(styleEntry);
-  };
-
-  const getFlavorSubclassIconColor = (sub?: string) => {
-    switch ((sub || '').toUpperCase()) {
-      case 'CITRUS': return '#f97316';
-      case 'ORCHARD_FRUIT': return '#84cc16';
-      case 'STONE_FRUIT': return '#fb923c';
-      case 'TROPICAL': return '#eab308';
-      case 'RED_FRUIT': return '#ef4444';
-      case 'DARK_FRUIT': return '#8b5cf6';
-      case 'BERRY': return '#e11d48';
-      case 'HERBAL': return '#34d399';
-      case 'VEGETAL': return '#22c55e';
-      case 'SPICE': return '#d97706';
-      case 'BAKING': return '#c08457';
-      case 'FLORAL': return '#ec4899';
-      case 'EARTH': return '#78716c';
-      case 'WOOD': return '#8b5a2b';
-      case 'MARINE': return '#0ea5e9';
-      case 'WAX': return '#f59e0b';
-      case 'NUT': return '#eab308';
-      default: return '#e5e7eb';
-    }
-  };
-
-  const getGrapePrimaryFlavorVisual = (grapeEntry: WineEntry) => {
-    const primaryNote = grapeEntry.tastingProfile?.[0];
-    const typeColor = getGrapeIconColor(grapeEntry.grapeCard?.style || grapeEntry.wineType, grapeEntry.details.body);
-    const iconOutline = darkenHex(typeColor, 0.4);
-    const relatedFlavor = primaryNote?.note ? getExactFlavorEntry(primaryNote.note) : undefined;
-    const iconColor = relatedFlavor
-      ? getFlavorSubclassIconColor(relatedFlavor.details.subclass)
-      : primaryNote?.color;
-    const iconKey = primaryNote?.icon || grapeEntry.icon || 'default';
-    return {
-      icon: addIconOutline(buildIconNode(iconKey, iconColor), iconOutline),
-      bg: typeColor,
-      color: iconColor
-    };
-  };
-
-  // Get the main grape's flavor icon for regions
-  const getRegionMainGrapeFlavorIcon = (entry: WineEntry): React.ReactNode => {
-    const notableGrapes = entry.details.notableGrapes || [];
-    if (notableGrapes.length === 0) {
-      return buildIconNode('default', undefined);
-    }
-    
-    // Find the first grape
-    for (const grapeName of notableGrapes) {
-      const grapeEntry = getExactGrapeEntry(grapeName);
-      if (!grapeEntry) continue;
-      
-      // Use the grape's primary flavor visual
-      const visual = getGrapePrimaryFlavorVisual(grapeEntry);
-      return visual.icon;
-    }
-    
-    return buildIconNode('default', undefined);
-  };
-
-
-  // Master icon renderer - ensures consistent styling across all contexts
-  // NOTE: PairingTile.tsx uses this SAME rendering logic for regions in its local implementation
-  // Both components must maintain identical icon rendering logic:
-  // - GRAPES: Primary flavor icon with wine type outline
-  // - REGIONS: Region's icon with main grape color + drop-shadow
-  // - STYLES: Classification-based icon with color type
-  // - FLAVORS: Flavor subclass icon with color outline
-  // - COUNTRIES: White icon on flag background
-  // The only difference is the icon size parameter (20 for lists, 28 for headers)
-  const renderMasterEntryIcon = (entry: WineEntry | undefined, size: number = 20): React.ReactNode => {
-    if (!entry) {
-      return buildIconNode('default', undefined, size);
-    }
-
-    if (entry.category === 'GRAPES') {
-      const visual = getGrapePrimaryFlavorVisual(entry);
-      const scaledIcon = React.isValidElement(visual.icon)
-        ? React.cloneElement(visual.icon as React.ReactElement, { size })
-        : visual.icon;
-      return scaledIcon;
-    }
-
-    if (entry.category === 'REGIONS') {
-      const notableGrapes = entry.details.notableGrapes || [];
-      if (notableGrapes.length > 0) {
-        // Find the first grape's flavor visual
-        for (const grapeName of notableGrapes) {
-          const grapeEntry = getExactGrapeEntry(grapeName);
-          if (grapeEntry) {
-            const visual = getGrapePrimaryFlavorVisual(grapeEntry);
-            const climateColors = entry.climate ? CLIMATE_CLASS_MAP[entry.climate]?.colors : undefined;
-            
-            // Clone the icon and apply the grape's color + black outline
-            const scaledIcon = React.isValidElement(visual.icon)
-              ? React.cloneElement(visual.icon as React.ReactElement, { 
-                  size,
-                  style: { 
-                    color: visual.color,
-                    filter: `drop-shadow(0.5px 0.5px 0 #000) drop-shadow(-0.5px -0.5px 0 #000) drop-shadow(0.5px -0.5px 0 #000) drop-shadow(-0.5px 0.5px 0 #000) drop-shadow(1px 0 0 #fff) drop-shadow(-1px 0 0 #fff) drop-shadow(0 1px 0 #fff) drop-shadow(0 -1px 0 #fff)`
-                  }
-              })
-              : visual.icon;
-            return scaledIcon;
-          }
-        }
-      }
-      // Fallback if no grapes found
-      const iconNode = getRegionMainGrapeFlavorIcon(entry);
-      const scaledIcon = React.isValidElement(iconNode)
-        ? React.cloneElement(iconNode as React.ReactElement, { size, style: { filter: `drop-shadow(1px 0 0 #fff) drop-shadow(-1px 0 0 #fff) drop-shadow(0 1px 0 #fff) drop-shadow(0 -1px 0 #fff)` } })
-        : iconNode;
-      return scaledIcon;
-    }
-
-    if (entry.category === 'STYLES') {
-      const colorTypeColor = getStyleColorTypeColor(getColorType(entry.name));
-      const icon = getStyleIconShape(entry, colorTypeColor);
-      return React.isValidElement(icon)
-        ? React.cloneElement(icon as React.ReactElement, { size })
-        : icon;
-    }
-
-    if (entry.category === 'FLAVORS') {
-      const iconColor = getFlavorSubclassIconColor(entry.details.subclass);
-      const iconKey = entry.icon || 'default';
-      const baseIcon = buildIconNode(iconKey, iconColor, size);
-      return addIconOutline(baseIcon, iconColor);
-    }
-
-    if (entry.category === 'COUNTRY_GATE') {
-      const iconNode = React.isValidElement(ICON_MAP[entry.icon || 'default'])
-        ? React.cloneElement(ICON_MAP[entry.icon || 'default'] as React.ReactElement, {
-            style: { color: '#fff' }
-          })
-        : ICON_MAP[entry.icon || 'default'] || ICON_MAP['default'];
-      return React.isValidElement(iconNode)
-        ? React.cloneElement(iconNode as React.ReactElement, { size })
-        : iconNode;
-    }
-
-    // Default fallback
-    return buildIconNode(entry.icon || 'default', undefined, size);
-  };
-
-  interface EntryIconDisplay {
-    icon: React.ReactNode;
-    bg: string;
-    color?: string;
-    outline?: string;
-    flagGradient?: string;
-    flagImage?: string;
-  }
-
-  const getEntryIconDisplay = (relatedEntry?: WineEntry): EntryIconDisplay => {
-    if (!relatedEntry) {
-      return { icon: ICON_MAP['default'], bg: '#444', color: undefined, outline: undefined };
-    }
-    if (relatedEntry.category === 'GRAPES') {
-      const grapeVisual = getGrapePrimaryFlavorVisual(relatedEntry);
-      return {
-        icon: grapeVisual.icon,
-        bg: grapeVisual.bg,
-        color: grapeVisual.color,
-        outline: undefined
-      };
-    }
-    if (relatedEntry.category === 'REGIONS') {
-      const climateColors = relatedEntry.climate ? CLIMATE_CLASS_MAP[relatedEntry.climate]?.colors : undefined;
-      const iconColor = getRegionMainGrapeIconColor(relatedEntry) || getRegionClassificationIconColor(relatedEntry.details.classification);
-      const outline = climateColors?.border || climateColors?.bg;
-      return {
-        icon: React.isValidElement(ICON_MAP[relatedEntry.icon || 'default'])
-          ? React.cloneElement(ICON_MAP[relatedEntry.icon || 'default'] as React.ReactElement, {
-              style: {
-                color: iconColor,
-                filter: 'drop-shadow(1px 0 0 #000) drop-shadow(-1px 0 0 #000) drop-shadow(0 1px 0 #000) drop-shadow(0 -1px 0 #000)'
-              }
-            })
-          : ICON_MAP[relatedEntry.icon || 'default'] || ICON_MAP['default'],
-        bg: getRegionCountryIconBg(relatedEntry.details.origin),
-        color: iconColor,
-        outline,
-        flagGradient: getFlagGradient(relatedEntry.details.origin),
-        flagImage: getFlagImage(relatedEntry.details.origin)
-      };
-    }
-    if (relatedEntry.category === 'COUNTRY_GATE') {
-      const origin = relatedEntry.details.origin || relatedEntry.name;
-      const flagGradient = getFlagGradient(origin);
-      const flagImage = getFlagImage(origin);
-      return {
-        icon: React.isValidElement(ICON_MAP[relatedEntry.icon || 'default'])
-          ? React.cloneElement(ICON_MAP[relatedEntry.icon || 'default'] as React.ReactElement, {
-              style: {
-                color: '#fff'
-              }
-            })
-          : ICON_MAP[relatedEntry.icon || 'default'] || ICON_MAP['default'],
-        bg: flagGradient || relatedEntry.color || '#444',
-        color: '#fff',
-        outline: undefined,
-        flagGradient,
-        flagImage
-      };
-    }
-    if (relatedEntry.category === 'STYLES') {
-      const colorTypeColor = getStyleColorTypeColor(getColorType(relatedEntry.name));
-      const useFlagVisual = !isVariousOrigin(relatedEntry.details.origin);
-      return {
-        icon: getStyleIconShape(relatedEntry, colorTypeColor),
-        bg: getStyleIconBg(relatedEntry),
-        color: colorTypeColor,
-        outline: undefined,
-        flagGradient: useFlagVisual ? getFlagGradient(relatedEntry.details.origin) : undefined,
-        flagImage: useFlagVisual ? getFlagImage(relatedEntry.details.origin) : undefined
-      };
-    }
-    if (relatedEntry.category === 'FLAVORS') {
-      const iconColor = getFlavorSubclassIconColor(relatedEntry.details.subclass);
-      const iconKey = relatedEntry.icon || 'default';
-      return {
-        icon: addIconOutline(buildIconNode(iconKey, iconColor), iconColor),
-        bg: relatedEntry.color || '#444',
-        color: iconColor,
-        outline: iconColor
-      };
-    }
-    const iconKey = relatedEntry.icon || 'default';
-    return { icon: buildIconNode(iconKey), bg: relatedEntry.color || '#444', color: undefined, outline: undefined };
-  };
-
   interface RenderLinkedTileOptions {
     useCountryFlag?: boolean;
     showRegionMetaTiles?: boolean;
+    preferCountryGate?: boolean;
   }
 
   const renderLinkedTile = (label: string, idx: number, options?: RenderLinkedTileOptions) => {
-    const relatedEntry = getRelatedEntry(label);
-    const { icon, bg, color: iconColor, outline, flagGradient, flagImage } = getEntryIconDisplay(relatedEntry);
+    const relatedEntry = getRelatedEntry(label, options?.preferCountryGate ? 'COUNTRY_GATE' : undefined);
+    const linkedVisual = resolveEntryIconVisual(relatedEntry, {
+      size: ICON_SIZE_LINKED,
+      resolver: entryVisualResolver,
+      includeRegionClimateOutline: true,
+    });
     const displayName = (relatedEntry?.name || label || 'UNKNOWN').toUpperCase();
     const isLinkable = !!relatedEntry;
     const classificationLabel = relatedEntry?.details.classification ? formatUpper(relatedEntry.details.classification) : undefined;
-    const masterIconNode = renderMasterEntryIcon(relatedEntry, 20);
-    const showFlag = ((relatedEntry?.category === 'REGIONS' || relatedEntry?.category === 'COUNTRY_GATE') || (relatedEntry?.category === 'STYLES' && !isVariousOrigin(relatedEntry.details.origin))) && Boolean(flagImage || flagGradient);
     const isRegionMeta = relatedEntry?.category === 'REGIONS' && options?.showRegionMetaTiles;
     const regionCountry = relatedEntry?.details.origin;
     const regionSystem = relatedEntry?.details.classification;
@@ -871,6 +477,13 @@ const EntryDetail: React.FC<EntryDetailProps> = ({ entry, onBack, onHome, onSele
     const regionSystemColors = getClassificationColors(regionSystem);
     const regionClimateColors = getClimateColors(regionClimate);
     const regionClimateName = regionClimate ? CLIMATE_CLASS_MAP[regionClimate]?.name : undefined;
+    const linkedWineType = relatedEntry?.grapeCard?.style || relatedEntry?.wineType;
+    const linkedTypeColors = getTypeTileColors(linkedWineType);
+    const linkedRarity = relatedEntry?.rarity || (relatedEntry?.grapeCard?.rarityTier ? relatedEntry.grapeCard.rarityTier.toUpperCase() : undefined);
+    const linkedRarityColors = getRarityColors(linkedRarity);
+    const linkedOrigin = relatedEntry?.details.origin;
+    const linkedOriginColors = getCountryChipColors(linkedOrigin);
+    const showLinkedGrapeChips = relatedEntry?.category === 'GRAPES';
 
     return (
       <button
@@ -886,15 +499,9 @@ const EntryDetail: React.FC<EntryDetailProps> = ({ entry, onBack, onHome, onSele
 
         <div
           className={`shrink-0 ${CONTAINER_SIZE_LIST} ${CONTAINER_BORDER_CLASS} ${CONTAINER_SHADOW_CLASS} flex items-center justify-center ${CONTAINER_BORDER} ${!isLinkable ? 'grayscale' : ''}`}
-          style={{
-            backgroundColor: showFlag ? undefined : bg,
-            backgroundImage: showFlag ? (flagImage ? `url(${flagImage})` : flagGradient) : undefined,
-            backgroundSize: showFlag && flagImage ? 'cover' : undefined,
-            backgroundPosition: showFlag && flagImage ? 'center' : undefined,
-            boxShadow: outline ? `0 0 0 2px ${outline}` : undefined
-          }}
+          style={linkedVisual.style}
         >
-          {relatedEntry?.category === 'REGIONS' ? masterIconNode : !showFlag ? masterIconNode : null}
+          {linkedVisual.iconNode}
         </div>
 
         <div className="flex-1 flex items-center gap-2 min-w-0">
@@ -911,7 +518,7 @@ const EntryDetail: React.FC<EntryDetailProps> = ({ entry, onBack, onHome, onSele
               <div className="mt-1 flex flex-wrap gap-1">
                 {regionCountry && (
                   <span
-                    className="inline-flex items-center px-1.5 py-0.5 rounded border text-[9px] font-bold uppercase"
+                    className={LINKED_TILE_META_CHIP_CLASS}
                     style={{ backgroundColor: regionCountryColors.bg, borderColor: regionCountryColors.border, color: regionCountryColors.text }}
                   >
                     {regionCountry}
@@ -919,7 +526,7 @@ const EntryDetail: React.FC<EntryDetailProps> = ({ entry, onBack, onHome, onSele
                 )}
                 {regionSystem && (
                   <span
-                    className="inline-flex items-center px-1.5 py-0.5 rounded border text-[9px] font-bold uppercase"
+                    className={LINKED_TILE_META_CHIP_CLASS}
                     style={{ backgroundColor: regionSystemColors.bg, borderColor: regionSystemColors.border, color: regionSystemColors.text }}
                   >
                     {regionSystem}
@@ -927,10 +534,38 @@ const EntryDetail: React.FC<EntryDetailProps> = ({ entry, onBack, onHome, onSele
                 )}
                 {regionClimate && regionClimateName && (
                   <span
-                    className="inline-flex items-center px-1.5 py-0.5 rounded border text-[9px] font-bold uppercase"
+                    className={LINKED_TILE_META_CHIP_CLASS}
                     style={{ backgroundColor: regionClimateColors.bg, borderColor: regionClimateColors.border, color: regionClimateColors.text }}
                   >
                     {regionClimateName}
+                  </span>
+                )}
+              </div>
+            )}
+            {showLinkedGrapeChips && (
+              <div className="mt-1 flex flex-wrap gap-1">
+                {linkedWineType && (
+                  <span
+                    className={LINKED_TILE_META_CHIP_CLASS}
+                    style={{ backgroundColor: linkedTypeColors.bg, borderColor: linkedTypeColors.border, color: linkedTypeColors.text }}
+                  >
+                    {formatUpper(linkedWineType.split(' ')[0])}
+                  </span>
+                )}
+                {linkedRarity && (
+                  <span
+                    className={LINKED_TILE_META_CHIP_CLASS}
+                    style={{ backgroundColor: linkedRarityColors.bg, borderColor: linkedRarityColors.border, color: linkedRarityColors.text }}
+                  >
+                    {formatUpper(linkedRarity)}
+                  </span>
+                )}
+                {linkedOrigin && (
+                  <span
+                    className={LINKED_TILE_META_CHIP_CLASS}
+                    style={{ backgroundColor: linkedOriginColors.bg, borderColor: linkedOriginColors.border, color: linkedOriginColors.text }}
+                  >
+                    {formatUpper(linkedOrigin)}
                   </span>
                 )}
               </div>
@@ -997,19 +632,30 @@ const EntryDetail: React.FC<EntryDetailProps> = ({ entry, onBack, onHome, onSele
 
   // Header Tiles Logic - Updated to remove rarity from regions/styles, add rarity clickable for grapes
   const renderHeaderTiles = () => {
-      // Common Tile Styles
-      const tileBase = "flex flex-col items-center justify-center p-3 bg-stone-900 border-2 border-stone-700 rounded h-24 w-full hover:border-green-500 hover:bg-stone-800 transition-all active:scale-95 group relative overflow-hidden";
-      const labelStyle = "text-xs font-bold text-stone-500 uppercase tracking-widest mb-2 group-hover:text-green-500 z-10";
-      const valueStyle = "text-sm font-bold text-white text-center leading-tight uppercase z-10 break-words w-full";
+      // New 3-tile visual language
+      const tileBase = "flex flex-col items-center justify-start p-0 w-full border-0 bg-transparent group relative";
+      const tileRowStyle = "grid grid-cols-3 gap-2 px-1 mb-3";
+      const labelStyle = "font-retro text-[10px] md:text-[11px] tracking-normal text-green-500 z-10 whitespace-nowrap leading-none w-full text-center";
+      const chipStyle = "inline-flex items-center justify-center px-1.5 py-1 rounded border font-retro text-[8px] md:text-[9px] tracking-normal leading-tight uppercase z-10 text-center mt-1";
+      const iconRowStyle = "h-8 flex items-center justify-center mt-1";
+      const getTileRowClass = (tileCount: number) =>
+        tileCount === 2 ? 'grid grid-cols-2 gap-2 px-1 mb-3' : tileRowStyle;
       
       if (isCountry) {
         return null;
       }
 
       if (isGrapes) {
+          const headerTileIconSize = 32;
           const typeColors = getTypeTileColors(entry.wineType);
           const typeEntry = entry.wineType ? getRelatedEntry(entry.wineType) : undefined;
-          const { icon: typeIconNode, color: typeIconColor } = getEntryIconDisplay(typeEntry);
+          const typeVisual = resolveEntryIconVisual(typeEntry, {
+            size: headerTileIconSize,
+            resolver: entryVisualResolver,
+            includeRegionClimateOutline: true,
+          });
+          const typeIconNode = typeVisual.iconNode;
+          const typeIconColor = typeColors.bg;
           const rarityColors = getRarityColors(entry.rarity);
           const countryStyle = getCountryChipColors(entry.details.origin);
           const countryFlagGradient = getFlagGradient(entry.details.origin);
@@ -1017,68 +663,69 @@ const EntryDetail: React.FC<EntryDetailProps> = ({ entry, onBack, onHome, onSele
 
           const rarityIcon = (() => {
             const rarity = (entry.rarity || '').toUpperCase();
+            const rarityStarColor = '#facc15';
             if (rarity === 'NOBLE') {
-              return <Crown size={22} className="mt-2" color={rarityColors.text} />;
+              return <Crown size={headerTileIconSize} color={rarityColors.text} />;
             }
             const starCount = rarity === 'RARE' ? 3 : rarity === 'COMMON' ? 2 : rarity === 'UNCOMMON' ? 1 : 1;
+            const rarityStarSize = headerTileIconSize;
             return (
-              <div className="mt-2 flex items-center gap-0.5">
+              <div className="flex items-center gap-0.5">
                 {Array.from({ length: starCount }).map((_, i) => (
-                  <Star key={i} size={14} color={rarityColors.text} fill={rarityColors.text} />
+                  <Star key={i} size={rarityStarSize} color={rarityStarColor} fill={rarityStarColor} />
                 ))}
               </div>
             );
           })();
 
           return (
-              <div className="grid grid-cols-3 gap-2 mb-6 px-1">
+              <div className={getTileRowClass(3)}>
                   {/* Tile 1: Type */}
                   <button 
                     onClick={() => typeEntry ? onSelectRelated(typeEntry) : entry.wineType && onFilterByType(entry.wineType)}
                     className={tileBase}
-                    style={{ backgroundColor: typeColors.bg, borderColor: typeColors.border, color: typeColors.text }}
+                    style={{ backgroundColor: 'transparent', borderColor: 'transparent', color: '#22c55e' }}
                   >
-                      <span className={`${labelStyle} text-white`}>TYPE</span>
-                      <div className="flex flex-col items-center gap-1">
+                      <span className={labelStyle}>TYPE</span>
+                      <div className={iconRowStyle} style={{ color: typeIconColor }}>
                           {React.isValidElement(typeIconNode)
                             ? React.cloneElement(typeIconNode as React.ReactElement, {
-                                size: 20,
+                                size: headerTileIconSize,
                                 className: typeIconNode.props.className,
-                                style: { ...(typeIconNode.props.style || {}), ...(typeIconColor ? { color: typeIconColor } : {}) }
+                                style: { ...(typeIconNode.props.style || {}), color: typeIconColor }
                               })
-                            : getTypeIcon(entry.wineType)}
-                          <span className="text-sm leading-none font-bold uppercase" style={{ color: typeColors.text }}>
-                            {formatUpper(entry.wineType?.split(' ')[0])}
-                          </span>
+                            : getTypeIcon(entry.wineType, headerTileIconSize)}
                       </div>
+                      <span className={chipStyle} style={{ backgroundColor: typeColors.bg, borderColor: typeColors.border, color: typeColors.text }}>
+                        {formatUpper(entry.wineType?.split(' ')[0])}
+                      </span>
                   </button>
 
                   {/* Tile 2: Rarity - Clickable */}
                   <button 
                     onClick={() => entry.rarity && onFilterByRarity?.(entry.rarity)}
                     className={tileBase}
-                    style={{ backgroundColor: rarityColors.bg, borderColor: rarityColors.border, color: rarityColors.text }}
+                    style={{ backgroundColor: 'transparent', borderColor: 'transparent', color: '#22c55e' }}
                   >
-                       <span className={`${labelStyle} text-white`}>RARITY</span>
-                       <span 
-                         className="text-sm font-bold px-1.5 py-0.5 rounded border"
-                        style={{ backgroundColor: 'transparent', borderColor: rarityColors.border, color: rarityColors.text }}
-                       >
+                       <span className={labelStyle}>RARITY</span>
+                       <div className={iconRowStyle} style={{ color: rarityColors.border }}>
+                         {rarityIcon}
+                       </div>
+                       <span className={chipStyle} style={{ backgroundColor: rarityColors.bg, borderColor: rarityColors.border, color: rarityColors.text }}>
                          {displayClass}
                        </span>
-                       {rarityIcon}
                   </button>
 
                   {/* Tile 3: Country */}
                   <button 
                     onClick={() => entry.details.origin && onFilterByOrigin(entry.details.origin)} 
                     className={tileBase}
-                    style={{ backgroundColor: countryStyle.bg, borderColor: countryStyle.border, color: countryStyle.text }}
+                    style={{ backgroundColor: 'transparent', borderColor: 'transparent', color: '#22c55e' }}
                   >
-                       <span className={`${labelStyle} text-white`}>ORIGIN</span>
-                       <div className="flex items-center gap-2 mb-1">
+                       <span className={labelStyle}>ORIGIN</span>
+                       <div className={iconRowStyle}>
                          <span 
-                          className="w-8 h-5 rounded-sm border border-stone-700 shadow-inner" 
+                          className="w-12 h-8 rounded-sm border border-stone-700 shadow-inner" 
                            style={{
                              backgroundImage: countryFlagImage ? `url(${countryFlagImage})` : countryFlagGradient,
                              backgroundSize: countryFlagImage ? 'cover' : undefined,
@@ -1086,7 +733,7 @@ const EntryDetail: React.FC<EntryDetailProps> = ({ entry, onBack, onHome, onSele
                            }}
                          ></span>
                        </div>
-                       <span className="text-[12px] leading-tight font-bold text-center uppercase" style={{ color: countryStyle.text }}>
+                       <span className={chipStyle} style={{ backgroundColor: countryStyle.bg, borderColor: countryStyle.border, color: countryStyle.text }}>
                          {formatUpper(entry.details.origin)}
                        </span>
                   </button>
@@ -1096,7 +743,13 @@ const EntryDetail: React.FC<EntryDetailProps> = ({ entry, onBack, onHome, onSele
       const mainGrape = entry.details.notableGrapes?.[0] || 'N/A';
       const mainGrapeEntry = getRelatedEntry(mainGrape);
       const mainGrapeTypeColors = getTypeTileColors(mainGrapeEntry?.wineType);
-      const { icon: mainGrapeIconNode, color: mainGrapeIconColor } = getEntryIconDisplay(mainGrapeEntry);
+      const mainGrapeVisual = resolveEntryIconVisual(mainGrapeEntry, {
+        size: 32,
+        resolver: entryVisualResolver,
+        includeRegionClimateOutline: true,
+      });
+      const mainGrapeIconNode = mainGrapeVisual.iconNode;
+      const mainGrapeIconColor = mainGrapeTypeColors.bg;
       const countryStyle = getCountryChipColors(entry.details.origin);
       const climateMeta = entry.climate ? CLIMATE_CLASS_MAP[entry.climate] : undefined;
       const climateStyle = getClimateColors(entry.climate);
@@ -1104,25 +757,25 @@ const EntryDetail: React.FC<EntryDetailProps> = ({ entry, onBack, onHome, onSele
       const flagImage = getFlagImage(entry.details.origin);
       
       return (
-          <div className="grid grid-cols-3 gap-2 mb-6 px-1">
+          <div className={getTileRowClass(3)}>
               {/* Tile 1: Main Grape */}
               <button 
                 onClick={() => mainGrapeEntry && onSelectRelated(mainGrapeEntry)}
                 disabled={!mainGrapeEntry}
                 className={tileBase}
-                style={{ backgroundColor: mainGrapeTypeColors.bg, borderColor: mainGrapeTypeColors.border, color: mainGrapeTypeColors.text }}
+                style={{ backgroundColor: 'transparent', borderColor: 'transparent', color: '#22c55e' }}
               >
-                   <span className={labelStyle}>MAIN GRAPE</span>
-                   <div className="mb-1" style={{ color: mainGrapeIconColor || mainGrapeTypeColors.text }}>
+                   <span className={labelStyle}>KEY GRAPE</span>
+                   <div className={iconRowStyle} style={{ color: mainGrapeIconColor }}>
                      {React.isValidElement(mainGrapeIconNode)
                        ? React.cloneElement(mainGrapeIconNode as React.ReactElement, {
-                           size: 20,
+                           size: 32,
                            className: mainGrapeIconNode.props.className,
-                           style: { ...(mainGrapeIconNode.props.style || {}), ...(mainGrapeIconColor ? { color: mainGrapeIconColor } : {}) }
+                           style: { ...(mainGrapeIconNode.props.style || {}), color: mainGrapeIconColor }
                          })
                        : mainGrapeIconNode}
                    </div>
-                   <span className="text-xs leading-none text-center font-bold uppercase" style={{ color: mainGrapeTypeColors.text }}>
+                   <span className={chipStyle} style={{ backgroundColor: mainGrapeTypeColors.bg, borderColor: mainGrapeTypeColors.border, color: mainGrapeTypeColors.text }}>
                      {formatUpper(mainGrape)}
                    </span>
               </button>
@@ -1130,13 +783,15 @@ const EntryDetail: React.FC<EntryDetailProps> = ({ entry, onBack, onHome, onSele
               {/* Tile 2: Climate */}
               <div
                 className={`${tileBase} cursor-default`}
-                style={{ backgroundColor: climateStyle.bg, borderColor: climateStyle.border, color: climateStyle.text }}
+                style={{ backgroundColor: 'transparent', borderColor: 'transparent', color: '#22c55e' }}
               >
                    <span className={labelStyle}>CLIMATE</span>
-                   <div className="mb-1" style={{ color: climateStyle.text }}>
-                     {getClimateIcon(entry.climate)}
+                   <div className={iconRowStyle} style={{ color: climateStyle.border }}>
+                     {React.isValidElement(getClimateIcon(entry.climate))
+                       ? React.cloneElement(getClimateIcon(entry.climate) as React.ReactElement, { size: 32 })
+                       : getClimateIcon(entry.climate)}
                    </div>
-                   <span className="text-sm leading-none font-bold text-center" style={{ color: climateStyle.text }}>
+                   <span className={chipStyle} style={{ backgroundColor: climateStyle.bg, borderColor: climateStyle.border, color: climateStyle.text }}>
                      {formatUpper(climateMeta?.name || 'N/A')}
                    </span>
               </div>
@@ -1145,12 +800,12 @@ const EntryDetail: React.FC<EntryDetailProps> = ({ entry, onBack, onHome, onSele
               <button 
                 onClick={() => entry.details.origin && onFilterByOrigin(entry.details.origin)} 
                 className={tileBase}
-                style={{ backgroundColor: countryStyle.bg, borderColor: countryStyle.border, color: countryStyle.text }}
+                style={{ backgroundColor: 'transparent', borderColor: 'transparent', color: '#22c55e' }}
               >
                    <span className={labelStyle}>COUNTRY</span>
-                   <div className="flex items-center gap-2 mb-1">
+                   <div className={iconRowStyle}>
                        <span 
-                        className="w-8 h-5 rounded-sm border border-stone-700 shadow-inner" 
+                        className="w-12 h-8 rounded-sm border border-stone-700 shadow-inner" 
                        style={{
                          backgroundImage: flagImage ? `url(${flagImage})` : flagGradient,
                          backgroundSize: flagImage ? 'cover' : undefined,
@@ -1158,7 +813,7 @@ const EntryDetail: React.FC<EntryDetailProps> = ({ entry, onBack, onHome, onSele
                        }}
                      ></span>
                    </div>
-                   <span className="text-sm leading-none font-bold uppercase" style={{ color: countryStyle.text }}>
+                   <span className={chipStyle} style={{ backgroundColor: countryStyle.bg, borderColor: countryStyle.border, color: countryStyle.text }}>
                      {formatUpper(entry.details.origin)}
                    </span>
               </button>
@@ -1168,15 +823,42 @@ const EntryDetail: React.FC<EntryDetailProps> = ({ entry, onBack, onHome, onSele
           const classColors = getClassTypeColors(styleClassType as 'STYLE' | 'METHOD' | 'ORIGIN' | 'TYPE' | 'BLEND' | undefined);
           const flagGradient = getFlagGradient(entry.details.origin);
           const flagImage = getFlagImage(entry.details.origin);
+          const styleClassIconNode = (() => {
+            switch (styleClassType) {
+              case 'BLEND': return <Scale size={32} />;
+              case 'METHOD': return <Sparkles size={32} />;
+              case 'ORIGIN': return <MapPin size={32} />;
+              case 'TYPE': return <Shield size={32} />;
+              case 'STYLE':
+              default:
+                return <Grape size={32} />;
+            }
+          })();
+
+          const colorIconNode = (() => {
+            switch (colorType) {
+              case 'RED': return <Wine size={32} />;
+              case 'WHITE': return <GlassWater size={32} />;
+              case 'ROSE': return <Droplets size={32} />;
+              case 'ORANGE': return <Sun size={32} />;
+              case 'DUAL':
+              default:
+                return <Droplets size={32} />;
+            }
+          })();
+
           const colorTile = (
             <button
               key="color-type"
               onClick={() => colorType && onFilterByType(colorType, 'STYLES')}
-              className={`${tileBase} hover:border-green-500 hover:bg-stone-800`}
-              style={{ backgroundColor: colorTypeColors.bg, borderColor: colorTypeColors.border, color: colorTypeColors.text }}
+              className={tileBase}
+              style={{ backgroundColor: 'transparent', borderColor: 'transparent', color: '#22c55e' }}
             >
               <span className={labelStyle}>COLOR</span>
-              <span className="text-sm font-bold px-2 py-1 rounded border" style={{ borderColor: colorTypeColors.border, color: colorTypeColors.text }}>
+              <div className={iconRowStyle} style={{ color: colorTypeColors.bg }}>
+                {colorIconNode}
+              </div>
+              <span className={chipStyle} style={{ backgroundColor: colorTypeColors.bg, borderColor: colorTypeColors.border, color: colorTypeColors.text }}>
                 {colorType}
               </span>
             </button>
@@ -1186,11 +868,14 @@ const EntryDetail: React.FC<EntryDetailProps> = ({ entry, onBack, onHome, onSele
             <button
               key="class"
               onClick={() => styleClassType && onFilterByNote(styleClassType, 'STYLES', 'TASTING')}
-              className={`${tileBase} hover:border-green-500 hover:bg-stone-800`}
-              style={{ backgroundColor: classColors.bg, borderColor: classColors.border, color: classColors.text }}
+              className={tileBase}
+              style={{ backgroundColor: 'transparent', borderColor: 'transparent', color: '#22c55e' }}
             >
               <span className={labelStyle}>CLASS</span>
-              <span className="text-sm font-bold px-2 py-1 rounded border" style={{ borderColor: classColors.border, color: classColors.text }}>
+              <div className={iconRowStyle} style={{ color: classColors.border }}>
+                {styleClassIconNode}
+              </div>
+              <span className={chipStyle} style={{ backgroundColor: classColors.bg, borderColor: classColors.border, color: classColors.text }}>
                 {styleClassType}
               </span>
             </button>
@@ -1203,12 +888,12 @@ const EntryDetail: React.FC<EntryDetailProps> = ({ entry, onBack, onHome, onSele
               key="origin"
               onClick={() => onFilterByOrigin(entry.details.origin!)}
               className={tileBase}
-              style={{ backgroundColor: originChipColors?.bg, borderColor: originChipColors?.border, color: originChipColors?.text }}
+              style={{ backgroundColor: 'transparent', borderColor: 'transparent', color: '#22c55e' }}
             >
               <span className={labelStyle}>{originLabel}</span>
-              <div className="flex items-center gap-2 mb-1">
+              <div className={iconRowStyle}>
                 <span
-                  className="w-8 h-5 rounded-sm border border-stone-700 shadow-inner"
+                  className="w-12 h-8 rounded-sm border border-stone-700 shadow-inner"
                   style={{
                     backgroundImage: flagImage ? `url(${flagImage})` : flagGradient,
                     backgroundSize: flagImage ? 'cover' : undefined,
@@ -1216,7 +901,7 @@ const EntryDetail: React.FC<EntryDetailProps> = ({ entry, onBack, onHome, onSele
                   }}
                 ></span>
               </div>
-              <span className="text-xs leading-none font-bold text-center uppercase">
+              <span className={chipStyle} style={{ backgroundColor: originChipColors?.bg, borderColor: originChipColors?.border, color: originChipColors?.text }}>
                 {formatUpper(entry.details.origin)}
               </span>
             </button>
@@ -1225,44 +910,63 @@ const EntryDetail: React.FC<EntryDetailProps> = ({ entry, onBack, onHome, onSele
           const tiles = [classTile, colorTile];
           if (originTile) tiles.push(originTile);
 
-          const gridClass = tiles.length === 3 ? 'grid-cols-3 md:grid-cols-3' : 'grid-cols-2 md:grid-cols-2';
-
-          return (
-              <div className={`grid ${gridClass} gap-2 mb-6 px-1`}>
-                {tiles}
-              </div>
-          );
+          return <div className={getTileRowClass(tiles.length)}>{tiles}</div>;
       } else if (isFlavor) {
         const flavorClass = entry.details.classification || 'FLAVOR';
         const flavorColors = getFlavorClassColors(flavorClass);
         const subclass = entry.details.subclass || 'SUBCLASS';
         const subclassColors = getFlavorSubclassColors(entry.details.subclass);
+        const linkedGrapesCount = (entry.details.notableGrapes || []).length;
+        const linkedGrapesColors = { bg: '#14532d', border: '#22c55e', text: '#dcfce7' };
+
+        const flavorClassIconNode = (() => {
+          switch (flavorClass.toUpperCase()) {
+            case 'SWEET': return <Sparkles size={32} />;
+            case 'SOUR': return <Citrus size={32} />;
+            case 'SALTY': return <Droplets size={32} />;
+            case 'BITTER': return <Leaf size={32} />;
+            case 'UMAMI': return <Flame size={32} />;
+            default: return <Circle size={32} />;
+          }
+        })();
+
+        const subclassIconNode = buildIconNode(entry.icon || 'default', subclassColors.border, 32);
+
         return (
-          <div className="grid grid-cols-3 gap-2 mb-6 px-1">
+          <div className={getTileRowClass(3)}>
             <button
-              className={`${tileBase} hover:border-green-500 hover:bg-stone-800`}
+              className={tileBase}
               onClick={() => onFilterByNote(flavorClass, 'FLAVORS', 'TASTING')}
-              style={{ backgroundColor: flavorColors.bg, borderColor: flavorColors.border, color: flavorColors.text }}
+              style={{ backgroundColor: 'transparent', borderColor: 'transparent', color: '#22c55e' }}
             >
-              <span className={`${labelStyle} text-white`}>CLASS</span>
-              <span className="text-sm font-bold px-2 py-1 rounded border" style={{ borderColor: flavorColors.border, color: flavorColors.text }}>
+              <span className={labelStyle}>CLASS</span>
+              <div className={iconRowStyle} style={{ color: flavorColors.border }}>
+                {flavorClassIconNode}
+              </div>
+              <span className={chipStyle} style={{ backgroundColor: flavorColors.bg, borderColor: flavorColors.border, color: flavorColors.text }}>
                 {flavorClass}
               </span>
             </button>
             <button
-              className={`${tileBase} hover:border-green-500 hover:bg-stone-800`}
+              className={tileBase}
               onClick={() => onFilterByNote(subclass, 'FLAVORS', 'TASTING')}
-              style={{ backgroundColor: subclassColors.bg, borderColor: subclassColors.border, color: subclassColors.text }}
+              style={{ backgroundColor: 'transparent', borderColor: 'transparent', color: '#22c55e' }}
             >
-              <span className={`${labelStyle} text-white`}>SUBCLASS</span>
-              <span className="text-sm font-bold px-2 py-1 rounded border text-center leading-tight" style={{ borderColor: subclassColors.border, color: subclassColors.text }}>
+              <span className={labelStyle}>SUBCLASS</span>
+              <div className={iconRowStyle} style={{ color: subclassColors.border }}>
+                {subclassIconNode}
+              </div>
+              <span className={chipStyle} style={{ backgroundColor: subclassColors.bg, borderColor: subclassColors.border, color: subclassColors.text }}>
                 {subclass.replace(/_/g, ' ')}
               </span>
             </button>
-            <div className={`${tileBase} cursor-default`} style={{ backgroundColor: '#0f172a', borderColor: '#334155', color: '#e2e8f0' }}>
-              <span className={`${labelStyle} text-white`}>linked grapes</span>
-              <span className="text-sm font-bold px-2 py-1 rounded border border-stone-700 text-stone-100">
-                {(entry.details.notableGrapes || []).length}
+            <div className={`${tileBase} cursor-default`}>
+              <span className={labelStyle}>GRAPES</span>
+              <div className={iconRowStyle} style={{ color: linkedGrapesColors.border }}>
+                <Grape size={32} />
+              </div>
+              <span className={chipStyle} style={{ backgroundColor: linkedGrapesColors.bg, borderColor: linkedGrapesColors.border, color: linkedGrapesColors.text }}>
+                {linkedGrapesCount}
               </span>
             </div>
           </div>
@@ -1270,6 +974,8 @@ const EntryDetail: React.FC<EntryDetailProps> = ({ entry, onBack, onHome, onSele
       }
       return null;
   };
+
+  const headerTiles = renderHeaderTiles();
 
   return (
     <DeviceLayout
@@ -1289,22 +995,17 @@ const EntryDetail: React.FC<EntryDetailProps> = ({ entry, onBack, onHome, onSele
              </div>
              <div className="text-center z-10 w-full flex flex-col items-center px-2">
                 {(() => {
-                  const { icon, bg, color: iconColor, outline, flagGradient, flagImage } = getEntryIconDisplay(entry);
-                  const masterIconNode = renderMasterEntryIcon(entry, 28);
-                  const showHeaderFlag = (isRegion || isCountry || (isStyle && !isVariousOrigin(entry.details.origin))) && Boolean(flagImage || flagGradient);
-                  const showInnerIcon = !showHeaderFlag;
+                  const headerVisual = resolveEntryIconVisual(entry, {
+                    size: ICON_SIZE_HEADER,
+                    resolver: entryVisualResolver,
+                    includeRegionClimateOutline: true,
+                  });
                   return (
                     <div
                       className={`${CONTAINER_SIZE_HEADER} ${HEADER_BORDER_CLASS} mb-3 flex items-center justify-center ${HEADER_BORDER} ${CONTAINER_SHADOW_CLASS}`}
-                      style={{
-                        backgroundColor: showHeaderFlag ? undefined : bg,
-                        backgroundImage: showHeaderFlag ? (flagImage ? `url(${flagImage})` : flagGradient) : undefined,
-                        backgroundSize: showHeaderFlag && flagImage ? 'cover' : undefined,
-                        backgroundPosition: showHeaderFlag && flagImage ? 'center' : undefined,
-                        boxShadow: outline ? `0 0 0 2px ${outline}` : undefined
-                      }}
+                      style={headerVisual.style}
                     >
-                      {showInnerIcon ? masterIconNode : null}
+                      {headerVisual.iconNode}
                     </div>
                   );
                 })()}
@@ -1315,7 +1016,8 @@ const EntryDetail: React.FC<EntryDetailProps> = ({ entry, onBack, onHome, onSele
         </div>
 
         {/* 3-Tile Header Row */}
-        {renderHeaderTiles()}
+        {headerTiles}
+        {headerTiles ? <div className="w-full border-b-4 border-green-800 mb-4"></div> : null}
 
         {/* Info Section - Description at Top (skip for flavor entries) */}
         {!isFlavor && (
@@ -1493,7 +1195,7 @@ const EntryDetail: React.FC<EntryDetailProps> = ({ entry, onBack, onHome, onSele
                    <span className="font-retro text-xs md:text-sm tracking-widest text-green-500">{listSectionTitle}</span>
                 </div>
                 <div className="grid grid-cols-1 gap-2">
-                     {listSectionData.map((item, idx) => renderLinkedTile(item, idx))}
+                   {listSectionData.map((item, idx) => renderLinkedTile(item, idx, { preferCountryGate: true }))}
                 </div>
             </div>
         )}
@@ -1555,8 +1257,8 @@ const EntryDetail: React.FC<EntryDetailProps> = ({ entry, onBack, onHome, onSele
             </div>
         )}
 
-        {/* Tasting Notes Section - Clickable (For Grapes & Styles) */}
-        {(isGrapes || isStyle) && (
+        {/* Tasting Notes Section - Clickable (For Grapes only) */}
+        {isGrapes && (
             <div className="mb-6">
                 <div className="flex items-center gap-2 mb-3 border-b-2 border-green-800 pb-1">
                     <Grape size={18} className="text-green-500" />

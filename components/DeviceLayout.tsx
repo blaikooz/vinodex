@@ -36,10 +36,28 @@ const DeviceLayout: React.FC<DeviceLayoutProps> = ({
   return (
     <div className="flex justify-center items-center min-h-screen bg-neutral-900 p-0 md:p-4 font-mono h-screen md:h-auto overflow-hidden rounded-[2rem]">
       {/* Device Chassis - Red Pokedex Style */}
-      <div className="w-full h-full md:h-[850px] md:w-[498px] bg-dex-red md:rounded-[2.5rem] md:shadow-[0_20px_50px_rgba(220,10,45,0.3)] overflow-hidden relative flex flex-col border-[8px] border-dex-darkRed ring-1 ring-white/10 shadow-[inset_-10px_-10px_30px_rgba(0,0,0,0.2)]">
+      <div className="w-full h-full md:h-[850px] md:w-[498px] bg-dex-red md:rounded-[2.5rem] md:shadow-[0_20px_50px_rgba(220,10,45,0.3)] overflow-hidden relative flex flex-col border-[12px] border-dex-darkRed ring-1 ring-white/10 shadow-[inset_-10px_-10px_30px_rgba(0,0,0,0.2)]">
         
         {/* Screen Container - Expanded to fill remaining space */}
-        <div className="flex-1 min-h-0 bg-dex-ui flex flex-col relative m-3 rounded-[2rem] border-4 border-stone-400 shadow-inner p-1">
+        <div className="flex-1 min-h-0 bg-dex-ui flex flex-col relative m-2 rounded-[2rem] border-l-[6px] border-r-[6px] border-b-[6px] border-t-0 border-stone-400 shadow-inner">
+          
+          {/* Decorative vents in white bezel - aligned left, center, right */}
+          <div className="relative flex items-center justify-between px-4 h-6 opacity-50 shrink-0">
+            <div className="flex flex-col gap-0.5">
+              <div className="w-16 h-0.5 bg-stone-400 rounded-full"></div>
+              <div className="w-16 h-0.5 bg-stone-400 rounded-full"></div>
+              <div className="w-16 h-0.5 bg-stone-400 rounded-full"></div>
+            </div>
+            <div className="flex gap-2">
+              <span className="w-2 h-2 rounded-full bg-red-500 border border-red-800 shadow-[0_0_6px_rgba(239,68,68,0.8)]"></span>
+              <span className="w-2 h-2 rounded-full bg-red-500 border border-red-800 shadow-[0_0_6px_rgba(239,68,68,0.8)]"></span>
+            </div>
+            <div className="flex flex-col gap-0.5">
+              <div className="w-16 h-0.5 bg-stone-400 rounded-full"></div>
+              <div className="w-16 h-0.5 bg-stone-400 rounded-full"></div>
+              <div className="w-16 h-0.5 bg-stone-400 rounded-full"></div>
+            </div>
+          </div>
           
           {/* Inner Screen Bezel */}
           <div className="flex-1 min-h-0 bg-stone-800 rounded-[1.75rem] border-2 border-stone-600 shadow-inner relative flex flex-col overflow-hidden w-full h-full">
@@ -82,19 +100,6 @@ const DeviceLayout: React.FC<DeviceLayoutProps> = ({
 
           </div>
 
-          {/* Decorative vents in white bezel */}
-          <div className="relative flex items-center justify-between mt-2 px-4 h-4 opacity-50 shrink-0">
-            <div className="flex gap-2">
-              <span className="w-2 h-2 rounded-full bg-red-500 border border-red-800 shadow-[0_0_6px_rgba(239,68,68,0.8)]"></span>
-              <span className="w-2 h-2 rounded-full bg-blue-500 border border-blue-800 shadow-[0_0_6px_rgba(59,130,246,0.8)]"></span>
-            </div>
-            <div className="flex flex-col gap-0.5">
-              <div className="w-16 h-0.5 bg-stone-400 rounded-full"></div>
-              <div className="w-16 h-0.5 bg-stone-400 rounded-full"></div>
-              <div className="w-16 h-0.5 bg-stone-400 rounded-full"></div>
-            </div>
-          </div>
-
         </div>
 
         {/* Footer controls */}
@@ -105,10 +110,10 @@ const DeviceLayout: React.FC<DeviceLayoutProps> = ({
               onClick={onBack}
               disabled={!backEnabled}
               aria-label="Back"
-              className={`relative -translate-y-2 w-14 h-14 md:w-16 md:h-16 rounded-full bg-gradient-to-b from-stone-700 to-stone-950 border-[3px] border-stone-900 shadow-[inset_0_3px_6px_rgba(255,255,255,0.15),0_8px_12px_rgba(0,0,0,0.6)] transition-transform focus:outline-none ${backEnabled ? 'hover:translate-x-0 hover:scale-[1.02] active:translate-x-[1px] active:scale-[0.98]' : 'opacity-40 pointer-events-none'}`}
+              className={`relative -translate-y-2 w-16 h-16 md:w-20 md:h-20 rounded-full bg-gradient-to-b from-stone-700 to-stone-950 border-[3px] border-stone-900 shadow-[inset_0_3px_6px_rgba(255,255,255,0.15),0_8px_12px_rgba(0,0,0,0.6)] transition-transform focus:outline-none hover:translate-x-0 hover:scale-[1.02] active:translate-x-[1px] active:scale-[0.98] ${!backEnabled ? 'pointer-events-none' : ''}`}
             >
               <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-                <svg viewBox="0 0 24 24" className="w-6 h-6 text-white" fill="none" stroke="currentColor" strokeWidth={3} strokeLinecap="round" strokeLinejoin="round">
+                <svg viewBox="0 0 24 24" className="w-10 h-10 text-white" fill="none" stroke="currentColor" strokeWidth={4} strokeLinecap="round" strokeLinejoin="round">
                   <path d="M15 5L7 12l8 7" />
                 </svg>
               </div>
@@ -129,12 +134,12 @@ const DeviceLayout: React.FC<DeviceLayoutProps> = ({
             {onHome && (
               <button
                 onClick={onHome}
-                className="relative -translate-y-2 w-14 h-14 md:w-16 md:h-16 rounded-full bg-gradient-to-b from-amber-200 to-amber-500 border-[3px] border-amber-700 shadow-[inset_0_3px_5px_rgba(255,255,255,0.55),0_8px_12px_rgba(0,0,0,0.45)] active:scale-[0.98] active:shadow-[inset_0_4px_7px_rgba(0,0,0,0.45)] overflow-hidden transition-transform"
+                className="relative -translate-y-2 w-16 h-16 md:w-20 md:h-20 rounded-full bg-gradient-to-b from-amber-200 to-amber-500 border-[3px] border-amber-700 shadow-[inset_0_3px_5px_rgba(255,255,255,0.55),0_8px_12px_rgba(0,0,0,0.45)] active:scale-[0.98] active:shadow-[inset_0_4px_7px_rgba(0,0,0,0.45)] overflow-hidden transition-transform"
                 aria-label="Home"
               >
                 <div className="absolute inset-0 bg-gradient-to-br from-white/35 via-transparent to-black/25 pointer-events-none"></div>
-                <div className="absolute inset-[4px] rounded-full bg-gradient-to-b from-amber-100 to-amber-400 border border-amber-500 flex items-center justify-center shadow-inner">
-                  <Home size={20} className="text-amber-900" />
+                <div className="absolute inset-[2px] rounded-full bg-gradient-to-b from-amber-100 to-amber-400 border border-amber-500 flex items-center justify-center shadow-inner">
+                  <Home size={36} className="text-amber-900 font-bold" />
                 </div>
               </button>
             )}
