@@ -1,8 +1,8 @@
 
 import React, { Suspense, lazy, useState } from 'react';
 import MainMenu from './components/MainMenu';
-import EncyclopediaList from './components/FoodPairingsScreen';
-import EntryDetail from './components/PairingDetail';
+import EncyclopediaList from './components/EncyclopediaList';
+import EntryDetail from './components/EntryDetail';
 import RegionMapScreen from './components/RegionMapScreen';
 import DeviceLayout from './components/DeviceLayout';
 import { WineEntry, EntryCategory, ClimateClass } from './types';
@@ -31,7 +31,7 @@ const INITIAL_STATE: AppState = {
   initialSearchQuery: ''
 };
 
-const USA_STATES = ['New York', 'California', 'Oregon', 'Washington'];
+const USA_STATES = ['California', 'New York', 'Oregon', 'Virginia', 'Washington'];
 
 const App: React.FC = () => {
   // Use a stack for history
@@ -76,12 +76,16 @@ const App: React.FC = () => {
   const handleSelectEntry = (entry: WineEntry) => {
     if (entry.category === 'COUNTRY_GATE') {
       const classification = (entry.details.classification || '').toUpperCase();
+      const hasCountryDetail = entry.details.keyRegions && entry.details.keyRegions.length > 0 && entry.description;
       if (classification === 'STATE') {
+        if (hasCountryDetail) {
+          pushState({ screen: 'DETAIL', entry });
+          return;
+        }
         pushState({ screen: 'LIST', category: 'REGIONS', filterMode: 'STATE', filterValue: entry.name, entry: null });
         return;
       }
 
-      const hasCountryDetail = entry.details.keyRegions && entry.details.keyRegions.length > 0 && entry.description;
       if (hasCountryDetail && classification !== 'STATE') {
         pushState({ screen: 'DETAIL', entry });
         return;
@@ -143,6 +147,10 @@ const App: React.FC = () => {
       pushState({ screen: 'LIST', category: 'REGIONS', filterMode: 'ORIGIN', filterValue: origin });
   };
 
+    const handleViewStates = () => {
+      pushState({ screen: 'LIST', category: 'COUNTRY_GATE', filterMode: 'STATE', filterValue: USA_STATES, entry: null });
+    };
+
   // 7. Filter by Rarity
   const handleFilterByRarity = (rarity: string) => {
       const isNoble = rarity.toUpperCase() === 'NOBLE';
@@ -181,7 +189,7 @@ const App: React.FC = () => {
         <Suspense
           fallback={
             <DeviceLayout
-              title="ORBITAL GLOBE"
+              title="GLOBE SCAN"
               subtitle="TACTILE VIEW"
               showBack={true}
               onBack={handleBack}
@@ -190,7 +198,7 @@ const App: React.FC = () => {
             >
               <div className="flex-1 bg-black flex flex-col items-center justify-center gap-4">
                 <div className="w-16 h-16 rounded-full border-2 border-green-400 border-t-transparent animate-spin" />
-                <span className="font-retro text-green-300 tracking-widest text-sm">LOADING ORBITAL MODULE...</span>
+                <span className="font-retro text-green-300 tracking-widest text-sm">LOADING GLOBE SCAN...</span>
               </div>
             </DeviceLayout>
           }
@@ -230,6 +238,7 @@ const App: React.FC = () => {
           onFilterByNote={handleFilterByNote}
           onFilterBySoil={handleFilterBySoil}
           onFilterByOrigin={handleFilterByOrigin}
+          onViewStates={handleViewStates}
           onFilterByRarity={handleFilterByRarity}
           onFilterByClimate={handleFilterByClimate}
         />

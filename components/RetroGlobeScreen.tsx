@@ -71,12 +71,12 @@ const RetroGlobeScreen: React.FC<RetroGlobeScreenProps> = ({ onBack, onHome, onS
   const [isDragging, setIsDragging] = useState(false);
   const [longitudeDeg, setLongitudeDeg] = useState(0);
   const [regionMarkers, setRegionMarkers] = useState<RegionMarker[]>([
-    { id: 'north-america', continentKey: 'NORTH_AMERICA', color: MARKER_COLORS.NORTH_AMERICA || '#E53935', label: 'NORTH\nAMERICA', lat: 45, lng: -100, x: 0, y: 0, anchorX: 0, anchorY: 0, offsetX: -6, offsetY: 68, visible: true },
-    { id: 'south-america', continentKey: 'SOUTH_AMERICA', color: MARKER_COLORS.SOUTH_AMERICA || '#8E24AA', label: 'SOUTH\nAMERICA', lat: -15, lng: -60, x: 0, y: 0, anchorX: 0, anchorY: 0, offsetX: -32, offsetY: 40, visible: true },
-    { id: 'europe', continentKey: 'EUROPE', color: MARKER_COLORS.EUROPE || '#1E88E5', label: 'EUROPE', lat: 50, lng: 15, x: 0, y: 0, anchorX: 0, anchorY: 0, offsetX: -58, offsetY: 80, visible: true },
-    { id: 'africa', continentKey: 'AFRICA', color: MARKER_COLORS.AFRICA || '#8D6E63', label: 'AFRICA', lat: 0, lng: 20, x: 0, y: 0, anchorX: 0, anchorY: 0, offsetX: -12, offsetY: 36, visible: true },
-    { id: 'asia', continentKey: 'ASIA', color: MARKER_COLORS.ASIA || '#FDD835', label: 'ASIA', lat: 45, lng: 100, x: 0, y: 0, anchorX: 0, anchorY: 0, offsetX: 36, offsetY: 104, visible: true },
-    { id: 'oceania', continentKey: 'OCEANIA', color: MARKER_COLORS.OCEANIA || '#43A047', label: 'OCEANIA', lat: -25, lng: 135, x: 0, y: 0, anchorX: 0, anchorY: 0, offsetX: -24, offsetY: 38, visible: true },
+    { id: 'north-america', continentKey: 'NORTH_AMERICA', color: MARKER_COLORS.NORTH_AMERICA || '#E53935', label: 'NORTH\nAMERICA', lat: 38, lng: -122, x: 0, y: 0, anchorX: 0, anchorY: 0, offsetX: 0, offsetY: 0, visible: true },
+    { id: 'south-america', continentKey: 'SOUTH_AMERICA', color: MARKER_COLORS.SOUTH_AMERICA || '#8E24AA', label: 'SOUTH\nAMERICA', lat: -33, lng: -70, x: 0, y: 0, anchorX: 0, anchorY: 0, offsetX: 0, offsetY: 0, visible: true },
+    { id: 'europe', continentKey: 'EUROPE', color: MARKER_COLORS.EUROPE || '#1E88E5', label: 'EUROPE', lat: 43, lng: 12, x: 0, y: 0, anchorX: 0, anchorY: 0, offsetX: 0, offsetY: 0, visible: true },
+    { id: 'africa', continentKey: 'AFRICA', color: MARKER_COLORS.AFRICA || '#8D6E63', label: 'AFRICA', lat: -33, lng: 20, x: 0, y: 0, anchorX: 0, anchorY: 0, offsetX: 0, offsetY: 0, visible: true },
+    { id: 'asia', continentKey: 'ASIA', color: MARKER_COLORS.ASIA || '#FDD835', label: 'ASIA', lat: 34, lng: 105, x: 0, y: 0, anchorX: 0, anchorY: 0, offsetX: 0, offsetY: 0, visible: true },
+    { id: 'oceania', continentKey: 'OCEANIA', color: MARKER_COLORS.OCEANIA || '#43A047', label: 'OCEANIA', lat: -35, lng: 147, x: 0, y: 0, anchorX: 0, anchorY: 0, offsetX: 0, offsetY: 0, visible: true },
   ]);
   const viewportRef = useRef<HTMLDivElement | null>(null);
   const containerRef = useRef<HTMLDivElement | null>(null);
@@ -216,9 +216,9 @@ const RetroGlobeScreen: React.FC<RetroGlobeScreenProps> = ({ onBack, onHome, onS
             const x = anchorX + marker.offsetX;
             const y = anchorY + marker.offsetY;
 
-            // Marker half-dimensions (px) — must match button w/h classes (w-20 h-14 = 80x56).
-            const hw = 48;
-            const hh = 32;
+            // Marker half-dimensions (px) — must match button w/h classes.
+            const hw = 64;
+            const hh = 44;
             const inBounds =
               x - hw >= 0 && x + hw <= width &&
               y - hh >= 0 && y + hh <= height;
@@ -303,9 +303,14 @@ const RetroGlobeScreen: React.FC<RetroGlobeScreenProps> = ({ onBack, onHome, onS
     }
   };
 
+  const handleLostPointerCapture = () => {
+    dragRef.current.active = false;
+    setIsDragging(false);
+  };
+
   return (
     <DeviceLayout
-      title="ORBITAL GLOBE"
+      title="GLOBE SCAN"
       subtitle="TACTILE VIEW"
       onBack={onBack}
       showBack={true}
@@ -329,6 +334,9 @@ const RetroGlobeScreen: React.FC<RetroGlobeScreenProps> = ({ onBack, onHome, onS
             onPointerMove={handlePointerMove}
             onPointerUp={handlePointerEnd}
             onPointerCancel={handlePointerEnd}
+            onPointerLeave={handlePointerEnd}
+            onLostPointerCapture={handleLostPointerCapture}
+            style={{ touchAction: 'none' }}
           >
             <div
               ref={containerRef}
@@ -352,7 +360,7 @@ const RetroGlobeScreen: React.FC<RetroGlobeScreenProps> = ({ onBack, onHome, onS
                     onClick={() => {
                       onSelectContinent(marker.continentKey);
                     }}
-                    className={`absolute -translate-x-1/2 -translate-y-1/2 w-20 h-14 sm:w-24 sm:h-16 rounded-md border-2 transition-all duration-150 font-retro text-[10px] sm:text-[12px] flex items-center justify-center text-center leading-tight whitespace-pre-line px-1 hover:scale-105 hover:brightness-125 active:scale-90 active:brightness-150 active:duration-75 ${
+                    className={`absolute -translate-x-1/2 -translate-y-1/2 w-28 h-[4.5rem] sm:w-32 sm:h-20 rounded-lg border-[3px] transition-all duration-150 font-retro text-[12px] sm:text-[15px] flex items-center justify-center text-center leading-tight whitespace-pre-line px-2 hover:scale-105 hover:brightness-125 active:scale-90 active:brightness-150 active:duration-75 ${
                     marker.visible
                       ? 'pointer-events-auto'
                       : 'pointer-events-none'
@@ -363,6 +371,7 @@ const RetroGlobeScreen: React.FC<RetroGlobeScreenProps> = ({ onBack, onHome, onS
                       borderColor: marker.visible ? toRgba(marker.color, 0.9) : 'transparent',
                       backgroundColor: marker.visible ? toRgba(marker.color, 0.12) : 'transparent',
                       boxShadow: marker.visible ? `0 0 16px ${toRgba(marker.color, 0.55)}` : 'none',
+                      touchAction: 'manipulation',
                     }}
                     aria-label={marker.label}
                   >

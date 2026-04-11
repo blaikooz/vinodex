@@ -5,6 +5,8 @@ export type RarityTier = 'common' | 'uncommon' | 'rare' | 'epic' | 'noble';
 
 export type ClimateClass = 'maritime' | 'continental' | 'cool' | 'warm' | 'mediterranean';
 
+export type GrapeBodyClass = 'Light' | 'Light-Medium' | 'Medium' | 'Medium-Full' | 'Full';
+
 export interface GrapeCharacteristics {
   tannin: number;        // 0–5
   acid: number;          // 0–5
@@ -68,6 +70,14 @@ export interface WineEntry {
   tastingProfile?: TastingNote[];
   climate?: ClimateClass;
   climateDescription?: string;
+  grapeType?: 'red' | 'white';
+  grapeStyle?: string;
+  grapeBodyClass?: GrapeBodyClass;
+  grapeCharacteristics?: GrapeCharacteristics;
+  grapeAlternateNames?: string[];
+  grapeNotableRegions?: string[];
+  grapeCountryOfOrigin?: string;
+  grapeRarityTier?: RarityTier;
   details: {
     origin?: string;
     state?: string; // For US regions (e.g., "California", "Oregon")

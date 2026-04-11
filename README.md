@@ -72,7 +72,6 @@ types.ts      Shared TypeScript types
 
 ## Notes
 
-- `public/wine-entries.json` is the runtime dataset loaded by the app.
-- Optional Supabase support is available behind env vars; see [supabase/README.md](./supabase/README.md).
-- Local data mode is forced by default; set `VITE_FORCE_LOCAL_DATA=false` (with Supabase env vars) to re-enable Supabase.
+- `constants.ts` is the runtime source of truth for app entries.
+- `public/wine-entries.json` remains a generated/static artifact and is not the active runtime loader.
 - The repo no longer depends on a bundled platform-specific Node binary.

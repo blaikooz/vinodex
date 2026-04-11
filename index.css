@@ -97,6 +97,62 @@ body {
   animation: blink 1s step-end infinite;
 }
 
+/* LCD orb slow random-feeling pulse */
+@keyframes lcd-pulse {
+  0%   { box-shadow: 0 0 6px 2px rgba(59,130,246,0.25); }
+  18%  { box-shadow: 0 0 18px 7px rgba(59,130,246,0.65); }
+  35%  { box-shadow: 0 0 8px 3px rgba(59,130,246,0.30); }
+  55%  { box-shadow: 0 0 24px 10px rgba(59,130,246,0.80); }
+  72%  { box-shadow: 0 0 10px 4px rgba(59,130,246,0.35); }
+  88%  { box-shadow: 0 0 20px 8px rgba(59,130,246,0.60); }
+  100% { box-shadow: 0 0 6px 2px rgba(59,130,246,0.25); }
+}
+
+.lcd-pulse {
+  animation: lcd-pulse 5.3s ease-in-out infinite;
+}
+
+/* Red dot pulse */
+@keyframes dot-pulse-red {
+  0%   { box-shadow: 0 0 3px 1px rgba(220,38,38,0.2); }
+  22%  { box-shadow: 0 0 10px 4px rgba(220,38,38,0.85); }
+  40%  { box-shadow: 0 0 4px 1px rgba(220,38,38,0.25); }
+  63%  { box-shadow: 0 0 14px 5px rgba(220,38,38,0.75); }
+  80%  { box-shadow: 0 0 5px 2px rgba(220,38,38,0.30); }
+  100% { box-shadow: 0 0 3px 1px rgba(220,38,38,0.2); }
+}
+
+.dot-pulse-red {
+  animation: dot-pulse-red 6.1s ease-in-out infinite;
+}
+
+/* Yellow dot pulse */
+@keyframes dot-pulse-yellow {
+  0%   { box-shadow: 0 0 3px 1px rgba(234,179,8,0.2); }
+  15%  { box-shadow: 0 0 8px 3px rgba(234,179,8,0.60); }
+  38%  { box-shadow: 0 0 13px 5px rgba(234,179,8,0.85); }
+  58%  { box-shadow: 0 0 4px 1px rgba(234,179,8,0.25); }
+  76%  { box-shadow: 0 0 11px 4px rgba(234,179,8,0.70); }
+  100% { box-shadow: 0 0 3px 1px rgba(234,179,8,0.2); }
+}
+
+.dot-pulse-yellow {
+  animation: dot-pulse-yellow 7.4s ease-in-out infinite;
+}
+
+/* Green dot pulse */
+@keyframes dot-pulse-green {
+  0%   { box-shadow: 0 0 3px 1px rgba(34,197,94,0.2); }
+  30%  { box-shadow: 0 0 12px 5px rgba(34,197,94,0.80); }
+  50%  { box-shadow: 0 0 4px 1px rgba(34,197,94,0.25); }
+  70%  { box-shadow: 0 0 9px 3px rgba(34,197,94,0.65); }
+  90%  { box-shadow: 0 0 15px 6px rgba(34,197,94,0.90); }
+  100% { box-shadow: 0 0 3px 1px rgba(34,197,94,0.2); }
+}
+
+.dot-pulse-green {
+  animation: dot-pulse-green 4.8s ease-in-out infinite;
+}
 /* Slide in animation */
 @keyframes slide-in-from-top {
   from {
@@ -111,5 +167,26 @@ body {
 
 .animate-in.slide-in-from-top-2 {
   animation: slide-in-from-top 0.2s ease-out;
+}
+
+@keyframes terminal-marquee {
+  0% {
+    transform: translateX(0);
+  }
+  100% {
+    transform: translateX(-50%);
+  }
+}
+
+.terminal-marquee {
+  display: inline-flex;
+  align-items: center;
+  width: max-content;
+  animation: terminal-marquee 7s linear infinite;
+  will-change: transform;
+}
+
+.terminal-marquee-slow {
+  animation-duration: 10s;
 }
 

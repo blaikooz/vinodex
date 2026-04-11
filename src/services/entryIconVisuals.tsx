@@ -386,7 +386,7 @@ const getGrapePrimaryFlavorVisual = (
 	size: number
 ): { iconNode: React.ReactNode; bg: string; color: string } => {
 	const primary = grape.tastingProfile?.[0];
-	const typeBg = getGrapeIconColor(grape.grapeCard?.style || grape.wineType, grape.details.body);
+	const typeBg = getGrapeIconColor(grape.grapeStyle || grape.grapeCard?.style || grape.wineType, grape.grapeBodyClass || grape.details.body);
 	const outline = darkenHex(typeBg, 0.4);
 	const relatedFlavor = primary?.note ? findEntryByName(entries, primary.note, 'FLAVORS') : undefined;
 	const iconColor = relatedFlavor ? getFlavorSubclassIconColor(relatedFlavor.details.subclass) : primary?.color || '#e5e7eb';
@@ -454,8 +454,9 @@ export const resolveEntryIconVisual = (
 	}
 
 	if (entry.category === 'COUNTRY_GATE') {
-		const origin = entry.details.origin || entry.name;
-		const flagImage = getFlagImage(origin);
+		const isUsState = entry.details.classification?.toUpperCase() === 'STATE';
+		const origin = isUsState ? entry.name : (entry.details.origin || entry.name);
+		const flagImage = getFlagImage(origin, { preferUsState: isUsState });
 		const flagGradient = getFlagGradient(origin);
 		return {
 			style: {

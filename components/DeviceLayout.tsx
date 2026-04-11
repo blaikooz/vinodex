@@ -23,81 +23,111 @@ const DeviceLayout: React.FC<DeviceLayoutProps> = ({
   onHome,
   hideHeader = false,
   centerHeaderText = false,
-  footerCenter
+  footerCenter,
 }) => {
 
-  const topTitle = showBack ? title : "VINODEX";
+  const topTitle = "VINODEX";
+  const isMainScreen = title === 'VINODEX';
+  const footerTitle = isMainScreen
+    ? 'CHEERS! - SANTE! - SALUTE! - PROST! - KANPAI!'
+    : title;
   const backEnabled = showBack && !!onBack;
+  const footerTitleSize = footerTitle === 'VINODEX'
+    ? 'text-[1.45rem] md:text-[1.8rem]'
+    : 'text-[1.15rem] md:text-[1.38rem]';
+  const defaultFooterDisplay = (
+    <div className="w-full max-w-[16.5rem] rounded-xl border-[3px] border-stone-700 bg-black px-4 py-4 shadow-[inset_0_2px_0_rgba(255,255,255,0.08),inset_0_-3px_0_rgba(0,0,0,0.6),inset_0_0_18px_rgba(34,197,94,0.16),0_5px_0_rgba(45,45,45,0.9)]">
+      <div className="flex items-center min-h-[2.6rem] overflow-hidden">
+        <div className={`terminal-marquee whitespace-nowrap ${isMainScreen ? 'terminal-marquee-slow' : ''}`}>
+          <span
+            className={`inline-block font-retro ${footerTitleSize} italic tracking-tighter transform -skew-x-12 leading-[0.95] text-green-500 pr-16`}
+            style={{ textShadow: '1px 1px 0px rgba(8, 32, 16, 0.65)' }}
+          >
+            {footerTitle}
+          </span>
+          <span
+            aria-hidden="true"
+            className={`inline-block font-retro ${footerTitleSize} italic tracking-tighter transform -skew-x-12 leading-[0.95] text-green-500 pr-16`}
+            style={{ textShadow: '1px 1px 0px rgba(8, 32, 16, 0.65)' }}
+          >
+            {footerTitle}
+          </span>
+        </div>
+      </div>
+    </div>
+  );
   const headerTitleSize = topTitle === 'VINODEX'
-    ? 'text-[1.625rem] md:text-[2.125rem]'
+    ? 'text-[2.031rem] md:text-[2.656rem]'
     : 'text-[1.21875rem] md:text-[1.59375rem]';
   const headerAlignment = 'items-end text-right';
 
   return (
     <div className="flex justify-center items-center min-h-screen bg-neutral-900 p-0 md:p-4 font-mono h-screen md:h-auto overflow-hidden rounded-[2rem]">
       {/* Device Chassis - Red Pokedex Style */}
-      <div className="w-full h-full md:h-[850px] md:w-[498px] bg-dex-red md:rounded-[2.5rem] md:shadow-[0_20px_50px_rgba(220,10,45,0.3)] overflow-hidden relative flex flex-col border-[12px] border-dex-darkRed ring-1 ring-white/10 shadow-[inset_-10px_-10px_30px_rgba(0,0,0,0.2)]">
+      <div className="w-full h-full md:h-[850px] md:w-[522px] bg-dex-red md:rounded-[2.5rem] md:shadow-[0_20px_50px_rgba(220,10,45,0.3)] overflow-hidden relative flex flex-col border-[3px] border-dex-darkRed ring-1 ring-white/10 shadow-[inset_-10px_-10px_30px_rgba(0,0,0,0.2)]">
         
-        {/* Screen Container - Expanded to fill remaining space */}
-        <div className="flex-1 min-h-0 bg-dex-ui flex flex-col relative m-2 rounded-[2rem] border-l-[6px] border-r-[6px] border-b-[6px] border-t-0 border-stone-400 shadow-inner">
-          
-          {/* Decorative vents in white bezel - aligned left, center, right */}
-          <div className="relative flex items-center justify-between px-4 h-6 opacity-50 shrink-0">
-            <div className="flex flex-col gap-0.5">
-              <div className="w-16 h-0.5 bg-stone-400 rounded-full"></div>
-              <div className="w-16 h-0.5 bg-stone-400 rounded-full"></div>
-              <div className="w-16 h-0.5 bg-stone-400 rounded-full"></div>
+        {/* Device Top Bar */}
+        {!hideHeader && (
+          <div className="shrink-0 flex items-end px-4 pr-5 py-2.5 justify-between">
+            <div className="flex flex-row items-start gap-3">
+              <div className="w-[3.125rem] h-[3.125rem] md:w-[3.75rem] md:h-[3.75rem] rounded-full bg-gradient-to-b from-stone-300 to-stone-500 border-[3px] border-stone-600 flex items-center justify-center shrink-0 shadow-[inset_0_2px_4px_rgba(255,255,255,0.4),0_4px_8px_rgba(0,0,0,0.5)]">
+                <div className="w-[2.344rem] h-[2.344rem] md:w-[2.734rem] md:h-[2.734rem] rounded-full bg-blue-500 border-[2px] border-white flex items-center justify-center relative overflow-hidden shadow-inner lcd-pulse">
+                  <div className="absolute top-1 left-1 w-2 h-2 bg-white rounded-full opacity-60 blur-[1px]"></div>
+                  <div className="w-full h-full bg-gradient-to-br from-blue-400 to-blue-700 opacity-90"></div>
+                </div>
+              </div>
+              <div className="flex flex-row gap-2 items-center pt-1">
+                <div className="w-4 h-4 rounded-full bg-red-600 border border-red-800 dot-pulse-red"></div>
+                <div className="w-4 h-4 rounded-full bg-yellow-400 border border-yellow-600 dot-pulse-yellow"></div>
+                <div className="w-4 h-4 rounded-full bg-green-500 border border-green-700 dot-pulse-green"></div>
+              </div>
             </div>
+            <div className={`flex-1 flex flex-col justify-end min-w-0 gap-[1px] ${headerAlignment}`}>
+              <h1
+                className={`font-retro ${headerTitleSize} text-white italic tracking-tighter drop-shadow-md transform -skew-x-12 whitespace-nowrap mb-0 leading-tight`}
+                style={{ textShadow: '2px 2px 0px #89061C' }}
+              >
+                {topTitle}
+              </h1>
+            </div>
+          </div>
+        )}
+
+        {/* Screen Container */}
+        <div className="flex-1 min-h-0 bg-dex-ui flex flex-col relative m-2 mt-0 rounded-[2rem] border-l-[6px] border-r-[6px] border-b-[6px] border-t-0 border-stone-400 shadow-inner">
+
+          {/* Decorative vents in white bezel - center only */}
+          <div className="relative flex items-center justify-center px-4 h-6 opacity-50 shrink-0">
             <div className="flex gap-2">
               <span className="w-2 h-2 rounded-full bg-red-500 border border-red-800 shadow-[0_0_6px_rgba(239,68,68,0.8)]"></span>
               <span className="w-2 h-2 rounded-full bg-red-500 border border-red-800 shadow-[0_0_6px_rgba(239,68,68,0.8)]"></span>
             </div>
-            <div className="flex flex-col gap-0.5">
-              <div className="w-16 h-0.5 bg-stone-400 rounded-full"></div>
-              <div className="w-16 h-0.5 bg-stone-400 rounded-full"></div>
-              <div className="w-16 h-0.5 bg-stone-400 rounded-full"></div>
-            </div>
           </div>
           
           {/* Inner Screen Bezel */}
-          <div className="flex-1 min-h-0 bg-stone-800 rounded-[1.75rem] border-2 border-stone-600 shadow-inner relative flex flex-col overflow-hidden w-full h-full">
+          <div className="flex-1 min-h-0 bg-stone-800 rounded-[1.75rem] relative flex flex-col overflow-hidden mx-3">
             
             {/* Main LCD Content */}
             <div className="flex-1 min-h-0 bg-dex-screen relative w-full overflow-hidden flex flex-col">
               {/* Scanlines Overlay */}
               <div className="absolute inset-0 z-10 scanlines opacity-20 pointer-events-none"></div>
               
-              {/* On-screen header */}
-              {!hideHeader && (
-                <div className="relative z-20 shrink-0 h-16 bg-dex-red border-b-2 border-dex-darkRed shadow-sm flex items-center px-3 pr-5 justify-between">
-                  <div className="relative flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-full bg-blue-500 border-[3px] border-white flex items-center justify-center relative overflow-hidden shadow-inner">
-                      <div className="absolute top-1 left-2 w-3 h-3 bg-white rounded-full opacity-60 blur-[1px]"></div>
-                      <div className="w-full h-full bg-gradient-to-br from-blue-400 to-blue-700 opacity-90"></div>
-                    </div>
-                    <div className="flex flex-col gap-1 mt-1">
-                      <div className="w-2 h-2 rounded-full bg-red-600 border border-red-800 shadow-[0_0_3px_rgba(0,0,0,0.5)]"></div>
-                      <div className="w-2 h-2 rounded-full bg-yellow-400 border border-yellow-600 shadow-[0_0_3px_rgba(0,0,0,0.5)]"></div>
-                      <div className="w-2 h-2 rounded-full bg-green-500 border border-green-700 shadow-[0_0_3px_rgba(0,0,0,0.5)]"></div>
-                    </div>
-                  </div>
-                  <div className={`flex-1 flex flex-col justify-center min-w-0 gap-[1px] ${headerAlignment}`}>
-                    <h1
-                      className={`font-retro ${headerTitleSize} text-white italic tracking-tighter drop-shadow-md transform -skew-x-12 whitespace-nowrap mb-0 leading-tight`}
-                      style={{ textShadow: '2px 2px 0px #89061C' }}
-                    >
-                      {topTitle}
-                    </h1>
-                  </div>
-                </div>
-              )}
-
               {/* Content */}
               <div className="relative z-0 h-full w-full overflow-hidden flex flex-col uppercase">
                 {children}
               </div>
             </div>
 
+          </div>
+
+          {/* Bottom vents / grill */}
+          <div className="shrink-0 relative flex items-center justify-end px-4 h-6">
+            <div className="absolute left-1/2 -translate-x-1/2 w-2 h-2 rounded-full bg-red-500 border border-red-800 shadow-[0_0_6px_rgba(239,68,68,0.8)]"></div>
+            <div className="flex flex-col gap-0.5 opacity-50">
+              <div className="w-16 h-0.5 bg-stone-400 rounded-full"></div>
+              <div className="w-16 h-0.5 bg-stone-400 rounded-full"></div>
+              <div className="w-16 h-0.5 bg-stone-400 rounded-full"></div>
+            </div>
           </div>
 
         </div>
@@ -120,13 +150,15 @@ const DeviceLayout: React.FC<DeviceLayoutProps> = ({
             </button>
           </div>
 
-          <div className="flex justify-center items-center px-1">
+          <div className="flex justify-center items-center px-1 self-center -translate-y-1.5">
             {footerCenter ? (
               <div className="flex items-center justify-center w-full">
                 {footerCenter}
               </div>
             ) : (
-              <div className="flex-1" />
+              <div className="flex items-center justify-center w-full">
+                {defaultFooterDisplay}
+              </div>
             )}
           </div>
 

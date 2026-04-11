@@ -1,4 +1,4 @@
-import { EntryCategory, TastingNote, WineEntry } from './types.ts';
+import { EntryCategory, GrapeBodyClass, TastingNote, WineEntry } from './types.ts';
 import { GRAPES as LEGACY_GRAPES } from './data/grapes.ts';
 import { REGIONS } from './data/regions.ts';
 import { STYLES } from './data/styles.ts';
@@ -17,6 +17,28 @@ export { COUNTRIES } from './data/countries.ts';
 const canonicalizeGrapeName = (value: string) =>
   /^syrah\s*\/\s*shiraz$/i.test(value.trim()) ? 'Syrah' : value;
 
+const normalizeText = (value?: string) => (value || '').trim().toLowerCase();
+
+const getGrapeBodyClass = (...values: Array<string | undefined>): GrapeBodyClass => {
+  for (const value of values) {
+    const text = normalizeText(value)
+      .replace(/-bodied/g, '')
+      .replace(/body/g, '')
+      .replace(/red|white|rose|ros\u00e9|orange|sparkling|aromatic|sweet/g, ' ')
+      .replace(/\s+/g, ' ')
+      .trim();
+
+    if (!text) continue;
+    if (text.includes('medium full') || text.includes('full medium')) return 'Medium-Full';
+    if (text.includes('light medium') || text.includes('medium light')) return 'Light-Medium';
+    if (text.includes('full')) return 'Full';
+    if (text.includes('medium')) return 'Medium';
+    if (text.includes('light')) return 'Light';
+  }
+
+  return 'Medium';
+};
+
 const legacyColorMap: Record<string, { color: string; icon?: string; tastingProfile?: WineEntry['tastingProfile']; wineType?: string }> =
   LEGACY_GRAPES.reduce((acc, g) => {
     acc[g.id] = { color: g.color, icon: g.icon, tastingProfile: g.tastingProfile, wineType: g.wineType };
@@ -25,6 +47,7 @@ const legacyColorMap: Record<string, { color: string; icon?: string; tastingProf
 
 const GRAPE_ENTRIES: WineEntry[] = GRAPE_CARDS.map((card) => {
   const legacy = legacyColorMap[card.id];
+  const bodyClass = getGrapeBodyClass(legacy?.wineType, card.style, LEGACY_GRAPES.find((grape) => grape.id === card.id)?.details.body);
   const rarityMap: Record<string, WineEntry['rarity']> = {
     common: 'COMMON',
     uncommon: 'UNCOMMON',
@@ -41,6 +64,14 @@ const GRAPE_ENTRIES: WineEntry[] = GRAPE_CARDS.map((card) => {
     color: legacy?.color || '#722F37',
     icon: legacy?.icon || 'grape',
     wineType: card.style,
+    grapeType: card.type,
+    grapeStyle: card.style,
+    grapeBodyClass: bodyClass,
+    grapeCharacteristics: card.characteristics,
+    grapeAlternateNames: card.alternateNames.map(canonicalizeGrapeName),
+    grapeNotableRegions: card.notableRegions,
+    grapeCountryOfOrigin: card.countryOfOrigin,
+    grapeRarityTier: card.rarityTier,
     tastingProfile: legacy?.tastingProfile,
     grapeCard: card,
     rarity: rarityMap[card.rarityTier] || 'UNCOMMON',
@@ -48,7 +79,7 @@ const GRAPE_ENTRIES: WineEntry[] = GRAPE_CARDS.map((card) => {
       origin: card.countryOfOrigin,
       synonyms: card.alternateNames.map(canonicalizeGrapeName),
       keyRegions: card.notableRegions,
-      body: card.style,
+      body: bodyClass,
     }
   };
 });

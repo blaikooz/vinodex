@@ -6,6 +6,7 @@ import { CLIMATE_CLASS_MAP } from '../data/climateClasses';
 import { WINE_ENTRIES } from '../constants';
 import { CONTAINER_SIZE_LIST, CONTAINER_BORDER_CLASS, CONTAINER_SHADOW_CLASS, CONTAINER_BORDER, ICON_SIZE_LIST, LIST_TILE_META_CHIP_CLASS } from '../src/services/iconRendering';
 import { createEntryVisualResolver, resolveEntryIconVisual } from '../src/services/entryIconVisuals';
+import { getGrapeBodyChipColors, getGrapeBodyFilterValue, getGrapeBodyLabel, getGrapeColorChipColors, getGrapeColorLabel } from '../src/services/grapeDisplay';
 
 type FilterMode = 'REGION' | 'TYPE' | 'TASTING' | 'SOIL' | 'ORIGIN' | 'RARITY' | 'SYSTEM' | 'CLIMATE' | null;
 
@@ -248,6 +249,8 @@ const getCountryColor = (country: string) => {
   return colors[country] || { bg: 'bg-stone-700', text: 'text-stone-200', border: 'border-stone-500' };
 };
 
+const USA_STATE_CHIP_CLASS = 'bg-indigo-900 text-indigo-100 border-indigo-700';
+
 const getClassificationStyle = (classification?: string) => {
   const map: Record<string, { bg: string; text: string; border: string }> = {
     'AOC': { bg: 'bg-red-950', text: 'text-red-100', border: 'border-red-700' },
@@ -264,6 +267,13 @@ const getClassificationStyle = (classification?: string) => {
   return map[key] || { bg: 'bg-stone-700', text: 'text-stone-200', border: 'border-stone-500' };
 };
 
+const handleTileKeyDown = (event: React.KeyboardEvent<HTMLDivElement>, onPress: () => void) => {
+  if (event.key === 'Enter' || event.key === ' ') {
+    event.preventDefault();
+    onPress();
+  }
+};
+
 const EntryTile: React.FC<EntryTileProps> = ({ entry, onPress, index, onFilterByRarity, onFilterByType, onFilterByNote, onFilterByOrigin, onFilterByClimate }) => {
   const isGrape = entry.category === 'GRAPES';
   const isRegion = entry.category === 'REGIONS';
@@ -274,8 +284,10 @@ const EntryTile: React.FC<EntryTileProps> = ({ entry, onPress, index, onFilterBy
   const climateMeta = entry.climate ? CLIMATE_CLASS_MAP[entry.climate] : undefined;
   const originLabel = entry.details.origin || '';
   const grapeOriginStyle = isGrape && originLabel ? getCountryColor(originLabel) : null;
-  
-  const wineTypeStyle = isGrape ? getWineTypeStyle(grapeCard?.style || entry.wineType) : null;
+  const grapeColorLabel = isGrape ? getGrapeColorLabel(entry) : null;
+  const grapeColorStyle = grapeColorLabel ? getGrapeColorChipColors(grapeColorLabel) : null;
+  const grapeBodyLabel = isGrape ? getGrapeBodyLabel(entry) : null;
+  const grapeBodyStyle = grapeBodyLabel ? getGrapeBodyChipColors(grapeBodyLabel) : null;
   const styleClassType = isStyle ? getStyleClassType(entry.name, entry.details.classification) : undefined;
   const styleColorType = isStyle ? getColorType(entry.name) : undefined;
   
@@ -287,7 +299,7 @@ const EntryTile: React.FC<EntryTileProps> = ({ entry, onPress, index, onFilterBy
   const styleCountryStyle = entry.details.origin ? getCountryColor(entry.details.origin) : null;
   const flavorClassStyle = isFlavor ? getFlavorClassStyle(entry.details.classification) : null;
   const flavorSubclassStyle = isFlavor ? getFlavorSubclassStyle(entry.details.subclass) : null;
-  const rarityValue = entry.rarity || (grapeCard?.rarityTier ? grapeCard.rarityTier.toUpperCase() : undefined);
+  const rarityValue = entry.rarity || (entry.grapeRarityTier ? entry.grapeRarityTier.toUpperCase() : (grapeCard?.rarityTier ? grapeCard.rarityTier.toUpperCase() : undefined));
   const entryVisualResolver = useMemo(() => createEntryVisualResolver({ entries: WINE_ENTRIES }), []);
   const entryVisual = resolveEntryIconVisual(entry, {
     size: ICON_SIZE_LIST,
@@ -308,8 +320,11 @@ const EntryTile: React.FC<EntryTileProps> = ({ entry, onPress, index, onFilterBy
   const renderedIcon = entryVisual.iconNode;
 
   return (
-    <button
+    <div
+      role="button"
+      tabIndex={0}
       onClick={() => onPress(entry)}
+      onKeyDown={(event) => handleTileKeyDown(event, () => onPress(entry))}
       className="w-full bg-stone-900 border-2 border-stone-700 hover:border-green-500 rounded p-2 flex items-center gap-3 relative overflow-hidden group min-h-[4.5rem] transition-all active:translate-y-0.5"
       style={{ animationDelay: `${index * 50}ms` }}
     >
@@ -334,21 +349,45 @@ const EntryTile: React.FC<EntryTileProps> = ({ entry, onPress, index, onFilterBy
 
           {/* Tags Row - Different based on category */}
           <div className="flex flex-wrap gap-1.5 w-full items-center">
-              {/* GRAPES: Show Type and Rarity */}
+              {/* GRAPES: Show Color, Body, Country, and Rarity */}
               {isGrape && (
                 <>
-                  {/* Wine Type Tag */}
-                  {grapeCard?.style && wineTypeStyle && (
+                  {grapeColorLabel && grapeColorStyle && (
                     <button
                       type="button"
-                      onClick={(e) => { e.stopPropagation(); onFilterByType?.(grapeCard.style, 'GRAPES'); }}
-                      className={`${LIST_TILE_META_CHIP_CLASS} ${wineTypeStyle.bg} ${wineTypeStyle.text} ${wineTypeStyle.border}`}
-                      style={wineTypeStyle.style}
+                      onClick={(e) => { e.stopPropagation(); onFilterByType?.(grapeColorLabel, 'STYLES'); }}
+                      className={LIST_TILE_META_CHIP_CLASS}
+                      style={{ backgroundColor: grapeColorStyle.bg, borderColor: grapeColorStyle.border, color: grapeColorStyle.text }}
                     >
-                      {grapeCard.style.toUpperCase()}
+                      {grapeColorLabel}
                     </button>
                   )}
-                  {/* Rarity Tag */}
+                  {grapeBodyLabel && grapeBodyStyle && (
+                    <button
+                      type="button"
+                      onClick={(e) => { e.stopPropagation(); onFilterByType?.(getGrapeBodyFilterValue(grapeBodyLabel, grapeColorLabel || 'RED'), 'GRAPES'); }}
+                      className={LIST_TILE_META_CHIP_CLASS}
+                      style={{ backgroundColor: grapeBodyStyle.bg, borderColor: grapeBodyStyle.border, color: grapeBodyStyle.text }}
+                    >
+                      {grapeBodyLabel.toUpperCase()}
+                    </button>
+                  )}
+                </>
+              )}
+
+              {/* Origin tag for grapes */}
+              {isGrape && originLabel && grapeOriginStyle && (
+                <button
+                  type="button"
+                  onClick={(e) => { e.stopPropagation(); onFilterByOrigin?.(originLabel); }}
+                  className={`${LIST_TILE_META_CHIP_CLASS} ${grapeOriginStyle.bg} ${grapeOriginStyle.text} ${grapeOriginStyle.border}`}
+                >
+                  {formatUpper(originLabel)}
+                </button>
+              )}
+
+              {isGrape && (
+                <>
                   <button
                     type="button"
                     onClick={(e) => {
@@ -374,6 +413,11 @@ const EntryTile: React.FC<EntryTileProps> = ({ entry, onPress, index, onFilterBy
                   >
                     {formatUpper(country)}
                   </button>
+                  {country === 'USA' && entry.details.state && (
+                    <span className={`${LIST_TILE_META_CHIP_CLASS} ${USA_STATE_CHIP_CLASS}`}>
+                      {formatUpper(entry.details.state)}
+                    </span>
+                  )}
                   {entry.details.classification && (
                     (() => {
                       const clsStyle = getClassificationStyle(entry.details.classification);
@@ -462,17 +506,6 @@ const EntryTile: React.FC<EntryTileProps> = ({ entry, onPress, index, onFilterBy
                   )}
                 </>
               )}
-
-              {/* Origin tag for grapes */}
-              {isGrape && originLabel && grapeOriginStyle && (
-                <button
-                  type="button"
-                  onClick={(e) => { e.stopPropagation(); onFilterByOrigin?.(originLabel); }}
-                  className={`${LIST_TILE_META_CHIP_CLASS} ${grapeOriginStyle.bg} ${grapeOriginStyle.text} ${grapeOriginStyle.border}`}
-                >
-                  {formatUpper(originLabel)}
-                </button>
-              )}
           </div>
      </div>
 
@@ -480,7 +513,7 @@ const EntryTile: React.FC<EntryTileProps> = ({ entry, onPress, index, onFilterBy
       <div className="shrink-0 text-stone-600 group-hover:text-white pl-2">
          <ChevronRight size={18} />
       </div>
-    </button>
+    </div>
   );
 };
 

@@ -9,8 +9,7 @@
     "typecheck": "tsc --noEmit",
     "preview": "vite preview",
     "export:wine:excel": "ts-node --esm scripts/exportWineEntriesToExcel.ts",
-    "build:wine:json": "ts-node --esm scripts/convertExcelToJson.ts",
-    "build:supabase:seed": "ts-node --esm scripts/generateSupabaseSeed.ts"
+    "build:wine:json": "ts-node --esm scripts/convertExcelToJson.ts"
   },
   "dependencies": {
     "lucide-react": "^0.554.0",

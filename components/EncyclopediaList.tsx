@@ -1,9 +1,10 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Search, List, Map, Droplet, Grape, Mountain, MapPin, Star, Shield, Wind, AlertCircle } from "lucide-react";
-import EntryTile from "./PairingTile";
+import EntryTile from "./EntryTile";
 import DeviceLayout from "./DeviceLayout";
 import { WineEntry, EntryCategory, ClimateClass } from "../types";
 import { CLIMATE_CLASS_MAP } from "../data/climateClasses";
+import { getGrapeBodyFilterValue, getGrapeColorLabel, getGrapeBodyLabel } from "../src/services/grapeDisplay";
 import { loadAllEntries } from "../src/services/wineData";
 
 interface EncyclopediaListProps {
@@ -22,6 +23,7 @@ interface EncyclopediaListProps {
 }
 
 export default function EncyclopediaList({ category, filterMode, filterValue, initialSearchQuery, onSelect, onBack, onHome, onFilterByRarity, onFilterByType, onFilterByNote, onFilterByOrigin, onFilterByClimate }: EncyclopediaListProps) {
+  const allowedUsStates = ['California', 'New York', 'Oregon', 'Virginia', 'Washington'];
   const [searchQuery, setSearchQuery] = useState("");
   const [entries, setEntries] = useState<WineEntry[]>([]);
   const [loading, setLoading] = useState(true);
@@ -107,32 +109,31 @@ export default function EncyclopediaList({ category, filterMode, filterValue, in
     return 'DUAL';
   };
 
-  const usaRegionStateMap: Record<string, string> = {
-    'Napa Valley': 'California',
-    'Sonoma': 'California',
-    'Paso Robles': 'California',
-    'Santa Barbara': 'California',
-    'Lodi': 'California',
-    'Willamette Valley': 'Oregon',
-    'Walla Walla': 'Washington',
-    'Finger Lakes': 'New York',
+  const matchesGrapeTypeFilter = (entry: WineEntry, filter: string) => {
+    if (entry.category !== 'GRAPES') return false;
+
+    const normalizedFilter = normalizeLabel(filter);
+    const legacyType = normalizeLabel(entry.grapeStyle || entry.grapeCard?.style || entry.wineType || '');
+    if (legacyType && legacyType === normalizedFilter) return true;
+
+    const grapeColor = normalizeLabel(getGrapeColorLabel(entry));
+    if (grapeColor === normalizedFilter) return true;
+
+    const grapeBodyFilter = normalizeLabel(
+      getGrapeBodyFilterValue(getGrapeBodyLabel(entry), getGrapeColorLabel(entry))
+    );
+    return grapeBodyFilter === normalizedFilter;
   };
 
   const filteredEntries = useMemo(() => {
     if (category === 'COUNTRY_GATE') {
       const items = Array.isArray(filterValue) ? filterValue as string[] : [];
       if (filterMode === 'STATE') {
-        const stateEntries: WineEntry[] = items.map((state, idx) => ({
-          id: `ST-${idx}`,
-          name: state,
-          description: `Wine regions within ${state}`,
-          category: 'COUNTRY_GATE',
-          tags: ['STATE'],
-          color: '#0ea5e9',
-          icon: 'flag',
-          details: { origin: state, classification: 'STATE' }
-        }));
-        return stateEntries;
+        return entries
+          .filter((entry) => entry.category === 'COUNTRY_GATE'
+            && entry.details.classification?.toUpperCase() === 'STATE'
+            && items.includes(entry.name))
+          .sort((a, b) => a.name.localeCompare(b.name));
       }
       const countrySystems: Record<string, string[]> = {
         France: ['AOC', 'IGP'],
@@ -176,7 +177,10 @@ export default function EncyclopediaList({ category, filterMode, filterValue, in
         : [effectiveCategory];
     const result = entries.filter(e => {
         // 1. Category Check
-        const matchesCategory = allowedCategories.includes(e.category);
+        const matchesCategory = allowedCategories.includes(e.category)
+          && !(e.category === 'COUNTRY_GATE'
+            && e.details.classification?.toUpperCase() === 'STATE'
+            && !allowedUsStates.includes(e.name));
 
         // 2. Search Bar
         const matchesSearch = !showTopSearchBar ||
@@ -199,7 +203,8 @@ export default function EncyclopediaList({ category, filterMode, filterValue, in
                 e.name.toLowerCase().includes(keyword.toLowerCase())
              );
         } else if (activeFilterMode === 'TYPE' && typeof activeFilterValue === 'string') {
-             const typeMatch = !!(e.grapeCard?.style || e.wineType) && normalizeLabel((e.grapeCard?.style || e.wineType)!) === normalizeLabel(activeFilterValue);
+             const typeMatch = matchesGrapeTypeFilter(e, activeFilterValue)
+              || (!!(e.grapeStyle || e.grapeCard?.style || e.wineType) && normalizeLabel((e.grapeStyle || e.grapeCard?.style || e.wineType)!) === normalizeLabel(activeFilterValue));
              const styleColorMatch = effectiveCategory === 'STYLES' && normalizeLabel(getStyleColorType(e.name)) === normalizeLabel(activeFilterValue);
              matchesFilter = typeMatch || styleColorMatch;
         } else if (activeFilterMode === 'TASTING' && typeof activeFilterValue === 'string') {
@@ -213,11 +218,11 @@ export default function EncyclopediaList({ category, filterMode, filterValue, in
         } else if (activeFilterMode === 'STATE' && typeof activeFilterValue === 'string') {
              matchesFilter =
                (e.details.origin || '').toUpperCase() === 'USA' &&
-               usaRegionStateMap[e.name] === activeFilterValue;
+           e.details.state === activeFilterValue;
         } else if (activeFilterMode === 'SYSTEM' && typeof activeFilterValue === 'string') {
              matchesFilter = !!e.details.classification && e.details.classification.toLowerCase() === activeFilterValue.toLowerCase();
         } else if (activeFilterMode === 'RARITY' && typeof activeFilterValue === 'string') {
-             matchesFilter = (e.rarity || e.grapeCard?.rarityTier?.toUpperCase()) === activeFilterValue;
+             matchesFilter = (e.rarity || e.grapeRarityTier?.toUpperCase() || e.grapeCard?.rarityTier?.toUpperCase()) === activeFilterValue;
         } else if (activeFilterMode === 'CLIMATE' && typeof activeFilterValue === 'string') {
              matchesFilter = !!e.climate && e.climate.toLowerCase() === activeFilterValue.toLowerCase();
         }
