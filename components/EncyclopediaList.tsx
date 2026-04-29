@@ -256,15 +256,15 @@ export default function EncyclopediaList({ category, filterMode, filterValue, in
   };
 
   const getFilterIcon = () => {
-      if (activeFilterMode === 'REGION') return <Map size={14} className="text-green-500" />;
-      if (activeFilterMode === 'TYPE') return <Grape size={14} className="text-purple-500" />;
-      if (activeFilterMode === 'TASTING') return <Droplet size={14} className="text-blue-500" />;
-      if (activeFilterMode === 'SOIL') return <Mountain size={14} className="text-orange-500" />;
-      if (activeFilterMode === 'ORIGIN') return <MapPin size={14} className="text-red-500" />;
-      if (activeFilterMode === 'STATE') return <MapPin size={14} className="text-cyan-400" />;
-      if (activeFilterMode === 'RARITY') return <Star size={14} className="text-yellow-500" />;
-      if (activeFilterMode === 'SYSTEM') return <Shield size={14} className="text-amber-500" />;
-      if (activeFilterMode === 'CLIMATE') return <Wind size={14} className="text-sky-400" />;
+      if (activeFilterMode === 'REGION') return <Map size={24} className="text-green-500" />;
+      if (activeFilterMode === 'TYPE') return <Grape size={24} className="text-purple-500" />;
+      if (activeFilterMode === 'TASTING') return <Droplet size={24} className="text-blue-500" />;
+      if (activeFilterMode === 'SOIL') return <Mountain size={24} className="text-orange-500" />;
+      if (activeFilterMode === 'ORIGIN') return <MapPin size={24} className="text-red-500" />;
+      if (activeFilterMode === 'STATE') return <MapPin size={24} className="text-cyan-400" />;
+      if (activeFilterMode === 'RARITY') return <Star size={24} className="text-yellow-500" />;
+      if (activeFilterMode === 'SYSTEM') return <Shield size={24} className="text-amber-500" />;
+      if (activeFilterMode === 'CLIMATE') return <Wind size={24} className="text-sky-400" />;
       return null;
   };
 
@@ -308,9 +308,9 @@ export default function EncyclopediaList({ category, filterMode, filterValue, in
 
       <div className="flex flex-col h-full bg-stone-900">
         {showFilterIndicator && (
-          <div className="bg-stone-800 border-b border-stone-700 p-2 flex items-center gap-2 animate-in slide-in-from-top-2 shadow-inner">
-            {getFilterIcon()}
-            <span className="text-xs font-mono text-stone-300 font-bold">{getFilterText()}</span>
+          <div className="bg-stone-800 border-b border-stone-700 px-4 py-3 flex items-center gap-3 animate-in slide-in-from-top-2 shadow-inner">
+            <span className="[&>svg]:!w-6 [&>svg]:!h-6">{getFilterIcon()}</span>
+            <span className="text-base font-mono text-stone-200 font-bold tracking-widest">{getFilterText()}</span>
           </div>
         )}
 

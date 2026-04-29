@@ -15,6 +15,7 @@ import italyFlag from '../pixelflags/Europe/italy/italy.png';
 import japanFlag from '../pixelflags/Asia/japan/japan.png';
 import newZealandFlag from '../pixelflags/Oceania/new_zealand/new_zealand.png';
 import portugalFlag from '../pixelflags/Europe/portugal/portugal.png';
+import moroccoFlag from '../pixelflags/Africa/morocco/morocco.png';
 import southAfricaFlag from '../pixelflags/Africa/south_africa/south_africa.png';
 import spainFlag from '../pixelflags/Europe/spain/spain.png';
 import switzerlandFlag from '../pixelflags/Europe/switzerland/switzerland.png';
@@ -44,17 +45,20 @@ const US_STATE_FLAG_MODULES = import.meta.glob('../pixelflags/North America/unit
   import: 'default',
 }) as Record<string, string>;
 
-const US_STATE_FLAG_IMAGES: FlagImageEntry[] = Object.entries(US_STATE_FLAG_MODULES).reduce<FlagImageEntry[]>((entries, [path, image]) => {
-  const match = path.match(/united_states\/([^/]+)\/[^/]+$/);
-  if (!match) return entries;
-
-  const folder = match[1];
-  entries.push({
+const US_STATE_FLAG_IMAGES: FlagImageEntry[] = (() => {
+  const folderMap = new Map<string, string>();
+  Object.entries(US_STATE_FLAG_MODULES).forEach(([path, image]) => {
+    const match = path.match(/united_states\/([^/]+)\/[^/]+$/);
+    if (!match) return;
+    const folder = match[1];
+    const isBack = path.includes('_back.');
+    if (!folderMap.has(folder) || isBack) folderMap.set(folder, image);
+  });
+  return Array.from(folderMap.entries()).map(([folder, image]) => ({
     keys: [folder, folder.replace(/_/g, ' ')],
     image,
-  });
-  return entries;
-}, []);
+  }));
+})();
 
 const FLAG_IMAGES: FlagImageEntry[] = [
   { keys: ['argentina'], image: argentinaFlag },
@@ -74,6 +78,7 @@ const FLAG_IMAGES: FlagImageEntry[] = [
   { keys: ['japan'], image: japanFlag },
   { keys: ['new zealand', 'new_zealand'], image: newZealandFlag },
   { keys: ['portugal'], image: portugalFlag },
+  { keys: ['morocco'], image: moroccoFlag },
   { keys: ['south africa', 'south_africa'], image: southAfricaFlag },
   { keys: ['spain'], image: spainFlag },
   { keys: ['switzerland'], image: switzerlandFlag },

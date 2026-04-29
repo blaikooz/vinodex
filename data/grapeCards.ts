@@ -61,9 +61,5 @@ export const GRAPE_CARDS: GrapeCard[] = LEGACY_GRAPES.map((legacy) => {
     tastingProfile,
     notableRegions: legacy.details.keyRegions || [],
     info: legacy.description,
-    evolutionLine: [],
-    signatureMove: undefined,
-    discoveryYear: undefined,
-    regionAffinity: (legacy.details.keyRegions || []).map(r => ({ region: r, bonus: '+1 Focus' })),
   };
 });

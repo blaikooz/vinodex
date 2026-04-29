@@ -7,9 +7,12 @@ import { getFlagGradient } from '../data/flagGradients';
 import { getFlagImage } from '../data/flagImages';
 import { loadAllEntries } from '../src/services/wineData';
 import { getStylePalette } from '../stylePalette';
-import { CONTAINER_SIZE_HEADER, HEADER_BORDER_CLASS, CONTAINER_SHADOW_CLASS, HEADER_BORDER, CONTAINER_SIZE_LIST, CONTAINER_BORDER_CLASS, CONTAINER_BORDER, ICON_SIZE_HEADER, ICON_SIZE_LINKED, LINKED_TILE_META_CHIP_CLASS } from '../src/services/iconRendering';
+import { CONTAINER_SIZE_HEADER, HEADER_BORDER_CLASS, CONTAINER_SHADOW_CLASS, HEADER_BORDER, CONTAINER_SIZE_LIST, CONTAINER_BORDER_CLASS, CONTAINER_BORDER, ICON_SIZE_HEADER, ICON_SIZE_LINKED } from '../src/services/iconRendering';
 import { createEntryVisualResolver, resolveEntryIconVisual } from '../src/services/entryIconVisuals';
-import { getGrapeBodyChipColors, getGrapeBodyFilterValue, getGrapeBodyLabel, getGrapeColorChipColors, getGrapeColorLabel } from '../src/services/grapeDisplay';
+import { categorizeFlavor, categorizeFlavorSubclass, FLAVOR_CLASS_COLORS } from '../constants';
+import Chip from './Chip';
+import { getCountryChipColors, getClassificationChipColors, getWineTypeChipColors, getRarityChipColors, getFlavorClassChipColors, getFlavorSubclassChipColors, SYSTEM_CHIP_COLOR, CLIMATE_CHIP_COLOR, APPELLATION_CHIP_COLORS, extractTagAbbrev } from '../src/services/chipColors';
+import { getGrapeColorLabel, getGrapeBodyLabel, getGrapeColorChipColors, getGrapeBodyChipColors } from '../src/services/grapeDisplay';
 
 type FilterMode = 'REGION' | 'TYPE' | 'TASTING' | 'SOIL' | 'ORIGIN' | 'RARITY' | 'SYSTEM' | 'CLIMATE' | null;
 
@@ -22,9 +25,9 @@ interface EntryDetailProps {
   onFilterByNote: (note: string, targetCategory?: EntryCategory, mode?: FilterMode) => void;
   onFilterBySoil: (soil: string) => void;
   onFilterByOrigin: (origin: string) => void;
-  onViewStates?: () => void;
   onFilterByRarity?: (rarity: string) => void;
   onFilterByClimate?: (climate: ClimateClass) => void;
+  onViewStates?: () => void;
 }
 
 const ICON_MAP: Record<string, React.ReactNode> = {
@@ -54,39 +57,26 @@ const ICON_MAP: Record<string, React.ReactNode> = {
   default: <Circle size={16} fill="currentColor" className="text-current" />,
 };
 
-const EntryDetail: React.FC<EntryDetailProps> = ({ entry: initialEntry, onBack, onHome, onSelectRelated, onFilterByType, onFilterByNote, onFilterBySoil, onFilterByOrigin, onViewStates, onFilterByRarity, onFilterByClimate }) => {
+// Utility to normalize type class
+function normalizeTypeClass(type?: string): string {
+  if (!type) return '';
+  // Remove body/color words and map to allowed classes
+  let t = type.toLowerCase();
+  t = t.replace(/(body|bodied|color|red|white|rose|rosé|orange)/g, '').replace(/\s+/g, ' ').trim();
+  // Map to allowed classes
+  if (/light/i.test(type)) return 'Light';
+  if (/medium[- ]?full/i.test(type)) return 'Medium Full';
+  if (/medium/i.test(type)) return 'Medium';
+  if (/full/i.test(type)) return 'Full';
+  if (/aromatic/i.test(type)) return 'Aromatic';
+  if (/sweet/i.test(type)) return 'Sweet';
+  return 'Medium'; // fallback
+}
+
+const EntryDetail: React.FC<EntryDetailProps> = ({ entry, onBack, onHome, onSelectRelated, onFilterByType, onFilterByNote, onFilterBySoil, onFilterByOrigin, onFilterByRarity, onFilterByClimate, onViewStates }) => {
   const scrollRef = useRef<HTMLDivElement>(null);
   const [allEntries, setAllEntries] = useState<WineEntry[]>([]);
   const entryVisualResolver = useMemo(() => createEntryVisualResolver({ entries: allEntries }), [allEntries]);
-  const entry = useMemo(() => {
-    if (allEntries.length === 0) return initialEntry;
-
-    const canonicalEntry = allEntries.find((candidate) => candidate.id === initialEntry.id)
-      || allEntries.find((candidate) => candidate.name === initialEntry.name && candidate.category === initialEntry.category);
-
-    if (!canonicalEntry) return initialEntry;
-
-    return {
-      ...initialEntry,
-      ...canonicalEntry,
-      details: {
-        ...initialEntry.details,
-        ...canonicalEntry.details,
-      },
-      grapeType: canonicalEntry.grapeType || initialEntry.grapeType,
-      grapeStyle: canonicalEntry.grapeStyle || initialEntry.grapeStyle,
-      grapeBodyClass: canonicalEntry.grapeBodyClass || initialEntry.grapeBodyClass,
-      grapeCharacteristics: canonicalEntry.grapeCharacteristics || initialEntry.grapeCharacteristics,
-      grapeAlternateNames: canonicalEntry.grapeAlternateNames || initialEntry.grapeAlternateNames,
-      grapeNotableRegions: canonicalEntry.grapeNotableRegions || initialEntry.grapeNotableRegions,
-      grapeCountryOfOrigin: canonicalEntry.grapeCountryOfOrigin || initialEntry.grapeCountryOfOrigin,
-      grapeRarityTier: canonicalEntry.grapeRarityTier || initialEntry.grapeRarityTier,
-      grapeCard: canonicalEntry.grapeCard || initialEntry.grapeCard,
-      tastingProfile: canonicalEntry.tastingProfile || initialEntry.tastingProfile,
-      rarity: canonicalEntry.rarity || initialEntry.rarity,
-      wineType: canonicalEntry.wineType || initialEntry.wineType,
-    };
-  }, [allEntries, initialEntry]);
 
   useEffect(() => {
     let cancelled = false;
@@ -108,7 +98,7 @@ const EntryDetail: React.FC<EntryDetailProps> = ({ entry: initialEntry, onBack, 
     if (scrollRef.current) {
       scrollRef.current.scrollTop = 0;
     }
-  }, [initialEntry.id]);
+  }, [entry.id]);
   
   // Helper to normalize levels for stat bars
   const getLevelIndex = (val: string | undefined, levels: string[]) => {
@@ -250,9 +240,6 @@ const EntryDetail: React.FC<EntryDetailProps> = ({ entry: initialEntry, onBack, 
   const acidLevels = ['Low', 'Medium', 'High', 'Very High'];
   const tanninLevels = ['None', 'Low', 'Low-Medium', 'Medium', 'High', 'Very High'];
   const grapeCard = entry.grapeCard;
-  const grapeCharacteristics = entry.grapeCharacteristics || grapeCard?.characteristics;
-  const grapeRarityTier = entry.grapeRarityTier || grapeCard?.rarityTier;
-  const grapeStyle = entry.grapeStyle || grapeCard?.style || entry.wineType;
 
   const getClassTypeColors = (type: 'STYLE' | 'METHOD' | 'ORIGIN' | 'TYPE' | 'BLEND' | undefined) => {
     switch (type) {
@@ -284,7 +271,6 @@ const EntryDetail: React.FC<EntryDetailProps> = ({ entry: initialEntry, onBack, 
   const isContinent = entry.category === 'CONTINENTS';
   const isCountry = entry.category === 'COUNTRY_GATE' && entry.details.classification?.toUpperCase() === 'COUNTRY';
   const isState = entry.category === 'COUNTRY_GATE' && entry.details.classification?.toUpperCase() === 'STATE';
-  const isUsaCountry = isCountry && entry.name.toUpperCase() === 'USA';
   const getStyleClassType = (name: string, classification?: string) => {
     const normalized = normalizeLabel(name);
     const classOverride = classification?.toUpperCase();
@@ -320,12 +306,12 @@ const EntryDetail: React.FC<EntryDetailProps> = ({ entry: initialEntry, onBack, 
   const colorTypeColors = getColorTypeColors(colorType);
 
   // Classification Logic
-  const isNoble = entry.details.classification === 'Noble Grape' || grapeRarityTier === 'noble';
-  const displayClass = isGrapes ? (grapeRarityTier?.toUpperCase() || entry.rarity) : entry.details.classification || entry.rarity;
+  const isNoble = entry.details.classification === 'Noble Grape' || grapeCard?.rarityTier === 'noble';
+  const displayClass = isGrapes ? (grapeCard?.rarityTier?.toUpperCase() || entry.rarity) : entry.details.classification || entry.rarity;
 
   // List Data Selection
-  const listSectionTitle = isContinent ? 'COUNTRIES' : (isCountry || isState) ? 'KEY REGIONS' : (isRegion ? 'NOTABLE GRAPES' : 'NOTABLE REGIONS');
-  const listSectionData = isContinent ? entry.details.keyRegions : (isRegion ? entry.details.notableGrapes : (isGrapes ? (entry.grapeNotableRegions || grapeCard?.notableRegions) : entry.details.keyRegions));
+  const listSectionTitle = isContinent ? 'COUNTRIES' : isCountry ? 'KEY REGIONS' : (isRegion ? 'NOTABLE GRAPES' : 'NOTABLE REGIONS');
+  const listSectionData = isContinent ? entry.details.keyRegions : (isRegion ? entry.details.notableGrapes : (isGrapes ? grapeCard?.notableRegions : entry.details.keyRegions));
   const scanTitle = isGrapes ? 'GRAPE SCAN' : isRegion ? 'REGION SCAN' : isFlavor ? 'FLAVOR SCAN' : isContinent ? 'CONTINENT SCAN' : isCountry ? 'COUNTRY SCAN' : isState ? 'STATE SCAN' : 'STYLE SCAN';
   const regionSoils = isRegion
     ? (entry.details.soilType
@@ -352,27 +338,11 @@ const EntryDetail: React.FC<EntryDetailProps> = ({ entry: initialEntry, onBack, 
   const styleFlavorNotes = isStyle
     ? (entry.tastingProfile || entry.tags?.slice(0, 3).map(tag => ({ note: tag, icon: 'default' as const, color: classTypeColors.border }))) || []
     : [];
-  const grapeFlavorNotes = ((grapeCard?.tastingProfile || entry.tags || [])).map(n => ({ note: n, icon: 'default' as const, color: '#16a34a' }));
+  const grapeFlavorNotes = (grapeCard?.tastingProfile || []).map(n => ({ note: n, icon: 'default' as const, color: '#16a34a' }));
   const flavorNotes = isStyle ? styleFlavorNotes : (entry.tastingProfile || grapeFlavorNotes);
   const matchedFlavorNotes = flavorNotes.filter((note) => !!getExactFlavorEntry(note.note));
-  const grapeAlternateNames = isGrapes ? (entry.grapeAlternateNames || grapeCard?.alternateNames || entry.details.synonyms || []) : [];
-  const grapeNotableRegions = isGrapes ? (entry.grapeNotableRegions || grapeCard?.notableRegions || entry.details.keyRegions || []) : [];
-  const grapeRarityColors = isGrapes ? getRarityColors(entry.rarity) : null;
-  const grapeRarityIcon = (() => {
-    if (!isGrapes || !entry.rarity) return null;
-    if (entry.rarity === 'NOBLE') {
-      return <Crown size={34} style={{ color: '#facc15' }} />;
-    }
-
-    const starCount = entry.rarity === 'RARE' ? 3 : entry.rarity === 'UNCOMMON' ? 2 : 1;
-    return (
-      <div className="flex items-center justify-end gap-1.5" style={{ color: '#facc15' }}>
-        {Array.from({ length: starCount }).map((_, index) => (
-          <Star key={index} size={24} fill="currentColor" strokeWidth={1.75} />
-        ))}
-      </div>
-    );
-  })();
+  const grapeAlternateNames = isGrapes ? (grapeCard?.alternateNames || entry.details.synonyms || []) : [];
+  const grapeNotableRegions = isGrapes ? (grapeCard?.notableRegions || entry.details.keyRegions || []) : [];
   const flavorTileContainerClass = isGrapes
     ? 'grid grid-cols-1 gap-2 sm:grid-cols-2 xl:grid-cols-3 items-stretch'
     : 'grid grid-cols-1 gap-2 sm:grid-cols-2 items-stretch';
@@ -403,67 +373,15 @@ const EntryDetail: React.FC<EntryDetailProps> = ({ entry: initialEntry, onBack, 
     };
   };
 
-  const getCountryChipColors = (country?: string) => {
-    const map: Record<string, { bg: string; border: string; text: string }> = {
-      france: { bg: '#0f172a', border: '#1d4ed8', text: '#dbeafe' },
-      italy: { bg: '#052e16', border: '#16a34a', text: '#bbf7d0' },
-      spain: { bg: '#450a0a', border: '#dc2626', text: '#fecdd3' },
-      usa: { bg: '#1e1b4b', border: '#4338ca', text: '#c7d2fe' },
-      germany: { bg: '#422006', border: '#d97706', text: '#fde68a' },
-      portugal: { bg: '#064e3b', border: '#10b981', text: '#d1fae5' },
-      australia: { bg: '#7c2d12', border: '#f97316', text: '#ffedd5' },
-      'new zealand': { bg: '#0f172a', border: '#14b8a6', text: '#99f6e4' },
-      argentina: { bg: '#0ea5e9', border: '#38bdf8', text: '#ecfeff' },
-      chile: { bg: '#7f1d1d', border: '#f97316', text: '#fee2e2' },
-      'south africa': { bg: '#312e81', border: '#a21caf', text: '#e0e7ff' },
-      austria: { bg: '#831843', border: '#f472b6', text: '#ffe4e6' },
-      greece: { bg: '#0e7490', border: '#22d3ee', text: '#e0f2fe' },
-      hungary: { bg: '#365314', border: '#84cc16', text: '#f7fee7' },
-      canada: { bg: '#7f1d1d', border: '#ef4444', text: '#fee2e2' },
-      china: { bg: '#854d0e', border: '#f59e0b', text: '#fffbeb' },
-      japan: { bg: '#9f1239', border: '#f472b6', text: '#fff1f2' },
-      india: { bg: '#713f12', border: '#f59e0b', text: '#fef3c7' },
-      uruguay: { bg: '#312e81', border: '#8b5cf6', text: '#ede9fe' },
-      croatia: { bg: '#1e293b', border: '#3b82f6', text: '#e0f2fe' },
-    };
-    const key = country ? country.toLowerCase() : '';
-    return map[key] || { bg: '#0b0f19', border: '#374151', text: '#e5e7eb' };
-  };
-
-  const getStateChipColors = () => getCountryChipColors('USA');
-
-  const getClassificationColors = (classification?: string) => {
-    const map: Record<string, { bg: string; border: string; text: string }> = {
-      aop: { bg: '#3f1d2e', border: '#fb7185', text: '#ffe4e6' },
-      aoc: { bg: '#3f1d2e', border: '#f43f5e', text: '#ffe4e6' },
-      docg: { bg: '#422006', border: '#f59e0b', text: '#fef3c7' },
-      doc: { bg: '#451a03', border: '#ea580c', text: '#ffedd5' },
-      doca: { bg: '#713f12', border: '#fcd34d', text: '#fef3c7' },
-      ava: { bg: '#1e1b4b', border: '#6366f1', text: '#e0e7ff' },
-      gi: { bg: '#064e3b', border: '#22c55e', text: '#d1fae5' },
-      pdo: { bg: '#312e81', border: '#a855f7', text: '#ede9fe' },
-      pgi: { bg: '#0f172a', border: '#14b8a6', text: '#ccfbf1' },
-      igp: { bg: '#1a2e05', border: '#84cc16', text: '#ecfccb' },
-      igt: { bg: '#1f2937', border: '#94a3b8', text: '#e2e8f0' },
-      vdf: { bg: '#3f3f46', border: '#a1a1aa', text: '#f4f4f5' },
-      vr: { bg: '#1c1917', border: '#a8a29e', text: '#f5f5f4' },
-      qba: { bg: '#172554', border: '#60a5fa', text: '#dbeafe' },
-      gg: { bg: '#3f6212', border: '#a3e635', text: '#ecfccb' },
-      vqa: { bg: '#4c0519', border: '#fb7185', text: '#ffe4e6' },
-    };
-    const key = classification ? classification.toLowerCase() : '';
-    return map[key] || { bg: '#1f2937', border: '#4b5563', text: '#e5e7eb' };
-  };
+  const getClassificationColors = getClassificationChipColors;
 
   const getClassificationFullName = (classification?: string) => {
     if (!classification) return 'N/A';
     const clean = classification.toLowerCase().replace(/[^a-z]/g, '');
     switch (clean) {
-      case 'aop': return 'Appellation d\'Origine Protegee';
       case 'aoc': return "Appellation d'Origine Controlee";
       case 'docg': return "Denominazione di Origine Controllata e Garantita";
       case 'doc': return "Denominazione di Origine Controllata";
-      case 'igt': return 'Indicazione Geografica Tipica';
       case 'doca': return "Denominacion de Origen Calificada";
       case 'do': return "Denominacion de Origen";
       case 'ava': return 'American Viticultural Area';
@@ -471,45 +389,13 @@ const EntryDetail: React.FC<EntryDetailProps> = ({ entry: initialEntry, onBack, 
       case 'pdo': return 'Protected Designation of Origin';
       case 'pgi': return 'Protected Geographical Indication';
       case 'igp': return 'Indication Geographique Protegee';
-      case 'vdf': return 'Vin de France';
-      case 'vr': return 'Vinho Regional';
-      case 'qba': return 'Qualitatswein bestimmter Anbaugebiete';
-      case 'gg': return 'Grosses Gewachs';
       case 'dac': return 'Districtus Austriae Controllatus';
       case 'wo': return 'Wine of Origin';
       case 'dhc': return 'Districtus Hungaricus Controllatus';
       case 'pradikatswein': return 'Pradikatswein';
-      case 'vqa': return 'Vintners Quality Alliance';
       default: return classification;
     }
   };
-
-  const getAppellationSystemParts = (system: string) => {
-    const trimmed = system.trim();
-    const match = trimmed.match(/^([^()]+?)\s*\(([^()]+)\)$/);
-
-    if (match) {
-      return {
-        shortName: match[1].trim(),
-        fullName: match[2].trim(),
-      };
-    }
-
-    return {
-      shortName: trimmed,
-      fullName: getClassificationFullName(trimmed),
-    };
-  };
-
-  function getRarityColors(rarity?: string) {
-    switch (rarity) {
-      case 'COMMON': return { bg: '#3f3f46', border: '#52525b', text: '#e4e4e7' };
-      case 'UNCOMMON': return { bg: '#064e3b', border: '#16a34a', text: '#d1fae5' };
-      case 'RARE': return { bg: '#111827', border: '#2563eb', text: '#dbeafe' };
-      case 'NOBLE': return { bg: '#3b0764', border: '#9333ea', text: '#f3e8ff' };
-      default: return { bg: '#3f3f46', border: '#52525b', text: '#e4e4e7' };
-    }
-  }
 
   const getTypeTileColors = (wineType?: string) => {
     const palette = getStylePalette(wineType);
@@ -517,23 +403,18 @@ const EntryDetail: React.FC<EntryDetailProps> = ({ entry: initialEntry, onBack, 
       const textColor = isLightColor(palette.primary) ? palette.secondary : '#ffffff';
       return { bg: palette.primary, border: palette.secondary, text: textColor };
     }
-
-    const t = wineType?.toLowerCase() || '';
-    if (t.includes('red') || t.includes('bold')) return { bg: '#7f1d1d', border: '#b91c1c', text: '#fca5a5' };
-    if (t.includes('white') || t.includes('aromatic')) return { bg: '#92400e', border: '#d97706', text: '#fde68a' };
-    if (t.includes('rosé') || t.includes('rose')) return { bg: '#9d174d', border: '#db2777', text: '#fbcfe8' };
-    if (t.includes('sparkling')) return { bg: '#a16207', border: '#eab308', text: '#fef9c3' };
-    if (t.includes('sweet')) return { bg: '#9a3412', border: '#ea580c', text: '#fed7aa' };
-    return { bg: '#57534e', border: '#78716c', text: '#e7e5e4' };
+    return getWineTypeChipColors(wineType);
   };
 
+  const getRarityColors = getRarityChipColors;
   const buildIconNode = (iconKey: string, color?: string, size = 20): React.ReactNode => {
     const iconNode = ICON_MAP[iconKey] || ICON_MAP['default'];
     if (React.isValidElement(iconNode)) {
-      return React.cloneElement(iconNode as React.ReactElement, {
+      const el = iconNode as React.ReactElement<any>;
+      return React.cloneElement(el, {
         size,
-        className: iconNode.props.className,
-        style: { ...(iconNode.props.style || {}), ...(color ? { color } : {}) },
+        className: el.props.className,
+        style: { ...(el.props.style || {}), ...(color ? { color } : {}) },
       });
     }
     return iconNode;
@@ -557,25 +438,21 @@ const EntryDetail: React.FC<EntryDetailProps> = ({ entry: initialEntry, onBack, 
     const classificationLabel = relatedEntry?.details.classification ? formatUpper(relatedEntry.details.classification) : undefined;
     const isRegionMeta = relatedEntry?.category === 'REGIONS' && options?.showRegionMetaTiles;
     const regionCountry = relatedEntry?.details.origin;
-    const regionState = relatedEntry?.details.state;
     const regionSystem = relatedEntry?.details.classification;
     const regionClimate = relatedEntry?.climate;
     const regionCountryColors = getCountryChipColors(regionCountry);
-    const regionStateColors = getStateChipColors();
-    const regionSystemColors = getClassificationColors(regionSystem);
-    const regionClimateColors = getClimateColors(regionClimate);
+    const regionSystemColors = SYSTEM_CHIP_COLOR;
+    const regionClimateColors = CLIMATE_CHIP_COLOR;
     const regionClimateName = regionClimate ? CLIMATE_CLASS_MAP[regionClimate]?.name : undefined;
-    const linkedWineType = relatedEntry?.grapeStyle || relatedEntry?.grapeCard?.style || relatedEntry?.wineType;
+    const linkedWineType = relatedEntry?.grapeCard?.style || relatedEntry?.wineType;
     const linkedTypeColors = getTypeTileColors(linkedWineType);
-    const linkedRarity = relatedEntry?.rarity || (relatedEntry?.grapeRarityTier ? relatedEntry.grapeRarityTier.toUpperCase() : (relatedEntry?.grapeCard?.rarityTier ? relatedEntry.grapeCard.rarityTier.toUpperCase() : undefined));
+    const linkedRarity = relatedEntry?.rarity || (relatedEntry?.grapeCard?.rarityTier ? relatedEntry.grapeCard.rarityTier.toUpperCase() : undefined);
     const linkedRarityColors = getRarityColors(linkedRarity);
     const linkedOrigin = relatedEntry?.details.origin;
     const linkedOriginColors = getCountryChipColors(linkedOrigin);
     const showLinkedGrapeChips = relatedEntry?.category === 'GRAPES';
-    const linkedGrapeColor = relatedEntry && relatedEntry.category === 'GRAPES' ? getGrapeColorLabel(relatedEntry) : null;
-    const linkedGrapeColorColors = linkedGrapeColor ? getGrapeColorChipColors(linkedGrapeColor) : null;
-    const linkedGrapeBody = relatedEntry && relatedEntry.category === 'GRAPES' ? getGrapeBodyLabel(relatedEntry) : null;
-    const linkedGrapeBodyColors = linkedGrapeBody ? getGrapeBodyChipColors(linkedGrapeBody) : null;
+    const linkedGrapeColorLabel = showLinkedGrapeChips && relatedEntry ? getGrapeColorLabel(relatedEntry) : undefined;
+    const linkedGrapeBodyLabel = showLinkedGrapeChips && relatedEntry ? getGrapeBodyLabel(relatedEntry) : undefined;
 
     return (
       <button
@@ -609,72 +486,26 @@ const EntryDetail: React.FC<EntryDetailProps> = ({ entry: initialEntry, onBack, 
             {isRegionMeta && (
               <div className="mt-1 flex flex-wrap gap-1">
                 {regionCountry && (
-                  <span
-                    className={LINKED_TILE_META_CHIP_CLASS}
-                    style={{ backgroundColor: regionCountryColors.bg, borderColor: regionCountryColors.border, color: regionCountryColors.text }}
-                  >
-                    {regionCountry}
-                  </span>
-                )}
-                {regionCountry === 'USA' && regionState && (
-                  <span
-                    className={LINKED_TILE_META_CHIP_CLASS}
-                    style={{ backgroundColor: regionStateColors.bg, borderColor: regionStateColors.border, color: regionStateColors.text }}
-                  >
-                    {formatUpper(regionState)}
-                  </span>
+                  <Chip label={regionCountry} colorStyle={regionCountryColors} />
                 )}
                 {regionSystem && (
-                  <span
-                    className={LINKED_TILE_META_CHIP_CLASS}
-                    style={{ backgroundColor: regionSystemColors.bg, borderColor: regionSystemColors.border, color: regionSystemColors.text }}
-                  >
-                    {regionSystem}
-                  </span>
+                  <Chip label={extractTagAbbrev(regionSystem)} colorStyle={regionSystemColors} />
                 )}
                 {regionClimate && regionClimateName && (
-                  <span
-                    className={LINKED_TILE_META_CHIP_CLASS}
-                    style={{ backgroundColor: regionClimateColors.bg, borderColor: regionClimateColors.border, color: regionClimateColors.text }}
-                  >
-                    {regionClimateName}
-                  </span>
+                  <Chip label={regionClimateName} colorStyle={regionClimateColors} />
                 )}
               </div>
             )}
             {showLinkedGrapeChips && (
               <div className="mt-1 flex flex-wrap gap-1">
-                {linkedGrapeColor && linkedGrapeColorColors && (
-                  <span
-                    className={LINKED_TILE_META_CHIP_CLASS}
-                    style={{ backgroundColor: linkedGrapeColorColors.bg, borderColor: linkedGrapeColorColors.border, color: linkedGrapeColorColors.text }}
-                  >
-                    {linkedGrapeColor}
-                  </span>
+                {linkedGrapeColorLabel && (
+                  <Chip label={formatUpper(linkedGrapeColorLabel)} colorStyle={getGrapeColorChipColors(linkedGrapeColorLabel)} />
                 )}
-                {linkedGrapeBody && linkedGrapeBodyColors && (
-                  <span
-                    className={LINKED_TILE_META_CHIP_CLASS}
-                    style={{ backgroundColor: linkedGrapeBodyColors.bg, borderColor: linkedGrapeBodyColors.border, color: linkedGrapeBodyColors.text }}
-                  >
-                    {formatUpper(linkedGrapeBody)}
-                  </span>
+                {linkedGrapeBodyLabel && (
+                  <Chip label={formatUpper(linkedGrapeBodyLabel)} colorStyle={getGrapeBodyChipColors(linkedGrapeBodyLabel)} />
                 )}
                 {linkedOrigin && (
-                  <span
-                    className={LINKED_TILE_META_CHIP_CLASS}
-                    style={{ backgroundColor: linkedOriginColors.bg, borderColor: linkedOriginColors.border, color: linkedOriginColors.text }}
-                  >
-                    {formatUpper(linkedOrigin)}
-                  </span>
-                )}
-                {linkedRarity && (
-                  <span
-                    className={LINKED_TILE_META_CHIP_CLASS}
-                    style={{ backgroundColor: linkedRarityColors.bg, borderColor: linkedRarityColors.border, color: linkedRarityColors.text }}
-                  >
-                    {formatUpper(linkedRarity)}
-                  </span>
+                  <Chip label={formatUpper(linkedOrigin)} colorStyle={linkedOriginColors} />
                 )}
               </div>
             )}
@@ -741,11 +572,11 @@ const EntryDetail: React.FC<EntryDetailProps> = ({ entry: initialEntry, onBack, 
   // Header Tiles Logic - Updated to remove rarity from regions/styles, add rarity clickable for grapes
   const renderHeaderTiles = () => {
       // New 3-tile visual language
-      const tileBase = "flex flex-col items-center justify-start p-0 w-full border-0 bg-transparent group relative";
-      const tileRowStyle = "grid grid-cols-3 gap-2 px-1 mb-3";
-      const labelStyle = "font-retro text-[10px] md:text-[11px] tracking-normal text-green-500 z-10 whitespace-nowrap leading-none w-full text-center";
-      const chipStyle = "inline-flex items-center justify-center px-1.5 py-1 rounded border font-retro text-[8px] md:text-[9px] tracking-normal leading-tight uppercase z-10 text-center mt-1";
-      const iconRowStyle = "h-8 flex items-center justify-center mt-1";
+      const tileBase = "flex flex-col items-center justify-start pt-1 pb-1 w-full border-0 bg-transparent group relative";
+      const tileRowStyle = "grid grid-cols-3 gap-3 px-2 py-1 mb-3";
+      const labelStyle = "font-retro text-[10px] md:text-[11px] tracking-normal text-green-500 z-10 whitespace-nowrap leading-none w-full text-center mb-2";
+      const chipStyle = "inline-flex items-center justify-center px-2 py-1 rounded border font-retro text-[8px] md:text-[9px] tracking-normal leading-tight uppercase z-10 text-center mt-2";
+      const iconRowStyle = "h-10 flex items-center justify-center mb-1";
       const getTileRowClass = (tileCount: number) =>
         tileCount === 2 ? 'grid grid-cols-2 gap-2 px-1 mb-3' : tileRowStyle;
       
@@ -754,46 +585,42 @@ const EntryDetail: React.FC<EntryDetailProps> = ({ entry: initialEntry, onBack, 
       }
 
       if (isGrapes) {
+          // Tile 1: Color Grape
           const headerTileIconSize = 32;
-          const grapeColorLabel = getGrapeColorLabel(entry);
-          const grapeColorColors = getGrapeColorChipColors(grapeColorLabel);
-          const grapeBodyLabel = getGrapeBodyLabel(entry);
-          const grapeBodyColors = getGrapeBodyChipColors(grapeBodyLabel);
-          const bodyFilterValue = getGrapeBodyFilterValue(grapeBodyLabel, grapeColorLabel);
+          const colorType = grapeCard?.type === 'red' ? 'RED' : 'WHITE';
+          const colorTypeColors = getColorTypeColors(colorType);
+          const colorIconNode = colorType === 'RED' ? <Wine size={headerTileIconSize} /> : <GlassWater size={headerTileIconSize} />;
           const countryStyle = getCountryChipColors(entry.details.origin);
-          const countryFlagGradient = getFlagGradient(entry.details.origin);
-          const countryFlagImage = getFlagImage(entry.details.origin);
+          const normalizedOrigin = entry.details.origin ? entry.details.origin.toLowerCase().trim() : undefined;
+          const countryFlagGradient = getFlagGradient(normalizedOrigin);
+          const countryFlagImage = getFlagImage(normalizedOrigin);
 
           return (
               <div className={getTileRowClass(3)}>
-                  {/* Tile 1: Color */}
-                  <button 
-                    onClick={() => onFilterByType(grapeColorLabel, 'STYLES')}
-                    className={tileBase}
-                    style={{ backgroundColor: 'transparent', borderColor: 'transparent', color: '#22c55e' }}
-                  >
+                  {/* Tile 1: Color Grape */}
+                  <div className={tileBase} style={{ backgroundColor: 'transparent', borderColor: 'transparent', color: '#22c55e' }}>
                       <span className={labelStyle}>COLOR</span>
-                      <div className={iconRowStyle} style={{ color: grapeColorColors.border }}>
-                        <Droplets size={headerTileIconSize} />
+                      <div className={iconRowStyle} style={{ color: colorTypeColors.bg }}>
+                        {colorIconNode}
                       </div>
-                      <span className={chipStyle} style={{ backgroundColor: grapeColorColors.bg, borderColor: grapeColorColors.border, color: grapeColorColors.text }}>
-                        {grapeColorLabel}
+                      <span className={chipStyle} style={{ backgroundColor: colorTypeColors.bg, borderColor: colorTypeColors.border, color: colorTypeColors.text }}>
+                        {colorType}
                       </span>
-                  </button>
+                  </div>
 
-                  {/* Tile 2: Body */}
+                  {/* Tile 2: Type (was rarity) */}
                   <button 
-                    onClick={() => onFilterByType(bodyFilterValue, 'GRAPES')}
+                    onClick={() => grapeCard?.style && onFilterByType?.(normalizeTypeClass(grapeCard.style), 'GRAPES')}
                     className={tileBase}
                     style={{ backgroundColor: 'transparent', borderColor: 'transparent', color: '#22c55e' }}
                   >
-                       <span className={labelStyle}>BODY</span>
-                       <div className={iconRowStyle} style={{ color: grapeBodyColors.border }}>
-                         {getTypeIcon(bodyFilterValue, headerTileIconSize)}
-                       </div>
-                       <span className={chipStyle} style={{ backgroundColor: grapeBodyColors.bg, borderColor: grapeBodyColors.border, color: grapeBodyColors.text }}>
-                         {formatUpper(grapeBodyLabel)}
-                       </span>
+                      <span className={labelStyle}>TYPE</span>
+                      <div className={iconRowStyle}>
+                        <Grape size={headerTileIconSize} />
+                      </div>
+                      <span className={chipStyle} style={{ backgroundColor: '#222', borderColor: '#16a34a', color: '#bbf7d0' }}>
+                        {normalizeTypeClass(grapeCard?.style)}
+                      </span>
                   </button>
 
                   {/* Tile 3: Country */}
@@ -804,14 +631,18 @@ const EntryDetail: React.FC<EntryDetailProps> = ({ entry: initialEntry, onBack, 
                   >
                        <span className={labelStyle}>ORIGIN</span>
                        <div className={iconRowStyle}>
-                         <span 
-                          className="w-12 h-8 rounded-sm border border-stone-700 shadow-inner" 
-                           style={{
-                             backgroundImage: countryFlagImage ? `url(${countryFlagImage})` : countryFlagGradient,
-                             backgroundSize: countryFlagImage ? 'cover' : undefined,
-                             backgroundPosition: countryFlagImage ? 'center' : undefined
-                           }}
-                         ></span>
+                         <div className="w-12 h-12 rounded border-2 border-white shadow-inner bg-stone-900 flex-shrink-0 overflow-hidden flex items-center justify-center">
+                           {countryFlagImage ? (
+                             <img
+                                 src={countryFlagImage}
+                                 alt={entry.details.origin}
+                                 style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }}
+                                 draggable={false}
+                               />
+                           ) : (
+                             <span className="w-full h-full block" style={{ background: countryFlagGradient }} />
+                           )}
+                         </div>
                        </div>
                        <span className={chipStyle} style={{ backgroundColor: countryStyle.bg, borderColor: countryStyle.border, color: countryStyle.text }}>
                          {formatUpper(entry.details.origin)}
@@ -821,19 +652,21 @@ const EntryDetail: React.FC<EntryDetailProps> = ({ entry: initialEntry, onBack, 
           );
       } else if (isRegion) {
       const mainGrape = entry.details.notableGrapes?.[0] || 'N/A';
-      const mainGrapeEntry = getRelatedEntry(mainGrape);
+      const mainGrapeEntry = getRelatedEntry(mainGrape, 'GRAPES');
       const mainGrapeTypeColors = getTypeTileColors(mainGrapeEntry?.wineType);
-      const mainGrapeVisual = resolveEntryIconVisual(mainGrapeEntry, {
-        size: 32,
-        resolver: entryVisualResolver,
-        includeRegionClimateOutline: true,
-      });
-      const mainGrapeIconNode = mainGrapeVisual.iconNode;
-      const mainGrapeIconColor = mainGrapeTypeColors.bg;
+      // Use the grape's hero image/icon and container, matching the grape detail header
+      const mainGrapeVisual = mainGrapeEntry
+        ? resolveEntryIconVisual(mainGrapeEntry, {
+            size: ICON_SIZE_HEADER,
+            resolver: entryVisualResolver,
+            includeRegionClimateOutline: true,
+          })
+        : undefined;
+      const mainGrapeIconNode = mainGrapeVisual?.iconNode;
+      const mainGrapeIconStyle = mainGrapeVisual?.style;
       const countryStyle = getCountryChipColors(entry.details.origin);
-      const stateStyle = getStateChipColors();
       const climateMeta = entry.climate ? CLIMATE_CLASS_MAP[entry.climate] : undefined;
-      const climateStyle = getClimateColors(entry.climate);
+      const climateStyle = CLIMATE_CHIP_COLOR;
       const flagGradient = getFlagGradient(entry.details.origin);
       const flagImage = getFlagImage(entry.details.origin);
       
@@ -847,14 +680,16 @@ const EntryDetail: React.FC<EntryDetailProps> = ({ entry: initialEntry, onBack, 
                 style={{ backgroundColor: 'transparent', borderColor: 'transparent', color: '#22c55e' }}
               >
                    <span className={labelStyle}>KEY GRAPE</span>
-                   <div className={iconRowStyle} style={{ color: mainGrapeIconColor }}>
-                     {React.isValidElement(mainGrapeIconNode)
-                       ? React.cloneElement(mainGrapeIconNode as React.ReactElement, {
-                           size: 32,
-                           className: mainGrapeIconNode.props.className,
-                           style: { ...(mainGrapeIconNode.props.style || {}), color: mainGrapeIconColor }
-                         })
-                       : mainGrapeIconNode}
+                   <div
+                     className={"w-12 h-12 rounded-lg border border-stone-700 shadow-inner flex items-center justify-center mb-1"}
+                     style={mainGrapeIconStyle}
+                   >
+                     {/* Render the icon at 32px, centered */}
+                     {mainGrapeEntry && resolveEntryIconVisual(mainGrapeEntry, {
+                       size: 32,
+                       resolver: entryVisualResolver,
+                       includeRegionClimateOutline: true,
+                     }).iconNode}
                    </div>
                    <span className={chipStyle} style={{ backgroundColor: mainGrapeTypeColors.bg, borderColor: mainGrapeTypeColors.border, color: mainGrapeTypeColors.text }}>
                      {formatUpper(mainGrape)}
@@ -869,7 +704,7 @@ const EntryDetail: React.FC<EntryDetailProps> = ({ entry: initialEntry, onBack, 
                    <span className={labelStyle}>CLIMATE</span>
                    <div className={iconRowStyle} style={{ color: climateStyle.border }}>
                      {React.isValidElement(getClimateIcon(entry.climate))
-                       ? React.cloneElement(getClimateIcon(entry.climate) as React.ReactElement, { size: 32 })
+                       ? React.cloneElement(getClimateIcon(entry.climate) as React.ReactElement<any>, { size: 32 })
                        : getClimateIcon(entry.climate)}
                    </div>
                    <span className={chipStyle} style={{ backgroundColor: climateStyle.bg, borderColor: climateStyle.border, color: climateStyle.text }}>
@@ -885,23 +720,22 @@ const EntryDetail: React.FC<EntryDetailProps> = ({ entry: initialEntry, onBack, 
               >
                    <span className={labelStyle}>COUNTRY</span>
                    <div className={iconRowStyle}>
-                       <span 
-                        className="w-12 h-8 rounded-sm border border-stone-700 shadow-inner" 
-                       style={{
-                         backgroundImage: flagImage ? `url(${flagImage})` : flagGradient,
-                         backgroundSize: flagImage ? 'cover' : undefined,
-                         backgroundPosition: flagImage ? 'center' : undefined
-                       }}
-                     ></span>
+                     <div className="w-12 h-12 rounded border-2 border-white shadow-inner bg-stone-900 flex-shrink-0 overflow-hidden flex items-center justify-center">
+                       {flagImage ? (
+                         <img
+                           src={flagImage}
+                           alt={entry.details.origin}
+                           style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }}
+                           draggable={false}
+                         />
+                       ) : (
+                         <span className="w-full h-full block" style={{ background: flagGradient }} />
+                       )}
+                     </div>
                    </div>
                    <span className={chipStyle} style={{ backgroundColor: countryStyle.bg, borderColor: countryStyle.border, color: countryStyle.text }}>
                      {formatUpper(entry.details.origin)}
                    </span>
-                       {entry.details.origin === 'USA' && entry.details.state && (
-                         <span className={chipStyle} style={{ backgroundColor: stateStyle.bg, borderColor: stateStyle.border, color: stateStyle.text }}>
-                           {formatUpper(entry.details.state)}
-                         </span>
-                       )}
               </button>
               </div>
           );
@@ -979,7 +813,7 @@ const EntryDetail: React.FC<EntryDetailProps> = ({ entry: initialEntry, onBack, 
               <span className={labelStyle}>{originLabel}</span>
               <div className={iconRowStyle}>
                 <span
-                  className="w-12 h-8 rounded-sm border border-stone-700 shadow-inner"
+                  className="w-12 h-8 rounded-sm border-2 border-white shadow-inner"
                   style={{
                     backgroundImage: flagImage ? `url(${flagImage})` : flagGradient,
                     backgroundSize: flagImage ? 'cover' : undefined,
@@ -1086,17 +920,19 @@ const EntryDetail: React.FC<EntryDetailProps> = ({ entry: initialEntry, onBack, 
                     resolver: entryVisualResolver,
                     includeRegionClimateOutline: true,
                   });
+                  // Hero: same width as before, height matches flag (h-8)
+                  // Make hero icon bigger and perfectly square
                   return (
                     <div
-                      className={`${CONTAINER_SIZE_HEADER} ${HEADER_BORDER_CLASS} mb-3 flex items-center justify-center ${HEADER_BORDER} ${CONTAINER_SHADOW_CLASS}`}
+                      className={`w-20 h-20 ${HEADER_BORDER_CLASS} border-2 ${isCountry || isState ? 'border-white' : 'border-black/30'} shadow-inner flex items-center justify-center mb-4 bg-stone-900`}
                       style={headerVisual.style}
                     >
                       {headerVisual.iconNode}
                     </div>
                   );
                 })()}
-                <h1 className="text-2xl md:text-3xl lg:text-4xl font-retro text-white drop-shadow-[4px_4px_0px_rgba(0,100,0,0.8)] tracking-wide leading-tight break-words whitespace-normal uppercase w-full" style={{ wordBreak: 'break-word', overflowWrap: 'break-word' }}>
-                    {entry.name}
+                <h1 className="text-2xl md:text-3xl lg:text-4xl font-retro text-white drop-shadow-[4px_4px_0px_rgba(0,100,0,0.8)] tracking-wide leading-tight break-words whitespace-normal uppercase w-full mt-4 mb-2" style={{ wordBreak: 'break-word', overflowWrap: 'break-word' }}>
+                  {entry.name}
                 </h1>
              </div>
         </div>
@@ -1114,23 +950,77 @@ const EntryDetail: React.FC<EntryDetailProps> = ({ entry: initialEntry, onBack, 
               </div>
               <div className="border-l-4 border-green-700 pl-4 py-3 bg-green-900/5">
                   <p className="text-lg md:text-xl leading-relaxed text-green-200 font-medium break-words whitespace-normal normal-case">
-                      {entry.description}
+                      {grapeCard?.info || entry.description}
                   </p>
               </div>
-              {isUsaCountry && onViewStates && (
-                <button
-                  type="button"
-                  onClick={onViewStates}
-                  className="mt-3 inline-flex items-center justify-center px-4 py-2.5 rounded border border-cyan-500 bg-cyan-950 text-cyan-100 font-retro text-sm md:text-base tracking-widest uppercase hover:bg-cyan-900 active:translate-y-px transition-colors"
-                >
-                  VIEW STATES
-                </button>
-              )}
+          </div>
+        )}
+
+        {/* Search States Button - USA only */}
+        {isCountry && entry.name === 'USA' && onViewStates && (
+          <div className="mb-6">
+            <div className="flex items-center gap-2 mb-2 border-b-2 border-green-800 pb-1">
+              <MapPinned size={18} className="text-green-500" />
+              <span className="font-retro text-xs md:text-sm tracking-widest text-green-500">STATES</span>
+            </div>
+            <button
+              onClick={onViewStates}
+              className="w-full flex items-center justify-center gap-3 px-6 py-3 bg-stone-900 border-2 border-stone-700 hover:border-green-500 hover:bg-stone-800 rounded transition-all group"
+            >
+              <MapPinned size={20} className="text-green-500 group-hover:text-green-400" />
+              <span className="font-retro text-base tracking-widest text-green-500 group-hover:text-green-400">SEARCH STATES</span>
+            </button>
+          </div>
+        )}
+
+        {/* Main Grapes Section - States */}
+        {isState && entry.details.notableGrapes && entry.details.notableGrapes.length > 0 && (
+          <div className="mb-6">
+            <div className="flex items-center gap-2 mb-2 border-b-2 border-green-800 pb-1">
+              <Leaf size={18} className="text-green-500" />
+              <span className="font-retro text-xs md:text-sm tracking-widest text-green-500">MAIN GRAPES</span>
+            </div>
+            <div className="space-y-2">
+              {entry.details.notableGrapes.slice(0, 3).map((grape, idx) => renderLinkedTile(grape, idx))}
+            </div>
+          </div>
+        )}
+
+        {/* Appellation Systems Section - States */}
+        {isState && entry.tags && entry.tags.filter(t => t !== 'STATE').length > 0 && (
+          <div className="mb-6">
+            <div className="flex items-center gap-2 mb-2 border-b-2 border-green-800 pb-1">
+              <Shield size={18} className="text-green-500" />
+              <span className="font-retro text-xs md:text-sm tracking-widest text-green-500">APPELLATION SYSTEMS</span>
+            </div>
+            <div className="flex flex-wrap gap-2">
+              {entry.tags.filter(t => t !== 'STATE').map((system, idx) => {
+                const c = APPELLATION_CHIP_COLORS[idx % 3];
+                return (
+                  <span key={idx} className="px-4 py-2 rounded text-xl font-bold font-mono tracking-widest" style={{ backgroundColor: c.bg, border: `1px solid ${c.border}`, color: c.text }}>
+                    {extractTagAbbrev(system)}
+                  </span>
+                );
+              })}
+            </div>
+          </div>
+        )}
+
+        {/* Key Regions Section - States */}
+        {isState && entry.details.keyRegions && entry.details.keyRegions.length > 0 && (
+          <div className="mb-6">
+            <div className="flex items-center gap-2 mb-2 border-b-2 border-green-800 pb-1">
+              <MapPin size={18} className="text-green-500" />
+              <span className="font-retro text-xs md:text-sm tracking-widest text-green-500">KEY REGIONS</span>
+            </div>
+            <div className="space-y-2">
+              {entry.details.keyRegions.slice(0, 6).map((item, idx) => renderLinkedTile(item, idx, { showRegionMetaTiles: true }))}
+            </div>
           </div>
         )}
 
         {/* Main Grapes Section - Countries */}
-        {(isCountry || isState) && entry.details.notableGrapes && entry.details.notableGrapes.length > 0 && (
+        {isCountry && entry.details.notableGrapes && entry.details.notableGrapes.length > 0 && (
           <div className="mb-6">
               <div className="flex items-center gap-2 mb-2 border-b-2 border-green-800 pb-1">
                   <Leaf size={18} className="text-green-500" />
@@ -1143,33 +1033,19 @@ const EntryDetail: React.FC<EntryDetailProps> = ({ entry: initialEntry, onBack, 
         )}
 
         {/* System Section - Appellation Systems for Countries */}
-        {(isCountry || isState) && entry.tags && entry.tags.length > 0 && (
+        {isCountry && entry.tags && entry.tags.length > 0 && (
           <div className="mb-6">
               <div className="flex items-center gap-2 mb-2 border-b-2 border-green-800 pb-1">
                   <Shield size={18} className="text-green-500" />
                   <span className="font-retro text-xs md:text-sm tracking-widest text-green-500">APPELLATION SYSTEMS</span>
               </div>
               <div className="flex flex-wrap gap-2">
-                {entry.tags.filter(tag => tag !== 'COUNTRY' && tag !== 'STATE').map((system, idx) => {
-                  const { shortName, fullName } = getAppellationSystemParts(system);
-                  const systemColors = getClassificationColors(shortName);
+                {entry.tags.filter(tag => tag !== 'COUNTRY').map((system, idx) => {
+                  const c = APPELLATION_CHIP_COLORS[idx % 3];
                   return (
-                    <div key={idx} className="inline-flex max-w-full items-stretch rounded overflow-hidden">
-                      <span
-                        className="inline-flex shrink-0 items-center justify-center px-4 py-2.5 text-base md:text-lg font-bold font-mono rounded-l uppercase"
-                        style={{ backgroundColor: systemColors.bg, borderColor: systemColors.border, color: systemColors.text, border: `1px solid ${systemColors.border}` }}
-                      >
-                        {shortName}
-                      </span>
-                      <button
-                        type="button"
-                        disabled
-                        className="min-w-0 max-w-[18rem] px-3 py-2.5 text-base md:text-lg font-semibold font-mono tracking-wide leading-tight uppercase whitespace-nowrap overflow-hidden text-ellipsis rounded-r border-l-0 cursor-default opacity-100"
-                        style={{ backgroundColor: '#1c1917', borderColor: systemColors.border, color: '#f5f5f4', border: `1px solid ${systemColors.border}` }}
-                      >
-                        {fullName}
-                      </button>
-                    </div>
+                    <span key={idx} className="px-4 py-2 rounded text-xl font-bold font-mono tracking-widest" style={{ backgroundColor: c.bg, border: `1px solid ${c.border}`, color: c.text }}>
+                      {extractTagAbbrev(system)}
+                    </span>
                   );
                 })}
               </div>
@@ -1177,7 +1053,7 @@ const EntryDetail: React.FC<EntryDetailProps> = ({ entry: initialEntry, onBack, 
         )}
 
         {/* Key Regions Section - Countries with Regions */}
-        {(isCountry || isState) && entry.details.keyRegions && entry.details.keyRegions.length > 0 && (
+        {isCountry && entry.details.keyRegions && entry.details.keyRegions.length > 0 && (
           <div className="mb-6">
               <div className="flex items-center gap-2 mb-2 border-b-2 border-green-800 pb-1">
                   <MapPin size={18} className="text-green-500" />
@@ -1199,45 +1075,50 @@ const EntryDetail: React.FC<EntryDetailProps> = ({ entry: initialEntry, onBack, 
                 {grapeAlternateNames.length > 0 ? (
                   <div className="flex flex-wrap gap-2">
                       {grapeAlternateNames.map((name, i) => (
-                          <span key={i} className="px-3 py-1.5 bg-stone-800 text-stone-200 border border-stone-600 text-base md:text-lg font-bold font-mono rounded">
+                          <span key={i} className="px-4 py-2 bg-stone-800 text-stone-200 border border-stone-600 text-xl font-bold font-mono rounded tracking-widest">
                               {name}
                           </span>
                       ))}
                   </div>
                 ) : (
                   <div className="border border-stone-700 bg-stone-900/80 rounded p-3">
-                    <p className="text-sm text-stone-300">No alternate names listed.</p>
+                    <p className="text-xl font-bold font-mono text-stone-300 tracking-widest">NO ALTERNATE NAMES LISTED.</p>
                   </div>
                 )}
             </div>
         )}
 
-        {isGrapes && entry.rarity && (
-          <div className="mb-6">
-              <div className="flex items-center gap-2 mb-3 border-b-2 border-green-800 pb-1">
-                  <Crown size={18} className="text-green-500" />
-                  <span className="font-retro text-xs md:text-sm tracking-widest text-green-500">RARITY</span>
-              </div>
-              <button
-                type="button"
-                onClick={() => onFilterByRarity?.(entry.rarity!)}
-                className="w-full bg-stone-900 border border-stone-800 rounded p-3 flex items-center justify-between gap-3 text-left hover:border-green-500 transition-colors"
-              >
-                <span
-                  className="inline-flex items-center justify-center px-3 py-1 rounded border font-retro text-[10px] md:text-xs uppercase"
-                  style={{ backgroundColor: grapeRarityColors?.bg, borderColor: grapeRarityColors?.border, color: grapeRarityColors?.text }}
-                >
-                  {displayClass}
-                </span>
-                <span className="inline-flex min-w-[5.5rem] items-center justify-end px-1 py-1">
-                  {grapeRarityIcon}
-                </span>
-              </button>
-          </div>
+        {/* Rarity Section - Grapes */}
+        {isGrapes && (
+            <div className="mb-6">
+                <div className="flex items-center gap-2 mb-3 border-b-2 border-green-800 pb-1">
+                    <Star size={24} className="text-green-400" />
+                    <span className="font-retro text-xs md:text-sm tracking-widest text-green-400">RARITY</span>
+                </div>
+                <div className="flex items-center gap-4">
+                  <span className="flex-1 flex items-center px-6 py-3 rounded-full border-2 border-green-500 bg-green-950 text-2xl font-extrabold uppercase text-green-300 justify-between" style={{ fontSize: '2rem', letterSpacing: '0.1em' }}>
+                    {displayClass}
+                    <span className="ml-4 flex items-center">
+                      {(() => {
+                        const rarity = (entry.rarity || '').toUpperCase();
+                        if (rarity === 'NOBLE') {
+                          return <Crown size={40} className="text-yellow-400 ml-2" />;
+                        }
+                        const starCount = rarity === 'RARE' ? 3 : rarity === 'COMMON' ? 2 : rarity === 'UNCOMMON' ? 1 : 1;
+                        return Array.from({ length: starCount }).map((_, i) => (
+                          <Star key={i} size={36} className="text-yellow-400 ml-1" fill="#facc15" />
+                        ));
+                      })()}
+                    </span>
+                  </span>
+                </div>
+            </div>
         )}
 
+
+
         {/* Stats Section - Only for GRAPES */}
-        {isGrapes && grapeCharacteristics && (
+        {isGrapes && grapeCard && (
             <div className="mb-6">
                 <div className="flex items-center gap-2 mb-2 border-b-2 border-green-800 pb-1">
                     <Activity size={18} className="text-green-500" />
@@ -1245,14 +1126,14 @@ const EntryDetail: React.FC<EntryDetailProps> = ({ entry: initialEntry, onBack, 
                 </div>
                 <div className="space-y-4 bg-stone-900 p-3 rounded border border-stone-800">
                     {([
-                      { label: 'BODY', value: grapeCharacteristics.body, color: 'bg-green-500' },
-                      { label: 'ACID', value: grapeCharacteristics.acid, color: 'bg-yellow-500' },
-                      { label: 'TANNIN', value: grapeCharacteristics.tannin, color: 'bg-red-500' },
-                      { label: 'AROMATICS', value: grapeCharacteristics.aromatics, color: 'bg-purple-400' },
-                      { label: 'COLOR', value: grapeCharacteristics.colorIntensity, color: 'bg-amber-500' },
+                      { label: 'BODY', value: grapeCard.characteristics.body, color: 'bg-green-500' },
+                      { label: 'ACID', value: grapeCard.characteristics.acid, color: 'bg-yellow-500' },
+                      { label: 'TANNIN', value: grapeCard.characteristics.tannin, color: 'bg-red-500' },
+                      { label: 'AROMATICS', value: grapeCard.characteristics.aromatics, color: 'bg-purple-400' },
+                      { label: 'COLOR', value: grapeCard.characteristics.colorIntensity, color: 'bg-amber-500' },
                     ]).map(stat => (
                       <div className="flex items-center gap-3" key={stat.label}>
-                          <span className="w-20 text-xs font-bold text-stone-500 shrink-0">{stat.label}</span>
+                          <span className="w-24 text-base font-bold text-white font-mono tracking-widest shrink-0">{stat.label}</span>
                           <div className="flex-1 h-2 bg-stone-800 flex gap-0.5">
                               {Array.from({ length: 5 }).map((_, i) => (
                                   <div key={i} className={`flex-1 ${i < stat.value ? stat.color : 'bg-transparent'} transition-all`}></div>
@@ -1267,23 +1148,14 @@ const EntryDetail: React.FC<EntryDetailProps> = ({ entry: initialEntry, onBack, 
         {/* System Section - Regions */}
         {isRegion && entry.details.classification && (
             <div className="mb-6">
-                <div className="flex items-center gap-2 mb-3 border-b-2 border-green-800 pb-1">
+                <div className="flex items-center gap-2 mb-2 border-b-2 border-green-800 pb-1">
                     <Shield size={18} className="text-green-500" />
-                    <span className="font-retro text-xs md:text-sm tracking-widest text-green-500">SYSTEM</span>
+                    <span className="font-retro text-xs md:text-sm tracking-widest text-green-500">APPELLATION SYSTEMS</span>
                 </div>
-                <div className="bg-stone-900 border border-stone-800 rounded p-3 space-y-2">
-                    <div className="flex items-center gap-2 flex-wrap">
-                        <span
-                          className="px-2 py-1 rounded border text-xs font-bold uppercase"
-                          style={(() => {
-                            const style = getClassificationColors(entry.details.classification);
-                            return { backgroundColor: style.bg, borderColor: style.border, color: style.text };
-                          })()}
-                        >
-                          {entry.details.classification}
-                        </span>
-                        <span className="text-lg font-bold text-white leading-tight">{getClassificationFullName(entry.details.classification)}</span>
-                    </div>
+                <div className="flex flex-wrap gap-2">
+                    <span className="px-4 py-2 rounded text-xl font-bold font-mono tracking-widest" style={{ backgroundColor: SYSTEM_CHIP_COLOR.bg, border: `1px solid ${SYSTEM_CHIP_COLOR.border}`, color: SYSTEM_CHIP_COLOR.text }}>
+                      {extractTagAbbrev(entry.details.classification || '')}
+                    </span>
                 </div>
             </div>
         )}
@@ -1299,7 +1171,7 @@ const EntryDetail: React.FC<EntryDetailProps> = ({ entry: initialEntry, onBack, 
                 </div>
                 <div className="grid grid-cols-2 gap-2">
                     {entry.details.appellations.map((appellation, i) => (
-                        <div key={i} className="px-3 py-2 bg-stone-800 text-stone-200 border border-stone-600 text-sm font-bold font-mono rounded text-center">
+                        <div key={i} className="px-4 py-2 bg-stone-800 text-stone-200 border border-stone-600 text-xl font-bold font-mono rounded text-center tracking-widest">
                             {appellation}
                         </div>
                     ))}
@@ -1320,6 +1192,19 @@ const EntryDetail: React.FC<EntryDetailProps> = ({ entry: initialEntry, onBack, 
             </div>
         )}
 
+        {/* Notable Regions Section - Grapes */}
+        {isGrapes && listSectionData && listSectionData.length > 0 && (
+            <div className="mb-6">
+                <div className="flex items-center gap-2 mb-3 border-b-2 border-green-800 pb-1">
+                   <MapPin size={18} className="text-green-500" />
+                   <span className="font-retro text-xs md:text-sm tracking-widest text-green-500">NOTABLE REGIONS</span>
+                </div>
+                <div className="grid grid-cols-1 gap-2">
+                     {listSectionData.slice(0, 8).map((item, idx) => renderLinkedTile(item, idx, { showRegionMetaTiles: true }))}
+                </div>
+            </div>
+        )}
+
         {/* Countries Section - Continents */}
         {isContinent && listSectionData && listSectionData.length > 0 && (
             <div className="mb-6">
@@ -1336,22 +1221,14 @@ const EntryDetail: React.FC<EntryDetailProps> = ({ entry: initialEntry, onBack, 
         {/* Climate Section - Regions */}
         {isRegion && (
             <div className="mb-6">
-                <div className="flex items-center gap-2 mb-3 border-b-2 border-green-800 pb-1">
+                <div className="flex items-center gap-2 mb-2 border-b-2 border-green-800 pb-1">
                     <Wind size={18} className="text-green-500" />
                     <span className="font-retro text-xs md:text-sm tracking-widest text-green-500">CLIMATE</span>
                 </div>
-                <div className="bg-stone-900 border border-stone-800 rounded p-3 space-y-2">
-                    <div className="flex items-center gap-2">
-                        <span
-                          className="px-2 py-1 rounded border text-xs font-bold uppercase"
-                          style={{ backgroundColor: getClimateColors(entry.climate).bg, borderColor: getClimateColors(entry.climate).border, color: getClimateColors(entry.climate).text }}
-                        >
-                          {(entry.climate && CLIMATE_CLASS_MAP[entry.climate]?.name) || 'Unknown Climate'}
-                        </span>
-                    </div>
-                    <p className="text-sm text-stone-300 leading-relaxed normal-case">
-                        {entry.climateDescription || (entry.climate && CLIMATE_CLASS_MAP[entry.climate]?.description) || 'Climate details not available for this region.'}
-                    </p>
+                <div className="flex flex-wrap gap-2">
+                    <span className="px-4 py-2 rounded text-xl font-bold font-mono tracking-widest" style={{ backgroundColor: CLIMATE_CHIP_COLOR.bg, border: `1px solid ${CLIMATE_CHIP_COLOR.border}`, color: CLIMATE_CHIP_COLOR.text }}>
+                      {(entry.climate && CLIMATE_CLASS_MAP[entry.climate]?.name) || 'Unknown Climate'}
+                    </span>
                 </div>
             </div>
         )}
@@ -1390,7 +1267,7 @@ const EntryDetail: React.FC<EntryDetailProps> = ({ entry: initialEntry, onBack, 
             </div>
         )}
 
-        {/* Tasting Notes Section - Clickable (For Grapes only) */}
+        {/* Tasting Notes Section - List Tile (For Grapes only) */}
         {isGrapes && (
             <div className="mb-6">
                 <div className="flex items-center gap-2 mb-3 border-b-2 border-green-800 pb-1">
@@ -1398,31 +1275,40 @@ const EntryDetail: React.FC<EntryDetailProps> = ({ entry: initialEntry, onBack, 
                     <span className="font-retro text-xs md:text-sm tracking-widest text-green-500">FLAVOR PROFILE</span>
                 </div>
                 {matchedFlavorNotes.length > 0 ? (
-                  <div className={flavorTileContainerClass}>
-                      {matchedFlavorNotes.map((note, i) => {
-                          const { relatedFlavor, iconNode, borderColor, bgColor, label } = getFlavorTileVisual(note);
-                          return (
-                          <button 
-                              key={i} 
-                              onClick={() => relatedFlavor ? onSelectRelated(relatedFlavor) : onFilterByNote(label, 'FLAVORS', 'TASTING')}
-                              className={`w-full bg-stone-900 border-2 rounded p-3 flex flex-col items-center justify-center gap-2 relative overflow-hidden group transition-all text-center min-h-[7rem] ${
-                                relatedFlavor ? 'border-stone-700 hover:border-green-500 hover:bg-stone-800 active:translate-y-0.5' : 'border-stone-800 opacity-70 cursor-default'
-                              }`}
-                              disabled={!relatedFlavor}
+                  <div className="flex flex-col gap-2 w-full">
+                    {matchedFlavorNotes.map((note, i) => {
+                      // Get icon, color, and label
+                      const { iconNode, borderColor, bgColor, label } = getFlavorTileVisual(note);
+                      // Get class and type
+                      const subclass = categorizeFlavorSubclass(label);
+                      const flavorClass = categorizeFlavor(label, subclass);
+                      const classColor = getFlavorClassChipColors(flavorClass);
+                      const typeColor = getFlavorSubclassChipColors(subclass);
+                      return (
+                        <div
+                          key={i}
+                          className="w-full bg-stone-900 border-2 border-stone-700 rounded p-2 flex items-center gap-3 relative overflow-hidden min-h-[4.5rem]"
+                        >
+                          {/* Hero Icon */}
+                          <div
+                            className={`shrink-0 ${CONTAINER_SIZE_LIST} ${CONTAINER_BORDER_CLASS} ${CONTAINER_SHADOW_CLASS} flex items-center justify-center ${CONTAINER_BORDER}`}
+                            style={{ backgroundColor: bgColor, borderColor }}
                           >
-                              <div className="absolute top-0 right-0 w-2 h-2 border-t-2 border-r-2 border-stone-600 group-hover:border-green-400 transition-colors"></div>
-                              <div className="absolute bottom-0 left-0 w-2 h-2 border-b-2 border-l-2 border-stone-600 group-hover:border-green-400 transition-colors"></div>
-                              <div 
-                                  className="shrink-0 w-12 h-12 rounded-lg flex items-center justify-center shadow-inner border-2 border-black/20"
-                                  style={{ backgroundColor: bgColor, borderColor }}
-                              >
-                                  {iconNode}
-                              </div>
-                              <span className="font-retro text-sm text-white uppercase leading-tight break-words group-hover:text-green-300 max-w-full">
-                                {label}
-                              </span>
-                          </button>
-                      )})}
+                            {iconNode}
+                          </div>
+                          {/* Name and Chips */}
+                          <div className="flex flex-col flex-1 min-w-0 justify-center h-full items-start py-1">
+                            <span className="font-retro text-base text-white leading-tight tracking-tight whitespace-normal break-words">
+                              {label.toUpperCase()}
+                            </span>
+                            <div className="flex gap-1 mt-1">
+                              <Chip label={flavorClass} colorStyle={classColor} />
+                              <Chip label={subclass.replace(/_/g, ' ')} colorStyle={typeColor} />
+                            </div>
+                          </div>
+                        </div>
+                      );
+                    })}
                   </div>
                 ) : (
                   <div className="border border-stone-700 bg-stone-900/80 rounded p-3">
@@ -1458,24 +1344,6 @@ const EntryDetail: React.FC<EntryDetailProps> = ({ entry: initialEntry, onBack, 
             </div>
         )}
 
-        {/* Dynamic List Section - Notable Regions (for Grapes) */}
-        {isGrapes && (
-            <div className="mb-6">
-                <div className="flex items-center gap-2 mb-3 border-b-2 border-green-800 pb-1">
-                   <List size={18} className="text-green-500" />
-                   <span className="font-retro text-xs md:text-sm tracking-widest text-green-500">NOTABLE REGIONS</span>
-                </div>
-                {grapeNotableRegions.length > 0 ? (
-                  <div className="grid grid-cols-1 gap-2">
-                       {grapeNotableRegions.slice(0, 8).map((item, idx) => renderLinkedTile(item, idx))}
-                  </div>
-                ) : (
-                  <div className="border border-stone-700 bg-stone-900/80 rounded p-3">
-                    <p className="text-sm text-stone-300">No notable regions listed.</p>
-                  </div>
-                )}
-            </div>
-        )}
 
         {/* Flavor entries: notable grapes */}
         {isFlavor && entry.details.notableGrapes && entry.details.notableGrapes.length > 0 && (

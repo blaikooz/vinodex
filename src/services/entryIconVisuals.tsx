@@ -441,16 +441,22 @@ export const resolveEntryIconVisual = (
 			}
 		}
 
-		return {
-			style: {
-				backgroundImage: flagImage ? `url(${flagImage})` : flagGradient,
-				backgroundSize: flagImage ? 'cover' : undefined,
-				backgroundPosition: flagImage ? 'center' : undefined,
-				boxShadow: climateOutline ? `0 0 0 2px ${climateOutline}` : undefined,
-			},
-			iconNode: addRegionOutline(buildIconNode(entry.icon || 'default', size, iconColor)),
-			iconColor,
-		};
+			return {
+				style: {
+					boxShadow: climateOutline ? `0 0 0 2px ${climateOutline}` : undefined,
+				},
+				iconNode: flagImage ? (
+					<img
+						src={flagImage}
+						alt={origin}
+						style={{ width: '100%', height: '100%', objectFit: 'fill', display: 'block', borderRadius: '9999px', border: '2px solid #fff' }}
+						draggable={false}
+					/>
+				) : (
+					addRegionOutline(buildIconNode(entry.icon || 'default', size, iconColor))
+				),
+				iconColor,
+			};
 	}
 
 	if (entry.category === 'COUNTRY_GATE') {
@@ -458,15 +464,22 @@ export const resolveEntryIconVisual = (
 		const origin = isUsState ? entry.name : (entry.details.origin || entry.name);
 		const flagImage = getFlagImage(origin, { preferUsState: isUsState });
 		const flagGradient = getFlagGradient(origin);
-		return {
-			style: {
-				backgroundImage: flagImage ? `url(${flagImage})` : flagGradient,
-				backgroundSize: flagImage ? 'cover' : undefined,
-				backgroundPosition: flagImage ? 'center' : undefined,
-			},
-			iconNode: null,
-			iconColor: '#ffffff',
-		};
+        return {
+            style: {
+                overflow: 'hidden',
+            },
+            iconNode: flagImage ? (
+                <img
+                    src={flagImage}
+                    alt={origin}
+                    style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }}
+                    draggable={false}
+                />
+            ) : flagGradient ? (
+                <span className="w-full h-full block" style={{ background: flagGradient }} />
+            ) : null,
+            iconColor: '#ffffff',
+        };
 	}
 
 	if (entry.category === 'STYLES') {

@@ -9,6 +9,7 @@ interface RetroGlobeScreenProps {
   onBack: () => void;
   onHome: () => void;
   onSelectContinent: (continent: string) => void;
+  onWorldSearch: () => void;
 }
 
 const DRAG_SENSITIVITY = 0.005;
@@ -64,9 +65,9 @@ const MARKER_COLORS: Record<string, string> = {
   ...MARKER_COLOR_OVERRIDES,
 };
 
-const RetroGlobeScreen: React.FC<RetroGlobeScreenProps> = ({ onBack, onHome, onSelectContinent }) => {
+const RetroGlobeScreen: React.FC<RetroGlobeScreenProps> = ({ onBack, onHome, onSelectContinent, onWorldSearch }) => {
   const handleWorldSearch = () => {
-    // Handle world search navigation
+    onWorldSearch();
   };
   const [isDragging, setIsDragging] = useState(false);
   const [longitudeDeg, setLongitudeDeg] = useState(0);

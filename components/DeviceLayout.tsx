@@ -33,21 +33,21 @@ const DeviceLayout: React.FC<DeviceLayoutProps> = ({
     : title;
   const backEnabled = showBack && !!onBack;
   const footerTitleSize = footerTitle === 'VINODEX'
-    ? 'text-[1.45rem] md:text-[1.8rem]'
-    : 'text-[1.15rem] md:text-[1.38rem]';
+    ? 'text-[2rem] md:text-[2.3rem]'
+    : 'text-[1.55rem] md:text-[1.8rem]';
   const defaultFooterDisplay = (
-    <div className="w-full max-w-[16.5rem] rounded-xl border-[3px] border-stone-700 bg-black px-4 py-4 shadow-[inset_0_2px_0_rgba(255,255,255,0.08),inset_0_-3px_0_rgba(0,0,0,0.6),inset_0_0_18px_rgba(34,197,94,0.16),0_5px_0_rgba(45,45,45,0.9)]">
-      <div className="flex items-center min-h-[2.6rem] overflow-hidden">
+    <div className="w-full max-w-[16.5rem] rounded-[1.1rem] bg-black px-[0.35rem] py-[0.3rem] border border-white/75 shadow-[inset_0_1px_0_rgba(255,255,255,0.85),0_3px_0_rgba(120,120,120,0.95)]">
+      <div className="flex items-center min-h-[4.1rem] overflow-hidden bg-black rounded-[0.9rem] px-1 shadow-[inset_0_0_18px_rgba(34,197,94,0.16)]">
         <div className={`terminal-marquee whitespace-nowrap ${isMainScreen ? 'terminal-marquee-slow' : ''}`}>
           <span
-            className={`inline-block font-retro ${footerTitleSize} italic tracking-tighter transform -skew-x-12 leading-[0.95] text-green-500 pr-16`}
+            className={`inline-block font-retro ${footerTitleSize} italic tracking-[-0.08em] transform -skew-x-12 leading-none text-green-500 pr-12`}
             style={{ textShadow: '1px 1px 0px rgba(8, 32, 16, 0.65)' }}
           >
             {footerTitle}
           </span>
           <span
             aria-hidden="true"
-            className={`inline-block font-retro ${footerTitleSize} italic tracking-tighter transform -skew-x-12 leading-[0.95] text-green-500 pr-16`}
+            className={`inline-block font-retro ${footerTitleSize} italic tracking-[-0.08em] transform -skew-x-12 leading-none text-green-500 pr-12`}
             style={{ textShadow: '1px 1px 0px rgba(8, 32, 16, 0.65)' }}
           >
             {footerTitle}
@@ -64,7 +64,8 @@ const DeviceLayout: React.FC<DeviceLayoutProps> = ({
   return (
     <div className="flex justify-center items-center min-h-screen bg-neutral-900 p-0 md:p-4 font-mono h-screen md:h-auto overflow-hidden rounded-[2rem]">
       {/* Device Chassis - Red Pokedex Style */}
-      <div className="w-full h-full md:h-[850px] md:w-[522px] bg-dex-red md:rounded-[2.5rem] md:shadow-[0_20px_50px_rgba(220,10,45,0.3)] overflow-hidden relative flex flex-col border-[3px] border-dex-darkRed ring-1 ring-white/10 shadow-[inset_-10px_-10px_30px_rgba(0,0,0,0.2)]">
+      <div className="w-full h-full md:h-[850px] md:w-[522px] bg-dex-red md:rounded-[2.5rem] md:shadow-[0_20px_50px_rgba(220,10,45,0.3)] overflow-hidden relative border-[3px] border-dex-darkRed ring-1 ring-white/10 shadow-[inset_-10px_-10px_30px_rgba(0,0,0,0.2)]">
+        <div className="flex h-full flex-col">
         
         {/* Device Top Bar */}
         {!hideHeader && (
@@ -94,7 +95,8 @@ const DeviceLayout: React.FC<DeviceLayoutProps> = ({
         )}
 
         {/* Screen Container */}
-        <div className="flex-1 min-h-0 bg-dex-ui flex flex-col relative m-2 mt-0 rounded-[2rem] border-l-[6px] border-r-[6px] border-b-[6px] border-t-0 border-stone-400 shadow-inner">
+        <div className="flex-1 min-h-0 pb-[6.5rem] md:pb-[7.25rem]">
+          <div className="h-full bg-dex-ui flex flex-col relative m-2 mt-0 rounded-[2rem] border-l-[6px] border-r-[6px] border-b-[6px] border-t-0 border-stone-400 shadow-inner">
 
           {/* Decorative vents in white bezel - center only */}
           <div className="relative flex items-center justify-center px-4 h-6 opacity-50 shrink-0">
@@ -131,16 +133,18 @@ const DeviceLayout: React.FC<DeviceLayoutProps> = ({
           </div>
 
         </div>
+        </div>
+        </div>
 
         {/* Footer controls */}
-        <footer className="shrink-0 px-3 py-2 grid grid-cols-[auto_1fr_auto] items-center gap-3 bg-dex-red/70">
+        <footer className="absolute inset-x-0 bottom-0 px-3 pt-1 pb-2 grid grid-cols-[auto_1fr_auto] items-center gap-2 bg-dex-red/70">
           <div className="flex justify-start">
             <button
               type="button"
               onClick={onBack}
               disabled={!backEnabled}
               aria-label="Back"
-              className={`relative -translate-y-2 w-16 h-16 md:w-20 md:h-20 rounded-full bg-gradient-to-b from-stone-700 to-stone-950 border-[3px] border-stone-900 shadow-[inset_0_3px_6px_rgba(255,255,255,0.15),0_8px_12px_rgba(0,0,0,0.6)] transition-transform focus:outline-none hover:translate-x-0 hover:scale-[1.02] active:translate-x-[1px] active:scale-[0.98] ${!backEnabled ? 'pointer-events-none' : ''}`}
+              className={`relative -translate-y-1 w-16 h-16 md:w-20 md:h-20 rounded-full bg-gradient-to-b from-stone-700 to-stone-950 border-[3px] border-stone-900 shadow-[inset_0_3px_6px_rgba(255,255,255,0.15),0_8px_12px_rgba(0,0,0,0.6)] transition-transform focus:outline-none hover:translate-x-0 hover:scale-[1.02] active:translate-x-[1px] active:scale-[0.98] ${!backEnabled ? 'pointer-events-none' : ''}`}
             >
               <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
                 <svg viewBox="0 0 24 24" className="w-10 h-10 text-white" fill="none" stroke="currentColor" strokeWidth={4} strokeLinecap="round" strokeLinejoin="round">
@@ -150,7 +154,7 @@ const DeviceLayout: React.FC<DeviceLayoutProps> = ({
             </button>
           </div>
 
-          <div className="flex justify-center items-center px-1 self-center -translate-y-1.5">
+          <div className="flex justify-center items-center px-1 self-center -translate-y-0.5">
             {footerCenter ? (
               <div className="flex items-center justify-center w-full">
                 {footerCenter}
@@ -166,7 +170,7 @@ const DeviceLayout: React.FC<DeviceLayoutProps> = ({
             {onHome && (
               <button
                 onClick={onHome}
-                className="relative -translate-y-2 w-16 h-16 md:w-20 md:h-20 rounded-full bg-gradient-to-b from-amber-200 to-amber-500 border-[3px] border-amber-700 shadow-[inset_0_3px_5px_rgba(255,255,255,0.55),0_8px_12px_rgba(0,0,0,0.45)] active:scale-[0.98] active:shadow-[inset_0_4px_7px_rgba(0,0,0,0.45)] overflow-hidden transition-transform"
+                className="relative -translate-y-1 w-16 h-16 md:w-20 md:h-20 rounded-full bg-gradient-to-b from-amber-200 to-amber-500 border-[3px] border-amber-700 shadow-[inset_0_3px_5px_rgba(255,255,255,0.55),0_8px_12px_rgba(0,0,0,0.45)] active:scale-[0.98] active:shadow-[inset_0_4px_7px_rgba(0,0,0,0.45)] overflow-hidden transition-transform"
                 aria-label="Home"
               >
                 <div className="absolute inset-0 bg-gradient-to-br from-white/35 via-transparent to-black/25 pointer-events-none"></div>

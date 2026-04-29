@@ -4,9 +4,23 @@ import { ChevronRight, Droplet, Heart, Sun, Cloud, Castle, Mountain, Triangle, S
 import { getStylePalette } from '../stylePalette';
 import { CLIMATE_CLASS_MAP } from '../data/climateClasses';
 import { WINE_ENTRIES } from '../constants';
-import { CONTAINER_SIZE_LIST, CONTAINER_BORDER_CLASS, CONTAINER_SHADOW_CLASS, CONTAINER_BORDER, ICON_SIZE_LIST, LIST_TILE_META_CHIP_CLASS } from '../src/services/iconRendering';
+import { CONTAINER_SIZE_LIST, CONTAINER_BORDER_CLASS, CONTAINER_SHADOW_CLASS, CONTAINER_BORDER, ICON_SIZE_LIST } from '../src/services/iconRendering';
 import { createEntryVisualResolver, resolveEntryIconVisual } from '../src/services/entryIconVisuals';
-import { getGrapeBodyChipColors, getGrapeBodyFilterValue, getGrapeBodyLabel, getGrapeColorChipColors, getGrapeColorLabel } from '../src/services/grapeDisplay';
+import Chip from './Chip';
+import { getGrapeColorLabel, getGrapeBodyLabel, getGrapeColorChipColors, getGrapeBodyChipColors } from '../src/services/grapeDisplay';
+import {
+  getCountryChipColors,
+  getClassificationChipColors,
+  getRarityChipColors,
+  getColorTypeChipColors,
+  getStyleClassChipColors,
+  getFlavorClassChipColors,
+  getFlavorSubclassChipColors,
+  SYSTEM_CHIP_COLOR,
+  CLIMATE_CHIP_COLOR,
+  APPELLATION_CHIP_COLORS,
+  extractTagAbbrev,
+} from '../src/services/chipColors';
 
 type FilterMode = 'REGION' | 'TYPE' | 'TASTING' | 'SOIL' | 'ORIGIN' | 'RARITY' | 'SYSTEM' | 'CLIMATE' | null;
 
@@ -221,36 +235,6 @@ const formatUpper = (value?: string) => {
   return value.replace(/_/g, ' ').toUpperCase();
 };
 
-// Get country color
-const getCountryColor = (country: string) => {
-  const colors: Record<string, { bg: string, text: string, border: string }> = {
-    'France': { bg: 'bg-blue-900', text: 'text-blue-100', border: 'border-blue-600' },
-    'Italy': { bg: 'bg-emerald-900', text: 'text-emerald-100', border: 'border-emerald-700' },
-    'Spain': { bg: 'bg-red-900', text: 'text-red-100', border: 'border-red-700' },
-    'USA': { bg: 'bg-indigo-900', text: 'text-indigo-100', border: 'border-indigo-700' },
-    'Germany': { bg: 'bg-amber-900', text: 'text-amber-100', border: 'border-amber-700' },
-    'Portugal': { bg: 'bg-green-900', text: 'text-green-100', border: 'border-green-700' },
-    'Australia': { bg: 'bg-orange-900', text: 'text-orange-100', border: 'border-orange-700' },
-    'New Zealand': { bg: 'bg-teal-900', text: 'text-teal-100', border: 'border-teal-700' },
-    'Argentina': { bg: 'bg-sky-900', text: 'text-sky-100', border: 'border-sky-700' },
-    'Chile': { bg: 'bg-rose-900', text: 'text-rose-100', border: 'border-rose-700' },
-    'South Africa': { bg: 'bg-orange-800', text: 'text-orange-50', border: 'border-orange-600' },
-    'Austria': { bg: 'bg-fuchsia-900', text: 'text-fuchsia-100', border: 'border-fuchsia-700' },
-    'Greece': { bg: 'bg-cyan-900', text: 'text-cyan-100', border: 'border-cyan-700' },
-    'Hungary': { bg: 'bg-lime-900', text: 'text-lime-100', border: 'border-lime-700' },
-    'Canada': { bg: 'bg-red-800', text: 'text-red-50', border: 'border-red-600' },
-    'China': { bg: 'bg-yellow-800', text: 'text-yellow-50', border: 'border-yellow-600' },
-    'Japan': { bg: 'bg-rose-800', text: 'text-rose-50', border: 'border-rose-600' },
-    'India': { bg: 'bg-amber-800', text: 'text-amber-50', border: 'border-amber-600' },
-    'Georgia': { bg: 'bg-amber-900', text: 'text-amber-50', border: 'border-amber-600' },
-    'Uruguay': { bg: 'bg-purple-900', text: 'text-purple-100', border: 'border-purple-700' },
-    'Croatia': { bg: 'bg-blue-800', text: 'text-blue-50', border: 'border-blue-600' },
-  };
-  return colors[country] || { bg: 'bg-stone-700', text: 'text-stone-200', border: 'border-stone-500' };
-};
-
-const USA_STATE_CHIP_CLASS = 'bg-indigo-900 text-indigo-100 border-indigo-700';
-
 const getClassificationStyle = (classification?: string) => {
   const map: Record<string, { bg: string; text: string; border: string }> = {
     'AOC': { bg: 'bg-red-950', text: 'text-red-100', border: 'border-red-700' },
@@ -267,39 +251,39 @@ const getClassificationStyle = (classification?: string) => {
   return map[key] || { bg: 'bg-stone-700', text: 'text-stone-200', border: 'border-stone-500' };
 };
 
-const handleTileKeyDown = (event: React.KeyboardEvent<HTMLDivElement>, onPress: () => void) => {
-  if (event.key === 'Enter' || event.key === ' ') {
-    event.preventDefault();
-    onPress();
-  }
-};
-
 const EntryTile: React.FC<EntryTileProps> = ({ entry, onPress, index, onFilterByRarity, onFilterByType, onFilterByNote, onFilterByOrigin, onFilterByClimate }) => {
   const isGrape = entry.category === 'GRAPES';
   const isRegion = entry.category === 'REGIONS';
   const isCountryGate = entry.category === 'COUNTRY_GATE';
   const isStyle = entry.category === 'STYLES';
   const isFlavor = entry.category === 'FLAVORS';
+  const isContinent = entry.category === 'CONTINENTS';
   const grapeCard = entry.grapeCard;
   const climateMeta = entry.climate ? CLIMATE_CLASS_MAP[entry.climate] : undefined;
   const originLabel = entry.details.origin || '';
-  const grapeOriginStyle = isGrape && originLabel ? getCountryColor(originLabel) : null;
-  const grapeColorLabel = isGrape ? getGrapeColorLabel(entry) : null;
-  const grapeColorStyle = grapeColorLabel ? getGrapeColorChipColors(grapeColorLabel) : null;
-  const grapeBodyLabel = isGrape ? getGrapeBodyLabel(entry) : null;
-  const grapeBodyStyle = grapeBodyLabel ? getGrapeBodyChipColors(grapeBodyLabel) : null;
+  const country = entry.details.origin || '';
+
   const styleClassType = isStyle ? getStyleClassType(entry.name, entry.details.classification) : undefined;
   const styleColorType = isStyle ? getColorType(entry.name) : undefined;
-  
-  // Get country for regions
-  const country = entry.details.origin || '';
-  const countryStyle = isRegion ? getCountryColor(country) : null;
-  const styleClassStyle = getClassTypeStyle(styleClassType as 'STYLE' | 'METHOD' | 'ORIGIN' | 'TYPE' | 'BLEND' | undefined);
-  const styleColorStyle = getColorTypeStyle(styleColorType);
-  const styleCountryStyle = entry.details.origin ? getCountryColor(entry.details.origin) : null;
-  const flavorClassStyle = isFlavor ? getFlavorClassStyle(entry.details.classification) : null;
-  const flavorSubclassStyle = isFlavor ? getFlavorSubclassStyle(entry.details.subclass) : null;
-  const rarityValue = entry.rarity || (entry.grapeRarityTier ? entry.grapeRarityTier.toUpperCase() : (grapeCard?.rarityTier ? grapeCard.rarityTier.toUpperCase() : undefined));
+
+  // Shared hex color styles (consistent with EntryDetail scan chips)
+  const grapeOriginColors = isGrape && originLabel ? getCountryChipColors(originLabel) : null;
+  const countryColors = isRegion ? getCountryChipColors(country) : null;
+  const styleClassColors = getStyleClassChipColors(styleClassType);
+  const styleColorColors = getColorTypeChipColors(styleColorType);
+  const styleCountryColors = entry.details.origin ? getCountryChipColors(entry.details.origin) : null;
+  const flavorClassColors = isFlavor ? getFlavorClassChipColors(entry.details.classification) : null;
+  const flavorSubclassColors = isFlavor ? getFlavorSubclassChipColors(entry.details.subclass) : null;
+  const rarityValue = entry.rarity || (grapeCard?.rarityTier ? grapeCard.rarityTier.toUpperCase() : undefined);
+  const rarityColors = rarityValue ? getRarityChipColors(rarityValue) : null;
+
+  const styleClassLabel = formatTitle(styleClassType);
+  const styleColorLabel = formatTitle(styleColorType);
+  const styleCountryLabel = formatUpper(entry.details.origin || '');
+  const flavorClassLabel = formatLabelUpper(entry.details.classification || '');
+  const flavorSubclassLabel = formatLabelUpper(entry.details.subclass || '');
+  const grapeOriginLabel = formatUpper(originLabel);
+
   const entryVisualResolver = useMemo(() => createEntryVisualResolver({ entries: WINE_ENTRIES }), []);
   const entryVisual = resolveEntryIconVisual(entry, {
     size: ICON_SIZE_LIST,
@@ -320,11 +304,8 @@ const EntryTile: React.FC<EntryTileProps> = ({ entry, onPress, index, onFilterBy
   const renderedIcon = entryVisual.iconNode;
 
   return (
-    <div
-      role="button"
-      tabIndex={0}
+    <button
       onClick={() => onPress(entry)}
-      onKeyDown={(event) => handleTileKeyDown(event, () => onPress(entry))}
       className="w-full bg-stone-900 border-2 border-stone-700 hover:border-green-500 rounded p-2 flex items-center gap-3 relative overflow-hidden group min-h-[4.5rem] transition-all active:translate-y-0.5"
       style={{ animationDelay: `${index * 50}ms` }}
     >
@@ -333,9 +314,9 @@ const EntryTile: React.FC<EntryTileProps> = ({ entry, onPress, index, onFilterBy
       <div className="absolute bottom-0 left-0 w-2 h-2 border-b-2 border-l-2 border-stone-600 group-hover:border-green-400 transition-colors"></div>
 
       {/* Left: Large Icon Identifier */}
-      <div 
+      <div
         className={`shrink-0 ${CONTAINER_SIZE_LIST} ${CONTAINER_BORDER_CLASS} ${CONTAINER_SHADOW_CLASS} flex items-center justify-center ${CONTAINER_BORDER} self-start`}
-        style={entryVisual.style}
+        style={isCountryGate ? { ...entryVisual.style, borderColor: '#ffffff', borderWidth: 2, overflow: 'hidden' } : entryVisual.style}
       >
         {renderedIcon}
       </div>
@@ -349,162 +330,102 @@ const EntryTile: React.FC<EntryTileProps> = ({ entry, onPress, index, onFilterBy
 
           {/* Tags Row - Different based on category */}
           <div className="flex flex-wrap gap-1.5 w-full items-center">
-              {/* GRAPES: Show Color, Body, Country, and Rarity */}
-              {isGrape && (
-                <>
-                  {grapeColorLabel && grapeColorStyle && (
-                    <button
-                      type="button"
-                      onClick={(e) => { e.stopPropagation(); onFilterByType?.(grapeColorLabel, 'STYLES'); }}
-                      className={LIST_TILE_META_CHIP_CLASS}
-                      style={{ backgroundColor: grapeColorStyle.bg, borderColor: grapeColorStyle.border, color: grapeColorStyle.text }}
-                    >
-                      {grapeColorLabel}
-                    </button>
-                  )}
-                  {grapeBodyLabel && grapeBodyStyle && (
-                    <button
-                      type="button"
-                      onClick={(e) => { e.stopPropagation(); onFilterByType?.(getGrapeBodyFilterValue(grapeBodyLabel, grapeColorLabel || 'RED'), 'GRAPES'); }}
-                      className={LIST_TILE_META_CHIP_CLASS}
-                      style={{ backgroundColor: grapeBodyStyle.bg, borderColor: grapeBodyStyle.border, color: grapeBodyStyle.text }}
-                    >
-                      {grapeBodyLabel.toUpperCase()}
-                    </button>
-                  )}
-                </>
-              )}
-
-              {/* Origin tag for grapes */}
-              {isGrape && originLabel && grapeOriginStyle && (
-                <button
-                  type="button"
-                  onClick={(e) => { e.stopPropagation(); onFilterByOrigin?.(originLabel); }}
-                  className={`${LIST_TILE_META_CHIP_CLASS} ${grapeOriginStyle.bg} ${grapeOriginStyle.text} ${grapeOriginStyle.border}`}
-                >
-                  {formatUpper(originLabel)}
-                </button>
-              )}
-
-              {isGrape && (
-                <>
-                  <button
-                    type="button"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      const rarity = rarityValue;
-                      if (rarity) onFilterByRarity?.(rarity);
-                    }}
-                    className={`${LIST_TILE_META_CHIP_CLASS} ${getRarityStyle(rarityValue || 'COMMON')}`}
-                    title="Rarity"
-                  >
-                    {formatTitle(rarityValue || 'COMMON')}
-                  </button>
-                </>
-              )}
+              {/* GRAPES: color (RED/WHITE) + body class */}
+              {isGrape && (() => {
+                const colorLabel = getGrapeColorLabel(entry);
+                const bodyLabel = getGrapeBodyLabel(entry);
+                return (
+                  <>
+                    <Chip
+                      label={colorLabel}
+                      colorStyle={getGrapeColorChipColors(colorLabel)}
+                    />
+                    <Chip
+                      label={bodyLabel}
+                      colorStyle={getGrapeBodyChipColors(bodyLabel)}
+                    />
+                  </>
+                );
+              })()}
 
               {/* REGIONS: Show only Country */}
-              {isRegion && countryStyle && (
+              {isRegion && countryColors && (
                 <>
-                  <button
-                    type="button"
-                    onClick={(e) => { e.stopPropagation(); country && onFilterByOrigin?.(country); }}
-                    className={`${LIST_TILE_META_CHIP_CLASS} ${countryStyle.bg} ${countryStyle.text} ${countryStyle.border}`}
-                  >
-                    {formatUpper(country)}
-                  </button>
-                  {country === 'USA' && entry.details.state && (
-                    <span className={`${LIST_TILE_META_CHIP_CLASS} ${USA_STATE_CHIP_CLASS}`}>
-                      {formatUpper(entry.details.state)}
-                    </span>
-                  )}
+                  <Chip
+                    label={formatUpper(country)}
+                    colorStyle={countryColors}
+                  />
                   {entry.details.classification && (
-                    (() => {
-                      const clsStyle = getClassificationStyle(entry.details.classification);
-                      return (
-                        <button
-                          type="button"
-                          onClick={(e) => { e.stopPropagation(); onFilterByNote?.(entry.details.classification!, 'REGIONS', 'SYSTEM'); }}
-                          className={`${LIST_TILE_META_CHIP_CLASS} ${clsStyle.bg} ${clsStyle.text} ${clsStyle.border}`}
-                        >
-                          {formatUpper(entry.details.classification)}
-                        </button>
-                      );
-                    })()
+                    <Chip
+                      label={formatUpper(entry.details.classification)}
+                      colorStyle={SYSTEM_CHIP_COLOR}
+                    />
                   )}
-                  {climateMeta && getClimateStyle(entry.climate) && (
-                    <button
-                      type="button"
-                      onClick={(e) => { e.stopPropagation(); entry.climate && onFilterByClimate?.(entry.climate); }}
-                      className={LIST_TILE_META_CHIP_CLASS}
-                      style={getClimateStyle(entry.climate) as React.CSSProperties}
-                    >
-                      {formatUpper(climateMeta.name)}
-                    </button>
+                  {climateMeta && (
+                    <Chip
+                      label={formatUpper(climateMeta.name)}
+                      colorStyle={CLIMATE_CHIP_COLOR}
+                    />
                   )}
                 </>
               )}
 
-              {/* COUNTRY GATE: Show classification tags */}
+              {/* COUNTRY GATE: classification tags */}
               {isCountryGate && (
                 <>
-                  {entry.tags.map((tag, i) => (
-                    <span key={i} className={`${LIST_TILE_META_CHIP_CLASS} bg-stone-800 text-amber-200 border-amber-600`}>
-                      {formatTitle(tag)}
-                    </span>
+                  {entry.tags.filter(tag => tag !== 'COUNTRY').map((tag, i) => (
+                    <Chip key={i} label={extractTagAbbrev(tag)} colorStyle={APPELLATION_CHIP_COLORS[i % 3]} />
                   ))}
                 </>
+              )}
+
+              {/* CONTINENTS: continent label */}
+              {isContinent && (
+                <Chip label="CONTINENT" colorStyle={{ bg: '#0f2027', border: '#0891b2', text: '#7dd3fc' }} />
               )}
 
               {/* STYLES & FLAVORS: Show class chips */}
               {!isGrape && !isRegion && !isCountryGate && (
                 <>
                   {isStyle && styleClassType && (
-                    <button
-                      type="button"
-                      onClick={(e) => { e.stopPropagation(); onFilterByNote?.(styleClassType, 'STYLES', 'TASTING'); }}
-                      className={`${LIST_TILE_META_CHIP_CLASS} ${styleClassStyle.bg} ${styleClassStyle.text} ${styleClassStyle.border}`}
-                    >
-                      {formatTitle(styleClassType)}
-                    </button>
+                    <Chip
+                      label={styleClassLabel}
+                      colorStyle={styleClassColors}
+                    />
                   )}
                   {isStyle && styleColorType && (
-                    <button
-                      type="button"
-                      onClick={(e) => { e.stopPropagation(); onFilterByType?.(styleColorType, 'STYLES'); }}
-                      className={`${LIST_TILE_META_CHIP_CLASS} ${styleColorStyle.bg} ${styleColorStyle.text} ${styleColorStyle.border}`}
-                    >
-                      {formatTitle(styleColorType)}
-                    </button>
+                    <Chip
+                      label={styleColorLabel}
+                      colorStyle={styleColorColors}
+                    />
                   )}
-                  {isStyle && entry.details.origin && entry.details.origin.toLowerCase() !== 'various' && styleCountryStyle && (
-                    <button
-                      type="button"
-                      onClick={(e) => { e.stopPropagation(); entry.details.origin && onFilterByOrigin?.(entry.details.origin); }}
-                      className={`${LIST_TILE_META_CHIP_CLASS} ${styleCountryStyle.bg} ${styleCountryStyle.text} ${styleCountryStyle.border}`}
-                    >
-                      {formatUpper(entry.details.origin || '')}
-                    </button>
+                  {isStyle && entry.details.origin && entry.details.origin.toLowerCase() !== 'various' && styleCountryColors && (
+                    <Chip
+                      label={styleCountryLabel}
+                      colorStyle={styleCountryColors}
+                    />
                   )}
-                  {isFlavor && flavorClassStyle && (
-                    <button
-                      type="button"
-                      onClick={(e) => { e.stopPropagation(); onFilterByNote?.(entry.details.classification || 'FLAVOR', 'FLAVORS', 'TASTING'); }}
-                      className={`${LIST_TILE_META_CHIP_CLASS} ${flavorClassStyle.bg} ${flavorClassStyle.text} ${flavorClassStyle.border}`}
-                    >
-                      {formatLabelUpper(entry.details.classification || 'FLAVOR')}
-                    </button>
+                  {isFlavor && flavorClassColors && (
+                    <Chip
+                      label={flavorClassLabel}
+                      colorStyle={flavorClassColors}
+                    />
                   )}
-                  {isFlavor && flavorSubclassStyle && (
-                    <button
-                      type="button"
-                      onClick={(e) => { e.stopPropagation(); onFilterByNote?.(entry.details.subclass || 'SUBCLASS', 'FLAVORS', 'TASTING'); }}
-                      className={`${LIST_TILE_META_CHIP_CLASS} ${flavorSubclassStyle.bg} ${flavorSubclassStyle.text} ${flavorSubclassStyle.border}`}
-                    >
-                      {formatLabelUpper(entry.details.subclass || 'SUBCLASS')}
-                    </button>
+                  {isFlavor && flavorSubclassColors && (
+                    <Chip
+                      label={flavorSubclassLabel}
+                      colorStyle={flavorSubclassColors}
+                    />
                   )}
                 </>
+              )}
+
+              {/* Origin tag for grapes */}
+              {isGrape && originLabel && grapeOriginColors && (
+                <Chip
+                  label={grapeOriginLabel}
+                  colorStyle={grapeOriginColors}
+                />
               )}
           </div>
      </div>
@@ -513,7 +434,7 @@ const EntryTile: React.FC<EntryTileProps> = ({ entry, onPress, index, onFilterBy
       <div className="shrink-0 text-stone-600 group-hover:text-white pl-2">
          <ChevronRight size={18} />
       </div>
-    </div>
+    </button>
   );
 };
 

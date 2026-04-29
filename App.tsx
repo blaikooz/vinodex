@@ -207,6 +207,7 @@ const App: React.FC = () => {
             onBack={handleBack}
             onHome={handleHome}
             onSelectContinent={handleContinentSelect}
+            onWorldSearch={handleManualSearch}
           />
         </Suspense>
       )}

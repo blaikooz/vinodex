@@ -182,11 +182,13 @@ const categorizeFlavor = (note: string, subclassHint?: string): FlavorClass => {
   return 'UMAMI';
 };
 
+
 const categorizeFlavorSubclass = (note: string): string => {
   const lower = note.toLowerCase();
   const match = FLAVOR_SUBCLASS_KEYWORDS.find(({ keywords }) => keywords.some(k => lower.includes(k)));
   return match ? match.id : 'FLAVOR';
 };
+
 
 const formatSubclassLabel = (subclass: string) => subclass.split('_').map(part => part.charAt(0) + part.slice(1).toLowerCase()).join(' ');
 
@@ -281,3 +283,6 @@ export const WINE_ENTRIES: WineEntry[] = [
     synonyms: entry.details.synonyms?.map(canonicalizeGrapeName),
   },
 }));
+
+// Export after all definitions (must be at top-level scope)
+export { FLAVOR_CLASS_COLORS, categorizeFlavor, categorizeFlavorSubclass };
