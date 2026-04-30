@@ -1,0 +1,22 @@
+
+> vinodex@0.0.0 dev
+> vite
+
+Port 3000 is in use, trying another one...
+Port 3001 is in use, trying another one...
+
+  [32m[1mVITE[22m v6.4.2[39m  [2mready in [0m[1m489[22m[2m[0m ms[22m
+
+  [32m➜[39m  [1mLocal[22m:   [36mhttp://localhost:[1m3002[22m/[39m
+  [32m➜[39m  [1mNetwork[22m: [36mhttp://192.168.1.183:[1m3002[22m/[39m
+[2m[32m  ➜[39m[22m[2m  press [22m[1mh + enter[22m[2m to show help[22m
+[2m11:00:22 PM[22m [36m[1m[vite][22m[39m [32m.env.local changed, restarting server...[39m
+[2m11:00:22 PM[22m [36m[1m[vite][22m[39m server restarted.
+[2m11:25:08 PM[22m [36m[1m[vite][22m[39m changed tsconfig file detected: C:/Users/StreetPC/Desktop/VINODEX/vinodex-new/tsconfig.json - Clearing cache and forcing full-reload to ensure TypeScript is compiled with updated config values.
+[2m11:25:08 PM[22m [36m[1m[vite][22m[39m [32mvite.config.ts changed, restarting server...[39m
+[2m11:25:08 PM[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mpage reload [39m[2mindex.html[22m
+Port 5173 is in use, trying another one...
+[2m11:25:08 PM[22m [36m[1m[vite][22m[39m server restarted.
+
+  [32m➜[39m  [1mLocal[22m:   [36mhttp://localhost:[1m5174[22m/[39m
+[2m  [32m➜[39m  [1mNetwork[22m[2m: use [22m[1m--host[22m[2m to expose[22m

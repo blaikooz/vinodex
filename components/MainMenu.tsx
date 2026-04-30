@@ -63,9 +63,9 @@ const MainMenu: React.FC<MainMenuProps> = ({ onNavigate }) => {
               <button
                 onClick={() => onNavigate('RETRO_GLOBE')}
                 aria-label="Open regions"
-                className="w-14 h-14 sm:w-16 sm:h-16 rounded-full bg-blue-500 border-[4px] border-blue-800 shadow-[0_0_16px_rgba(42,181,255,0.4)] flex items-center justify-center active:scale-95 active:border-blue-900 transition-all group hover:bg-blue-400"
+                className="w-24 h-24 sm:w-32 sm:h-32 rounded-full bg-blue-500 border-[6px] border-blue-800 shadow-[0_0_25px_rgba(42,181,255,0.4)] flex items-center justify-center active:scale-95 active:border-blue-900 transition-all group hover:bg-blue-400"
               >
-                <Globe size={26} className="text-white group-hover:scale-110 transition-transform sm:w-8 sm:h-8" />
+                <Globe size={40} className="text-white group-hover:scale-110 transition-transform sm:w-16 sm:h-16" />
               </button>
             </div>
 

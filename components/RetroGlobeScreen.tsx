@@ -15,7 +15,7 @@ interface RetroGlobeScreenProps {
 const DRAG_SENSITIVITY = 0.005;
 const INERTIA_DAMPING = 0.94;
 const MAX_PITCH = 1.0;
-const GLOBE_RADIUS = 1.18;
+const GLOBE_RADIUS = 1.05;
 
 interface RegionMarker {
   id: string;
@@ -88,8 +88,13 @@ const RetroGlobeScreen: React.FC<RetroGlobeScreenProps> = ({ onBack, onHome, onS
   const rendererRef = useRef<THREE.WebGLRenderer | null>(null);
 
 
+  const DRAG_THRESHOLD = 4;
   const dragRef = useRef({
     active: false,
+    pending: false,
+    pointerId: -1,
+    startX: 0,
+    startY: 0,
     x: 0,
     y: 0,
     velocityYaw: 0,
@@ -190,7 +195,7 @@ const RetroGlobeScreen: React.FC<RetroGlobeScreenProps> = ({ onBack, onHome, onS
           drag.velocityPitch *= INERTIA_DAMPING;
         }
 
-        activeGlobe.rotation.y += drag.velocityYaw + 0.0018;
+        activeGlobe.rotation.y += drag.velocityYaw + 0.0032;
         activeWire.rotation.y = activeGlobe.rotation.y;
 
         activeGlobe.rotation.x = THREE.MathUtils.clamp(activeGlobe.rotation.x + drag.velocityPitch, -MAX_PITCH, MAX_PITCH);
@@ -262,21 +267,31 @@ const RetroGlobeScreen: React.FC<RetroGlobeScreenProps> = ({ onBack, onHome, onS
 
 
   const handlePointerDown = (event: React.PointerEvent<HTMLDivElement>) => {
-    // Don't capture pointer when clicking a marker button
-    if ((event.target as HTMLElement).closest('button')) return;
     const drag = dragRef.current;
-    drag.active = true;
+    drag.pending = true;
+    drag.active = false;
+    drag.pointerId = event.pointerId;
+    drag.startX = event.clientX;
+    drag.startY = event.clientY;
     drag.x = event.clientX;
     drag.y = event.clientY;
-    setIsDragging(true);
-    event.currentTarget.setPointerCapture(event.pointerId);
   };
 
   const handlePointerMove = (event: React.PointerEvent<HTMLDivElement>) => {
     const drag = dragRef.current;
     const globe = globeRef.current;
+    if (!globe) return;
+    if (!drag.pending && !drag.active) return;
 
-    if (!drag.active || !globe) return;
+    if (drag.pending && !drag.active) {
+      const dxStart = event.clientX - drag.startX;
+      const dyStart = event.clientY - drag.startY;
+      if (Math.hypot(dxStart, dyStart) < DRAG_THRESHOLD) return;
+      drag.active = true;
+      drag.pending = false;
+      setIsDragging(true);
+      event.currentTarget.setPointerCapture(event.pointerId);
+    }
 
     const dx = event.clientX - drag.x;
     const dy = event.clientY - drag.y;
@@ -297,7 +312,9 @@ const RetroGlobeScreen: React.FC<RetroGlobeScreenProps> = ({ onBack, onHome, onS
   };
 
   const handlePointerEnd = (event: React.PointerEvent<HTMLDivElement>) => {
-    dragRef.current.active = false;
+    const drag = dragRef.current;
+    drag.active = false;
+    drag.pending = false;
     setIsDragging(false);
     if (event.currentTarget.hasPointerCapture(event.pointerId)) {
       event.currentTarget.releasePointerCapture(event.pointerId);
@@ -306,6 +323,7 @@ const RetroGlobeScreen: React.FC<RetroGlobeScreenProps> = ({ onBack, onHome, onS
 
   const handleLostPointerCapture = () => {
     dragRef.current.active = false;
+    dragRef.current.pending = false;
     setIsDragging(false);
   };
 
@@ -347,7 +365,7 @@ const RetroGlobeScreen: React.FC<RetroGlobeScreenProps> = ({ onBack, onHome, onS
               ref={viewportRef}
               className={`absolute inset-0 ${isDragging ? 'cursor-grabbing' : 'cursor-grab'}`}
             />
-            <div className="absolute inset-0 overflow-hidden">
+            <div className="absolute inset-0 overflow-hidden pointer-events-none">
               {regionMarkers.map((marker) => (
                 <div
                   key={marker.id}

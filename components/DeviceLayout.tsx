@@ -38,7 +38,7 @@ const DeviceLayout: React.FC<DeviceLayoutProps> = ({
   const defaultFooterDisplay = (
     <div className="w-full max-w-[16.5rem] rounded-[1.1rem] bg-black px-[0.35rem] py-[0.3rem] border border-white/75 shadow-[inset_0_1px_0_rgba(255,255,255,0.85),0_3px_0_rgba(120,120,120,0.95)]">
       <div className="flex items-center min-h-[4.1rem] overflow-hidden bg-black rounded-[0.9rem] px-1 shadow-[inset_0_0_18px_rgba(34,197,94,0.16)]">
-        <div className={`terminal-marquee whitespace-nowrap ${isMainScreen ? 'terminal-marquee-slow' : ''}`}>
+        <div className="terminal-marquee whitespace-nowrap">
           <span
             className={`inline-block font-retro ${footerTitleSize} italic tracking-[-0.08em] transform -skew-x-12 leading-none text-green-500 pr-12`}
             style={{ textShadow: '1px 1px 0px rgba(8, 32, 16, 0.65)' }}
@@ -62,7 +62,7 @@ const DeviceLayout: React.FC<DeviceLayoutProps> = ({
   const headerAlignment = 'items-end text-right';
 
   return (
-    <div className="flex justify-center items-center min-h-screen bg-neutral-900 p-0 md:p-4 font-mono h-screen md:h-auto overflow-hidden rounded-[2rem]">
+    <div className="flex justify-center items-center min-h-screen bg-neutral-900 p-0 md:p-4 font-mono h-screen md:h-auto overflow-hidden rounded-[2rem]" style={{ paddingTop: 'env(safe-area-inset-top)', paddingLeft: 'env(safe-area-inset-left)', paddingRight: 'env(safe-area-inset-right)' }}>
       {/* Device Chassis - Red Pokedex Style */}
       <div className="w-full h-full md:h-[850px] md:w-[522px] bg-dex-red md:rounded-[2.5rem] md:shadow-[0_20px_50px_rgba(220,10,45,0.3)] overflow-hidden relative border-[3px] border-dex-darkRed ring-1 ring-white/10 shadow-[inset_-10px_-10px_30px_rgba(0,0,0,0.2)]">
         <div className="flex h-full flex-col">
@@ -71,11 +71,8 @@ const DeviceLayout: React.FC<DeviceLayoutProps> = ({
         {!hideHeader && (
           <div className="shrink-0 flex items-end px-4 pr-5 py-2.5 justify-between">
             <div className="flex flex-row items-start gap-3">
-              <div className="w-[3.125rem] h-[3.125rem] md:w-[3.75rem] md:h-[3.75rem] rounded-full bg-gradient-to-b from-stone-300 to-stone-500 border-[3px] border-stone-600 flex items-center justify-center shrink-0 shadow-[inset_0_2px_4px_rgba(255,255,255,0.4),0_4px_8px_rgba(0,0,0,0.5)]">
-                <div className="w-[2.344rem] h-[2.344rem] md:w-[2.734rem] md:h-[2.734rem] rounded-full bg-blue-500 border-[2px] border-white flex items-center justify-center relative overflow-hidden shadow-inner lcd-pulse">
-                  <div className="absolute top-1 left-1 w-2 h-2 bg-white rounded-full opacity-60 blur-[1px]"></div>
-                  <div className="w-full h-full bg-gradient-to-br from-blue-400 to-blue-700 opacity-90"></div>
-                </div>
+              <div className="w-[3.125rem] h-[3.125rem] md:w-[3.75rem] md:h-[3.75rem] rounded-full bg-cyan-300 border-[3px] border-white relative overflow-hidden shrink-0 shadow-[0_4px_8px_rgba(0,0,0,0.5)] lcd-pulse">
+                <div className="absolute top-1 left-1/2 -translate-x-1/2 w-3 h-3 bg-white rounded-full opacity-80 blur-[1px]"></div>
               </div>
               <div className="flex flex-row gap-2 items-center pt-1">
                 <div className="w-4 h-4 rounded-full bg-red-600 border border-red-800 dot-pulse-red"></div>
@@ -137,7 +134,7 @@ const DeviceLayout: React.FC<DeviceLayoutProps> = ({
         </div>
 
         {/* Footer controls */}
-        <footer className="absolute inset-x-0 bottom-0 px-3 pt-1 pb-2 grid grid-cols-[auto_1fr_auto] items-center gap-2 bg-dex-red/70">
+        <footer className="absolute inset-x-0 bottom-0 px-3 pt-1 grid grid-cols-[auto_1fr_auto] items-center gap-2 bg-dex-red/70" style={{ paddingBottom: 'max(0.5rem, env(safe-area-inset-bottom))' }}>
           <div className="flex justify-start">
             <button
               type="button"
