@@ -442,7 +442,7 @@ const EntryDetail: React.FC<EntryDetailProps> = ({ entry, onBack, onHome, onSele
     const regionClimate = relatedEntry?.climate;
     const regionCountryColors = getCountryChipColors(regionCountry);
     const regionSystemColors = SYSTEM_CHIP_COLOR;
-    const regionClimateColors = CLIMATE_CHIP_COLOR;
+    const regionClimateColors = regionClimate ? CLIMATE_CLASS_MAP[regionClimate]?.colors ?? CLIMATE_CHIP_COLOR : CLIMATE_CHIP_COLOR;
     const regionClimateName = regionClimate ? CLIMATE_CLASS_MAP[regionClimate]?.name : undefined;
     const linkedWineType = relatedEntry?.grapeCard?.style || relatedEntry?.wineType;
     const linkedTypeColors = getTypeTileColors(linkedWineType);
@@ -666,7 +666,7 @@ const EntryDetail: React.FC<EntryDetailProps> = ({ entry, onBack, onHome, onSele
       const mainGrapeIconStyle = mainGrapeVisual?.style;
       const countryStyle = getCountryChipColors(entry.details.origin);
       const climateMeta = entry.climate ? CLIMATE_CLASS_MAP[entry.climate] : undefined;
-      const climateStyle = CLIMATE_CHIP_COLOR;
+      const climateStyle = climateMeta?.colors ?? CLIMATE_CHIP_COLOR;
       const flagGradient = getFlagGradient(entry.details.origin);
       const flagImage = getFlagImage(entry.details.origin);
       
@@ -1226,9 +1226,14 @@ const EntryDetail: React.FC<EntryDetailProps> = ({ entry, onBack, onHome, onSele
                     <span className="font-retro text-xs md:text-sm tracking-widest text-green-500">CLIMATE</span>
                 </div>
                 <div className="flex flex-wrap gap-2">
-                    <span className="px-4 py-2 rounded text-xl font-bold font-mono tracking-widest" style={{ backgroundColor: CLIMATE_CHIP_COLOR.bg, border: `1px solid ${CLIMATE_CHIP_COLOR.border}`, color: CLIMATE_CHIP_COLOR.text }}>
-                      {(entry.climate && CLIMATE_CLASS_MAP[entry.climate]?.name) || 'Unknown Climate'}
-                    </span>
+                    {(() => {
+                      const sectionClimateColors = (entry.climate && CLIMATE_CLASS_MAP[entry.climate]?.colors) || CLIMATE_CHIP_COLOR;
+                      return (
+                        <span className="px-4 py-2 rounded text-xl font-bold font-mono tracking-widest" style={{ backgroundColor: sectionClimateColors.bg, border: `1px solid ${sectionClimateColors.border}`, color: sectionClimateColors.text }}>
+                          {(entry.climate && CLIMATE_CLASS_MAP[entry.climate]?.name) || 'Unknown Climate'}
+                        </span>
+                      );
+                    })()}
                 </div>
             </div>
         )}

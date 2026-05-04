@@ -1,0 +1,4 @@
+# Treat the raw OCR encyclopedia source as generated input — exclude from
+# language stats and collapse in diff views.
+data/encyclopedia/source/** linguist-generated=true
+data/encyclopedia/source/** -diff

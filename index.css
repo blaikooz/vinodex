@@ -182,11 +182,11 @@ body {
   display: inline-flex;
   align-items: center;
   width: max-content;
-  animation: terminal-marquee 7s linear infinite;
+  animation: terminal-marquee 25s linear infinite;
   will-change: transform;
 }
 
 .terminal-marquee-slow {
-  animation-duration: 10s;
+  animation-duration: 15s;
 }
 

@@ -364,7 +364,7 @@ const EntryTile: React.FC<EntryTileProps> = ({ entry, onPress, index, onFilterBy
                   {climateMeta && (
                     <Chip
                       label={formatUpper(climateMeta.name)}
-                      colorStyle={CLIMATE_CHIP_COLOR}
+                      colorStyle={climateMeta.colors}
                     />
                   )}
                 </>

@@ -452,6 +452,8 @@ export const resolveEntryIconVisual = (
 						style={{ width: '100%', height: '100%', objectFit: 'fill', display: 'block', borderRadius: '9999px', border: '2px solid #fff' }}
 						draggable={false}
 					/>
+				) : flagGradient ? (
+					<span className="w-full h-full block" style={{ background: flagGradient, borderRadius: '9999px', border: '2px solid #fff' }} />
 				) : (
 					addRegionOutline(buildIconNode(entry.icon || 'default', size, iconColor))
 				),

@@ -306,7 +306,7 @@ export default function EncyclopediaList({ category, filterMode, filterValue, in
         </div>
       )}
 
-      <div className="flex flex-col h-full bg-stone-900">
+      <div className="flex flex-col h-full min-h-0 bg-stone-900">
         {showFilterIndicator && (
           <div className="bg-stone-800 border-b border-stone-700 px-4 py-3 flex items-center gap-3 animate-in slide-in-from-top-2 shadow-inner">
             <span className="[&>svg]:!w-6 [&>svg]:!h-6">{getFilterIcon()}</span>

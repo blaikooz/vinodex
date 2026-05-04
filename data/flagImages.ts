@@ -7,6 +7,7 @@ import chileFlag from '../pixelflags/South America/chile/chile.png';
 import chinaFlag from '../pixelflags/Asia/china/china.png';
 import croatiaFlag from '../pixelflags/Europe/croatia/croatia.png';
 import franceFlag from '../pixelflags/Europe/france/france.png';
+import georgiaFlag from '../pixelflags/Europe/georgia_country/georgia_country_flag.png';
 import germanyFlag from '../pixelflags/Europe/germany/germany.png';
 import greeceFlag from '../pixelflags/Europe/greece/greece.png';
 import hungaryFlag from '../pixelflags/Europe/hungary/hungary.png';
@@ -70,6 +71,7 @@ const FLAG_IMAGES: FlagImageEntry[] = [
   { keys: ['china'], image: chinaFlag },
   { keys: ['croatia'], image: croatiaFlag },
   { keys: ['france'], image: franceFlag },
+  { keys: ['georgia'], image: georgiaFlag },
   { keys: ['germany'], image: germanyFlag },
   { keys: ['greece'], image: greeceFlag },
   { keys: ['hungary'], image: hungaryFlag },

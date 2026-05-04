@@ -36,7 +36,7 @@ const DeviceLayout: React.FC<DeviceLayoutProps> = ({
     ? 'text-[2rem] md:text-[2.3rem]'
     : 'text-[1.55rem] md:text-[1.8rem]';
   const defaultFooterDisplay = (
-    <div className="w-full max-w-[16.5rem] rounded-[1.1rem] bg-black px-[0.35rem] py-[0.3rem] border border-white/75 shadow-[inset_0_1px_0_rgba(255,255,255,0.85),0_3px_0_rgba(120,120,120,0.95)]">
+    <div className="w-full max-w-[16.5rem] min-w-0 rounded-[1.1rem] bg-black px-[0.35rem] py-[0.3rem] border border-white/75 shadow-[inset_0_1px_0_rgba(255,255,255,0.85),0_3px_0_rgba(120,120,120,0.95)]">
       <div className="flex items-center min-h-[4.1rem] overflow-hidden bg-black rounded-[0.9rem] px-1 shadow-[inset_0_0_18px_rgba(34,197,94,0.16)]">
         <div className="terminal-marquee whitespace-nowrap">
           <span
@@ -60,6 +60,9 @@ const DeviceLayout: React.FC<DeviceLayoutProps> = ({
     ? 'text-[2.031rem] md:text-[2.656rem]'
     : 'text-[1.21875rem] md:text-[1.59375rem]';
   const headerAlignment = 'items-end text-right';
+
+  const footerHeight = '6.5rem';
+  const footerBottomPad = 'max(0.5rem, env(safe-area-inset-bottom))';
 
   return (
     <div className="flex justify-center items-center min-h-screen bg-neutral-900 p-0 md:p-4 font-mono h-screen md:h-auto overflow-hidden rounded-[2rem]" style={{ paddingTop: 'env(safe-area-inset-top)', paddingLeft: 'env(safe-area-inset-left)', paddingRight: 'env(safe-area-inset-right)' }}>
@@ -92,7 +95,10 @@ const DeviceLayout: React.FC<DeviceLayoutProps> = ({
         )}
 
         {/* Screen Container */}
-        <div className="flex-1 min-h-0 pb-[6.5rem] md:pb-[7.25rem]">
+        <div
+          className="flex-1 min-h-0"
+          style={{ paddingBottom: `calc(${footerHeight} + ${footerBottomPad})` }}
+        >
           <div className="h-full bg-dex-ui flex flex-col relative m-2 mt-0 rounded-[2rem] border-l-[6px] border-r-[6px] border-b-[6px] border-t-0 border-stone-400 shadow-inner">
 
           {/* Decorative vents in white bezel - center only */}
@@ -151,7 +157,7 @@ const DeviceLayout: React.FC<DeviceLayoutProps> = ({
             </button>
           </div>
 
-          <div className="flex justify-center items-center px-1 self-center -translate-y-0.5">
+          <div className="flex justify-center items-center px-1 self-center -translate-y-0.5 min-w-0">
             {footerCenter ? (
               <div className="flex items-center justify-center w-full">
                 {footerCenter}

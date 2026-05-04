@@ -171,7 +171,7 @@ const App: React.FC = () => {
   };
 
   return (
-    <div className="antialiased text-gray-900 bg-gray-900 min-h-screen">
+    <div className="antialiased text-gray-900 bg-gray-900 min-h-screen overflow-hidden">
       {currentState.screen === 'HOME' && (
         <MainMenu onNavigate={handleNavigateToCategory} />
       )}
