@@ -79,7 +79,8 @@ export const getColorTypeChipColors = (type?: string): ChipColorStyle => {
   switch (type) {
     case 'RED':    return { bg: '#3b0f0f', border: '#8b0000', text: '#fecdd3' };
     case 'WHITE':  return { bg: '#3b2f00', border: '#b8860b', text: '#fef3c7' };
-    case 'ROSÉ':   return { bg: '#4a0e2a', border: '#db2777', text: '#fbcfe8' };
+    case 'ROSÉ':
+    case 'ROSE':   return { bg: '#4a0e2a', border: '#db2777', text: '#fbcfe8' };
     case 'ORANGE': return { bg: '#451a03', border: '#ea580c', text: '#ffedd5' };
     case 'DUAL':   return { bg: '#2d0a1e', border: '#be185d', text: '#fce7f3' };
     default:       return { bg: '#1c1917', border: '#57534e', text: '#e7e5e4' };

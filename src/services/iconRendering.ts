@@ -7,9 +7,9 @@
  */
 
 // Icon sizes - use these consistently across the app
-export const ICON_SIZE_LIST = 20;       // For list tile icons
-export const ICON_SIZE_HEADER = 28;     // For detail page header icons
-export const ICON_SIZE_LINKED = 20;     // For linked tiles in detail view
+export const ICON_SIZE_LIST = 30;       // For list tile icons
+export const ICON_SIZE_HEADER = 44;     // For detail page header icons
+export const ICON_SIZE_LINKED = 30;     // For linked tiles in detail view
 
 // Container sizes - the visual size of the icon boxes
 export const CONTAINER_SIZE_LIST = 'w-12 h-12';          // 48x48px for lists

@@ -5,6 +5,12 @@ import { STYLES } from './data/styles.ts';
 import { GRAPE_CARDS } from './data/grapeCards.ts';
 import { CONTINENTS } from './data/continents.ts';
 import { COUNTRIES } from './data/countries.ts';
+import {
+  FLAVOR_CLASS_COLORS,
+  categorizeFlavor,
+  categorizeFlavorSubclass,
+  type FlavorClass,
+} from './src/services/entryUtils';
 
 // Re-export individual collections
 export { GRAPES as GRAPES_LEGACY } from './data/grapes.ts';
@@ -84,36 +90,6 @@ const GRAPE_ENTRIES: WineEntry[] = GRAPE_CARDS.map((card) => {
   };
 });
 
-type FlavorClass = 'SWEET' | 'SOUR' | 'SALTY' | 'BITTER' | 'UMAMI';
-
-const FLAVOR_SUBCLASS_KEYWORDS: { id: string; keywords: string[] }[] = [
-  { id: 'CITRUS', keywords: ['lemon', 'lime', 'grapefruit', 'citrus', 'orange', 'tangerine', 'yuzu'] },
-  { id: 'BERRY', keywords: ['berry', 'berries', 'mixed berry', 'jammy', 'strawberry', 'raspberry', 'blueberry', 'blackberry', 'cranberry', 'currant', 'blackcurrant', 'redcurrant', 'cassis', 'boysenberry', 'mulberry', 'black fruit', 'blue fruit'] },
-  { id: 'ORCHARD_FRUIT', keywords: ['apple', 'pear', 'quince', 'gooseberry'] },
-  { id: 'STONE_FRUIT', keywords: ['peach', 'apricot', 'nectarine'] },
-  { id: 'TROPICAL', keywords: ['pineapple', 'mango', 'papaya', 'banana', 'lychee'] },
-  { id: 'RED_FRUIT', keywords: ['cherry', 'pomegranate', 'red fruit'] },
-  { id: 'DARK_FRUIT', keywords: ['plum', 'dark fruit'] },
-  { id: 'HERBAL', keywords: ['herb', 'herbal', 'mint', 'eucalyptus', 'tea', 'sage', 'fennel', 'dill', 'basil', 'thyme', 'oregano'] },
-  { id: 'VEGETAL', keywords: ['bell pepper', 'peppercorn', 'tomato', 'green pepper', 'jalapeño', 'jalapeno'] },
-  { id: 'SPICE', keywords: ['pepper', 'spice', 'cinnamon', 'clove', 'ginger', 'anise', 'licorice', 'tobacco'] },
-  { id: 'BAKING', keywords: ['vanilla', 'cocoa', 'chocolate', 'caramel', 'coffee', 'espresso', 'butter'] },
-  { id: 'FLORAL', keywords: ['rose', 'violet', 'jasmine', 'blossom', 'honeysuckle', 'lilac', 'flower'] },
-  { id: 'EARTH', keywords: ['earth', 'earthy', 'mushroom', 'forest', 'soil', 'truffle', 'graphite', 'mineral', 'chalk', 'smoke', 'tar', 'petrol'] },
-  { id: 'WOOD', keywords: ['oak', 'cedar', 'wood', 'woodsy', 'sandalwood', 'sawdust', 'barrel'] },
-  { id: 'MARINE', keywords: ['saline', 'salt', 'sea', 'ocean', 'brine'] },
-  { id: 'WAX', keywords: ['honey', 'beeswax', 'lanolin', 'wax'] },
-  { id: 'NUT', keywords: ['almond', 'hazelnut', 'walnut', 'marzipan', 'nut'] },
-];
-
-const FLAVOR_CLASS_COLORS: Record<FlavorClass, { color: string; icon: string; border: string; text: string }> = {
-  SWEET: { color: '#f59e0b', icon: 'sparkles', border: '#b45309', text: '#fffbeb' },
-  SOUR: { color: '#22c55e', icon: 'citrus', border: '#15803d', text: '#ecfdf3' },
-  SALTY: { color: '#38bdf8', icon: 'droplet', border: '#0ea5e9', text: '#e0f2fe' },
-  BITTER: { color: '#8b5cf6', icon: 'triangle', border: '#6d28d9', text: '#f3e8ff' },
-  UMAMI: { color: '#14b8a6', icon: 'leaf', border: '#0d9488', text: '#e0f2f1' },
-};
-
 const TASTING_NOTE_ICON_KEYS: TastingNote['icon'][] = [
   'circle',
   'triangle',
@@ -144,51 +120,6 @@ const sanitizeTastingNoteIcon = (icon?: string): TastingNote['icon'] =>
   icon && TASTING_NOTE_ICON_KEYS.includes(icon as TastingNote['icon'])
     ? (icon as TastingNote['icon'])
     : 'default';
-
-const SUBCLASS_TO_CLASS: Record<string, FlavorClass> = {
-  CITRUS: 'SOUR',
-  ORCHARD_FRUIT: 'SWEET',
-  STONE_FRUIT: 'SWEET',
-  TROPICAL: 'SWEET',
-  RED_FRUIT: 'SWEET',
-  DARK_FRUIT: 'SWEET',
-  BERRY: 'SWEET',
-  MARINE: 'SALTY',
-  SPICE: 'BITTER',
-  BAKING: 'SWEET',
-  VEGETAL: 'UMAMI',
-  HERBAL: 'UMAMI',
-  EARTH: 'UMAMI',
-  WOOD: 'UMAMI',
-  WAX: 'UMAMI',
-  NUT: 'UMAMI',
-  FLORAL: 'UMAMI',
-};
-
-const categorizeFlavor = (note: string, subclassHint?: string): FlavorClass => {
-  const n = note.toLowerCase();
-  if (subclassHint) {
-    const mapped = SUBCLASS_TO_CLASS[subclassHint.toUpperCase()];
-    if (mapped) return mapped;
-  }
-  const sweet = ['honey', 'vanilla', 'caramel', 'chocolate', 'sweet', 'jam', 'berry', 'plum', 'fruit', 'cand', 'mango', 'peach', 'apple', 'pear', 'fig', 'apricot', 'raisin', 'banana', 'cinnamon', 'butter', 'jammy'];
-  const sour = ['lemon', 'lime', 'citrus', 'grapefruit', 'tart', 'acid', 'sour', 'tangerine', 'orange', 'yuzu'];
-  const salty = ['saline', 'salt', 'brine', 'sea', 'ocean', 'sea salt'];
-  const bitter = ['cocoa', 'coffee', 'espresso', 'pepper', 'spice', 'graphite', 'tannin', 'tar', 'black tea', 'tea'];
-  if (sweet.some(k => n.includes(k))) return 'SWEET';
-  if (sour.some(k => n.includes(k))) return 'SOUR';
-  if (salty.some(k => n.includes(k))) return 'SALTY';
-  if (bitter.some(k => n.includes(k))) return 'BITTER';
-  return 'UMAMI';
-};
-
-
-const categorizeFlavorSubclass = (note: string): string => {
-  const lower = note.toLowerCase();
-  const match = FLAVOR_SUBCLASS_KEYWORDS.find(({ keywords }) => keywords.some(k => lower.includes(k)));
-  return match ? match.id : 'FLAVOR';
-};
-
 
 const formatSubclassLabel = (subclass: string) => subclass.split('_').map(part => part.charAt(0) + part.slice(1).toLowerCase()).join(' ');
 
@@ -284,5 +215,5 @@ export const WINE_ENTRIES: WineEntry[] = [
   },
 }));
 
-// Export after all definitions (must be at top-level scope)
+// Re-export shared helpers so existing consumers keep importing from `./constants`.
 export { FLAVOR_CLASS_COLORS, categorizeFlavor, categorizeFlavorSubclass };

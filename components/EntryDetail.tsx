@@ -1,15 +1,24 @@
-import React, { useEffect, useMemo, useRef, useState } from 'react';
+import React, { useEffect, useMemo, useRef } from 'react';
 import { Tag, MapPin, Activity, Droplet, Clock, Zap, BarChart3, Grape, Mountain, ChevronRight, List, Circle, Triangle, Leaf, Cloud, Sun, Sparkles, Flame, Shield, Castle, Globe, BookOpen, MapPinned, Flower2, Apple, Sprout, Gem, Trees, Wind, Citrus, GlassWater, Droplets, Scale, Box, Wine, Star, Crown } from 'lucide-react';
+import { Icon } from '@iconify/react';
 import DeviceLayout from './DeviceLayout';
 import { ClimateClass, EntryCategory, WineEntry } from '../types';
 import { CLIMATE_CLASS_MAP } from '../data/climateClasses';
 import { getFlagGradient } from '../data/flagGradients';
 import { getFlagImage } from '../data/flagImages';
-import { loadAllEntries } from '../src/services/wineData';
 import { getStylePalette } from '../stylePalette';
 import { CONTAINER_SIZE_HEADER, HEADER_BORDER_CLASS, CONTAINER_SHADOW_CLASS, HEADER_BORDER, CONTAINER_SIZE_LIST, CONTAINER_BORDER_CLASS, CONTAINER_BORDER, ICON_SIZE_HEADER, ICON_SIZE_LINKED } from '../src/services/iconRendering';
 import { createEntryVisualResolver, resolveEntryIconVisual } from '../src/services/entryIconVisuals';
-import { categorizeFlavor, categorizeFlavorSubclass, FLAVOR_CLASS_COLORS } from '../constants';
+import {
+  categorizeFlavor,
+  categorizeFlavorSubclass,
+  findEntryByName,
+  findRelatedEntry,
+  getColorType,
+  getStyleClassType,
+  isVariousOrigin,
+  normalizeLabel,
+} from '../src/services/entryUtils';
 import Chip from './Chip';
 import { getCountryChipColors, getClassificationChipColors, getWineTypeChipColors, getRarityChipColors, getFlavorClassChipColors, getFlavorSubclassChipColors, SYSTEM_CHIP_COLOR, CLIMATE_CHIP_COLOR, APPELLATION_CHIP_COLORS, extractTagAbbrev } from '../src/services/chipColors';
 import { getGrapeColorLabel, getGrapeBodyLabel, getGrapeColorChipColors, getGrapeBodyChipColors } from '../src/services/grapeDisplay';
@@ -18,6 +27,7 @@ type FilterMode = 'REGION' | 'TYPE' | 'TASTING' | 'SOIL' | 'ORIGIN' | 'RARITY' |
 
 interface EntryDetailProps {
   entry: WineEntry;
+  allEntries: WineEntry[];
   onBack: () => void;
   onHome: () => void;
   onSelectRelated: (entry: WineEntry) => void;
@@ -73,25 +83,9 @@ function normalizeTypeClass(type?: string): string {
   return 'Medium'; // fallback
 }
 
-const EntryDetail: React.FC<EntryDetailProps> = ({ entry, onBack, onHome, onSelectRelated, onFilterByType, onFilterByNote, onFilterBySoil, onFilterByOrigin, onFilterByRarity, onFilterByClimate, onViewStates }) => {
+const EntryDetail: React.FC<EntryDetailProps> = ({ entry, allEntries, onBack, onHome, onSelectRelated, onFilterByType, onFilterByNote, onFilterBySoil, onFilterByOrigin, onFilterByRarity, onFilterByClimate, onViewStates }) => {
   const scrollRef = useRef<HTMLDivElement>(null);
-  const [allEntries, setAllEntries] = useState<WineEntry[]>([]);
   const entryVisualResolver = useMemo(() => createEntryVisualResolver({ entries: allEntries }), [allEntries]);
-
-  useEffect(() => {
-    let cancelled = false;
-    loadAllEntries()
-      .then((data) => {
-        if (!cancelled) setAllEntries(data);
-      })
-      .catch((err) => {
-        if (!cancelled) console.error('Failed to load wine entries', err);
-      });
-
-    return () => {
-      cancelled = true;
-    };
-  }, []);
 
   // Scroll to top whenever the entry changes
   useEffect(() => {
@@ -99,7 +93,7 @@ const EntryDetail: React.FC<EntryDetailProps> = ({ entry, onBack, onHome, onSele
       scrollRef.current.scrollTop = 0;
     }
   }, [entry.id]);
-  
+
   // Helper to normalize levels for stat bars
   const getLevelIndex = (val: string | undefined, levels: string[]) => {
       if (!val) return -1;
@@ -110,58 +104,8 @@ const EntryDetail: React.FC<EntryDetailProps> = ({ entry, onBack, onHome, onSele
     return value ? value.toUpperCase() : 'N/A';
   };
 
-  const normalizeEntryKey = (value: string) =>
-    value
-      .toLowerCase()
-      .normalize('NFD')
-      .replace(/[\u0300-\u036f]/g, '')
-      .replace(/[^a-z0-9]+/g, ' ')
-      .trim();
-
-  const matchesEntryKey = (entry: WineEntry, cleanName: string) => {
-    if (normalizeEntryKey(entry.name) === cleanName) return true;
-    return !!(entry.details.synonyms && entry.details.synonyms.some((s) => normalizeEntryKey(s) === cleanName));
-  };
-
-  // Helper to find related entry
-  const getRelatedEntry = (name: string, preferredCategory?: EntryCategory) => {
-    const cleanName = normalizeEntryKey(name);
-    const exactInPreferred = preferredCategory
-      ? allEntries.find((entry) => entry.category === preferredCategory && matchesEntryKey(entry, cleanName))
-      : undefined;
-    if (exactInPreferred) return exactInPreferred;
-
-    const exactAny = allEntries.find((entry) => matchesEntryKey(entry, cleanName));
-    if (exactAny) return exactAny;
-
-    const fallbackPool = preferredCategory
-      ? [...allEntries.filter((entry) => entry.category === preferredCategory), ...allEntries.filter((entry) => entry.category !== preferredCategory)]
-      : allEntries;
-
-    const cleanTokens = cleanName.split(' ').filter(Boolean);
-    return fallbackPool.find((entry) => {
-      const entryKey = normalizeEntryKey(entry.name);
-      if (!entryKey) return false;
-
-      const entryTokens = entryKey.split(' ').filter(Boolean);
-      if (cleanTokens.length > 1 && entryTokens.length === 1) return false;
-      return entryKey.includes(cleanName) || cleanName.includes(entryKey);
-    });
-  };
-
-  const normalizeFlavorKey = (value: string) =>
-    value
-      .toLowerCase()
-      .normalize('NFD')
-      .replace(/[\u0300-\u036f]/g, '')
-      .replace(/[^a-z0-9]+/g, ' ')
-      .trim();
-
-  const normalizeLabel = (value: string) =>
-    value
-      .toLowerCase()
-      .normalize('NFD')
-      .replace(/[\u0300-\u036f]/g, '');
+  const getRelatedEntry = (name: string, preferredCategory?: EntryCategory) =>
+    findRelatedEntry(allEntries, name, preferredCategory);
 
   const isLightColor = (hex: string) => {
     const clean = hex.replace('#', '');
@@ -171,25 +115,8 @@ const EntryDetail: React.FC<EntryDetailProps> = ({ entry, onBack, onHome, onSele
     return (0.299 * r + 0.587 * g + 0.114 * b) > 160;
   };
 
-  const isVariousOrigin = (origin?: string) => (origin || '').trim().toLowerCase() === 'various';
-
-  const getExactFlavorEntry = (name: string) => {
-    const cleanName = normalizeFlavorKey(name);
-    return allEntries.find((e) => {
-      if (e.category !== 'FLAVORS') return false;
-      if (normalizeFlavorKey(e.name) === cleanName) return true;
-      return !!(e.details.synonyms && e.details.synonyms.some((s) => normalizeFlavorKey(s) === cleanName));
-    });
-  };
-
-  const getExactGrapeEntry = (name: string) => {
-    const cleanName = normalizeEntryKey(name);
-    return allEntries.find((e) => {
-      if (e.category !== 'GRAPES') return false;
-      if (normalizeEntryKey(e.name) === cleanName) return true;
-      return !!(e.details.synonyms && e.details.synonyms.some((s) => normalizeEntryKey(s) === cleanName));
-    });
-  };
+  const getExactFlavorEntry = (name: string) => findEntryByName(allEntries, name, 'FLAVORS');
+  const getExactGrapeEntry = (name: string) => findEntryByName(allEntries, name, 'GRAPES');
 
   // Type Icon Selection
   const getTypeIcon = (typeStr: string = '', size: number = 28) => {
@@ -271,21 +198,6 @@ const EntryDetail: React.FC<EntryDetailProps> = ({ entry, onBack, onHome, onSele
   const isContinent = entry.category === 'CONTINENTS';
   const isCountry = entry.category === 'COUNTRY_GATE' && entry.details.classification?.toUpperCase() === 'COUNTRY';
   const isState = entry.category === 'COUNTRY_GATE' && entry.details.classification?.toUpperCase() === 'STATE';
-  const getStyleClassType = (name: string, classification?: string) => {
-    const normalized = normalizeLabel(name);
-    const classOverride = classification?.toUpperCase();
-
-    if (classOverride === 'ORIGIN' || classOverride === 'METHOD' || classOverride === 'TYPE' || classOverride === 'BLEND') return classOverride;
-
-    const originKeywords = ['champagne', 'port', 'sherry', 'prosecco', 'cremant', 'cru beaujolais', 'super tuscan'];
-    const methodKeywords = ['sparkling', 'fortified', 'dessert', 'late harvest', 'ice wine', 'botrytis', 'petillant', 'natural wine', 'orange wine'];
-    const typeKeywords = ['full-body', 'full body', 'full-bodied', 'full bodied', 'light-body', 'light body', 'light-bodied', 'light bodied', 'medium-body', 'medium body', 'medium-bodied', 'medium bodied', 'aromatic', 'white', 'red', 'rose', 'sweet white', 'sparkling wine'];
-
-    if (originKeywords.some(k => normalized.includes(k))) return 'ORIGIN';
-    if (typeKeywords.some(k => normalized.includes(k))) return 'TYPE';
-    if (methodKeywords.some(k => normalized.includes(k))) return 'METHOD';
-    return 'STYLE';
-  };
 
   const styleClassType = isStyle ? getStyleClassType(entry.name, entry.details.classification) : undefined;
   const isMethodClass = styleClassType === 'METHOD';
@@ -294,14 +206,6 @@ const EntryDetail: React.FC<EntryDetailProps> = ({ entry, onBack, onHome, onSele
   const isStyleClassType = styleClassType === 'STYLE';
   const isBlendClassType = styleClassType === 'BLEND';
   const classTypeColors = getClassTypeColors(styleClassType as 'STYLE' | 'METHOD' | 'ORIGIN' | 'TYPE' | 'BLEND' | undefined);
-  const getColorType = (name: string) => {
-    const n = normalizeLabel(name);
-    if (n.includes('orange')) return 'ORANGE';
-    if (n.includes('rose')) return 'ROSE';
-    if (n.includes('red')) return 'RED';
-    if (n.includes('white')) return 'WHITE';
-    return 'DUAL';
-  };
   const colorType = isStyle ? getColorType(entry.name) : undefined;
   const colorTypeColors = getColorTypeColors(colorType);
 
@@ -453,6 +357,10 @@ const EntryDetail: React.FC<EntryDetailProps> = ({ entry, onBack, onHome, onSele
     const showLinkedGrapeChips = relatedEntry?.category === 'GRAPES';
     const linkedGrapeColorLabel = showLinkedGrapeChips && relatedEntry ? getGrapeColorLabel(relatedEntry) : undefined;
     const linkedGrapeBodyLabel = showLinkedGrapeChips && relatedEntry ? getGrapeBodyLabel(relatedEntry) : undefined;
+    const showLinkedCountryChips = relatedEntry?.category === 'COUNTRY_GATE';
+    const linkedCountryAppellations = showLinkedCountryChips && relatedEntry
+      ? relatedEntry.tags.filter((tag) => tag !== 'COUNTRY' && tag !== 'STATE')
+      : [];
 
     return (
       <button
@@ -509,6 +417,17 @@ const EntryDetail: React.FC<EntryDetailProps> = ({ entry, onBack, onHome, onSele
                 )}
               </div>
             )}
+            {showLinkedCountryChips && linkedCountryAppellations.length > 0 && (
+              <div className="mt-1 flex flex-wrap gap-1">
+                {linkedCountryAppellations.map((tag, i) => (
+                  <Chip
+                    key={tag}
+                    label={extractTagAbbrev(tag)}
+                    colorStyle={APPELLATION_CHIP_COLORS[i % 3]}
+                  />
+                ))}
+              </div>
+            )}
           </div>
           {isLinkable && <ChevronRight size={16} className="text-stone-600 group-hover:text-green-500 shrink-0 ml-2" />}
         </div>
@@ -558,15 +477,17 @@ const EntryDetail: React.FC<EntryDetailProps> = ({ entry, onBack, onHome, onSele
     return meta ? meta.colors : { bg: '#0f172a', border: '#334155', text: '#e2e8f0' };
   };
 
-  const getClimateIcon = (climate?: ClimateClass) => {
-    switch (climate) {
-      case 'maritime': return <Droplet size={20} />;
-      case 'continental': return <Mountain size={20} />;
-      case 'cool': return <Wind size={20} />;
-      case 'warm': return <Sun size={20} />;
-      case 'mediterranean': return <Sparkles size={20} />;
-      default: return <Cloud size={20} />;
-    }
+  const CLIMATE_ICON_MAP: Record<string, string> = {
+    maritime: 'game-icons:big-wave',
+    continental: 'game-icons:mountains',
+    cool: 'game-icons:snowflake-2',
+    warm: 'game-icons:sun',
+    mediterranean: 'game-icons:olive',
+  };
+
+  const getClimateIcon = (climate?: ClimateClass, size: number = 20) => {
+    const iconName = climate ? CLIMATE_ICON_MAP[climate] : undefined;
+    return <Icon icon={iconName || 'game-icons:cloud'} width={size} height={size} />;
   };
 
   // Header Tiles Logic - Updated to remove rarity from regions/styles, add rarity clickable for grapes
@@ -589,7 +510,22 @@ const EntryDetail: React.FC<EntryDetailProps> = ({ entry, onBack, onHome, onSele
           const headerTileIconSize = 32;
           const colorType = grapeCard?.type === 'red' ? 'RED' : 'WHITE';
           const colorTypeColors = getColorTypeColors(colorType);
-          const colorIconNode = colorType === 'RED' ? <Wine size={headerTileIconSize} /> : <GlassWater size={headerTileIconSize} />;
+          const colorIconNode = (
+            <Icon
+              icon={colorType === 'RED' ? 'game-icons:wine-bottle' : 'game-icons:wine-glass'}
+              width={headerTileIconSize}
+              height={headerTileIconSize}
+            />
+          );
+          const bodyLabel = getGrapeBodyLabel(entry);
+          const BODY_ICON_MAP: Record<string, string> = {
+            'Light': 'game-icons:feather',
+            'Light-Medium': 'game-icons:scales-tipped',
+            'Medium': 'game-icons:scales',
+            'Medium-Full': 'game-icons:weight-lifting-up',
+            'Full': 'game-icons:weight',
+          };
+          const bodyIconName = BODY_ICON_MAP[bodyLabel] || 'game-icons:scales';
           const countryStyle = getCountryChipColors(entry.details.origin);
           const normalizedOrigin = entry.details.origin ? entry.details.origin.toLowerCase().trim() : undefined;
           const countryFlagGradient = getFlagGradient(normalizedOrigin);
@@ -616,7 +552,7 @@ const EntryDetail: React.FC<EntryDetailProps> = ({ entry, onBack, onHome, onSele
                   >
                       <span className={labelStyle}>TYPE</span>
                       <div className={iconRowStyle}>
-                        <Grape size={headerTileIconSize} />
+                        <Icon icon={bodyIconName} width={headerTileIconSize} height={headerTileIconSize} />
                       </div>
                       <span className={chipStyle} style={{ backgroundColor: '#222', borderColor: '#16a34a', color: '#bbf7d0' }}>
                         {normalizeTypeClass(grapeCard?.style)}
@@ -631,7 +567,7 @@ const EntryDetail: React.FC<EntryDetailProps> = ({ entry, onBack, onHome, onSele
                   >
                        <span className={labelStyle}>ORIGIN</span>
                        <div className={iconRowStyle}>
-                         <div className="w-12 h-12 rounded border-2 border-white shadow-inner bg-stone-900 flex-shrink-0 overflow-hidden flex items-center justify-center">
+                         <div className="w-16 h-10 rounded border-2 border-white shadow-inner bg-stone-900 flex-shrink-0 overflow-hidden flex items-center justify-center">
                            {countryFlagImage ? (
                              <img
                                  src={countryFlagImage}
@@ -703,9 +639,7 @@ const EntryDetail: React.FC<EntryDetailProps> = ({ entry, onBack, onHome, onSele
               >
                    <span className={labelStyle}>CLIMATE</span>
                    <div className={iconRowStyle} style={{ color: climateStyle.border }}>
-                     {React.isValidElement(getClimateIcon(entry.climate))
-                       ? React.cloneElement(getClimateIcon(entry.climate) as React.ReactElement<any>, { size: 32 })
-                       : getClimateIcon(entry.climate)}
+                     {getClimateIcon(entry.climate, 48)}
                    </div>
                    <span className={chipStyle} style={{ backgroundColor: climateStyle.bg, borderColor: climateStyle.border, color: climateStyle.text }}>
                      {formatUpper(climateMeta?.name || 'N/A')}
@@ -720,7 +654,7 @@ const EntryDetail: React.FC<EntryDetailProps> = ({ entry, onBack, onHome, onSele
               >
                    <span className={labelStyle}>COUNTRY</span>
                    <div className={iconRowStyle}>
-                     <div className="w-12 h-12 rounded border-2 border-white shadow-inner bg-stone-900 flex-shrink-0 overflow-hidden flex items-center justify-center">
+                     <div className="w-16 h-10 rounded border-2 border-white shadow-inner bg-stone-900 flex-shrink-0 overflow-hidden flex items-center justify-center">
                        {flagImage ? (
                          <img
                            src={flagImage}
@@ -743,29 +677,35 @@ const EntryDetail: React.FC<EntryDetailProps> = ({ entry, onBack, onHome, onSele
           const classColors = getClassTypeColors(styleClassType as 'STYLE' | 'METHOD' | 'ORIGIN' | 'TYPE' | 'BLEND' | undefined);
           const flagGradient = getFlagGradient(entry.details.origin);
           const flagImage = getFlagImage(entry.details.origin);
-          const styleClassIconNode = (() => {
-            switch (styleClassType) {
-              case 'BLEND': return <Scale size={32} />;
-              case 'METHOD': return <Sparkles size={32} />;
-              case 'ORIGIN': return <MapPin size={32} />;
-              case 'TYPE': return <Shield size={32} />;
-              case 'STYLE':
-              default:
-                return <Grape size={32} />;
-            }
-          })();
+          const STYLE_CLASS_ICON_MAP: Record<string, string> = {
+            TYPE: 'game-icons:holy-grail',
+            BLEND: 'game-icons:pouring-chalice',
+            ORIGIN: 'game-icons:atlas',
+            METHOD: 'game-icons:cellar-barrels',
+            STYLE: 'game-icons:grapes',
+          };
+          const styleClassIconNode = (
+            <Icon
+              icon={(styleClassType && STYLE_CLASS_ICON_MAP[styleClassType]) || 'game-icons:grapes'}
+              width={32}
+              height={32}
+            />
+          );
 
-          const colorIconNode = (() => {
-            switch (colorType) {
-              case 'RED': return <Wine size={32} />;
-              case 'WHITE': return <GlassWater size={32} />;
-              case 'ROSE': return <Droplets size={32} />;
-              case 'ORANGE': return <Sun size={32} />;
-              case 'DUAL':
-              default:
-                return <Droplets size={32} />;
-            }
-          })();
+          const STYLE_COLOR_ICON_MAP: Record<string, string> = {
+            RED: 'game-icons:wine-bottle',
+            WHITE: 'game-icons:wine-glass',
+            ROSE: 'game-icons:rose',
+            ORANGE: 'game-icons:sun',
+            DUAL: 'game-icons:two-shadows',
+          };
+          const colorIconNode = (
+            <Icon
+              icon={(colorType && STYLE_COLOR_ICON_MAP[colorType]) || 'game-icons:wine-glass'}
+              width={32}
+              height={32}
+            />
+          );
 
           const colorTile = (
             <button
@@ -1095,18 +1035,18 @@ const EntryDetail: React.FC<EntryDetailProps> = ({ entry, onBack, onHome, onSele
                     <Star size={24} className="text-green-400" />
                     <span className="font-retro text-xs md:text-sm tracking-widest text-green-400">RARITY</span>
                 </div>
-                <div className="flex items-center gap-4">
-                  <span className="flex-1 flex items-center px-6 py-3 rounded-full border-2 border-green-500 bg-green-950 text-2xl font-extrabold uppercase text-green-300 justify-between" style={{ fontSize: '2rem', letterSpacing: '0.1em' }}>
+                <div className="flex items-center gap-2">
+                  <span className="flex-1 flex items-center px-3 py-1.5 rounded-full border-2 border-green-500 bg-green-950 text-base font-extrabold uppercase text-green-300 justify-between" style={{ letterSpacing: '0.1em' }}>
                     {displayClass}
-                    <span className="ml-4 flex items-center">
+                    <span className="ml-2 flex items-center">
                       {(() => {
                         const rarity = (entry.rarity || '').toUpperCase();
                         if (rarity === 'NOBLE') {
-                          return <Crown size={40} className="text-yellow-400 ml-2" />;
+                          return <Crown size={20} className="text-yellow-400 ml-1" />;
                         }
                         const starCount = rarity === 'RARE' ? 3 : rarity === 'COMMON' ? 2 : rarity === 'UNCOMMON' ? 1 : 1;
                         return Array.from({ length: starCount }).map((_, i) => (
-                          <Star key={i} size={36} className="text-yellow-400 ml-1" fill="#facc15" />
+                          <Star key={i} size={18} className="text-yellow-400 ml-0.5" fill="#facc15" />
                         ));
                       })()}
                     </span>
@@ -1283,16 +1223,19 @@ const EntryDetail: React.FC<EntryDetailProps> = ({ entry, onBack, onHome, onSele
                   <div className="flex flex-col gap-2 w-full">
                     {matchedFlavorNotes.map((note, i) => {
                       // Get icon, color, and label
-                      const { iconNode, borderColor, bgColor, label } = getFlavorTileVisual(note);
+                      const { relatedFlavor, iconNode, borderColor, bgColor, label } = getFlavorTileVisual(note);
                       // Get class and type
                       const subclass = categorizeFlavorSubclass(label);
                       const flavorClass = categorizeFlavor(label, subclass);
                       const classColor = getFlavorClassChipColors(flavorClass);
                       const typeColor = getFlavorSubclassChipColors(subclass);
                       return (
-                        <div
+                        <button
+                          type="button"
                           key={i}
-                          className="w-full bg-stone-900 border-2 border-stone-700 rounded p-2 flex items-center gap-3 relative overflow-hidden min-h-[4.5rem]"
+                          onClick={() => relatedFlavor && onSelectRelated(relatedFlavor)}
+                          disabled={!relatedFlavor}
+                          className="w-full bg-stone-900 border-2 border-stone-700 rounded p-2 flex items-center gap-3 relative overflow-hidden min-h-[4.5rem] text-left hover:border-green-500 hover:bg-stone-800 transition-colors disabled:cursor-not-allowed cursor-pointer"
                         >
                           {/* Hero Icon */}
                           <div
@@ -1311,7 +1254,7 @@ const EntryDetail: React.FC<EntryDetailProps> = ({ entry, onBack, onHome, onSele
                               <Chip label={subclass.replace(/_/g, ' ')} colorStyle={typeColor} />
                             </div>
                           </div>
-                        </div>
+                        </button>
                       );
                     })}
                   </div>

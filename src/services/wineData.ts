@@ -54,20 +54,31 @@ const canonicalizeEntry = (entry: WineEntry): WineEntry => ({
 const canonicalizeEntries = (entries: WineEntry[]) => entries.map(canonicalizeEntry);
 
 /**
- * Load all wine entries from the generated dataset. Results are cached in-memory
- * for the lifetime of the session to avoid refetching across components.
+ * Synchronously return the canonicalized wine entries. The first call performs
+ * canonicalization; subsequent calls return the cached array.
+ */
+export function getAllEntries(): WineEntry[] {
+  if (!cachedEntries) {
+    cachedEntries = canonicalizeEntries(WINE_ENTRIES);
+  }
+  return cachedEntries;
+}
+
+/**
+ * Async wrapper around {@link getAllEntries}. Kept so existing async call sites
+ * (e.g. EncyclopediaList) don't have to change.
  */
 export async function loadAllEntries(): Promise<WineEntry[]> {
   if (cachedEntries) return cachedEntries;
   if (inFlight) return inFlight;
 
-  inFlight = (async () => {
-    const localEntries = canonicalizeEntries(WINE_ENTRIES);
-    cachedEntries = localEntries;
-    return localEntries;
-  })().finally(() => {
+  inFlight = Promise.resolve().then(() => getAllEntries()).finally(() => {
     inFlight = null;
   });
 
   return inFlight;
+}
+
+export function findEntryById(id: string): WineEntry | undefined {
+  return getAllEntries().find((entry) => entry.id === id);
 }

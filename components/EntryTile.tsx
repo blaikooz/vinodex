@@ -21,6 +21,7 @@ import {
   APPELLATION_CHIP_COLORS,
   extractTagAbbrev,
 } from '../src/services/chipColors';
+import { getColorType, getStyleClassType } from '../src/services/entryUtils';
 
 type FilterMode = 'REGION' | 'TYPE' | 'TASTING' | 'SOIL' | 'ORIGIN' | 'RARITY' | 'SYSTEM' | 'CLIMATE' | null;
 
@@ -112,22 +113,6 @@ const getWineTypeStyle = (wineType: string | undefined) => {
 };
 
 
-const getStyleClassType = (name: string, classification?: string) => {
-  const normalized = name.toLowerCase();
-  const classOverride = classification?.toUpperCase();
-
-  if (classOverride === 'ORIGIN' || classOverride === 'METHOD' || classOverride === 'TYPE' || classOverride === 'BLEND') return classOverride;
-
-  const originKeywords = ['champagne', 'port', 'sherry', 'prosecco', 'crémant', 'cremant', 'cru beaujolais', 'super tuscan'];
-  const methodKeywords = ['sparkling', 'fortified', 'dessert', 'late harvest', 'ice wine', 'botrytis', 'pétillant', 'petillant', 'natural wine', 'orange wine'];
-  const typeKeywords = ['full-body', 'full body', 'full-bodied', 'full bodied', 'light-body', 'light body', 'light-bodied', 'light bodied', 'medium-body', 'medium body', 'medium-bodied', 'medium bodied', 'aromatic', 'white', 'red', 'rosé', 'rose', 'sweet white', 'sparkling wine'];
-
-  if (originKeywords.some(k => normalized.includes(k))) return 'ORIGIN';
-  if (typeKeywords.some(k => normalized.includes(k))) return 'TYPE';
-  if (methodKeywords.some(k => normalized.includes(k))) return 'METHOD';
-  return 'STYLE';
-};
-
 const getClassTypeStyle = (type: 'STYLE' | 'METHOD' | 'ORIGIN' | 'TYPE' | 'BLEND' | undefined) => {
   switch (type) {
     case 'STYLE': return { bg: 'bg-stone-900', text: 'text-green-200', border: 'border-green-500' };
@@ -139,20 +124,12 @@ const getClassTypeStyle = (type: 'STYLE' | 'METHOD' | 'ORIGIN' | 'TYPE' | 'BLEND
   }
 };
 
-const getColorType = (name: string) => {
-  const n = name.toLowerCase();
-  if (n.includes('orange')) return 'ORANGE';
-  if (n.includes('rosé') || n.includes('rose')) return 'ROSÉ';
-  if (n.includes('red')) return 'RED';
-  if (n.includes('white')) return 'WHITE';
-  return 'DUAL';
-};
-
 const getColorTypeStyle = (type?: string) => {
   switch (type) {
     case 'RED': return { bg: 'bg-[#4A0E0E]', text: 'text-rose-100', border: 'border-[#8B0000]' }; // full-bodied red palette
     case 'WHITE': return { bg: 'bg-[#FAFAD2]', text: 'text-amber-900', border: 'border-[#DAA520]' }; // light-bodied white palette
-    case 'ROSÉ': return { bg: 'bg-pink-900', text: 'text-pink-100', border: 'border-pink-600' };
+    case 'ROSÉ':
+    case 'ROSE': return { bg: 'bg-pink-900', text: 'text-pink-100', border: 'border-pink-600' };
     case 'ORANGE': return { bg: 'bg-amber-950', text: 'text-amber-100', border: 'border-amber-600' };
     case 'DUAL': return { bg: 'bg-[#501237]', text: 'text-pink-100', border: 'border-[#f472b6]' };
     default: return { bg: 'bg-stone-700', text: 'text-stone-200', border: 'border-stone-500' };

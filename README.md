@@ -19,6 +19,7 @@ Vinodex is a retro-styled wine encyclopedia PWA built with React, TypeScript, an
 - Vite
 - Tailwind CSS v4
 - Lucide React
+- Iconify React with game-icons icon set
 - `vite-plugin-pwa`
 
 ## Getting Started
@@ -75,3 +76,8 @@ types.ts      Shared TypeScript types
 - `constants.ts` is the runtime source of truth for app entries.
 - `public/wine-entries.json` remains a generated/static artifact and is not the active runtime loader.
 - The repo no longer depends on a bundled platform-specific Node binary.
+
+## Icon Attribution
+
+- **Lucide React**: UI and utility icons (lucide.dev)
+- **game-icons**: Thematic wine, flavor, and regional icons sourced via Iconify (game-icons.net)

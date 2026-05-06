@@ -23,11 +23,19 @@ import {
 	Wind,
 	Zap,
 } from 'lucide-react';
+import { Icon } from '@iconify/react';
 import type { WineEntry } from '../../types';
 import { CLIMATE_CLASS_MAP } from '../../data/climateClasses';
 import { getFlagGradient } from '../../data/flagGradients';
 import { getFlagImage } from '../../data/flagImages';
 import { getStylePalette } from '../../stylePalette';
+import FlavorIcon from '../../components/FlavorIcon';
+import {
+  findEntryByName,
+  getStyleClassType,
+  getStyleColorType,
+  isVariousOrigin,
+} from './entryUtils';
 
 export interface EntryVisualResolver {
 	entries: WineEntry[];
@@ -68,7 +76,7 @@ const OLYMPIC_CONTINENT_COLORS: Record<string, string> = {
 	CONT_NORTH_AMERICA: '#E11D48',
 	CONT_EUROPE: '#2563EB',
 	CONT_SOUTH_AMERICA: '#A855F7',
-	CONT_AFRICA: '#FFFFFF',
+	CONT_AFRICA: '#000000',
 	CONT_OCEANIA: '#16A34A',
 	CONT_ASIA: '#FACC15',
 };
@@ -161,16 +169,6 @@ const buildIconNode = (iconKey: string, size: number, color = '#ffffff'): React.
 	return applyFilledIconTreatment(iconNode);
 };
 
-const normalizeKey = (value: string) =>
-	value
-		.toLowerCase()
-		.normalize('NFD')
-		.replace(/[\u0300-\u036f]/g, '')
-		.replace(/[^a-z0-9]+/g, ' ')
-		.trim();
-
-const isVariousOrigin = (origin?: string) => (origin || '').trim().toLowerCase() === 'various';
-
 const darkenHex = (hex: string, amount = 0.35) => {
 	const clean = hex.replace('#', '');
 	if (clean.length !== 6) return hex;
@@ -228,33 +226,6 @@ const getGrapeIconColor = (wineType: string | undefined, body: string | undefine
 	return '#78716c';
 };
 
-const getStyleClassType = (name: string, classification?: string) => {
-	const normalized = normalizeKey(name);
-	const classOverride = classification?.toUpperCase();
-
-	if (classOverride === 'ORIGIN' || classOverride === 'METHOD' || classOverride === 'TYPE' || classOverride === 'BLEND') {
-		return classOverride;
-	}
-
-	const originKeywords = ['champagne', 'port', 'sherry', 'prosecco', 'cremant', 'cru beaujolais', 'super tuscan'];
-	const methodKeywords = ['sparkling', 'fortified', 'dessert', 'late harvest', 'ice wine', 'botrytis', 'petillant', 'natural wine', 'orange wine'];
-	const typeKeywords = ['full-bodied', 'full bodied', 'light-bodied', 'light bodied', 'medium-bodied', 'medium bodied', 'aromatic', 'white', 'red', 'rose', 'sweet white', 'sparkling wine'];
-
-	if (originKeywords.some((k) => normalized.includes(k))) return 'ORIGIN';
-	if (typeKeywords.some((k) => normalized.includes(k))) return 'TYPE';
-	if (methodKeywords.some((k) => normalized.includes(k))) return 'METHOD';
-	return 'STYLE';
-};
-
-const getStyleColorType = (name: string) => {
-	const n = normalizeKey(name);
-	if (n.includes('orange')) return 'ORANGE';
-	if (n.includes('rose')) return 'ROSE';
-	if (n.includes('red')) return 'RED';
-	if (n.includes('white')) return 'WHITE';
-	return 'DUAL';
-};
-
 const getStyleClassBg = (styleEntry?: WineEntry) => {
 	const classType = styleEntry ? getStyleClassType(styleEntry.name, styleEntry.details.classification) : undefined;
 	switch (classType) {
@@ -276,41 +247,118 @@ const getStyleClassBg = (styleEntry?: WineEntry) => {
 const getStyleColorTypeColor = (type?: string) => {
 	switch (type) {
 		case 'RED':
-			return '#8B0000';
+			return '#dc2626';
 		case 'WHITE':
-			return '#FAFAD2';
+			return '#ffffff';
 		case 'ROSE':
-			return '#f9a8d4';
+			return '#ec4899';
 		case 'ORANGE':
-			return '#fdba74';
+			return '#f97316';
 		case 'DUAL':
-			return '#f472b6';
+			return '#3b82f6';
 		default:
 			return '#e5e7eb';
 	}
 };
 
+const STYLE_ICON_MAP: Record<string, string> = {
+	'flame': 'game-icons:flame',
+	'droplet': 'game-icons:droplet',
+	'sun': 'game-icons:sun',
+	'sparkles': 'game-icons:sparkles',
+	'circle': 'game-icons:circle',
+	'shield': 'game-icons:shield',
+	'leaf': 'game-icons:leaf',
+	'mountain': 'game-icons:mountain',
+	'triangle': 'game-icons:triangle',
+	'heart': 'game-icons:heart',
+	'zap': 'game-icons:zap',
+	'flower': 'game-icons:flower',
+	'fruit': 'game-icons:apple',
+	'herb': 'game-icons:herb',
+	'spice': 'game-icons:spices',
+	'mineral': 'game-icons:gem',
+	'oak': 'game-icons:oak',
+	'smoke': 'game-icons:smoke',
+	'stone': 'game-icons:stone',
+	'tropical': 'game-icons:banana',
+	'flag': 'game-icons:flag',
+	'honey': 'game-icons:honeycomb',
+	'nut': 'game-icons:almond',
+	'default': 'game-icons:question-mark',
+};
+
+const COUNTRY_SHAPE_ICON_MAP: Record<string, string> = {
+	france: 'game-icons:france',
+	australia: 'game-icons:australia',
+	hungary: 'game-icons:hungary',
+	italy: 'game-icons:italia',
+	japan: 'game-icons:japan',
+	portugal: 'game-icons:portugal',
+	'south africa': 'game-icons:south-africa',
+	spain: 'game-icons:spain',
+	switzerland: 'game-icons:switzerland',
+};
+
+const normalizeCountryKey = (origin: string) =>
+	origin.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '').trim();
+
+const iconifyMaskUrl = (iconName: string) =>
+	`url(https://api.iconify.design/${iconName.replace(':', '/')}.svg)`;
+
+const renderShapedFlag = (background: string, iconName: string): React.ReactNode => {
+	const maskUrl = iconifyMaskUrl(iconName);
+	const flagBackgroundStyle: React.CSSProperties = {
+		background,
+		backgroundSize: 'cover',
+		backgroundPosition: 'center',
+	};
+	return (
+		<span className="relative w-full h-full block">
+			<span
+				className="absolute inset-0 block"
+				style={{ ...flagBackgroundStyle, opacity: 0.25, filter: 'blur(2px)' }}
+			/>
+			<span
+				className="absolute inset-0 block"
+				style={{
+					...flagBackgroundStyle,
+					WebkitMaskImage: maskUrl,
+					maskImage: maskUrl,
+					WebkitMaskSize: 'contain',
+					maskSize: 'contain',
+					WebkitMaskRepeat: 'no-repeat',
+					maskRepeat: 'no-repeat',
+					WebkitMaskPosition: 'center',
+					maskPosition: 'center',
+				}}
+			/>
+		</span>
+	);
+};
+
+const STYLE_CLASS_ICON_MAP: Record<string, string> = {
+	TYPE: 'game-icons:holy-grail',
+	BLEND: 'game-icons:pouring-chalice',
+	ORIGIN: 'game-icons:atlas',
+	METHOD: 'game-icons:cellar-barrels',
+};
+
 const getStyleIconShape = (styleEntry: WineEntry, colorTypeColor: string, size: number): React.ReactNode => {
 	const classType = getStyleClassType(styleEntry.name, styleEntry.details.classification);
-	const style = { color: colorTypeColor } as React.CSSProperties;
+	const classIcon = classType ? STYLE_CLASS_ICON_MAP[classType] : undefined;
 
-	if (classType === 'METHOD') return <Sparkles size={size} fill="currentColor" style={style} />;
-	if (classType === 'ORIGIN') return <Shield size={size} fill="currentColor" style={style} />;
-	if (classType === 'TYPE') return <Shield size={size} fill="currentColor" style={style} />;
+	const iconKey = styleEntry.icon || 'default';
+	const iconName = classIcon || STYLE_ICON_MAP[iconKey] || `game-icons:${iconKey}`;
 
-	const colorType = getStyleColorType(styleEntry.name);
-	switch (colorType) {
-		case 'RED':
-			return <Sun size={size} fill="currentColor" style={style} />;
-		case 'WHITE':
-			return <Droplet size={size} fill="currentColor" style={style} />;
-		case 'ROSE':
-			return <Droplet size={size} fill="currentColor" style={style} />;
-		case 'ORANGE':
-			return <Sun size={size} fill="currentColor" style={style} />;
-		default:
-			return <Grape size={size} fill="currentColor" style={style} />;
-	}
+	return (
+		<Icon
+			icon={iconName}
+			width={size}
+			height={size}
+			style={{ color: colorTypeColor }}
+		/>
+	);
 };
 
 const getFlavorSubclassIconColor = (sub?: string) => {
@@ -370,16 +418,6 @@ const getRegionClassificationIconColor = (classification?: string) => {
 	return map[key] || '#e5e7eb';
 };
 
-const findEntryByName = (entries: WineEntry[], name: string, category?: WineEntry['category']) => {
-	const clean = normalizeKey(name);
-	return entries.find((entry) => {
-		if (category && entry.category !== category) return false;
-		if (normalizeKey(entry.name) === clean) return true;
-		if (entry.details.synonyms?.some((s) => normalizeKey(s) === clean)) return true;
-		return false;
-	});
-};
-
 const getGrapePrimaryFlavorVisual = (
 	grape: WineEntry,
 	entries: WineEntry[],
@@ -390,8 +428,27 @@ const getGrapePrimaryFlavorVisual = (
 	const outline = darkenHex(typeBg, 0.4);
 	const relatedFlavor = primary?.note ? findEntryByName(entries, primary.note, 'FLAVORS') : undefined;
 	const iconColor = relatedFlavor ? getFlavorSubclassIconColor(relatedFlavor.details.subclass) : primary?.color || '#e5e7eb';
-	const key = primary?.icon || grape.icon || 'default';
-	const iconNode = addOutline(buildIconNode(key, size, iconColor), outline);
+
+	let iconNode: React.ReactNode;
+	if (relatedFlavor) {
+		iconNode = addOutline(
+			<FlavorIcon
+				name={relatedFlavor.name}
+				flavor={relatedFlavor.details.subclass || ''}
+				className=""
+				style={{
+					width: size,
+					height: size,
+					color: iconColor,
+				}}
+			/>,
+			outline
+		);
+	} else {
+		const key = primary?.icon || grape.icon || 'default';
+		iconNode = addOutline(buildIconNode(key, size, iconColor), outline);
+	}
+
 	return { iconNode, bg: typeBg, color: iconColor };
 };
 
@@ -441,22 +498,35 @@ export const resolveEntryIconVisual = (
 			}
 		}
 
-			return {
-				style: {
-					boxShadow: climateOutline ? `0 0 0 2px ${climateOutline}` : undefined,
-				},
-				iconNode: flagImage ? (
+			const countryShapeIcon = COUNTRY_SHAPE_ICON_MAP[normalizeCountryKey(origin)];
+			const useShapedFlag = !!countryShapeIcon && (!!flagImage || !!flagGradient);
+
+			let regionIconNode: React.ReactNode;
+			if (useShapedFlag) {
+				const background = flagImage ? `url(${flagImage})` : (flagGradient as string);
+				regionIconNode = renderShapedFlag(background, countryShapeIcon);
+			} else if (flagImage) {
+				regionIconNode = (
 					<img
 						src={flagImage}
 						alt={origin}
 						style={{ width: '100%', height: '100%', objectFit: 'fill', display: 'block', borderRadius: '9999px', border: '2px solid #fff' }}
 						draggable={false}
 					/>
-				) : flagGradient ? (
+				);
+			} else if (flagGradient) {
+				regionIconNode = (
 					<span className="w-full h-full block" style={{ background: flagGradient, borderRadius: '9999px', border: '2px solid #fff' }} />
-				) : (
-					addRegionOutline(buildIconNode(entry.icon || 'default', size, iconColor))
-				),
+				);
+			} else {
+				regionIconNode = addRegionOutline(buildIconNode(entry.icon || 'default', size, iconColor));
+			}
+
+			return {
+				style: {
+					boxShadow: climateOutline ? `0 0 0 2px ${climateOutline}` : undefined,
+				},
+				iconNode: regionIconNode,
 				iconColor,
 			};
 	}
@@ -499,6 +569,7 @@ export const resolveEntryIconVisual = (
 					backgroundImage: flagImage ? `url(${flagImage})` : flagGradient,
 					backgroundSize: flagImage ? 'cover' : undefined,
 					backgroundPosition: flagImage ? 'center' : undefined,
+					borderColor: '#ffffff',
 				},
 				iconNode,
 				iconColor,
@@ -506,30 +577,56 @@ export const resolveEntryIconVisual = (
 		}
 
 		return {
-			style: { backgroundColor: getStyleClassBg(entry) },
+			style: { backgroundColor: getStyleClassBg(entry), borderColor: '#ffffff' },
 			iconNode,
 			iconColor,
 		};
 	}
 
 	if (entry.category === 'CONTINENTS') {
-		const bgColor = OLYMPIC_CONTINENT_COLORS[entry.id] || entry.color || '#444';
-		const iconColor = entry.id === 'CONT_AFRICA' ? '#000000' : '#ffffff';
+		const iconColor = OLYMPIC_CONTINENT_COLORS[entry.id] || entry.color || '#444';
+		const continentIconName: Record<string, string> = {
+			CONT_AFRICA: 'game-icons:earth-africa-europe',
+			CONT_EUROPE: 'game-icons:earth-africa-europe',
+			CONT_ASIA: 'game-icons:earth-asia-oceania',
+			CONT_OCEANIA: 'game-icons:earth-asia-oceania',
+			CONT_NORTH_AMERICA: 'game-icons:earth-america',
+			CONT_SOUTH_AMERICA: 'game-icons:earth-america',
+		};
+		const iconifyName = continentIconName[entry.id];
+		const continentSize = Math.round(size * 1.6);
 		return {
-			style: { backgroundColor: bgColor },
-			iconNode: <Globe size={size} className="opacity-90" fill="none" stroke={iconColor} strokeWidth={2.6} />,
+			style: { backgroundColor: '#ffffff' },
+			iconNode: iconifyName ? (
+				<Icon icon={iconifyName} width={continentSize} height={continentSize} style={{ color: iconColor }} />
+			) : (
+				<Globe size={continentSize} className="opacity-90" fill="none" stroke={iconColor} strokeWidth={2.6} />
+			),
 			iconColor,
 		};
 	}
 
 	if (entry.category === 'FLAVORS') {
 		const iconColor = getFlavorSubclassIconColor(entry.details.subclass);
+		const flavorSize = Math.round(size * 1.3);
 		return {
 			style: {
 				backgroundColor: entry.color || '#444',
 				boxShadow: `0 0 0 2px ${iconColor}`,
 			},
-			iconNode: addOutline(buildIconNode(entry.icon || 'default', size, iconColor), iconColor),
+			iconNode: (
+				<FlavorIcon
+					name={entry.name}
+					flavor={entry.details.subclass || ''}
+					className=""
+					style={{
+						width: flavorSize,
+						height: flavorSize,
+						color: iconColor,
+						filter: BLACK_ICON_OUTLINE_FILTER,
+					}}
+				/>
+			),
 			iconColor,
 		};
 	}
