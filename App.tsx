@@ -14,7 +14,7 @@ import EncyclopediaList from './components/EncyclopediaList';
 import EntryDetail from './components/EntryDetail';
 import RegionMapScreen from './components/RegionMapScreen';
 import DeviceLayout from './components/DeviceLayout';
-import { WineEntry, EntryCategory, ClimateClass } from './types';
+import { WineEntry, EntryCategory } from './types';
 import { getAllEntries } from './src/services/wineData';
 
 const RetroGlobeScreen = lazy(() => import('./components/RetroGlobeScreen'));
@@ -134,18 +134,6 @@ const App: React.FC = () => {
     navigate(buildListUrl('COUNTRY_GATE', 'STATE', USA_STATES));
   };
 
-  const handleFilterByRarity = (rarity: string) => {
-    if (rarity.toUpperCase() === 'NOBLE') {
-      navigate('/detail/S029');
-      return;
-    }
-    navigate(buildListUrl('GRAPES', 'RARITY', rarity));
-  };
-
-  const handleFilterByClimate = (climate: ClimateClass) => {
-    navigate(buildListUrl('REGIONS', 'CLIMATE', climate));
-  };
-
   const ListRoute: React.FC = () => {
     const { category } = useParams<{ category: string }>();
     const [searchParams] = useSearchParams();
@@ -154,8 +142,9 @@ const App: React.FC = () => {
     }
     const mode = (searchParams.get('filterMode') as FilterMode) ?? null;
     const values = searchParams.getAll('filterValue');
+    const firstValue = values[0];
     const filterValue: string | string[] | null =
-      values.length === 0 ? null : values.length === 1 ? values[0] : values;
+      values.length === 0 || firstValue === undefined ? null : values.length === 1 ? firstValue : values;
     return (
       <EncyclopediaList
         category={category as EntryCategory}
@@ -165,11 +154,6 @@ const App: React.FC = () => {
         onSelect={handleSelectEntry}
         onBack={handleBack}
         onHome={handleHome}
-        onFilterByRarity={handleFilterByRarity}
-        onFilterByType={handleFilterByType}
-        onFilterByNote={handleFilterByNote}
-        onFilterByOrigin={handleFilterByOrigin}
-        onFilterByClimate={handleFilterByClimate}
       />
     );
   };
@@ -193,8 +177,6 @@ const App: React.FC = () => {
         onFilterBySoil={handleFilterBySoil}
         onFilterByOrigin={handleFilterByOrigin}
         onViewStates={handleViewStates}
-        onFilterByRarity={handleFilterByRarity}
-        onFilterByClimate={handleFilterByClimate}
       />
     );
   };

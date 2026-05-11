@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useRef } from 'react';
-import { Tag, MapPin, Activity, Droplet, Clock, Zap, BarChart3, Grape, Mountain, ChevronRight, List, Circle, Triangle, Leaf, Cloud, Sun, Sparkles, Flame, Shield, Castle, Globe, BookOpen, MapPinned, Flower2, Apple, Sprout, Gem, Trees, Wind, Citrus, GlassWater, Droplets, Scale, Box, Wine, Star, Crown, Waves, Coffee, Beef, Cherry, TreePalm, LeafyGreen, Carrot, Drumstick, Ham, Croissant, Cookie, Earth, TreePine, Shell, Hop, Nut } from 'lucide-react';
+import { Tag, MapPin, Activity, Droplet, Grape, Mountain, ChevronRight, List, Circle, Leaf, Cloud, Sparkles, Flame, Shield, BookOpen, MapPinned, Flower2, Apple, Wind, Citrus, Star, Crown, Waves, Coffee, Beef, Cherry, TreePalm, LeafyGreen, Carrot, Drumstick, Ham, Croissant, Cookie, Earth, TreePine, Shell, Hop, Nut } from 'lucide-react';
 import { Icon } from '@iconify/react';
 import DeviceLayout from './DeviceLayout';
 import { ClimateClass, EntryCategory, WineEntry, isCountryGateEntry, isFlavorEntry, isGrapeEntry, isRegionEntry, isStyleEntry } from '../types';
@@ -7,7 +7,7 @@ import { CLIMATE_CLASS_MAP } from '../data/climateClasses';
 import { getFlagGradient } from '../data/flagGradients';
 import { getFlagImage } from '../data/flagImages';
 import { getStylePalette } from '../stylePalette';
-import { CONTAINER_SIZE_HEADER, HEADER_BORDER_CLASS, CONTAINER_SHADOW_CLASS, HEADER_BORDER, CONTAINER_SIZE_LIST, CONTAINER_BORDER_CLASS, CONTAINER_BORDER, ICON_SIZE_HEADER, ICON_SIZE_LINKED } from '../src/services/iconRendering';
+import { HEADER_BORDER_CLASS, CONTAINER_SHADOW_CLASS, CONTAINER_SIZE_LIST, CONTAINER_BORDER_CLASS, CONTAINER_BORDER, ICON_SIZE_HEADER, ICON_SIZE_LINKED } from '../src/services/iconRendering';
 import { createEntryVisualResolver, resolveEntryIconVisual } from '../src/services/entryIconVisuals';
 import {
   categorizeFlavor,
@@ -16,11 +16,9 @@ import {
   findRelatedEntry,
   getColorType,
   getStyleClassType,
-  isVariousOrigin,
-  normalizeLabel,
 } from '../src/services/entryUtils';
 import Chip from './Chip';
-import { getCountryChipColors, getClassificationChipColors, getWineTypeChipColors, getRarityChipColors, getFlavorClassChipColors, getFlavorSubclassChipColors, SYSTEM_CHIP_COLOR, CLIMATE_CHIP_COLOR, APPELLATION_CHIP_COLORS, extractTagAbbrev } from '../src/services/chipColors';
+import { getCountryChipColors, getWineTypeChipColors, getFlavorClassChipColors, getFlavorSubclassChipColors, SYSTEM_CHIP_COLOR, CLIMATE_CHIP_COLOR, APPELLATION_CHIP_COLORS, extractTagAbbrev } from '../src/services/chipColors';
 import { getGrapeColorLabel, getGrapeBodyLabel, getGrapeColorChipColors, getGrapeBodyChipColors } from '../src/services/grapeDisplay';
 import { isLightColor } from '../src/services/colorUtils';
 import { getLucideIcon } from '../src/services/lucideIconMap';
@@ -37,8 +35,6 @@ interface EntryDetailProps {
   onFilterByNote: (note: string, targetCategory?: EntryCategory, mode?: FilterMode) => void;
   onFilterBySoil: (soil: string) => void;
   onFilterByOrigin: (origin: string) => void;
-  onFilterByRarity?: (rarity: string) => void;
-  onFilterByClimate?: (climate: ClimateClass) => void;
   onViewStates?: () => void;
 }
 
@@ -58,7 +54,7 @@ function normalizeTypeClass(type?: string): string {
   return 'Medium'; // fallback
 }
 
-const EntryDetail: React.FC<EntryDetailProps> = ({ entry, allEntries, onBack, onHome, onSelectRelated, onFilterByType, onFilterByNote, onFilterBySoil, onFilterByOrigin, onFilterByRarity, onFilterByClimate, onViewStates }) => {
+const EntryDetail: React.FC<EntryDetailProps> = ({ entry, allEntries, onBack, onHome, onSelectRelated, onFilterByType, onFilterByNote, onFilterBySoil, onFilterByOrigin, onViewStates }) => {
   const scrollRef = useRef<HTMLDivElement>(null);
   const entryVisualResolver = useMemo(() => createEntryVisualResolver({ entries: allEntries }), [allEntries]);
 
@@ -69,12 +65,6 @@ const EntryDetail: React.FC<EntryDetailProps> = ({ entry, allEntries, onBack, on
     }
   }, [entry.id]);
 
-  // Helper to normalize levels for stat bars
-  const getLevelIndex = (val: string | undefined, levels: string[]) => {
-      if (!val) return -1;
-      return levels.findIndex(l => val.toLowerCase().includes(l.toLowerCase()));
-  };
-
   const formatUpper = (value?: string) => {
     return value ? value.toUpperCase() : 'N/A';
   };
@@ -83,28 +73,6 @@ const EntryDetail: React.FC<EntryDetailProps> = ({ entry, allEntries, onBack, on
     findRelatedEntry(allEntries, name, preferredCategory);
 
   const getExactFlavorEntry = (name: string) => findEntryByName(allEntries, name, 'FLAVORS');
-  const getExactGrapeEntry = (name: string) => findEntryByName(allEntries, name, 'GRAPES');
-
-  // Type Icon Selection
-  const getTypeIcon = (typeStr: string = '', size: number = 28) => {
-      const t = normalizeLabel(typeStr);
-      if (t.includes('full-body red') || t.includes('full body red') || t.includes('full-bodied red') || t.includes('full bodied red')) return <Wine size={size} />;
-      if (t.includes('bright red')) return <Sparkles size={size} />;
-      if (t.includes('light-body red') || t.includes('light body red') || t.includes('light-bodied red') || t.includes('light bodied red')) return <GlassWater size={size} />;
-      if (t.includes('dark red')) return <Grape size={size} />;
-      if (t.includes('medium-body red') || t.includes('medium body red') || t.includes('medium-bodied red') || t.includes('medium bodied red')) return <Scale size={size} />;
-      if (t.includes('pink') || t.includes('rose')) return <Droplets size={size} />;
-
-      if (t.includes('light-body white') || t.includes('light body white') || t.includes('light-bodied white') || t.includes('light bodied white')) return <GlassWater size={size} />;
-      if (t.includes('aromatic white')) return <Wind size={size} />;
-      if (t.includes('high-acid white') || t.includes('high acid white')) return <Citrus size={size} />;
-      if (t.includes('full-body white') || t.includes('full body white') || t.includes('full-bodied white') || t.includes('full bodied white')) return <Box size={size} />;
-      if (t.includes('sweet white')) return <Sun size={size} />;
-      if (t.includes('medium-body white') || t.includes('medium body white') || t.includes('medium-bodied white') || t.includes('medium bodied white')) return <Circle size={size} />;
-
-      if (t.includes('sparkling')) return <Sparkles size={size} />;
-      return <Grape size={size} />;
-  };
 
   // Soil Mapping
   const getSoilIcon = (soil: string) => {
@@ -119,20 +87,6 @@ const EntryDetail: React.FC<EntryDetailProps> = ({ entry, allEntries, onBack, on
       return { icon: <Mountain size={16} />, color: '#8B4513' };
   };
 
-  // Rarity style helper
-  const getRarityStyle = (rarity: string | undefined) => {
-    switch (rarity) {
-      case 'COMMON': return 'bg-stone-600 text-stone-200 border-stone-500';
-      case 'UNCOMMON': return 'bg-green-900 text-green-300 border-green-700';
-      case 'RARE': return 'bg-blue-900 text-blue-300 border-blue-700';
-      case 'NOBLE': return 'bg-purple-900 text-purple-200 border-purple-700';
-      default: return 'bg-stone-600 text-stone-200 border-stone-500';
-    }
-  };
-
-  const bodyLevels = ['Light', 'Light-Medium', 'Medium', 'Medium-Full', 'Full'];
-  const acidLevels = ['Low', 'Medium', 'High', 'Very High'];
-  const tanninLevels = ['None', 'Low', 'Low-Medium', 'Medium', 'High', 'Very High'];
   const grapeCard = isGrapeEntry(entry) ? entry.grapeCard : undefined;
   const detailsBag = entry.details as {
     origin?: string;
@@ -149,7 +103,6 @@ const EntryDetail: React.FC<EntryDetailProps> = ({ entry, allEntries, onBack, on
     subclass?: string;
   };
   const entryRarity = isGrapeEntry(entry) ? entry.rarity : isStyleEntry(entry) ? entry.rarity : undefined;
-  const entryClimate = isRegionEntry(entry) ? entry.climate : undefined;
   const entryTastingProfile = isGrapeEntry(entry) || isStyleEntry(entry) || isFlavorEntry(entry) ? entry.tastingProfile : undefined;
 
   const getClassTypeColors = (type: 'STYLE' | 'METHOD' | 'ORIGIN' | 'TYPE' | 'BLEND' | undefined) => {
@@ -186,15 +139,12 @@ const EntryDetail: React.FC<EntryDetailProps> = ({ entry, allEntries, onBack, on
   const styleClassType = isStyleEntry(entry) ? getStyleClassType(entry.name, entry.details.classification) : undefined;
   const isMethodClass = styleClassType === 'METHOD';
   const isOriginClass = styleClassType === 'ORIGIN';
-  const isTypeClass = styleClassType === 'TYPE';
   const isStyleClassType = styleClassType === 'STYLE';
-  const isBlendClassType = styleClassType === 'BLEND';
   const classTypeColors = getClassTypeColors(styleClassType as 'STYLE' | 'METHOD' | 'ORIGIN' | 'TYPE' | 'BLEND' | undefined);
   const colorType = isStyleEntry(entry) ? getColorType(entry.name) : undefined;
   const colorTypeColors = getColorTypeColors(colorType);
 
   // Classification Logic
-  const isNoble = detailsBag.classification === 'Noble Grape' || grapeCard?.rarityTier === 'noble';
   const displayClass = isGrapes ? (grapeCard?.rarityTier?.toUpperCase() || entryRarity) : (detailsBag.classification || entryRarity);
 
   // List Data Selection
@@ -230,10 +180,6 @@ const EntryDetail: React.FC<EntryDetailProps> = ({ entry, allEntries, onBack, on
   const flavorNotes = isStyleEntry(entry) ? styleFlavorNotes : (entryTastingProfile || grapeFlavorNotes);
   const matchedFlavorNotes = flavorNotes.filter((note) => !!getExactFlavorEntry(note.note));
   const grapeAlternateNames = isGrapeEntry(entry) ? (grapeCard?.alternateNames || entry.details.synonyms || []) : [];
-  const grapeNotableRegions = isGrapeEntry(entry) ? (grapeCard?.notableRegions || entry.details.keyRegions || []) : [];
-  const flavorTileContainerClass = isGrapes
-    ? 'grid grid-cols-1 gap-2 sm:grid-cols-2 xl:grid-cols-3 items-stretch'
-    : 'grid grid-cols-1 gap-2 sm:grid-cols-2 items-stretch';
 
   const getFlavorTileVisual = (note: { note: string; icon: string; color: string }) => {
     const relatedFlavor = getExactFlavorEntry(note.note);
@@ -261,30 +207,6 @@ const EntryDetail: React.FC<EntryDetailProps> = ({ entry, allEntries, onBack, on
     };
   };
 
-  const getClassificationColors = getClassificationChipColors;
-
-  const getClassificationFullName = (classification?: string) => {
-    if (!classification) return 'N/A';
-    const clean = classification.toLowerCase().replace(/[^a-z]/g, '');
-    switch (clean) {
-      case 'aoc': return "Appellation d'Origine Controlee";
-      case 'docg': return "Denominazione di Origine Controllata e Garantita";
-      case 'doc': return "Denominazione di Origine Controllata";
-      case 'doca': return "Denominacion de Origen Calificada";
-      case 'do': return "Denominacion de Origen";
-      case 'ava': return 'American Viticultural Area';
-      case 'gi': return 'Geographical Indication';
-      case 'pdo': return 'Protected Designation of Origin';
-      case 'pgi': return 'Protected Geographical Indication';
-      case 'igp': return 'Indication Geographique Protegee';
-      case 'dac': return 'Districtus Austriae Controllatus';
-      case 'wo': return 'Wine of Origin';
-      case 'dhc': return 'Districtus Hungaricus Controllatus';
-      case 'pradikatswein': return 'Pradikatswein';
-      default: return classification;
-    }
-  };
-
   const getTypeTileColors = (wineType?: string) => {
     const palette = getStylePalette(wineType);
     if (palette) {
@@ -294,7 +216,6 @@ const EntryDetail: React.FC<EntryDetailProps> = ({ entry, allEntries, onBack, on
     return getWineTypeChipColors(wineType);
   };
 
-  const getRarityColors = getRarityChipColors;
   const buildIconNode = (iconKey: string, color?: string, size = 20): React.ReactNode => {
     const LucideIconComponent = getLucideIcon(iconKey);
     return (
@@ -326,8 +247,6 @@ const EntryDetail: React.FC<EntryDetailProps> = ({ entry, allEntries, onBack, on
     const classificationLabel = relatedDetailsClassificationLocal ? formatUpper(relatedDetailsClassificationLocal) : undefined;
     const isRegionMeta = relatedEntry?.category === 'REGIONS' && options?.showRegionMetaTiles;
     const relatedRegion = relatedEntry && isRegionEntry(relatedEntry) ? relatedEntry : undefined;
-    const relatedGrape = relatedEntry && isGrapeEntry(relatedEntry) ? relatedEntry : undefined;
-    const relatedStyle = relatedEntry && isStyleEntry(relatedEntry) ? relatedEntry : undefined;
     const relatedDetailsOrigin = relatedEntry && 'origin' in relatedEntry.details ? relatedEntry.details.origin : undefined;
     const relatedDetailsClassification = relatedEntry && 'classification' in relatedEntry.details ? relatedEntry.details.classification : undefined;
 
@@ -338,10 +257,6 @@ const EntryDetail: React.FC<EntryDetailProps> = ({ entry, allEntries, onBack, on
     const regionSystemColors = SYSTEM_CHIP_COLOR;
     const regionClimateColors = regionClimate ? CLIMATE_CLASS_MAP[regionClimate]?.colors ?? CLIMATE_CHIP_COLOR : CLIMATE_CHIP_COLOR;
     const regionClimateName = regionClimate ? CLIMATE_CLASS_MAP[regionClimate]?.name : undefined;
-    const linkedWineType = relatedGrape?.grapeCard?.style || relatedGrape?.wineType;
-    const linkedTypeColors = getTypeTileColors(linkedWineType);
-    const linkedRarity = relatedGrape?.rarity || relatedStyle?.rarity || (relatedGrape?.grapeCard?.rarityTier ? relatedGrape.grapeCard.rarityTier.toUpperCase() : undefined);
-    const linkedRarityColors = getRarityColors(linkedRarity);
     const linkedOrigin = relatedDetailsOrigin;
     const linkedOriginColors = getCountryChipColors(linkedOrigin);
     const showLinkedGrapeChips = relatedEntry?.category === 'GRAPES';
@@ -459,12 +374,6 @@ const EntryDetail: React.FC<EntryDetailProps> = ({ entry, allEntries, onBack, on
       case 'NUT': return { bg: '#6b4e16', border: '#eab308', text: '#fef9c3' };
       default: return { bg: '#1f2937', border: '#4b5563', text: '#e5e7eb' };
     }
-  };
-
-  const getClimateColors = (climate?: ClimateClass) => {
-    if (!climate) return { bg: '#0f172a', border: '#334155', text: '#e2e8f0' };
-    const meta = CLIMATE_CLASS_MAP[climate];
-    return meta ? meta.colors : { bg: '#0f172a', border: '#334155', text: '#e2e8f0' };
   };
 
   const CLIMATE_ICON_MAP: Record<string, string> = {
@@ -588,7 +497,6 @@ const EntryDetail: React.FC<EntryDetailProps> = ({ entry, allEntries, onBack, on
             includeRegionClimateOutline: true,
           })
         : undefined;
-      const mainGrapeIconNode = mainGrapeVisual?.iconNode;
       const mainGrapeIconStyle = mainGrapeVisual?.style;
       const countryStyle = getCountryChipColors(entry.details.origin);
       const climateMeta = entry.climate ? CLIMATE_CLASS_MAP[entry.climate] : undefined;
@@ -951,7 +859,7 @@ const EntryDetail: React.FC<EntryDetailProps> = ({ entry, allEntries, onBack, on
             </div>
             <div className="flex flex-wrap gap-2">
               {entry.tags.filter(t => t !== 'STATE').map((system, idx) => {
-                const c = APPELLATION_CHIP_COLORS[idx % 3];
+                const c = APPELLATION_CHIP_COLORS[idx % 3]!;
                 return (
                   <span key={idx} className="px-4 py-2 rounded text-xl font-bold font-mono tracking-widest" style={{ backgroundColor: c.bg, border: `1px solid ${c.border}`, color: c.text }}>
                     {extractTagAbbrev(system)}
@@ -997,7 +905,7 @@ const EntryDetail: React.FC<EntryDetailProps> = ({ entry, allEntries, onBack, on
               </div>
               <div className="flex flex-wrap gap-2">
                 {entry.tags.filter(tag => tag !== 'COUNTRY').map((system, idx) => {
-                  const c = APPELLATION_CHIP_COLORS[idx % 3];
+                  const c = APPELLATION_CHIP_COLORS[idx % 3]!;
                   return (
                     <span key={idx} className="px-4 py-2 rounded text-xl font-bold font-mono tracking-widest" style={{ backgroundColor: c.bg, border: `1px solid ${c.border}`, color: c.text }}>
                       {extractTagAbbrev(system)}

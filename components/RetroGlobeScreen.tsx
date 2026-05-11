@@ -70,7 +70,7 @@ const RetroGlobeScreen: React.FC<RetroGlobeScreenProps> = ({ onBack, onHome, onS
     onWorldSearch();
   };
   const [isDragging, setIsDragging] = useState(false);
-  const [longitudeDeg, setLongitudeDeg] = useState(0);
+  const [, setLongitudeDeg] = useState(0);
   const [regionMarkers, setRegionMarkers] = useState<RegionMarker[]>([
     { id: 'north-america', continentKey: 'NORTH_AMERICA', color: MARKER_COLORS.NORTH_AMERICA || '#E53935', label: 'NORTH\nAMERICA', lat: 38, lng: -122, x: 0, y: 0, anchorX: 0, anchorY: 0, offsetX: 0, offsetY: 0, visible: true },
     { id: 'south-america', continentKey: 'SOUTH_AMERICA', color: MARKER_COLORS.SOUTH_AMERICA || '#8E24AA', label: 'SOUTH\nAMERICA', lat: -33, lng: -70, x: 0, y: 0, anchorX: 0, anchorY: 0, offsetX: 0, offsetY: 0, visible: true },

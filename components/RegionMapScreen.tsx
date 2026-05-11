@@ -19,7 +19,7 @@ const RegionMapScreen: React.FC<RegionMapScreenProps> = ({ onSelectContinent, on
     '> AWAITING TARGET INPUT...'
   ];
   const [hoveredRegion, setHoveredRegion] = useState<string | null>(null);
-  const [statusLines, setStatusLines] = useState<string[]>(bootLines);
+  const [, setStatusLines] = useState<string[]>(bootLines);
   const [isScanning, setIsScanning] = useState(false);
 
   const getRegionLabel = (region: string) => {

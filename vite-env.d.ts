@@ -15,3 +15,16 @@ declare module '*.svg' {
   const src: string;
   export default src;
 }
+
+// Loose typing: RetroGlobeScreen uses three.js without bundled types.
+// Install @types/three to tighten if/when needed.
+declare module 'three' {
+  const value: any;
+  export = value;
+}
+declare namespace THREE {
+  type Mesh = any;
+  type Camera = any;
+  type WebGLRenderer = any;
+  type Vector3 = any;
+}

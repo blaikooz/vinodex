@@ -50,8 +50,8 @@ const US_STATE_FLAG_IMAGES: FlagImageEntry[] = (() => {
   const folderMap = new Map<string, string>();
   Object.entries(US_STATE_FLAG_MODULES).forEach(([path, image]) => {
     const match = path.match(/united_states\/([^/]+)\/[^/]+$/);
-    if (!match) return;
-    const folder = match[1];
+    const folder = match?.[1];
+    if (!folder) return;
     const isBack = path.includes('_back.');
     if (!folderMap.has(folder) || isBack) folderMap.set(folder, image);
   });

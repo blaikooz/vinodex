@@ -56,4 +56,4 @@ export const LUCIDE_ICONS: Record<string, LucideIcon> = {
 };
 
 export const getLucideIcon = (key?: string): LucideIcon =>
-  LUCIDE_ICONS[key ?? 'default'] ?? LUCIDE_ICONS.default;
+  LUCIDE_ICONS[key ?? 'default'] ?? LUCIDE_ICONS.default ?? Grape;

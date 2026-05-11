@@ -107,7 +107,7 @@ export function isInNodeWindow(date: Date): boolean {
 export function getMoonReading(date: Date = new Date()): MoonReading {
   const lon = siderealMoonLongitude(date);
   const signIndex = Math.floor(lon / 30) % 12;
-  const sign = ZODIAC_SIGNS[signIndex];
+  const sign = ZODIAC_SIGNS[signIndex] ?? ZODIAC_SIGNS[0]!;
   const element = ELEMENT_BY_SIGN[sign];
   return {
     sign,

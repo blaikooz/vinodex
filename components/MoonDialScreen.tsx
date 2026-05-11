@@ -5,7 +5,6 @@ import DeviceLayout from './DeviceLayout';
 import {
   BiodynamicElement,
   MoonReading,
-  getDailyReadings,
   getHourlyReadings,
   getMoonReading,
 } from '../src/services/moonService';
@@ -84,17 +83,18 @@ function groupSegments(
   const slice = totalDeg / readings.length;
   let i = 0;
   while (i < readings.length) {
+    const current = readings[i]!;
     let j = i + 1;
     while (
       j < readings.length &&
-      readings[j].element === readings[i].element &&
-      readings[j].nodeSuppressed === readings[i].nodeSuppressed
+      readings[j]!.element === current.element &&
+      readings[j]!.nodeSuppressed === current.nodeSuppressed
     ) j++;
     out.push({
       startDeg: startDeg + i * slice,
       endDeg: startDeg + j * slice,
-      fill: readings[i].nodeSuppressed ? NODE_FILL : ELEMENT_FILL[readings[i].element],
-      suppressed: readings[i].nodeSuppressed,
+      fill: current.nodeSuppressed ? NODE_FILL : ELEMENT_FILL[current.element],
+      suppressed: current.nodeSuppressed,
     });
     i = j;
   }

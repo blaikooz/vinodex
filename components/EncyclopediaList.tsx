@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Search, List, Map, Droplet, Grape, Mountain, MapPin, Star, Shield, Wind } from "lucide-react";
 import EntryTile from "./EntryTile";
 import DeviceLayout from "./DeviceLayout";
@@ -16,14 +16,9 @@ interface EncyclopediaListProps {
   onSelect: (entry: WineEntry) => void;
   onBack: () => void;
   onHome: () => void;
-  onFilterByRarity?: (rarity: string) => void;
-  onFilterByType?: (type: string, targetCategory?: EntryCategory) => void;
-  onFilterByNote?: (note: string, targetCategory?: EntryCategory, mode?: EncyclopediaListProps['filterMode']) => void;
-  onFilterByOrigin?: (origin: string) => void;
-  onFilterByClimate?: (climate: ClimateClass) => void;
 }
 
-export default function EncyclopediaList({ category, filterMode, filterValue, initialSearchQuery, onSelect, onBack, onHome, onFilterByRarity, onFilterByType, onFilterByNote, onFilterByOrigin, onFilterByClimate }: EncyclopediaListProps) {
+export default function EncyclopediaList({ category, filterMode, filterValue, initialSearchQuery, onSelect, onBack, onHome }: EncyclopediaListProps) {
   const allowedUsStates = ['California', 'New York', 'Oregon', 'Virginia', 'Washington'];
   const [searchQuery, setSearchQuery] = useState("");
   const entries = useMemo(() => getAllEntries(), []);
@@ -178,10 +173,15 @@ export default function EncyclopediaList({ category, filterMode, filterValue, in
         const eClassification = detailString(e, 'classification');
         const eSoilType = detailString(e, 'soilType');
         const eState = detailString(e, 'state');
-        const eTastingProfile = isGrapeEntry(e) || isStyleEntry(e) ? e.tastingProfile : undefined;
-        const eRarity = isGrapeEntry(e) ? (e.rarity || e.grapeRarityTier?.toUpperCase() || e.grapeCard?.rarityTier?.toUpperCase())
-                       : isStyleEntry(e) ? e.rarity : undefined;
-        const eClimate = isRegionEntry(e) ? e.climate : undefined;
+        const eGrape = isGrapeEntry(e) ? e : null;
+        const eStyle = isStyleEntry(e) ? e : null;
+        const eRegion = isRegionEntry(e) ? e : null;
+        const eTastingProfile = eGrape?.tastingProfile ?? eStyle?.tastingProfile;
+        const eRarity =
+          eGrape ? (eGrape.rarity || eGrape.grapeRarityTier?.toUpperCase() || eGrape.grapeCard?.rarityTier?.toUpperCase()) :
+          eStyle ? eStyle.rarity :
+          undefined;
+        const eClimate = eRegion?.climate;
 
         if (activeFilterMode === 'REGION' && Array.isArray(activeFilterValue)) {
              matchesFilter = (activeFilterValue as string[]).some(keyword =>
@@ -344,11 +344,6 @@ export default function EncyclopediaList({ category, filterMode, filterValue, in
                   entry={entry}
                   onPress={onSelect}
                   index={index}
-                  onFilterByRarity={onFilterByRarity}
-                  onFilterByClimate={onFilterByClimate}
-                  onFilterByType={onFilterByType}
-                  onFilterByNote={onFilterByNote}
-                  onFilterByOrigin={onFilterByOrigin}
                 />
               ))}
             </div>

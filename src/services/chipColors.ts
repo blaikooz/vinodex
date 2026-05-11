@@ -163,4 +163,4 @@ export const APPELLATION_CHIP_COLORS: ChipColorStyle[] = [
 ];
 
 export const extractTagAbbrev = (tag: string): string =>
-  tag.split(/[\s(]/)[0].toUpperCase();
+  (tag.split(/[\s(]/)[0] ?? '').toUpperCase();
