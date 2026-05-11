@@ -1,9 +1,21 @@
 import path from 'path';
+import { execSync } from 'node:child_process';
 import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
 import { VitePWA } from 'vite-plugin-pwa';
 
+const gitCommitCount = (() => {
+  try {
+    return execSync('git rev-list --count HEAD').toString().trim();
+  } catch {
+    return '0';
+  }
+})();
+
 export default defineConfig({
+  define: {
+    __GIT_COMMIT_COUNT__: JSON.stringify(gitCommitCount),
+  },
   server: {
     port: 3000,
     host: '0.0.0.0',

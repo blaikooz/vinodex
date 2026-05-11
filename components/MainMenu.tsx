@@ -1,19 +1,27 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Grape, Globe, Leaf, Search, Wine } from 'lucide-react';
+import { Icon } from '@iconify/react';
 import DeviceLayout from './DeviceLayout';
+import DeviceBackPanel from './DeviceBackPanel';
 import { EntryCategory } from '../types';
 
 interface MainMenuProps {
   onNavigate: (category: EntryCategory) => void;
+  onOpenMoonDial: () => void;
 }
 
-const MainMenu: React.FC<MainMenuProps> = ({ onNavigate }) => {
+const MainMenu: React.FC<MainMenuProps> = ({ onNavigate, onOpenMoonDial }) => {
+  const [isFlipped, setIsFlipped] = useState(false);
+
   return (
     <DeviceLayout
       title="VINODEX"
       subtitle=""
       showBack={false}
       onHome={() => {}}
+      isFlipped={isFlipped}
+      onTitleTap={() => setIsFlipped(true)}
+      backFace={<DeviceBackPanel onReturn={() => setIsFlipped(false)} />}
     >
       <div className="flex-1 min-h-0 w-full flex flex-col items-center bg-dex-screen relative overflow-hidden">
         
@@ -66,6 +74,19 @@ const MainMenu: React.FC<MainMenuProps> = ({ onNavigate }) => {
                 className="w-24 h-24 sm:w-32 sm:h-32 rounded-full bg-blue-500 border-[6px] border-blue-800 shadow-[0_0_25px_rgba(42,181,255,0.4)] flex items-center justify-center active:scale-95 active:border-blue-900 transition-all group hover:bg-blue-400"
               >
                 <Globe size={40} className="text-white group-hover:scale-110 transition-transform sm:w-16 sm:h-16" />
+              </button>
+
+              <button
+                onClick={onOpenMoonDial}
+                aria-label="Open moon dial"
+                className="w-16 h-16 sm:w-20 sm:h-20 rounded-full bg-indigo-600 border-[5px] border-indigo-900 shadow-[0_0_20px_rgba(99,102,241,0.45)] flex items-center justify-center active:scale-95 active:border-indigo-950 transition-all group hover:bg-indigo-500"
+              >
+                <Icon
+                  icon="game-icons:moon-orbit"
+                  className="text-white group-hover:scale-110 transition-transform"
+                  width={32}
+                  height={32}
+                />
               </button>
             </div>
 

@@ -1,5 +1,7 @@
 /// <reference types="vite/client" />
 
+declare const __GIT_COMMIT_COUNT__: string;
+
 interface ImportMeta {
   readonly env: ImportMetaEnv;
 }

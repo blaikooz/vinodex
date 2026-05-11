@@ -12,18 +12,24 @@ interface DeviceLayoutProps {
   hideHeader?: boolean;
   centerHeaderText?: boolean;
   footerCenter?: React.ReactNode;
+  isFlipped?: boolean;
+  backFace?: React.ReactNode;
+  onTitleTap?: () => void;
 }
 
-const DeviceLayout: React.FC<DeviceLayoutProps> = ({ 
-  children, 
-  title, 
+const DeviceLayout: React.FC<DeviceLayoutProps> = ({
+  children,
+  title,
   subtitle,
-  onBack, 
+  onBack,
   showBack = false,
   onHome,
   hideHeader = false,
   centerHeaderText = false,
   footerCenter,
+  isFlipped = false,
+  backFace,
+  onTitleTap,
 }) => {
 
   const topTitle = "VINODEX";
@@ -65,10 +71,36 @@ const DeviceLayout: React.FC<DeviceLayoutProps> = ({
   const footerBottomPad = 'max(0.5rem, env(safe-area-inset-bottom))';
 
   return (
-    <div className="flex justify-center items-center min-h-screen bg-neutral-900 p-0 md:p-4 font-mono h-screen md:h-auto overflow-hidden rounded-[2rem]" style={{ paddingTop: 'env(safe-area-inset-top)', paddingLeft: 'env(safe-area-inset-left)', paddingRight: 'env(safe-area-inset-right)' }}>
-      {/* Device Chassis - Red Pokedex Style */}
-      <div className="w-full h-full md:h-[850px] md:w-[522px] bg-dex-red md:rounded-[2.5rem] md:shadow-[0_20px_50px_rgba(220,10,45,0.3)] overflow-hidden relative border-[3px] border-dex-darkRed ring-1 ring-white/10 shadow-[inset_-10px_-10px_30px_rgba(0,0,0,0.2)]">
-        <div className="flex h-full flex-col">
+    <div
+      className="flex justify-center items-center min-h-screen bg-neutral-900 p-0 md:p-4 font-mono h-screen md:h-auto overflow-hidden rounded-[2rem]"
+      style={{
+        paddingTop: 'env(safe-area-inset-top)',
+        paddingLeft: 'env(safe-area-inset-left)',
+        paddingRight: 'env(safe-area-inset-right)',
+        perspective: '2000px',
+      }}
+    >
+      {/* 3D flip container — wraps both faces of the device */}
+      <div
+        className="relative w-full h-full md:h-[850px] md:w-[522px]"
+        style={{
+          transformStyle: 'preserve-3d',
+          transition: 'transform 700ms cubic-bezier(0.4, 0, 0.2, 1)',
+          transform: isFlipped ? 'rotateY(180deg)' : 'rotateY(0deg)',
+        }}
+      >
+        {/* Front face — full device chassis */}
+        <div
+          className="absolute inset-0 w-full h-full"
+          style={{
+            backfaceVisibility: 'hidden',
+            WebkitBackfaceVisibility: 'hidden',
+            pointerEvents: isFlipped ? 'none' : 'auto',
+          }}
+        >
+          {/* Device Chassis - Red Pokedex Style */}
+          <div className="w-full h-full bg-dex-red md:rounded-[2.5rem] md:shadow-[0_20px_50px_rgba(220,10,45,0.3)] overflow-hidden relative border-[3px] border-dex-darkRed ring-1 ring-white/10 shadow-[inset_-10px_-10px_30px_rgba(0,0,0,0.2)]">
+            <div className="flex h-full flex-col">
         
         {/* Device Top Bar */}
         {!hideHeader && (
@@ -84,12 +116,28 @@ const DeviceLayout: React.FC<DeviceLayoutProps> = ({
               </div>
             </div>
             <div className={`flex-1 flex flex-col justify-end min-w-0 gap-[1px] ${headerAlignment}`}>
-              <h1
-                className={`font-retro ${headerTitleSize} text-white italic tracking-tighter drop-shadow-md transform -skew-x-12 whitespace-nowrap mb-0 leading-tight`}
-                style={{ textShadow: '2px 2px 0px #89061C' }}
-              >
-                {topTitle}
-              </h1>
+              {onTitleTap ? (
+                <button
+                  type="button"
+                  onClick={onTitleTap}
+                  aria-label="Flip device to view back panel"
+                  className="bg-transparent border-0 p-0 m-0 cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-white/60 rounded transition-transform active:scale-[0.97]"
+                >
+                  <h1
+                    className={`font-retro ${headerTitleSize} text-white italic tracking-tighter drop-shadow-md transform -skew-x-12 whitespace-nowrap mb-0 leading-tight`}
+                    style={{ textShadow: '2px 2px 0px #89061C' }}
+                  >
+                    {topTitle}
+                  </h1>
+                </button>
+              ) : (
+                <h1
+                  className={`font-retro ${headerTitleSize} text-white italic tracking-tighter drop-shadow-md transform -skew-x-12 whitespace-nowrap mb-0 leading-tight`}
+                  style={{ textShadow: '2px 2px 0px #89061C' }}
+                >
+                  {topTitle}
+                </h1>
+              )}
             </div>
           </div>
         )}
@@ -184,6 +232,22 @@ const DeviceLayout: React.FC<DeviceLayoutProps> = ({
             )}
           </div>
         </footer>
+          </div>
+        </div>
+        {/* Back face — steel plate, only rendered when backFace provided */}
+        {backFace && (
+          <div
+            className="absolute inset-0 w-full h-full"
+            style={{
+              backfaceVisibility: 'hidden',
+              WebkitBackfaceVisibility: 'hidden',
+              transform: 'rotateY(180deg)',
+              pointerEvents: isFlipped ? 'auto' : 'none',
+            }}
+          >
+            {backFace}
+          </div>
+        )}
       </div>
     </div>
   );

@@ -18,6 +18,7 @@ import { WineEntry, EntryCategory, ClimateClass } from './types';
 import { getAllEntries } from './src/services/wineData';
 
 const RetroGlobeScreen = lazy(() => import('./components/RetroGlobeScreen'));
+const MoonDialScreen = lazy(() => import('./components/MoonDialScreen'));
 
 type FilterMode = 'REGION' | 'TYPE' | 'TASTING' | 'SOIL' | 'ORIGIN' | 'STATE' | 'RARITY' | 'SYSTEM' | 'CLIMATE' | null;
 
@@ -203,7 +204,36 @@ const App: React.FC = () => {
       <Routes>
         <Route
           path="/"
-          element={<MainMenu onNavigate={handleNavigateToCategory} />}
+          element={
+            <MainMenu
+              onNavigate={handleNavigateToCategory}
+              onOpenMoonDial={() => navigate('/moon-dial')}
+            />
+          }
+        />
+        <Route
+          path="/moon-dial"
+          element={
+            <Suspense
+              fallback={
+                <DeviceLayout
+                  title="MOON DIAL"
+                  subtitle="BIODYNAMIC SCAN"
+                  showBack={true}
+                  onBack={handleBack}
+                  onHome={handleHome}
+                  centerHeaderText={true}
+                >
+                  <div className="flex-1 bg-black flex flex-col items-center justify-center gap-4">
+                    <div className="w-16 h-16 rounded-full border-2 border-green-400 border-t-transparent animate-spin" />
+                    <span className="font-retro text-green-300 tracking-widest text-sm">LOADING MOON DIAL...</span>
+                  </div>
+                </DeviceLayout>
+              }
+            >
+              <MoonDialScreen onBack={handleBack} onHome={handleHome} />
+            </Suspense>
+          }
         />
         <Route
           path="/region-map"
