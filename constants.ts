@@ -1,4 +1,13 @@
-import { EntryCategory, GrapeBodyClass, TastingNote, WineEntry } from './types.ts';
+import {
+  EntryCategory,
+  FlavorEntry,
+  GrapeBodyClass,
+  GrapeEntry,
+  RarityLabel,
+  TastingNote,
+  TastingNoteIcon,
+  WineEntry,
+} from './types.ts';
 import { GRAPES as LEGACY_GRAPES } from './data/grapes.ts';
 import { REGIONS } from './data/regions.ts';
 import { STYLES } from './data/styles.ts';
@@ -45,16 +54,23 @@ const getGrapeBodyClass = (...values: Array<string | undefined>): GrapeBodyClass
   return 'Medium';
 };
 
-const legacyColorMap: Record<string, { color: string; icon?: string; tastingProfile?: WineEntry['tastingProfile']; wineType?: string }> =
+interface LegacyGrapeMeta {
+  color: string;
+  icon?: string;
+  tastingProfile?: TastingNote[];
+  wineType?: string;
+}
+
+const legacyColorMap: Record<string, LegacyGrapeMeta> =
   LEGACY_GRAPES.reduce((acc, g) => {
     acc[g.id] = { color: g.color, icon: g.icon, tastingProfile: g.tastingProfile, wineType: g.wineType };
     return acc;
-  }, {} as Record<string, { color: string; icon?: string; tastingProfile?: WineEntry['tastingProfile']; wineType?: string }>);
+  }, {} as Record<string, LegacyGrapeMeta>);
 
-const GRAPE_ENTRIES: WineEntry[] = GRAPE_CARDS.map((card) => {
+const GRAPE_ENTRIES: GrapeEntry[] = GRAPE_CARDS.map((card) => {
   const legacy = legacyColorMap[card.id];
   const bodyClass = getGrapeBodyClass(legacy?.wineType, card.style, LEGACY_GRAPES.find((grape) => grape.id === card.id)?.details.body);
-  const rarityMap: Record<string, WineEntry['rarity']> = {
+  const rarityMap: Record<string, RarityLabel> = {
     common: 'COMMON',
     uncommon: 'UNCOMMON',
     rare: 'RARE',
@@ -90,7 +106,7 @@ const GRAPE_ENTRIES: WineEntry[] = GRAPE_CARDS.map((card) => {
   };
 });
 
-const TASTING_NOTE_ICON_KEYS: TastingNote['icon'][] = [
+const TASTING_NOTE_ICON_KEYS: TastingNoteIcon[] = [
   'circle',
   'triangle',
   'leaf',
@@ -116,14 +132,14 @@ const TASTING_NOTE_ICON_KEYS: TastingNote['icon'][] = [
   'default',
 ];
 
-const sanitizeTastingNoteIcon = (icon?: string): TastingNote['icon'] =>
-  icon && TASTING_NOTE_ICON_KEYS.includes(icon as TastingNote['icon'])
-    ? (icon as TastingNote['icon'])
+const sanitizeTastingNoteIcon = (icon?: string): TastingNoteIcon =>
+  icon && TASTING_NOTE_ICON_KEYS.includes(icon as TastingNoteIcon)
+    ? (icon as TastingNoteIcon)
     : 'default';
 
 const formatSubclassLabel = (subclass: string) => subclass.split('_').map(part => part.charAt(0) + part.slice(1).toLowerCase()).join(' ');
 
-const buildFlavorEntries = (grapeEntries: WineEntry[]): WineEntry[] => {
+const buildFlavorEntries = (grapeEntries: GrapeEntry[]): FlavorEntry[] => {
   const flavorMap = new Map<string, { note: string; icon: string; color?: string; grapes: string[]; cls: FlavorClass; subclass: string }>();
 
   grapeEntries.forEach((entry) => {
@@ -139,7 +155,7 @@ const buildFlavorEntries = (grapeEntries: WineEntry[]): WineEntry[] => {
     });
   });
 
-  const flavorEntries: WineEntry[] = [];
+  const flavorEntries: FlavorEntry[] = [];
   const flavorValues = Array.from(flavorMap.values());
 
   flavorMap.forEach((flavor, idx) => {
@@ -187,7 +203,7 @@ const CATEGORY_CALLBACKS: Partial<Record<EntryCategory, { icon: string; tile: st
   COUNTRY_GATE: { icon: 'flag', tile: 'globe' },
 };
 
-const applyCategoryCallbacks = (entry: WineEntry): WineEntry => {
+function applyCategoryCallbacks<T extends WineEntry>(entry: T): T {
   const callbacks = CATEGORY_CALLBACKS[entry.category];
   if (!callbacks) return entry;
   return {
@@ -195,7 +211,27 @@ const applyCategoryCallbacks = (entry: WineEntry): WineEntry => {
     iconCallback: entry.iconCallback ?? callbacks.icon,
     tileCallback: entry.tileCallback ?? callbacks.tile,
   };
-};
+}
+
+// Canonicalize an entry's grape-name fields without losing variant typing.
+// Uses `'in'` checks because notableGrapes/synonyms exist on different variants.
+function canonicalizeEntry<T extends WineEntry>(entry: T): T {
+  const next = { ...entry, name: canonicalizeGrapeName(entry.name) };
+  const details = next.details as { notableGrapes?: string[]; synonyms?: string[] };
+  const updated: { notableGrapes?: string[]; synonyms?: string[] } = {};
+
+  if ('notableGrapes' in next.details && details.notableGrapes) {
+    updated.notableGrapes = details.notableGrapes.map(canonicalizeGrapeName);
+  }
+  if ('synonyms' in next.details && details.synonyms) {
+    updated.synonyms = details.synonyms.map(canonicalizeGrapeName);
+  }
+
+  return {
+    ...next,
+    details: { ...next.details, ...updated },
+  } as T;
+}
 
 // Combined wine entries for the app
 export const WINE_ENTRIES: WineEntry[] = [
@@ -205,15 +241,7 @@ export const WINE_ENTRIES: WineEntry[] = [
   ...buildFlavorEntries(GRAPE_ENTRIES),
   ...CONTINENTS,
   ...COUNTRIES,
-].map((entry) => applyCategoryCallbacks({
-  ...entry,
-  name: canonicalizeGrapeName(entry.name),
-  details: {
-    ...entry.details,
-    notableGrapes: entry.details.notableGrapes?.map(canonicalizeGrapeName),
-    synonyms: entry.details.synonyms?.map(canonicalizeGrapeName),
-  },
-}));
+].map((entry) => applyCategoryCallbacks(canonicalizeEntry(entry)));
 
 // Re-export shared helpers so existing consumers keep importing from `./constants`.
 export { FLAVOR_CLASS_COLORS, categorizeFlavor, categorizeFlavorSubclass };

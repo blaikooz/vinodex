@@ -1,5 +1,5 @@
 import React, { useMemo } from 'react';
-import { ClimateClass, EntryCategory, WineEntry } from '../types';
+import { ClimateClass, EntryCategory, WineEntry, isFlavorEntry, isGrapeEntry, isRegionEntry, isStyleEntry } from '../types';
 import { ChevronRight } from 'lucide-react';
 import { getStylePalette } from '../stylePalette';
 import { CLIMATE_CLASS_MAP } from '../data/climateClasses';
@@ -169,36 +169,37 @@ const getClassificationStyle = (classification?: string) => {
 };
 
 const EntryTile: React.FC<EntryTileProps> = ({ entry, onPress, index, onFilterByRarity, onFilterByType, onFilterByNote, onFilterByOrigin, onFilterByClimate }) => {
-  const isGrape = entry.category === 'GRAPES';
-  const isRegion = entry.category === 'REGIONS';
+  const isGrape = isGrapeEntry(entry);
+  const isRegion = isRegionEntry(entry);
   const isCountryGate = entry.category === 'COUNTRY_GATE';
-  const isStyle = entry.category === 'STYLES';
-  const isFlavor = entry.category === 'FLAVORS';
+  const isStyle = isStyleEntry(entry);
+  const isFlavor = isFlavorEntry(entry);
   const isContinent = entry.category === 'CONTINENTS';
-  const grapeCard = entry.grapeCard;
-  const climateMeta = entry.climate ? CLIMATE_CLASS_MAP[entry.climate] : undefined;
-  const originLabel = entry.details.origin || '';
-  const country = entry.details.origin || '';
+  const grapeCard = isGrapeEntry(entry) ? entry.grapeCard : undefined;
+  const climateMeta = isRegionEntry(entry) && entry.climate ? CLIMATE_CLASS_MAP[entry.climate] : undefined;
+  const originLabel = 'origin' in entry.details ? entry.details.origin || '' : '';
+  const country = originLabel;
 
-  const styleClassType = isStyle ? getStyleClassType(entry.name, entry.details.classification) : undefined;
-  const styleColorType = isStyle ? getColorType(entry.name) : undefined;
+  const styleClassType = isStyleEntry(entry) ? getStyleClassType(entry.name, entry.details.classification) : undefined;
+  const styleColorType = isStyleEntry(entry) ? getColorType(entry.name) : undefined;
 
   // Shared hex color styles (consistent with EntryDetail scan chips)
-  const grapeOriginColors = isGrape && originLabel ? getCountryChipColors(originLabel) : null;
-  const countryColors = isRegion ? getCountryChipColors(country) : null;
+  const grapeOriginColors = isGrapeEntry(entry) && originLabel ? getCountryChipColors(originLabel) : null;
+  const countryColors = isRegionEntry(entry) ? getCountryChipColors(country) : null;
   const styleClassColors = getStyleClassChipColors(styleClassType);
   const styleColorColors = getColorTypeChipColors(styleColorType);
-  const styleCountryColors = entry.details.origin ? getCountryChipColors(entry.details.origin) : null;
-  const flavorClassColors = isFlavor ? getFlavorClassChipColors(entry.details.classification) : null;
-  const flavorSubclassColors = isFlavor ? getFlavorSubclassChipColors(entry.details.subclass) : null;
-  const rarityValue = entry.rarity || (grapeCard?.rarityTier ? grapeCard.rarityTier.toUpperCase() : undefined);
+  const styleCountryColors = isStyleEntry(entry) && entry.details.origin ? getCountryChipColors(entry.details.origin) : null;
+  const flavorClassColors = isFlavorEntry(entry) ? getFlavorClassChipColors(entry.details.classification) : null;
+  const flavorSubclassColors = isFlavorEntry(entry) ? getFlavorSubclassChipColors(entry.details.subclass) : null;
+  const entryRarity = isGrapeEntry(entry) ? entry.rarity : isStyleEntry(entry) ? entry.rarity : undefined;
+  const rarityValue = entryRarity || (grapeCard?.rarityTier ? grapeCard.rarityTier.toUpperCase() : undefined);
   const rarityColors = rarityValue ? getRarityChipColors(rarityValue) : null;
 
   const styleClassLabel = formatTitle(styleClassType);
   const styleColorLabel = formatTitle(styleColorType);
-  const styleCountryLabel = formatUpper(entry.details.origin || '');
-  const flavorClassLabel = formatLabelUpper(entry.details.classification || '');
-  const flavorSubclassLabel = formatLabelUpper(entry.details.subclass || '');
+  const styleCountryLabel = formatUpper(isStyleEntry(entry) ? (entry.details.origin || '') : '');
+  const flavorClassLabel = formatLabelUpper(isFlavorEntry(entry) ? entry.details.classification : '');
+  const flavorSubclassLabel = formatLabelUpper(isFlavorEntry(entry) ? entry.details.subclass : '');
   const grapeOriginLabel = formatUpper(originLabel);
 
   const entryVisualResolver = useMemo(() => createEntryVisualResolver({ entries: WINE_ENTRIES }), []);

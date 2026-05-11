@@ -1,4 +1,4 @@
-import { GrapeBodyClass, WineEntry } from '../../types';
+import { GrapeBodyClass, WineEntry, isGrapeEntry } from '../../types';
 
 export type GrapeColorLabel = 'RED' | 'WHITE';
 
@@ -38,6 +38,8 @@ export const bodyFromStyleText = (value?: string): GrapeBodyClass | undefined =>
 };
 
 export const getGrapeColorLabel = (entry: WineEntry): GrapeColorLabel => {
+  if (!isGrapeEntry(entry)) return 'RED';
+
   const type = normalizeText(entry.grapeType || entry.grapeCard?.type);
   if (type === 'white') return 'WHITE';
   if (type === 'red') return 'RED';
@@ -48,6 +50,8 @@ export const getGrapeColorLabel = (entry: WineEntry): GrapeColorLabel => {
 };
 
 export const getGrapeBodyLabel = (entry: WineEntry): GrapeBodyClass => {
+  if (!isGrapeEntry(entry)) return 'Medium';
+
   if (entry.grapeBodyClass) return entry.grapeBodyClass;
 
   const detailBody = entry.details.body;

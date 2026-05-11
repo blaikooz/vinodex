@@ -1,4 +1,4 @@
-import { WineEntry, ClimateClass } from '../types.ts';
+import { RegionEntry, ClimateClass } from '../types.ts';
 
 const C = { deepBordeaux: '#722F37', rubyRed: '#9B2335', burgundy: '#800020', merlot: '#73343A', rose: '#C48B8B', blush: '#D4A5A5', golden: '#C9A227', champagne: '#D4B896', amber: '#C67530', mahogany: '#5D3A1A' };
 
@@ -65,7 +65,7 @@ const REGION_CLIMATES: Record<string, { climate: ClimateClass; description?: str
   R060: { climate: 'continental' },
 };
 
-const REGION_BASE: WineEntry[] = [
+const REGION_BASE: RegionEntry[] = [
   { id: "R001", name: "Bordeaux", description: "The world's most famous wine region, renowned for its prestigious blends of Cabernet Sauvignon and Merlot. Its classification system and château culture have set the standard for fine wine globally.", category: "REGIONS", color: C.deepBordeaux, icon: "mountain", tags: ["France", "Blends"], details: { origin: "France", notableGrapes: ["Cabernet Sauvignon", "Merlot", "Cabernet Franc"], classification: "AOC", appellations: ["Pauillac", "Margaux", "Saint-Julien", "Saint-Émilion", "Pomerol", "Pessac-Léognan", "Sauternes"] } },
   { id: "R002", name: "Burgundy", description: "The spiritual home of Pinot Noir and Chardonnay, where terroir is expressed with unmatched precision. Its complex hierarchy of vineyards spans from regional wines to legendary Grand Crus.", category: "REGIONS", color: C.rubyRed, icon: "mountain", tags: ["France", "Terroir"], details: { origin: "France", notableGrapes: ["Pinot Noir", "Chardonnay"], classification: "AOC", appellations: ["Gevrey-Chambertin", "Vosne-Romanée", "Meursault", "Puligny-Montrachet", "Nuits-Saint-Georges", "Pommard"] } },
   { id: "R003", name: "Champagne", description: "The only region that can legally produce true Champagne, using the traditional method of secondary fermentation in bottle. Its chalky soils and cool climate create wines of exceptional finesse and elegance.", category: "REGIONS", color: C.champagne, icon: "sparkles", tags: ["France", "Sparkling"], details: { origin: "France", notableGrapes: ["Chardonnay", "Pinot Noir", "Pinot Meunier"], classification: "AOC", appellations: ["Montagne de Reims", "Côte des Blancs", "Vallée de la Marne"] } },
@@ -128,7 +128,7 @@ const REGION_BASE: WineEntry[] = [
   { id: "R060", name: "Imereti", description: "Western Georgia's humid hills where partial qvevri fermentations craft brighter, mineral-driven amber and red wines.", category: "REGIONS", color: C.golden, icon: "leaf", tags: ["Georgia", "Mineral"], details: { origin: "Georgia", notableGrapes: ["Tsolikouri", "Otskhanuri Sapere"], classification: "PDO", soilType: "Clay, sandstone" } },
 ];
 
-export const REGIONS: WineEntry[] = REGION_BASE.map((region) => {
+export const REGIONS: RegionEntry[] = REGION_BASE.map((region) => {
   const climate = REGION_CLIMATES[region.id];
   if (!climate) return region;
   return {

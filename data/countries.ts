@@ -1,6 +1,6 @@
-import { WineEntry } from '../types';
+import { CountryGateEntry } from '../types';
 
-export const COUNTRIES: WineEntry[] = [
+export const COUNTRIES: CountryGateEntry[] = [
   {
     id: 'STAL001',
     name: 'Alabama',

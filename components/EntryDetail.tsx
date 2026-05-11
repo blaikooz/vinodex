@@ -2,7 +2,7 @@ import React, { useEffect, useMemo, useRef } from 'react';
 import { Tag, MapPin, Activity, Droplet, Clock, Zap, BarChart3, Grape, Mountain, ChevronRight, List, Circle, Triangle, Leaf, Cloud, Sun, Sparkles, Flame, Shield, Castle, Globe, BookOpen, MapPinned, Flower2, Apple, Sprout, Gem, Trees, Wind, Citrus, GlassWater, Droplets, Scale, Box, Wine, Star, Crown, Waves, Coffee, Beef, Cherry, TreePalm, LeafyGreen, Carrot, Drumstick, Ham, Croissant, Cookie, Earth, TreePine, Shell, Hop, Nut } from 'lucide-react';
 import { Icon } from '@iconify/react';
 import DeviceLayout from './DeviceLayout';
-import { ClimateClass, EntryCategory, WineEntry } from '../types';
+import { ClimateClass, EntryCategory, WineEntry, isCountryGateEntry, isFlavorEntry, isGrapeEntry, isRegionEntry, isStyleEntry } from '../types';
 import { CLIMATE_CLASS_MAP } from '../data/climateClasses';
 import { getFlagGradient } from '../data/flagGradients';
 import { getFlagImage } from '../data/flagImages';
@@ -133,7 +133,24 @@ const EntryDetail: React.FC<EntryDetailProps> = ({ entry, allEntries, onBack, on
   const bodyLevels = ['Light', 'Light-Medium', 'Medium', 'Medium-Full', 'Full'];
   const acidLevels = ['Low', 'Medium', 'High', 'Very High'];
   const tanninLevels = ['None', 'Low', 'Low-Medium', 'Medium', 'High', 'Very High'];
-  const grapeCard = entry.grapeCard;
+  const grapeCard = isGrapeEntry(entry) ? entry.grapeCard : undefined;
+  const detailsBag = entry.details as {
+    origin?: string;
+    state?: string;
+    classification?: string;
+    keyRegions?: string[];
+    notableGrapes?: string[];
+    synonyms?: string[];
+    appellations?: string[];
+    soilType?: string;
+    body?: string;
+    tannin?: string;
+    acidity?: string;
+    subclass?: string;
+  };
+  const entryRarity = isGrapeEntry(entry) ? entry.rarity : isStyleEntry(entry) ? entry.rarity : undefined;
+  const entryClimate = isRegionEntry(entry) ? entry.climate : undefined;
+  const entryTastingProfile = isGrapeEntry(entry) || isStyleEntry(entry) || isFlavorEntry(entry) ? entry.tastingProfile : undefined;
 
   const getClassTypeColors = (type: 'STYLE' | 'METHOD' | 'ORIGIN' | 'TYPE' | 'BLEND' | undefined) => {
     switch (type) {
@@ -158,33 +175,33 @@ const EntryDetail: React.FC<EntryDetailProps> = ({ entry, allEntries, onBack, on
   };
 
   // Logic checks
-  const isGrapes = entry.category === 'GRAPES';
-  const isRegion = entry.category === 'REGIONS';
-  const isStyle = entry.category === 'STYLES';
-  const isFlavor = entry.category === 'FLAVORS';
+  const isGrapes = isGrapeEntry(entry);
+  const isRegion = isRegionEntry(entry);
+  const isStyle = isStyleEntry(entry);
+  const isFlavor = isFlavorEntry(entry);
   const isContinent = entry.category === 'CONTINENTS';
-  const isCountry = entry.category === 'COUNTRY_GATE' && entry.details.classification?.toUpperCase() === 'COUNTRY';
-  const isState = entry.category === 'COUNTRY_GATE' && entry.details.classification?.toUpperCase() === 'STATE';
+  const isCountry = isCountryGateEntry(entry) && entry.details.classification?.toUpperCase() === 'COUNTRY';
+  const isState = isCountryGateEntry(entry) && entry.details.classification?.toUpperCase() === 'STATE';
 
-  const styleClassType = isStyle ? getStyleClassType(entry.name, entry.details.classification) : undefined;
+  const styleClassType = isStyleEntry(entry) ? getStyleClassType(entry.name, entry.details.classification) : undefined;
   const isMethodClass = styleClassType === 'METHOD';
   const isOriginClass = styleClassType === 'ORIGIN';
   const isTypeClass = styleClassType === 'TYPE';
   const isStyleClassType = styleClassType === 'STYLE';
   const isBlendClassType = styleClassType === 'BLEND';
   const classTypeColors = getClassTypeColors(styleClassType as 'STYLE' | 'METHOD' | 'ORIGIN' | 'TYPE' | 'BLEND' | undefined);
-  const colorType = isStyle ? getColorType(entry.name) : undefined;
+  const colorType = isStyleEntry(entry) ? getColorType(entry.name) : undefined;
   const colorTypeColors = getColorTypeColors(colorType);
 
   // Classification Logic
-  const isNoble = entry.details.classification === 'Noble Grape' || grapeCard?.rarityTier === 'noble';
-  const displayClass = isGrapes ? (grapeCard?.rarityTier?.toUpperCase() || entry.rarity) : entry.details.classification || entry.rarity;
+  const isNoble = detailsBag.classification === 'Noble Grape' || grapeCard?.rarityTier === 'noble';
+  const displayClass = isGrapes ? (grapeCard?.rarityTier?.toUpperCase() || entryRarity) : (detailsBag.classification || entryRarity);
 
   // List Data Selection
   const listSectionTitle = isContinent ? 'COUNTRIES' : isCountry ? 'KEY REGIONS' : (isRegion ? 'NOTABLE GRAPES' : 'NOTABLE REGIONS');
-  const listSectionData = isContinent ? entry.details.keyRegions : (isRegion ? entry.details.notableGrapes : (isGrapes ? grapeCard?.notableRegions : entry.details.keyRegions));
+  const listSectionData = isContinent ? detailsBag.keyRegions : (isRegion ? detailsBag.notableGrapes : (isGrapes ? grapeCard?.notableRegions : detailsBag.keyRegions));
   const scanTitle = isGrapes ? 'GRAPE SCAN' : isRegion ? 'REGION SCAN' : isFlavor ? 'FLAVOR SCAN' : isContinent ? 'CONTINENT SCAN' : isCountry ? 'COUNTRY SCAN' : isState ? 'STATE SCAN' : 'STYLE SCAN';
-  const regionSoils = isRegion
+  const regionSoils = isRegionEntry(entry)
     ? (entry.details.soilType
         ? entry.details.soilType.split(',').map((soil) => soil.trim()).filter(Boolean).slice(0, 3)
         : (() => {
@@ -205,15 +222,15 @@ const EntryDetail: React.FC<EntryDetailProps> = ({ entry, allEntries, onBack, on
           })())
     : [];
 
-  const styleGrapes = isStyle ? (entry.details.notableGrapes || []) : [];
-  const styleFlavorNotes = isStyle
+  const styleGrapes = isStyleEntry(entry) ? (entry.details.notableGrapes || []) : [];
+  const styleFlavorNotes = isStyleEntry(entry)
     ? (entry.tastingProfile || entry.tags?.slice(0, 3).map(tag => ({ note: tag, icon: 'default' as const, color: classTypeColors.border }))) || []
     : [];
   const grapeFlavorNotes = (grapeCard?.tastingProfile || []).map(n => ({ note: n, icon: 'default' as const, color: '#16a34a' }));
-  const flavorNotes = isStyle ? styleFlavorNotes : (entry.tastingProfile || grapeFlavorNotes);
+  const flavorNotes = isStyleEntry(entry) ? styleFlavorNotes : (entryTastingProfile || grapeFlavorNotes);
   const matchedFlavorNotes = flavorNotes.filter((note) => !!getExactFlavorEntry(note.note));
-  const grapeAlternateNames = isGrapes ? (grapeCard?.alternateNames || entry.details.synonyms || []) : [];
-  const grapeNotableRegions = isGrapes ? (grapeCard?.notableRegions || entry.details.keyRegions || []) : [];
+  const grapeAlternateNames = isGrapeEntry(entry) ? (grapeCard?.alternateNames || entry.details.synonyms || []) : [];
+  const grapeNotableRegions = isGrapeEntry(entry) ? (grapeCard?.notableRegions || entry.details.keyRegions || []) : [];
   const flavorTileContainerClass = isGrapes
     ? 'grid grid-cols-1 gap-2 sm:grid-cols-2 xl:grid-cols-3 items-stretch'
     : 'grid grid-cols-1 gap-2 sm:grid-cols-2 items-stretch';
@@ -305,20 +322,27 @@ const EntryDetail: React.FC<EntryDetailProps> = ({ entry, allEntries, onBack, on
     });
     const displayName = (relatedEntry?.name || label || 'UNKNOWN').toUpperCase();
     const isLinkable = !!relatedEntry;
-    const classificationLabel = relatedEntry?.details.classification ? formatUpper(relatedEntry.details.classification) : undefined;
+    const relatedDetailsClassificationLocal = relatedEntry && 'classification' in relatedEntry.details ? relatedEntry.details.classification : undefined;
+    const classificationLabel = relatedDetailsClassificationLocal ? formatUpper(relatedDetailsClassificationLocal) : undefined;
     const isRegionMeta = relatedEntry?.category === 'REGIONS' && options?.showRegionMetaTiles;
-    const regionCountry = relatedEntry?.details.origin;
-    const regionSystem = relatedEntry?.details.classification;
-    const regionClimate = relatedEntry?.climate;
+    const relatedRegion = relatedEntry && isRegionEntry(relatedEntry) ? relatedEntry : undefined;
+    const relatedGrape = relatedEntry && isGrapeEntry(relatedEntry) ? relatedEntry : undefined;
+    const relatedStyle = relatedEntry && isStyleEntry(relatedEntry) ? relatedEntry : undefined;
+    const relatedDetailsOrigin = relatedEntry && 'origin' in relatedEntry.details ? relatedEntry.details.origin : undefined;
+    const relatedDetailsClassification = relatedEntry && 'classification' in relatedEntry.details ? relatedEntry.details.classification : undefined;
+
+    const regionCountry = relatedRegion?.details.origin;
+    const regionSystem = relatedDetailsClassification;
+    const regionClimate = relatedRegion?.climate;
     const regionCountryColors = getCountryChipColors(regionCountry);
     const regionSystemColors = SYSTEM_CHIP_COLOR;
     const regionClimateColors = regionClimate ? CLIMATE_CLASS_MAP[regionClimate]?.colors ?? CLIMATE_CHIP_COLOR : CLIMATE_CHIP_COLOR;
     const regionClimateName = regionClimate ? CLIMATE_CLASS_MAP[regionClimate]?.name : undefined;
-    const linkedWineType = relatedEntry?.grapeCard?.style || relatedEntry?.wineType;
+    const linkedWineType = relatedGrape?.grapeCard?.style || relatedGrape?.wineType;
     const linkedTypeColors = getTypeTileColors(linkedWineType);
-    const linkedRarity = relatedEntry?.rarity || (relatedEntry?.grapeCard?.rarityTier ? relatedEntry.grapeCard.rarityTier.toUpperCase() : undefined);
+    const linkedRarity = relatedGrape?.rarity || relatedStyle?.rarity || (relatedGrape?.grapeCard?.rarityTier ? relatedGrape.grapeCard.rarityTier.toUpperCase() : undefined);
     const linkedRarityColors = getRarityColors(linkedRarity);
-    const linkedOrigin = relatedEntry?.details.origin;
+    const linkedOrigin = relatedDetailsOrigin;
     const linkedOriginColors = getCountryChipColors(linkedOrigin);
     const showLinkedGrapeChips = relatedEntry?.category === 'GRAPES';
     const linkedGrapeColorLabel = showLinkedGrapeChips && relatedEntry ? getGrapeColorLabel(relatedEntry) : undefined;
@@ -555,7 +579,7 @@ const EntryDetail: React.FC<EntryDetailProps> = ({ entry, allEntries, onBack, on
       } else if (isRegion) {
       const mainGrape = entry.details.notableGrapes?.[0] || 'N/A';
       const mainGrapeEntry = getRelatedEntry(mainGrape, 'GRAPES');
-      const mainGrapeTypeColors = getTypeTileColors(mainGrapeEntry?.wineType);
+      const mainGrapeTypeColors = getTypeTileColors(mainGrapeEntry && isGrapeEntry(mainGrapeEntry) ? mainGrapeEntry.wineType : undefined);
       // Use the grape's hero image/icon and container, matching the grape detail header
       const mainGrapeVisual = mainGrapeEntry
         ? resolveEntryIconVisual(mainGrapeEntry, {

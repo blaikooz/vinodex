@@ -1,8 +1,8 @@
-import { WineEntry } from '../types.ts';
+import { StyleEntry } from '../types.ts';
 
 const C = { deepBordeaux: '#722F37', rubyRed: '#9B2335', burgundy: '#800020', merlot: '#73343A', rose: '#C48B8B', blush: '#D4A5A5', golden: '#C9A227', champagne: '#D4B896', amber: '#C67530', mahogany: '#5D3A1A' };
 
-export const STYLES: WineEntry[] = [
+export const STYLES: StyleEntry[] = [
   { id: "S001", name: "Full-Body Red", description: "Rich, tannic wines with intense dark fruit flavors that command attention on the palate. These powerful wines typically benefit from aging and pair beautifully with hearty red meats.", category: "STYLES", color: C.deepBordeaux, icon: "flame", tags: ["Bold", "Tannic"], details: { origin: "Various", body: "Full", tannin: "High", keyRegions: ["Bordeaux", "California", "Napa Valley", "Barossa Valley", "Lodi", "Mendoza", "Helan Mountain", "Nashik", "Ribera del Duero"], notableGrapes: ["Cabernet Sauvignon", "Syrah", "Malbec", "Nebbiolo"], classification: "STYLE" } },
   { id: "S002", name: "Light-Body Red", description: "Delicate, elegant reds with bright acidity and fresh red fruit character that are perfect for lighter fare. These subtle wines showcase finesse over power and can even be served slightly chilled.", category: "STYLES", color: C.rose, icon: "droplet", tags: ["Light", "Fresh"], details: { origin: "Various", body: "Light", tannin: "Low", keyRegions: ["Burgundy", "Willamette Valley", "Loire Valley", "Central Otago", "Walker Bay"], notableGrapes: ["Pinot Noir", "Gamay", "Cinsault"], classification: "STYLE" } },
   { id: "S003", name: "Medium-Body Red", description: "Versatile reds that balance fruit, structure, and elegance for everyday enjoyment. These food-friendly wines bridge the gap between light and bold styles.", category: "STYLES", color: C.rubyRed, icon: "circle", tags: ["Balanced", "Versatile"], details: { origin: "Various", body: "Medium", tannin: "Medium", keyRegions: ["Rioja", "Tuscany", "Rhône Valley", "Languedoc", "Nandi Hills"], notableGrapes: ["Sangiovese", "Tempranillo", "Merlot", "Grenache"], classification: "STYLE" } },

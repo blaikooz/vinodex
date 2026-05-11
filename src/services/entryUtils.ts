@@ -1,4 +1,4 @@
-import type { EntryCategory, WineEntry } from '../../types';
+import type { DataCategory, EntryCategory, WineEntry } from '../../types';
 
 // === Normalization ===
 
@@ -158,21 +158,28 @@ export const getStyleColorType = getColorType;
 
 export const matchesEntryKey = (entry: WineEntry, cleanName: string) => {
   if (normalizeKey(entry.name) === cleanName) return true;
-  if (entry.details.synonyms?.some((s) => normalizeKey(s) === cleanName)) return true;
+  const synonyms = (entry.details as { synonyms?: string[] }).synonyms;
+  if (synonyms?.some((s) => normalizeKey(s) === cleanName)) return true;
   return false;
 };
 
-export const findEntryByName = (
+export function findEntryByName(entries: WineEntry[], name: string): WineEntry | undefined;
+export function findEntryByName<C extends DataCategory>(
+  entries: WineEntry[],
+  name: string,
+  category: C,
+): Extract<WineEntry, { category: C }> | undefined;
+export function findEntryByName(
   entries: WineEntry[],
   name: string,
   category?: EntryCategory,
-): WineEntry | undefined => {
+): WineEntry | undefined {
   const clean = normalizeKey(name);
   return entries.find((entry) => {
     if (category && entry.category !== category) return false;
     return matchesEntryKey(entry, clean);
   });
-};
+}
 
 export const findRelatedEntry = (
   entries: WineEntry[],

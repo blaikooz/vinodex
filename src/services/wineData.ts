@@ -1,4 +1,4 @@
-import { GrapeCard, WineEntry } from '../../types';
+import { GrapeCard, GrapeEntry, WineEntry, isGrapeEntry } from '../../types';
 import { WINE_ENTRIES } from '../../constants';
 
 let cachedEntries: WineEntry[] | null = null;
@@ -7,49 +7,64 @@ let inFlight: Promise<WineEntry[]> | null = null;
 const canonicalizeGrapeName = (value: string) =>
   /^syrah\s*\/\s*shiraz$/i.test(value.trim()) ? 'Syrah' : value;
 
-const deriveGrapeCard = (entry: WineEntry): GrapeCard | undefined => {
-  if (entry.category !== 'GRAPES') return entry.grapeCard;
-
+const deriveGrapeCard = (entry: GrapeEntry): GrapeCard => {
   const fallbackCard = entry.grapeCard;
-  const canonicalType = entry.grapeType || fallbackCard?.type;
-  const canonicalStyle = entry.grapeStyle || fallbackCard?.style || entry.wineType;
-  const canonicalCharacteristics = entry.grapeCharacteristics || fallbackCard?.characteristics;
-
-  if (!canonicalType || !canonicalStyle || !canonicalCharacteristics) {
-    return fallbackCard;
-  }
-
   return {
     id: entry.id,
     name: canonicalizeGrapeName(entry.name),
-    type: canonicalType,
-    style: canonicalStyle,
+    type: entry.grapeType,
+    style: entry.grapeStyle,
     styleId: fallbackCard?.styleId,
     countryOfOrigin: entry.grapeCountryOfOrigin || entry.details.origin || fallbackCard?.countryOfOrigin || 'Unknown',
-    alternateNames: (entry.grapeAlternateNames || entry.details.synonyms || fallbackCard?.alternateNames || []).map(canonicalizeGrapeName),
+    alternateNames: (entry.grapeAlternateNames.length > 0
+      ? entry.grapeAlternateNames
+      : entry.details.synonyms.length > 0
+        ? entry.details.synonyms
+        : fallbackCard?.alternateNames || []
+    ).map(canonicalizeGrapeName),
     rarityTier: entry.grapeRarityTier || fallbackCard?.rarityTier || 'uncommon',
     evolutionLine: fallbackCard?.evolutionLine,
     signatureMove: fallbackCard?.signatureMove,
     discoveryYear: fallbackCard?.discoveryYear,
     regionAffinity: fallbackCard?.regionAffinity,
-    characteristics: canonicalCharacteristics,
+    characteristics: entry.grapeCharacteristics,
     tastingProfile: fallbackCard?.tastingProfile || entry.tags || [],
-    notableRegions: entry.grapeNotableRegions || entry.details.keyRegions || fallbackCard?.notableRegions || [],
+    notableRegions: entry.grapeNotableRegions.length > 0
+      ? entry.grapeNotableRegions
+      : entry.details.keyRegions.length > 0
+        ? entry.details.keyRegions
+        : fallbackCard?.notableRegions || [],
     info: entry.description,
   };
 };
 
-const canonicalizeEntry = (entry: WineEntry): WineEntry => ({
-  ...entry,
-  name: canonicalizeGrapeName(entry.name),
-  grapeAlternateNames: entry.grapeAlternateNames?.map(canonicalizeGrapeName),
-  details: {
-    ...entry.details,
-    notableGrapes: entry.details.notableGrapes?.map(canonicalizeGrapeName),
-    synonyms: entry.details.synonyms?.map(canonicalizeGrapeName),
-  },
-  grapeCard: deriveGrapeCard(entry),
-});
+function canonicalizeEntry<T extends WineEntry>(entry: T): T {
+  const next = { ...entry, name: canonicalizeGrapeName(entry.name) };
+  const detailsBag = next.details as { notableGrapes?: string[]; synonyms?: string[] };
+  const updatedDetails: { notableGrapes?: string[]; synonyms?: string[] } = {};
+
+  if ('notableGrapes' in next.details && detailsBag.notableGrapes) {
+    updatedDetails.notableGrapes = detailsBag.notableGrapes.map(canonicalizeGrapeName);
+  }
+  if ('synonyms' in next.details && detailsBag.synonyms) {
+    updatedDetails.synonyms = detailsBag.synonyms.map(canonicalizeGrapeName);
+  }
+
+  const merged = {
+    ...next,
+    details: { ...next.details, ...updatedDetails },
+  } as T;
+
+  if (isGrapeEntry(merged)) {
+    return {
+      ...merged,
+      grapeAlternateNames: merged.grapeAlternateNames.map(canonicalizeGrapeName),
+      grapeCard: deriveGrapeCard(merged),
+    } as T;
+  }
+
+  return merged;
+}
 
 const canonicalizeEntries = (entries: WineEntry[]) => entries.map(canonicalizeEntry);
 

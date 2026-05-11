@@ -1,6 +1,6 @@
-import { WineEntry } from '../types';
+import { ContinentEntry } from '../types';
 
-const CONTINENTS_BASE: WineEntry[] = [
+const CONTINENTS_BASE: ContinentEntry[] = [
   {
     id: "CONT_NORTH_AMERICA",
     name: "North America",
@@ -75,4 +75,4 @@ const CONTINENTS_BASE: WineEntry[] = [
   }
 ];
 
-export const CONTINENTS: WineEntry[] = CONTINENTS_BASE;
+export const CONTINENTS: ContinentEntry[] = CONTINENTS_BASE;

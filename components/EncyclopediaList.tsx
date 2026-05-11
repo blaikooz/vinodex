@@ -2,7 +2,7 @@ import React, { useCallback, useEffect, useMemo, useRef, useState } from "react"
 import { Search, List, Map, Droplet, Grape, Mountain, MapPin, Star, Shield, Wind } from "lucide-react";
 import EntryTile from "./EntryTile";
 import DeviceLayout from "./DeviceLayout";
-import { WineEntry, EntryCategory, ClimateClass } from "../types";
+import { WineEntry, EntryCategory, ClimateClass, isGrapeEntry, isRegionEntry, isStyleEntry } from "../types";
 import { CLIMATE_CLASS_MAP } from "../data/climateClasses";
 import { getGrapeBodyFilterValue, getGrapeColorLabel, getGrapeBodyLabel } from "../src/services/grapeDisplay";
 import { getAllEntries } from "../src/services/wineData";
@@ -81,7 +81,7 @@ export default function EncyclopediaList({ category, filterMode, filterValue, in
   };
 
   const matchesGrapeTypeFilter = (entry: WineEntry, filter: string) => {
-    if (entry.category !== 'GRAPES') return false;
+    if (!isGrapeEntry(entry)) return false;
 
     const normalizedFilter = normalizeLabel(filter);
     const legacyType = normalizeLabel(entry.grapeStyle || entry.grapeCard?.style || entry.wineType || '');
@@ -94,6 +94,11 @@ export default function EncyclopediaList({ category, filterMode, filterValue, in
       getGrapeBodyFilterValue(getGrapeBodyLabel(entry), getGrapeColorLabel(entry))
     );
     return grapeBodyFilter === normalizedFilter;
+  };
+
+  const detailString = (e: WineEntry, field: string): string | undefined => {
+    const v = (e.details as unknown as Record<string, unknown>)[field];
+    return typeof v === 'string' ? v : undefined;
   };
 
   const filteredEntries = useMemo(() => {
@@ -153,49 +158,61 @@ export default function EncyclopediaList({ category, filterMode, filterValue, in
             && e.details.classification?.toUpperCase() === 'STATE'
             && !allowedUsStates.includes(e.name));
 
+        const detailsBag = e.details as { origin?: string; state?: string; classification?: string; keyRegions?: string[]; synonyms?: string[] };
+
         // 2. Search Bar
         const matchesSearch = !showTopSearchBar ||
           e.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
           e.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
-          (e.details.origin || '').toLowerCase().includes(searchQuery.toLowerCase()) ||
-          (e.details.state || '').toLowerCase().includes(searchQuery.toLowerCase()) ||
-          (e.details.classification || '').toLowerCase().includes(searchQuery.toLowerCase()) ||
-          (e.details.keyRegions || []).some((region) => region.toLowerCase().includes(searchQuery.toLowerCase())) ||
-          (e.details.synonyms || []).some((synonym) => synonym.toLowerCase().includes(searchQuery.toLowerCase())) ||
+          (detailsBag.origin || '').toLowerCase().includes(searchQuery.toLowerCase()) ||
+          (detailsBag.state || '').toLowerCase().includes(searchQuery.toLowerCase()) ||
+          (detailsBag.classification || '').toLowerCase().includes(searchQuery.toLowerCase()) ||
+          (detailsBag.keyRegions || []).some((region) => region.toLowerCase().includes(searchQuery.toLowerCase())) ||
+          (detailsBag.synonyms || []).some((synonym) => synonym.toLowerCase().includes(searchQuery.toLowerCase())) ||
           e.tags.some((tag) => tag.toLowerCase().includes(searchQuery.toLowerCase()));
 
         // 3. Active Filter Logic
         let matchesFilter = true;
         
+        const eOrigin = detailString(e, 'origin');
+        const eClassification = detailString(e, 'classification');
+        const eSoilType = detailString(e, 'soilType');
+        const eState = detailString(e, 'state');
+        const eTastingProfile = isGrapeEntry(e) || isStyleEntry(e) ? e.tastingProfile : undefined;
+        const eRarity = isGrapeEntry(e) ? (e.rarity || e.grapeRarityTier?.toUpperCase() || e.grapeCard?.rarityTier?.toUpperCase())
+                       : isStyleEntry(e) ? e.rarity : undefined;
+        const eClimate = isRegionEntry(e) ? e.climate : undefined;
+
         if (activeFilterMode === 'REGION' && Array.isArray(activeFilterValue)) {
-             matchesFilter = (activeFilterValue as string[]).some(keyword => 
-                (e.details.origin && e.details.origin.toLowerCase().includes(keyword.toLowerCase())) ||
+             matchesFilter = (activeFilterValue as string[]).some(keyword =>
+                (!!eOrigin && eOrigin.toLowerCase().includes(keyword.toLowerCase())) ||
                 e.tags.some(t => t.toLowerCase().includes(keyword.toLowerCase())) ||
                 e.name.toLowerCase().includes(keyword.toLowerCase())
              );
         } else if (activeFilterMode === 'TYPE' && typeof activeFilterValue === 'string') {
+             const grapeStyleSource = isGrapeEntry(e) ? (e.grapeStyle || e.grapeCard?.style || e.wineType) : undefined;
              const typeMatch = matchesGrapeTypeFilter(e, activeFilterValue)
-              || (!!(e.grapeStyle || e.grapeCard?.style || e.wineType) && normalizeLabel((e.grapeStyle || e.grapeCard?.style || e.wineType)!) === normalizeLabel(activeFilterValue));
+              || (!!grapeStyleSource && normalizeLabel(grapeStyleSource) === normalizeLabel(activeFilterValue));
              const styleColorMatch = effectiveCategory === 'STYLES' && normalizeLabel(getColorType(e.name)) === normalizeLabel(activeFilterValue);
              matchesFilter = typeMatch || styleColorMatch;
         } else if (activeFilterMode === 'TASTING' && typeof activeFilterValue === 'string') {
-             matchesFilter = (!!e.tastingProfile && e.tastingProfile.some(n => n.note.toLowerCase() === activeFilterValue.toLowerCase()))
-              || (!!e.details.classification && e.details.classification.toLowerCase() === activeFilterValue.toLowerCase());
+             matchesFilter = (!!eTastingProfile && eTastingProfile.some(n => n.note.toLowerCase() === activeFilterValue.toLowerCase()))
+              || (!!eClassification && eClassification.toLowerCase() === activeFilterValue.toLowerCase());
         } else if (activeFilterMode === 'SOIL' && typeof activeFilterValue === 'string') {
-             matchesFilter = !!e.details.soilType && e.details.soilType.toLowerCase().includes(activeFilterValue.toLowerCase());
+             matchesFilter = !!eSoilType && eSoilType.toLowerCase().includes(activeFilterValue.toLowerCase());
         } else if (activeFilterMode === 'ORIGIN' && typeof activeFilterValue === 'string') {
-             matchesFilter = (!!e.details.origin && matchesWholeTerm(e.details.origin, activeFilterValue)) ||
+             matchesFilter = (!!eOrigin && matchesWholeTerm(eOrigin, activeFilterValue)) ||
                     e.tags.some(t => matchesWholeTerm(t, activeFilterValue));
         } else if (activeFilterMode === 'STATE' && typeof activeFilterValue === 'string') {
              matchesFilter =
-               (e.details.origin || '').toUpperCase() === 'USA' &&
-           e.details.state === activeFilterValue;
+               (eOrigin || '').toUpperCase() === 'USA' &&
+           eState === activeFilterValue;
         } else if (activeFilterMode === 'SYSTEM' && typeof activeFilterValue === 'string') {
-             matchesFilter = !!e.details.classification && e.details.classification.toLowerCase() === activeFilterValue.toLowerCase();
+             matchesFilter = !!eClassification && eClassification.toLowerCase() === activeFilterValue.toLowerCase();
         } else if (activeFilterMode === 'RARITY' && typeof activeFilterValue === 'string') {
-             matchesFilter = (e.rarity || e.grapeRarityTier?.toUpperCase() || e.grapeCard?.rarityTier?.toUpperCase()) === activeFilterValue;
+             matchesFilter = eRarity === activeFilterValue;
         } else if (activeFilterMode === 'CLIMATE' && typeof activeFilterValue === 'string') {
-             matchesFilter = !!e.climate && e.climate.toLowerCase() === activeFilterValue.toLowerCase();
+             matchesFilter = !!eClimate && eClimate.toLowerCase() === activeFilterValue.toLowerCase();
         }
 
         return matchesCategory && matchesSearch && matchesFilter;

@@ -2,7 +2,7 @@ import React from 'react';
 import { Globe } from 'lucide-react';
 import { Icon } from '@iconify/react';
 import { getLucideIcon } from './lucideIconMap';
-import type { WineEntry } from '../../types';
+import type { GrapeEntry, StyleEntry, WineEntry } from '../../types';
 import { CLIMATE_CLASS_MAP } from '../../data/climateClasses';
 import { getFlagGradient } from '../../data/flagGradients';
 import { getFlagImage } from '../../data/flagImages';
@@ -130,7 +130,7 @@ const getGrapeIconColor = (wineType: string | undefined, body: string | undefine
 	return '#78716c';
 };
 
-const getStyleClassBg = (styleEntry?: WineEntry) => {
+const getStyleClassBg = (styleEntry?: StyleEntry) => {
 	const classType = styleEntry ? getStyleClassType(styleEntry.name, styleEntry.details.classification) : undefined;
 	switch (classType) {
 		case 'METHOD':
@@ -247,7 +247,7 @@ const STYLE_CLASS_ICON_MAP: Record<string, string> = {
 	METHOD: 'game-icons:cellar-barrels',
 };
 
-const getStyleIconShape = (styleEntry: WineEntry, colorTypeColor: string, size: number): React.ReactNode => {
+const getStyleIconShape = (styleEntry: StyleEntry, colorTypeColor: string, size: number): React.ReactNode => {
 	const classType = getStyleClassType(styleEntry.name, styleEntry.details.classification);
 	const classIcon = classType ? STYLE_CLASS_ICON_MAP[classType] : undefined;
 
@@ -265,7 +265,7 @@ const getStyleIconShape = (styleEntry: WineEntry, colorTypeColor: string, size: 
 };
 
 const getGrapePrimaryFlavorVisual = (
-	grape: WineEntry,
+	grape: GrapeEntry,
 	entries: WineEntry[],
 	size: number
 ): { iconNode: React.ReactNode; bg: string; color: string } => {
@@ -452,34 +452,27 @@ export const resolveEntryIconVisual = (
 		};
 	}
 
-	if (entry.category === 'FLAVORS') {
-		const iconColor = getFlavorSubclassIconColor(entry.details.subclass);
-		const flavorSize = Math.round(size * 1.3);
-		return {
-			style: {
-				backgroundColor: entry.color || '#444',
-				boxShadow: `0 0 0 2px ${iconColor}`,
-			},
-			iconNode: (
-				<FlavorIcon
-					name={entry.name}
-					flavor={entry.details.subclass || ''}
-					className=""
-					style={{
-						width: flavorSize,
-						height: flavorSize,
-						color: iconColor,
-						filter: BLACK_ICON_OUTLINE_FILTER,
-					}}
-				/>
-			),
-			iconColor,
-		};
-	}
-
+	// Final exhaustive case: FLAVORS
+	const iconColor = getFlavorSubclassIconColor(entry.details.subclass);
+	const flavorSize = Math.round(size * 1.3);
 	return {
-		style: { backgroundColor: entry.color || '#444' },
-		iconNode: buildIconNode(entry.icon || 'default', size, '#ffffff'),
-		iconColor: '#ffffff',
+		style: {
+			backgroundColor: entry.color || '#444',
+			boxShadow: `0 0 0 2px ${iconColor}`,
+		},
+		iconNode: (
+			<FlavorIcon
+				name={entry.name}
+				flavor={entry.details.subclass || ''}
+				className=""
+				style={{
+					width: flavorSize,
+					height: flavorSize,
+					color: iconColor,
+					filter: BLACK_ICON_OUTLINE_FILTER,
+				}}
+			/>
+		),
+		iconColor,
 	};
 };
