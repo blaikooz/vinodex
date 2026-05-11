@@ -1,6 +1,6 @@
 import React, { useMemo } from 'react';
 import { ClimateClass, EntryCategory, WineEntry } from '../types';
-import { ChevronRight, Droplet, Heart, Sun, Cloud, Castle, Mountain, Triangle, Sparkles, Circle, Shield, Grape, Leaf, Flame, Zap, Flower2, Apple, Sprout, Gem, Trees, Wind, Citrus } from 'lucide-react';
+import { ChevronRight } from 'lucide-react';
 import { getStylePalette } from '../stylePalette';
 import { CLIMATE_CLASS_MAP } from '../data/climateClasses';
 import { WINE_ENTRIES } from '../constants';
@@ -22,6 +22,7 @@ import {
   extractTagAbbrev,
 } from '../src/services/chipColors';
 import { getColorType, getStyleClassType } from '../src/services/entryUtils';
+import { isLightColor } from '../src/services/colorUtils';
 
 type FilterMode = 'REGION' | 'TYPE' | 'TASTING' | 'SOIL' | 'ORIGIN' | 'RARITY' | 'SYSTEM' | 'CLIMATE' | null;
 
@@ -35,44 +36,6 @@ interface EntryTileProps {
   onFilterByOrigin?: (origin: string) => void;
   onFilterByClimate?: (climate: ClimateClass) => void;
 }
-
-// Generic icons for non-grape entries
-const ICON_MAP: Record<string, React.ReactNode> = {
-  droplet: <Droplet size={20} fill="currentColor" className="text-white opacity-90" />,
-  heart: <Heart size={20} fill="currentColor" className="text-white opacity-90" />,
-  sun: <Sun size={20} fill="currentColor" className="text-white opacity-90" />,
-  cloud: <Cloud size={20} fill="currentColor" className="text-white opacity-90" />,
-  castle: <Castle size={20} fill="currentColor" className="text-white opacity-90" />,
-  mountain: <Mountain size={20} fill="currentColor" className="text-white opacity-90" />,
-  triangle: <Triangle size={20} fill="currentColor" className="text-white opacity-90" />,
-  sparkles: <Sparkles size={20} fill="currentColor" className="text-white opacity-90" />,
-  circle: <Circle size={20} fill="currentColor" className="text-white opacity-90" />,
-  shield: <Shield size={20} fill="currentColor" className="text-white opacity-90" />,
-  leaf: <Leaf size={20} fill="currentColor" className="text-white opacity-90" />,
-  flame: <Flame size={20} fill="currentColor" className="text-white opacity-90" />,
-  zap: <Zap size={20} fill="currentColor" className="text-white opacity-90" />,
-  flower: <Flower2 size={20} fill="currentColor" className="text-white opacity-90" />,
-  fruit: <Apple size={20} fill="currentColor" className="text-white opacity-90" />,
-  herb: <Sprout size={20} fill="currentColor" className="text-white opacity-90" />,
-  spice: <Flame size={20} fill="currentColor" className="text-white opacity-90" />,
-  mineral: <Gem size={20} fill="currentColor" className="text-white opacity-90" />,
-  oak: <Trees size={20} fill="currentColor" className="text-white opacity-90" />,
-  smoke: <Wind size={20} fill="currentColor" className="text-white opacity-90" />,
-  citrus: <Citrus size={20} fill="currentColor" className="text-white opacity-90" />,
-  honey: <Sparkles size={20} fill="currentColor" className="text-white opacity-90" />,
-  tropical: <Sun size={20} fill="currentColor" className="text-white opacity-90" />,
-  nut: <Triangle size={20} fill="currentColor" className="text-white opacity-90" />,
-  stone: <Mountain size={20} fill="currentColor" className="text-white opacity-90" />,
-  default: <Grape size={20} fill="currentColor" className="text-white opacity-90" />
-};
-
-const isLightColor = (hex: string) => {
-  const clean = hex.replace('#', '');
-  const r = parseInt(clean.substring(0, 2), 16);
-  const g = parseInt(clean.substring(2, 4), 16);
-  const b = parseInt(clean.substring(4, 6), 16);
-  return (0.299 * r + 0.587 * g + 0.114 * b) > 160;
-};
 
 const getClimateStyle = (climate?: ClimateClass) => {
   if (!climate) return null;
@@ -168,29 +131,6 @@ const getFlavorSubclassStyle = (sub?: string) => {
     case 'WAX': return { bg: 'bg-amber-900', text: 'text-amber-100', border: 'border-amber-500' };
     case 'NUT': return { bg: 'bg-yellow-950', text: 'text-yellow-100', border: 'border-yellow-600' };
     default: return { bg: 'bg-stone-700', text: 'text-stone-200', border: 'border-stone-500' };
-  }
-};
-
-const getFlavorSubclassColor = (sub?: string) => {
-  switch ((sub || '').toUpperCase()) {
-    case 'CITRUS': return '#f97316';
-    case 'ORCHARD_FRUIT': return '#84cc16';
-    case 'STONE_FRUIT': return '#fb923c';
-    case 'TROPICAL': return '#eab308';
-    case 'RED_FRUIT': return '#ef4444';
-    case 'DARK_FRUIT': return '#8b5cf6';
-    case 'BERRY': return '#e11d48';
-    case 'HERBAL': return '#34d399';
-    case 'VEGETAL': return '#22c55e';
-    case 'SPICE': return '#d97706';
-    case 'BAKING': return '#c08457';
-    case 'FLORAL': return '#ec4899';
-    case 'EARTH': return '#78716c';
-    case 'WOOD': return '#8b5a2b';
-    case 'MARINE': return '#0ea5e9';
-    case 'WAX': return '#f59e0b';
-    case 'NUT': return '#eab308';
-    default: return '#e5e7eb';
   }
 };
 

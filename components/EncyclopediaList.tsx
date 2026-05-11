@@ -1,11 +1,12 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { Search, List, Map, Droplet, Grape, Mountain, MapPin, Star, Shield, Wind, AlertCircle } from "lucide-react";
+import { Search, List, Map, Droplet, Grape, Mountain, MapPin, Star, Shield, Wind } from "lucide-react";
 import EntryTile from "./EntryTile";
 import DeviceLayout from "./DeviceLayout";
 import { WineEntry, EntryCategory, ClimateClass } from "../types";
 import { CLIMATE_CLASS_MAP } from "../data/climateClasses";
 import { getGrapeBodyFilterValue, getGrapeColorLabel, getGrapeBodyLabel } from "../src/services/grapeDisplay";
-import { loadAllEntries } from "../src/services/wineData";
+import { getAllEntries } from "../src/services/wineData";
+import { getColorType, normalizeLabel } from "../src/services/entryUtils";
 
 interface EncyclopediaListProps {
   category: EntryCategory;
@@ -25,26 +26,11 @@ interface EncyclopediaListProps {
 export default function EncyclopediaList({ category, filterMode, filterValue, initialSearchQuery, onSelect, onBack, onHome, onFilterByRarity, onFilterByType, onFilterByNote, onFilterByOrigin, onFilterByClimate }: EncyclopediaListProps) {
   const allowedUsStates = ['California', 'New York', 'Oregon', 'Virginia', 'Washington'];
   const [searchQuery, setSearchQuery] = useState("");
-  const [entries, setEntries] = useState<WineEntry[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [loadError, setLoadError] = useState<string | null>(null);
+  const entries = useMemo(() => getAllEntries(), []);
   const SEARCH_INPUT_START_OFFSET = 16;
   const [cursorOffset, setCursorOffset] = useState(SEARCH_INPUT_START_OFFSET);
   const searchInputRef = useRef<HTMLInputElement>(null);
   const searchMeasureRef = useRef<HTMLSpanElement>(null);
-
-  const fetchEntries = () => {
-    setLoading(true);
-    setLoadError(null);
-    loadAllEntries()
-      .then((data) => setEntries(data))
-      .catch((err) => setLoadError(err instanceof Error ? err.message : 'Failed to load entries'))
-      .finally(() => setLoading(false));
-  };
-
-  useEffect(() => {
-    fetchEntries();
-  }, []);
 
   const activeFilterMode = filterMode;
   const activeFilterValue = filterValue;
@@ -80,12 +66,6 @@ export default function EncyclopediaList({ category, filterMode, filterValue, in
     return () => window.removeEventListener('resize', handleResize);
   }, [updateSearchCursorOffset]);
 
-  const normalizeLabel = (value: string) =>
-    value
-      .toLowerCase()
-      .normalize('NFD')
-      .replace(/[\u0300-\u036f]/g, '');
-
   const normalizeTerm = (value: string) =>
     normalizeLabel(value)
       .replace(/[_\-/(),.;]+/g, ' ')
@@ -98,15 +78,6 @@ export default function EncyclopediaList({ category, filterMode, filterValue, in
     if (!normalizedCandidate || !normalizedTerm) return false;
     if (normalizedCandidate === normalizedTerm) return true;
     return ` ${normalizedCandidate} `.includes(` ${normalizedTerm} `);
-  };
-
-  const getStyleColorType = (name: string) => {
-    const n = normalizeLabel(name);
-    if (n.includes('orange')) return 'ORANGE';
-    if (n.includes('rose')) return 'ROSE';
-    if (n.includes('red')) return 'RED';
-    if (n.includes('white')) return 'WHITE';
-    return 'DUAL';
   };
 
   const matchesGrapeTypeFilter = (entry: WineEntry, filter: string) => {
@@ -205,7 +176,7 @@ export default function EncyclopediaList({ category, filterMode, filterValue, in
         } else if (activeFilterMode === 'TYPE' && typeof activeFilterValue === 'string') {
              const typeMatch = matchesGrapeTypeFilter(e, activeFilterValue)
               || (!!(e.grapeStyle || e.grapeCard?.style || e.wineType) && normalizeLabel((e.grapeStyle || e.grapeCard?.style || e.wineType)!) === normalizeLabel(activeFilterValue));
-             const styleColorMatch = effectiveCategory === 'STYLES' && normalizeLabel(getStyleColorType(e.name)) === normalizeLabel(activeFilterValue);
+             const styleColorMatch = effectiveCategory === 'STYLES' && normalizeLabel(getColorType(e.name)) === normalizeLabel(activeFilterValue);
              matchesFilter = typeMatch || styleColorMatch;
         } else if (activeFilterMode === 'TASTING' && typeof activeFilterValue === 'string') {
              matchesFilter = (!!e.tastingProfile && e.tastingProfile.some(n => n.note.toLowerCase() === activeFilterValue.toLowerCase()))
@@ -296,16 +267,6 @@ export default function EncyclopediaList({ category, filterMode, filterValue, in
       centerHeaderText={true}
       onHome={onHome}
     >
-      {loadError && (
-        <div className="p-3 text-sm text-red-200 bg-red-950 border border-red-800 flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <AlertCircle size={16} className="text-red-400" />
-            <span>Failed to load entries: {loadError}</span>
-          </div>
-          <button onClick={fetchEntries} className="underline text-red-100">Retry</button>
-        </div>
-      )}
-
       <div className="flex flex-col h-full min-h-0 bg-stone-900">
         {showFilterIndicator && (
           <div className="bg-stone-800 border-b border-stone-700 px-4 py-3 flex items-center gap-3 animate-in slide-in-from-top-2 shadow-inner">
@@ -353,12 +314,7 @@ export default function EncyclopediaList({ category, filterMode, filterValue, in
             </div>
           )}
 
-          {loading ? (
-            <div className="text-center py-20 opacity-70 flex flex-col items-center">
-              <List size={48} className="text-stone-500 mb-4" />
-              <p className="text-stone-400 font-retro text-xs">LOADING...</p>
-            </div>
-          ) : filteredEntries.length === 0 ? (
+          {filteredEntries.length === 0 ? (
             <div className="text-center py-20 opacity-50 flex flex-col items-center">
               <List size={48} className="text-red-500 mb-4" />
               <p className="text-red-500 font-retro text-xs">NO DATA FOUND</p>

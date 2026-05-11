@@ -22,6 +22,8 @@ import {
 import Chip from './Chip';
 import { getCountryChipColors, getClassificationChipColors, getWineTypeChipColors, getRarityChipColors, getFlavorClassChipColors, getFlavorSubclassChipColors, SYSTEM_CHIP_COLOR, CLIMATE_CHIP_COLOR, APPELLATION_CHIP_COLORS, extractTagAbbrev } from '../src/services/chipColors';
 import { getGrapeColorLabel, getGrapeBodyLabel, getGrapeColorChipColors, getGrapeBodyChipColors } from '../src/services/grapeDisplay';
+import { isLightColor } from '../src/services/colorUtils';
+import { getLucideIcon } from '../src/services/lucideIconMap';
 
 type FilterMode = 'REGION' | 'TYPE' | 'TASTING' | 'SOIL' | 'ORIGIN' | 'RARITY' | 'SYSTEM' | 'CLIMATE' | null;
 
@@ -39,33 +41,6 @@ interface EntryDetailProps {
   onFilterByClimate?: (climate: ClimateClass) => void;
   onViewStates?: () => void;
 }
-
-const ICON_MAP: Record<string, React.ReactNode> = {
-  circle: <Circle size={16} fill="currentColor" className="text-current" />,
-  triangle: <Triangle size={16} fill="currentColor" className="text-current" />,
-  leaf: <Leaf size={16} fill="currentColor" className="text-current" />,
-  cloud: <Cloud size={16} fill="currentColor" className="text-current" />,
-  sun: <Sun size={16} fill="currentColor" className="text-current" />,
-  mountain: <Mountain size={16} fill="currentColor" className="text-current" />,
-  sparkles: <Sparkles size={16} fill="currentColor" className="text-current" />,
-  flame: <Flame size={16} fill="currentColor" className="text-current" />,
-  droplet: <Droplet size={16} fill="currentColor" className="text-current" />,
-  shield: <Shield size={16} fill="currentColor" className="text-current" />,
-  castle: <Castle size={16} fill="currentColor" className="text-current" />,
-  zap: <Zap size={16} fill="currentColor" className="text-current" />,
-  flower: <Flower2 size={16} fill="currentColor" className="text-current" />,
-  fruit: <Apple size={16} fill="currentColor" className="text-current" />,
-  herb: <Sprout size={16} fill="currentColor" className="text-current" />,
-  spice: <Flame size={16} fill="currentColor" className="text-current" />,
-  mineral: <Gem size={16} fill="currentColor" className="text-current" />,
-  oak: <Trees size={16} fill="currentColor" className="text-current" />,
-  smoke: <Wind size={16} fill="currentColor" className="text-current" />,
-  stone: <Mountain size={16} fill="currentColor" className="text-current" />,
-  tropical: <Citrus size={16} fill="currentColor" className="text-current" />,
-  honey: <Sparkles size={16} fill="currentColor" className="text-current" />,
-  nut: <Triangle size={16} fill="currentColor" className="text-current" />,
-  default: <Circle size={16} fill="currentColor" className="text-current" />,
-};
 
 // Utility to normalize type class
 function normalizeTypeClass(type?: string): string {
@@ -106,14 +81,6 @@ const EntryDetail: React.FC<EntryDetailProps> = ({ entry, allEntries, onBack, on
 
   const getRelatedEntry = (name: string, preferredCategory?: EntryCategory) =>
     findRelatedEntry(allEntries, name, preferredCategory);
-
-  const isLightColor = (hex: string) => {
-    const clean = hex.replace('#', '');
-    const r = parseInt(clean.substring(0, 2), 16);
-    const g = parseInt(clean.substring(2, 4), 16);
-    const b = parseInt(clean.substring(4, 6), 16);
-    return (0.299 * r + 0.587 * g + 0.114 * b) > 160;
-  };
 
   const getExactFlavorEntry = (name: string) => findEntryByName(allEntries, name, 'FLAVORS');
   const getExactGrapeEntry = (name: string) => findEntryByName(allEntries, name, 'GRAPES');
@@ -312,16 +279,15 @@ const EntryDetail: React.FC<EntryDetailProps> = ({ entry, allEntries, onBack, on
 
   const getRarityColors = getRarityChipColors;
   const buildIconNode = (iconKey: string, color?: string, size = 20): React.ReactNode => {
-    const iconNode = ICON_MAP[iconKey] || ICON_MAP['default'];
-    if (React.isValidElement(iconNode)) {
-      const el = iconNode as React.ReactElement<any>;
-      return React.cloneElement(el, {
-        size,
-        className: el.props.className,
-        style: { ...(el.props.style || {}), ...(color ? { color } : {}) },
-      });
-    }
-    return iconNode;
+    const LucideIconComponent = getLucideIcon(iconKey);
+    return (
+      <LucideIconComponent
+        size={size}
+        fill="currentColor"
+        className="text-current"
+        style={color ? { color } : undefined}
+      />
+    );
   };
 
   interface RenderLinkedTileOptions {

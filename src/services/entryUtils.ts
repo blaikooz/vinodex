@@ -88,20 +88,8 @@ const SUBCLASS_TO_CLASS: Record<string, FlavorClass> = {
 };
 
 export const categorizeFlavor = (note: string, subclassHint?: string): FlavorClass => {
-  const n = note.toLowerCase();
-  if (subclassHint) {
-    const mapped = SUBCLASS_TO_CLASS[subclassHint.toUpperCase()];
-    if (mapped) return mapped;
-  }
-  const sweet = ['honey', 'vanilla', 'caramel', 'chocolate', 'sweet', 'jam', 'berry', 'plum', 'fruit', 'cand', 'mango', 'peach', 'apple', 'pear', 'fig', 'apricot', 'raisin', 'banana', 'cinnamon', 'butter', 'jammy'];
-  const sour = ['lemon', 'lime', 'citrus', 'grapefruit', 'tart', 'acid', 'sour', 'tangerine', 'orange', 'yuzu'];
-  const salty = ['saline', 'salt', 'brine', 'sea', 'ocean', 'sea salt'];
-  const bitter = ['cocoa', 'coffee', 'espresso', 'pepper', 'spice', 'graphite', 'tannin', 'tar', 'black tea', 'tea'];
-  if (sweet.some(k => n.includes(k))) return 'SWEET';
-  if (sour.some(k => n.includes(k))) return 'SOUR';
-  if (salty.some(k => n.includes(k))) return 'SALTY';
-  if (bitter.some(k => n.includes(k))) return 'BITTER';
-  return 'UMAMI';
+  const subclass = (subclassHint || categorizeFlavorSubclass(note)).toUpperCase();
+  return SUBCLASS_TO_CLASS[subclass] || 'UMAMI';
 };
 
 export const categorizeFlavorSubclass = (note: string): string => {

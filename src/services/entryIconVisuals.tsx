@@ -1,29 +1,7 @@
 import React from 'react';
-import {
-	Apple,
-	Castle,
-	Circle,
-	Citrus,
-	Cloud,
-	Droplet,
-	Flame,
-	Flower2,
-	Gem,
-	Globe,
-	Grape,
-	Heart,
-	Leaf,
-	Mountain,
-	Shield,
-	Sparkles,
-	Sprout,
-	Sun,
-	Trees,
-	Triangle,
-	Wind,
-	Zap,
-} from 'lucide-react';
+import { Globe } from 'lucide-react';
 import { Icon } from '@iconify/react';
+import { getLucideIcon } from './lucideIconMap';
 import type { WineEntry } from '../../types';
 import { CLIMATE_CLASS_MAP } from '../../data/climateClasses';
 import { getFlagGradient } from '../../data/flagGradients';
@@ -35,7 +13,13 @@ import {
   getStyleClassType,
   getStyleColorType,
   isVariousOrigin,
+  normalizeLabel,
 } from './entryUtils';
+import {
+  darkenHex,
+  getFlavorSubclassIconColor,
+  getRegionClassificationIconColor,
+} from './colorUtils';
 
 export interface EntryVisualResolver {
 	entries: WineEntry[];
@@ -56,12 +40,19 @@ export interface EntryIconVisual {
 const BLACK_ICON_OUTLINE_FILTER =
 	'drop-shadow(0.5px 0 0 #000) drop-shadow(-0.5px 0 0 #000) drop-shadow(0 0.5px 0 #000) drop-shadow(0 -0.5px 0 #000) drop-shadow(0.5px 0.5px 0 #000) drop-shadow(-0.5px 0.5px 0 #000) drop-shadow(0.5px -0.5px 0 #000) drop-shadow(-0.5px -0.5px 0 #000)';
 
+interface SvgIconProps {
+	style?: React.CSSProperties;
+	fill?: string;
+	stroke?: string;
+	strokeWidth?: number;
+}
+
 const applyFilledIconTreatment = (iconNode: React.ReactNode): React.ReactNode => {
-	if (!React.isValidElement(iconNode)) return iconNode;
-	const existingStyle = (iconNode.props.style || {}) as React.CSSProperties;
+	if (!React.isValidElement<SvgIconProps>(iconNode)) return iconNode;
+	const existingStyle = iconNode.props.style || {};
 	const existingFilter = typeof existingStyle.filter === 'string' ? `${existingStyle.filter} ` : '';
 
-	return React.cloneElement(iconNode as React.ReactElement, {
+	return React.cloneElement(iconNode, {
 		fill: iconNode.props.fill ?? 'currentColor',
 		stroke: iconNode.props.stroke ?? '#000000',
 		strokeWidth: iconNode.props.strokeWidth ?? 0.7,
@@ -82,107 +73,20 @@ const OLYMPIC_CONTINENT_COLORS: Record<string, string> = {
 };
 
 const buildIconNode = (iconKey: string, size: number, color = '#ffffff'): React.ReactNode => {
-	const common = { size, className: 'text-white opacity-90', style: { color } as React.CSSProperties };
-	let iconNode: React.ReactNode;
-
-	switch (iconKey) {
-		case 'droplet':
-			iconNode = <Droplet {...common} />;
-			break;
-		case 'heart':
-			iconNode = <Heart {...common} />;
-			break;
-		case 'sun':
-			iconNode = <Sun {...common} />;
-			break;
-		case 'cloud':
-			iconNode = <Cloud {...common} />;
-			break;
-		case 'castle':
-			iconNode = <Castle {...common} />;
-			break;
-		case 'mountain':
-			iconNode = <Mountain {...common} />;
-			break;
-		case 'triangle':
-			iconNode = <Triangle {...common} />;
-			break;
-		case 'sparkles':
-			iconNode = <Sparkles {...common} />;
-			break;
-		case 'circle':
-			iconNode = <Circle {...common} />;
-			break;
-		case 'shield':
-			iconNode = <Shield {...common} />;
-			break;
-		case 'leaf':
-			iconNode = <Leaf {...common} />;
-			break;
-		case 'flame':
-			iconNode = <Flame {...common} />;
-			break;
-		case 'zap':
-			iconNode = <Zap {...common} />;
-			break;
-		case 'flower':
-			iconNode = <Flower2 {...common} />;
-			break;
-		case 'fruit':
-			iconNode = <Apple {...common} />;
-			break;
-		case 'herb':
-			iconNode = <Sprout {...common} />;
-			break;
-		case 'spice':
-			iconNode = <Flame {...common} />;
-			break;
-		case 'mineral':
-			iconNode = <Gem {...common} />;
-			break;
-		case 'oak':
-			iconNode = <Trees {...common} />;
-			break;
-		case 'smoke':
-			iconNode = <Wind {...common} />;
-			break;
-		case 'stone':
-			iconNode = <Mountain {...common} />;
-			break;
-		case 'tropical':
-			iconNode = <Citrus {...common} />;
-			break;
-		case 'honey':
-			iconNode = <Sparkles {...common} />;
-			break;
-		case 'nut':
-			iconNode = <Triangle {...common} />;
-			break;
-		case 'globe':
-			iconNode = <Globe {...common} />;
-			break;
-		default:
-			iconNode = <Grape {...common} />;
-			break;
-	}
-
+	const LucideIconComponent = getLucideIcon(iconKey);
+	const iconNode = (
+		<LucideIconComponent
+			size={size}
+			className="text-white opacity-90"
+			style={{ color }}
+		/>
+	);
 	return applyFilledIconTreatment(iconNode);
 };
 
-const darkenHex = (hex: string, amount = 0.35) => {
-	const clean = hex.replace('#', '');
-	if (clean.length !== 6) return hex;
-	const toChannel = (start: number) => {
-		const channel = parseInt(clean.substring(start, start + 2), 16);
-		const darkened = Math.max(0, Math.min(255, Math.round(channel * (1 - amount))));
-		return darkened.toString(16).padStart(2, '0');
-	};
-	return `#${toChannel(0)}${toChannel(2)}${toChannel(4)}`;
-};
-
 const addOutline = (iconNode: React.ReactNode, _outlineColor: string): React.ReactNode => {
-	if (!React.isValidElement(iconNode)) return iconNode;
-	return React.cloneElement(iconNode as React.ReactElement, {
+	if (!React.isValidElement<SvgIconProps>(iconNode)) return iconNode;
+	return React.cloneElement(iconNode, {
 		style: {
 			...(iconNode.props.style || {}),
 			filter: BLACK_ICON_OUTLINE_FILTER,
@@ -191,8 +95,8 @@ const addOutline = (iconNode: React.ReactNode, _outlineColor: string): React.Rea
 };
 
 const addRegionOutline = (iconNode: React.ReactNode): React.ReactNode => {
-	if (!React.isValidElement(iconNode)) return iconNode;
-	return React.cloneElement(iconNode as React.ReactElement, {
+	if (!React.isValidElement<SvgIconProps>(iconNode)) return iconNode;
+	return React.cloneElement(iconNode, {
 		style: {
 			...(iconNode.props.style || {}),
 			filter: BLACK_ICON_OUTLINE_FILTER,
@@ -300,8 +204,7 @@ const COUNTRY_SHAPE_ICON_MAP: Record<string, string> = {
 	switzerland: 'game-icons:switzerland',
 };
 
-const normalizeCountryKey = (origin: string) =>
-	origin.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '').trim();
+const normalizeCountryKey = (origin: string) => normalizeLabel(origin).trim();
 
 const iconifyMaskUrl = (iconName: string) =>
 	`url(https://api.iconify.design/${iconName.replace(':', '/')}.svg)`;
@@ -359,63 +262,6 @@ const getStyleIconShape = (styleEntry: WineEntry, colorTypeColor: string, size: 
 			style={{ color: colorTypeColor }}
 		/>
 	);
-};
-
-const getFlavorSubclassIconColor = (sub?: string) => {
-	switch ((sub || '').toUpperCase()) {
-		case 'CITRUS':
-			return '#f97316';
-		case 'ORCHARD_FRUIT':
-			return '#84cc16';
-		case 'STONE_FRUIT':
-			return '#fb923c';
-		case 'TROPICAL':
-			return '#eab308';
-		case 'RED_FRUIT':
-			return '#ef4444';
-		case 'DARK_FRUIT':
-			return '#8b5cf6';
-		case 'BERRY':
-			return '#e11d48';
-		case 'HERBAL':
-			return '#34d399';
-		case 'VEGETAL':
-			return '#22c55e';
-		case 'SPICE':
-			return '#d97706';
-		case 'BAKING':
-			return '#c08457';
-		case 'FLORAL':
-			return '#ec4899';
-		case 'EARTH':
-			return '#78716c';
-		case 'WOOD':
-			return '#8b5a2b';
-		case 'MARINE':
-			return '#0ea5e9';
-		case 'WAX':
-			return '#f59e0b';
-		case 'NUT':
-			return '#eab308';
-		default:
-			return '#e5e7eb';
-	}
-};
-
-const getRegionClassificationIconColor = (classification?: string) => {
-	const map: Record<string, string> = {
-		aoc: '#f43f5e',
-		docg: '#f59e0b',
-		doc: '#ea580c',
-		doca: '#fcd34d',
-		ava: '#6366f1',
-		gi: '#22c55e',
-		pdo: '#a855f7',
-		pgi: '#14b8a6',
-		igp: '#84cc16',
-	};
-	const key = classification ? classification.toLowerCase() : '';
-	return map[key] || '#e5e7eb';
 };
 
 const getGrapePrimaryFlavorVisual = (
