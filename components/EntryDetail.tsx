@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useRef } from 'react';
-import { Tag, MapPin, Activity, Droplet, Clock, Zap, BarChart3, Grape, Mountain, ChevronRight, List, Circle, Triangle, Leaf, Cloud, Sun, Sparkles, Flame, Shield, Castle, Globe, BookOpen, MapPinned, Flower2, Apple, Sprout, Gem, Trees, Wind, Citrus, GlassWater, Droplets, Scale, Box, Wine, Star, Crown } from 'lucide-react';
+import { Tag, MapPin, Activity, Droplet, Clock, Zap, BarChart3, Grape, Mountain, ChevronRight, List, Circle, Triangle, Leaf, Cloud, Sun, Sparkles, Flame, Shield, Castle, Globe, BookOpen, MapPinned, Flower2, Apple, Sprout, Gem, Trees, Wind, Citrus, GlassWater, Droplets, Scale, Box, Wine, Star, Crown, Waves, Coffee, Beef, Cherry, TreePalm, LeafyGreen, Carrot, Drumstick, Ham, Croissant, Cookie, Earth, TreePine, Shell, Hop, Nut } from 'lucide-react';
 import { Icon } from '@iconify/react';
 import DeviceLayout from './DeviceLayout';
 import { ClimateClass, EntryCategory, WineEntry } from '../types';
@@ -783,14 +783,40 @@ const EntryDetail: React.FC<EntryDetailProps> = ({ entry, allEntries, onBack, on
           switch (flavorClass.toUpperCase()) {
             case 'SWEET': return <Sparkles size={32} />;
             case 'SOUR': return <Citrus size={32} />;
-            case 'SALTY': return <Droplets size={32} />;
-            case 'BITTER': return <Leaf size={32} />;
-            case 'UMAMI': return <Flame size={32} />;
+            case 'SALTY': return <Waves size={32} />;
+            case 'BITTER': return <Coffee size={32} />;
+            case 'UMAMI': return <Beef size={32} />;
             default: return <Circle size={32} />;
           }
         })();
 
-        const subclassIconNode = buildIconNode(entry.icon || 'default', subclassColors.border, 32);
+        const subclassIconNode = (() => {
+          switch ((entry.details.subclass || '').toUpperCase()) {
+            case 'CITRUS': return <Citrus size={32} />;
+            case 'ORCHARD_FRUIT': return <Apple size={32} />;
+            case 'STONE_FRUIT': return <Cherry size={32} />;
+            case 'TROPICAL': return <TreePalm size={32} />;
+            case 'RED_FRUIT': return <Cherry size={32} />;
+            case 'DARK_FRUIT': return <Grape size={32} />;
+            case 'BERRY': return <Grape size={32} />;
+            case 'HERBAL': return <LeafyGreen size={32} />;
+            case 'VEGETAL': return <Carrot size={32} />;
+            case 'GAME': return <Drumstick size={32} />;
+            case 'SAVORY': return <Ham size={32} />;
+            case 'SPICE': return <Flame size={32} />;
+            case 'BREAD': return <Croissant size={32} />;
+            case 'BAKING': return <Cookie size={32} />;
+            case 'FLORAL': return <Flower2 size={32} />;
+            case 'EARTH': return <Earth size={32} />;
+            case 'SMOKY': return <Wind size={32} />;
+            case 'WOOD': return <TreePine size={32} />;
+            case 'SALTY': return <Droplet size={32} />;
+            case 'BRINY': return <Shell size={32} />;
+            case 'WAX': return <Hop size={32} />;
+            case 'NUT': return <Nut size={32} />;
+            default: return buildIconNode(entry.icon || 'default', subclassColors.border, 32);
+          }
+        })();
 
         return (
           <div className={getTileRowClass(3)}>
