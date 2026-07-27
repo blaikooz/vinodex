@@ -1,3 +1,25 @@
+# Normalize line endings for text files so status/diff is consistent across
+# Windows (CRLF checkouts) and Linux/WSL/CI (LF) clones of this repo. Git
+# always stores these normalized to LF in the object database and applies the
+# same normalization when comparing working tree to index, regardless of any
+# given machine's core.autocrlf setting.
+* text=auto
+
+# Known binary types — explicit so git's content-sniffing heuristic never
+# mis-detects them as text (matters most for the large pixelflags/ and
+# native/ icon and font asset trees).
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.ico binary
+*.ttf binary
+*.otf binary
+*.woff binary
+*.woff2 binary
+*.zip binary
+*.pdf binary
+
 # Treat the raw OCR encyclopedia source as generated input — exclude from
 # language stats and collapse in diff views.
 data/encyclopedia/source/** linguist-generated=true
