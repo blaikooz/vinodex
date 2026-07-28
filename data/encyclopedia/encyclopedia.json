@@ -9,109 +9,11 @@
   "countries": {
     "FRANCE": {
       "name": "FRANCE",
-      "shortBlurb": "CHAPTERINTRODUCTION Full-spread chapter openers give readers a brief introduction to the region in question and a taste of what is to come.",
+      "shortBlurb": "",
       "regions": {
-        "SAVOIE": {
-          "name": "SAVOIE",
-          "shortBlurb": "GRENOBLE HAUTE-LOIRE LOZÈRE A75 A8 VAR MARSEILLE A57 Narbonne A9 • Merlot is the most planted grape variety of any colour in France.",
-          "aocs": [
-            {
-              "name": "ARBOIS",
-              "classification": "AOC",
-              "district": null,
-              "shortBlurb": "This is the best-known appellation of the Jura, from in and around the town of Arbois.",
-              "styles": {
-                "red": "Trousseau wines are rich, and sometimes coarse, and Pinot wines are light and rustic.",
-                "white": "Light, fresh Chardonnays are best; pure Savagnin can be delicately aromatic when not blended with declassified vin jaune, good examples of which are world renowned. ROSÉ Famous for its firm and distinctive dry rosé wines made in the pale vin gris style. Chatelain • Michel Gahir…"
-              },
-              "grapeComposition": [
-                "Trousseau, Poulsard, Pinot Noir",
-                "Savagnin, Chardonnay, Pinot Blanc",
-                "Poulsard, Trousseau, Pinot Noir"
-              ],
-              "agingWindow": [
-                "2–8 years",
-                "1–3 years"
-              ],
-              "topProducers": [
-                "Daniel Dugois",
-                "Raphaël Fumey & Adeline"
-              ]
-            },
-            {
-              "name": "ARBOIS MOUSSEUX",
-              "classification": "AOC",
-              "district": null,
-              "shortBlurb": "This is a traditional method sparkling wine seldom seen outside Arbois.",
-              "styles": {
-                "sparkling": "WHITE These fresh, dry sparkling wines show more potential than quality."
-              },
-              "grapeComposition": [
-                "Savagnin, Chardonnay, Pinot Blanc"
-              ],
-              "agingWindow": [
-                "1–3 years"
-              ],
-              "topProducers": [
-                "Foret",
-                "Fruitière Vinicole d’Arbois"
-              ]
-            },
-            {
-              "name": "MOUSSEUX",
-              "classification": "AOC",
-              "district": null,
-              "shortBlurb": "These are very promising, single-commune, traditional method wines, but unfortunately are seldom encountered. SEMI-SPARKLING WHITE Wispy-light wines with an Alpine-fresh, clean taste.",
-              "styles": {},
-              "grapeComposition": [
-                "Gringet, Roussette, plus up to 30% Roussette"
-              ],
-              "agingWindow": [
-                "1–3 years"
-              ],
-              "topProducers": []
-            },
-            {
-              "name": "MOUSSEUX",
-              "classification": "AOC",
-              "district": null,
-              "shortBlurb": "These are very consistent and undervalued generic traditional-method wines. The Savoie does not have a large-scale sparkling-wine industry as such, although it most certainly has the potential to build one.",
-              "styles": {
-                "sparkling": "WHITE These dry and delicately fruity wines have a fragrant aroma, fine acidity, and a good balance. Pinot Gris, Mondeuse Blanche, plus (in the Ain and Haute-Savoie départements) Chasselas, (in the Haute-Savoie and Isère départements) Molette, (in the Haute-Savoie département)…"
-              },
-              "grapeComposition": [
-                "Aligoté, Roussette, Jacquère, Chardonnay,"
-              ],
-              "agingWindow": [
-                "1–2 years"
-              ],
-              "topProducers": [
-                "Maison Mollex",
-                "Des Rocailles"
-              ]
-            },
-            {
-              "name": "PÉTILLANT",
-              "classification": "AOC",
-              "district": null,
-              "shortBlurb": "A very consistent and undervalued generic traditional method wine. SEMI-SPARKLING WHITE Attractive, earlydrinking dry wines with a gentle, light mousse and a fragrant flavor.",
-              "styles": {},
-              "grapeComposition": [
-                "Aligoté, Roussette, Jacquère, Chardonnay,"
-              ],
-              "agingWindow": [
-                "Within 1 year"
-              ],
-              "topProducers": [
-                "Perrier & Fils",
-                "Varichon & Clerc"
-              ]
-            }
-          ]
-        },
         "BORDEAUX": {
           "name": "BORDEAUX",
-          "shortBlurb": "Pointe de Grave SOULACSUR-MER Mirambeau N137 D937 Chenal d u Guâ 25 km N89 ST-ANDRÉDE-CUBZAC D6 AMBARÈS-ETLAGRAVE N125 Dordo g St-Loubès Can al d e L è ge Blanquefort ST-MÉDARDEN-JALLES le Temple A630 nne Ga r o Targon",
+          "shortBlurb": "",
           "aocs": [
             {
               "name": "BORDEAUX CLAIRET",
@@ -275,9 +177,9 @@
               "name": "ENTRE-DEUX-MERS",
               "classification": "AOC",
               "district": null,
-              "shortBlurb": "This is the largest district in the region, and after the generic Bordeaux Blanc, it is its greatestvolume white-wine appellation.",
+              "shortBlurb": "This is the largest district in the region, and after the generic Bordeaux Blanc, it is its greatest volume white-wine appellation.",
               "styles": {
-                "white": "Crisp, dry, light-bodied wines that are fragrant, aromatic, and usually predominantly Sauvignon Blanc. These are clean, coolfermented wines. They may be sold from December 1 following the harvest without any mention of primeur or nouveau. Blanc, and Muscadelle, plus a maximum of…"
+                "white": "Crisp, dry, light-bodied wines that are fragrant, aromatic, and usually predominantly Sauvignon Blanc. These are clean, cool-fermented wines. They may be sold from December 1 following the harvest without any mention of primeur or nouveau. Blanc, and Muscadelle, plus a maximum…"
               },
               "grapeComposition": [
                 "At least 70 percent Sémillon, Sauvignon"
@@ -288,7 +190,7 @@
               "topProducers": []
             },
             {
-              "name": "ENTRE-DEUX-MERSHAUT-BENAUGE",
+              "name": "ENTRE-DEUX-MERS-HAUT-BENAUGE",
               "classification": "AOC",
               "district": null,
               "shortBlurb": "These wines are drier than those of the Bordeaux-Haut-Benauge appellation, and their blends may include a greater number of grape varieties, although the same nine communes comprise both appellations.",
@@ -324,43 +226,15 @@
             }
           ]
         },
-        "JURA": {
-          "name": "JURA",
-          "shortBlurb": "SAÔNE-ET-LOIRE RHÔNE LOIRE DE- CORRÈZE DORDOGNE Perigueux GIRONDE • 62 per cent of all French vineyards are machine harvested.",
-          "aocs": [
-            {
-              "name": "VIN DE SAVOIE",
-              "classification": "AOC",
-              "district": null,
-              "shortBlurb": "The wines in this generic appellation are produced to a high standard.",
-              "styles": {
-                "red": "Blends and single-variety wines; the blended wines are usually better. maximum of 10% (in the Savoie département) of Cabernet Franc, and Cabernet Sauvignon, Persan, and (in the Isère département) Etraire de la Dui, Joubertin, Persan, and Serène",
-                "white": "These dry wines are the best of the AOC, with Abymes, Apremont, and Chignin the best villages. All are fine, rich, and complex. Blanche, Roussette, Veltliner Précoce, plus a maximum of 10% (in the Ain and HauteSavoie départements) of Chasselas, Gringet, Roussette d’Ayze, and (in…"
-              },
-              "grapeComposition": [
-                "Gamay, Mondeuse, Pinot Noir, plus a",
-                "Aligoté, Altesse, Jacquère, Mondeuse",
-                "Gamay, Mondeuse, Pinot Noir, plus"
-              ],
-              "agingWindow": [
-                "2–8 years",
-                "1–3 years"
-              ],
-              "topProducers": [
-                "Pierre Boniface, Dupasquier, De L’Idylle"
-              ]
-            }
-          ]
-        },
         "MÉDOC": {
           "name": "MÉDOC",
-          "shortBlurb": "Ch. Marsac40 Séguineau D6 Ch. Labégorce Ile Ch. Moulis-en-Médoc Paveil-de-Luze Cazeau Ch. Margaux Margaux Avensan Ch. d'Issan Ch.",
+          "shortBlurb": "",
           "aocs": [
             {
               "name": "HAUT-MÉDOC",
               "classification": "AOC",
               "district": null,
-              "shortBlurb": "This 60 AOC encompasses the Médoc’s four finest 8 10 km e",
+              "shortBlurb": "",
               "styles": {},
               "grapeComposition": [],
               "agingWindow": [],
@@ -478,7 +352,7 @@
               "name": "ST-JULIEN",
               "classification": "AOC",
               "district": null,
-              "shortBlurb": "colour and fruit with a full, spicySecond wine: Château La Fagotte wine is matured in wood for to cassis character and a supple tannin St-Julien is the smallest of the four famous 14 months, with 10 per cent new structure.",
+              "shortBlurb": "colour and fruit with a full, spicy. Second wine: Château La Fagotte wine is matured in wood for to cassis character and a supple tannin St-Julien is the smallest of the four famous 14 months, with 10 per cent new structure.",
               "styles": {
                 "red": "These are firm, fruity, BEAUMONT Merlot 40%, Malbec 2%, Petit commune under vine. There are no first classically structured wines. AOC Haut-Médoc Verdot 3% growths, but there are as many as five The best Margaux are potentially the greatest Cru Bourgeois Supérieur seconds, and…"
               },
@@ -570,7 +444,7 @@
               "name": "MOULIS-EN-MÉDOC",
               "classification": "AOC",
               "district": null,
-              "shortBlurb": "One of the two communal appellations located on the Atlantic side of the Médoc, Moulis-enMédoc is smaller and potentially more interesting than its neighbor Listrac.",
+              "shortBlurb": "One of the two communal appellations located on the Atlantic side of the Médoc, Moulis-en-Médoc is smaller and potentially more interesting than its neighbor Listrac.",
               "styles": {
                 "red": "These dry, medium-bodied, sometimes full-bodied, wines have more power than those of Margaux, but far less finesse. Carmenère, Merlot, Malbec, Petit Verdot"
               },
@@ -678,7 +552,7 @@
         },
         "PAUILLAC": {
           "name": "PAUILLAC",
-          "shortBlurb": "D1 6 miles Livenn D251 D9 Lac d' HourtinCarcans N215 GROWTHS 4TH 5TH Ch. Lynch-Bages Ile Bouchard Ch. Batailley Ch. Pichon-Longueville Ch.Talbot St-Julien-Beychevelle Ch.",
+          "shortBlurb": "6 miles Livenn Lac d' HourtinCarcans GROWTHS 4TH 5TH Ch. Lynch-Bages Ile Bouchard Ch. Batailley Ch. Pichon-Longueville Ch.Talbot St-Julien-Beychevelle Ch.",
           "aocs": []
         },
         "CHAMPAGNE": {
@@ -825,7 +699,7 @@
                 "10–30 years for most wines; between 20 and",
                 "8–20 years",
                 "5–10 years",
-                "nown of the two styles, is coolfermented in stainless steel and",
+                "nown of the two styles, is cool-fermented in stainless steel and",
                 "6–18 years",
                 "2–5 years",
                 "15–40 years",
@@ -1188,7 +1062,7 @@
               "name": "LOUPIAC",
               "classification": "AOC",
               "district": null,
-              "shortBlurb": "This appellation is located on the right bank of the Garonne, opposite Barsac. It is by far the best sweet-wine appellation in Entre-DeuxMers and its wines are always excellent value.",
+              "shortBlurb": "This appellation is located on the right bank of the Garonne, opposite Barsac. It is by far the best sweet-wine appellation in Entre-Deux-Mers and its wines are always excellent value.",
               "styles": {
                 "white": "Fine, viscous, honey-sweet wines that are lighter in body and color than Loupiac wines. Excellent value when they have rich botrytis character."
               },
@@ -2314,7 +2188,7 @@
               ]
             },
             {
-              "name": "BIENVENUES-BÂTARDMONTRACHET",
+              "name": "BIENVENUES-BÂTARD-MONTRACHET",
               "classification": "AOC",
               "district": null,
               "shortBlurb": "Grand Cru This is one of Puligny-Montrachet’s four grands crus.",
@@ -2597,7 +2471,7 @@
               ]
             },
             {
-              "name": "CRIOTS-BÂTARDMONTRACHET",
+              "name": "CRIOTS-BÂTARD-MONTRACHET",
               "classification": "AOC",
               "district": null,
               "shortBlurb": "Grand Cru The smallest of Chassagne-Montrachet’s three grands crus.",
@@ -3495,7 +3369,7 @@
               "name": "MÂCON",
               "classification": "AOC",
               "district": null,
-              "shortBlurb": "Most wines from this district-wide appellation are produced in the area north of the MâconVillages area.",
+              "shortBlurb": "Most wines from this district-wide appellation are produced in the area north of the Mâcon-Villages area.",
               "styles": {
                 "red": "Better vinification techniques have improved these essentially Gamay wines, but Gamay is still a grape that does not like limestone.",
                 "white": "These are basic-quality Chardonnay wines that are also fresh, frank, tasty, and dry; easy to drink and superb value. They may be sold as primeur or nouveau from the third Thursday of November following the harvest. ROSÉ These lightweight wines have an attractive, pale raspberry…"
@@ -3627,7 +3501,7 @@
               "name": "MÂCON-CHÂNES",
               "classification": "AOC",
               "district": null,
-              "shortBlurb": "This village is also part of the BeaujolaisVillages and Saint-Véran areas, so its wines have a choice of three appellations.",
+              "shortBlurb": "This village is also part of the Beaujolais-Villages and Saint-Véran areas, so its wines have a choice of three appellations.",
               "styles": {},
               "grapeComposition": [],
               "agingWindow": [],
@@ -3637,7 +3511,7 @@
               "name": "MÂCON-LA CHAPELLEDE-GUINCHAY",
               "classification": "AOC",
               "district": null,
-              "shortBlurb": "This village is also part of the BeaujolaisVillages area and its wines therefore have the right to both appellations. villages appellation area.",
+              "shortBlurb": "This village is also part of the Beaujolais-Villages area and its wines therefore have the right to both appellations. villages appellation area.",
               "styles": {},
               "grapeComposition": [],
               "agingWindow": [],
@@ -3737,7 +3611,7 @@
               "name": "MÂCON-LEYNES",
               "classification": "AOC",
               "district": null,
-              "shortBlurb": "This village is also part of the BeaujolaisVillages and Saint-Véran AOCs and its wines therefore have a choice of all three appellations.",
+              "shortBlurb": "This village is also part of the Beaujolais-Villages and Saint-Véran AOCs and its wines therefore have a choice of all three appellations.",
               "styles": {},
               "grapeComposition": [],
               "agingWindow": [],
@@ -3874,7 +3748,7 @@
               "name": "MÂCON-GRÉVILLY",
               "classification": "AOC",
               "district": null,
-              "shortBlurb": "A village with a good reputation, MâconGrévilly is located in the extreme north of the This village is also part of the Saint-Véran area and its wines therefore have a choice of two appellations.",
+              "shortBlurb": "A village with a good reputation, Mâcon-Grévilly is located in the extreme north of the This village is also part of the Saint-Véran area and its wines therefore have a choice of two appellations.",
               "styles": {},
               "grapeComposition": [],
               "agingWindow": [],
@@ -4244,7 +4118,7 @@
               "district": null,
               "shortBlurb": "Cru Beaujolais Just as the Côte de Brouilly is a finer and more concentrated form of Brouilly, so the wines of Mont du Py in the center of Morgon are far more powerful than those of the surrounding vineyards in this commune.",
               "styles": {
-                "red": "Although these wines are variable in character and quality, the best of them rank with those of Moulin-à-Vent as the most sturdy BARRELSANDFLOWERSATST. - AMOUR , BEAUJOLAIS Just five cru Beaujolais were originally classified in 1936 (Chénas, Chiroubles, Fleurie, Morgon, and…"
+                "red": "Although these wines are variable in character and quality, the best of them rank with those of Moulin-à-Vent as the most sturdy BARRELSANDFLOWERSATST. - AMOUR, BEAUJOLAIS Just five cru Beaujolais were originally classified in 1936 (Chénas, Chiroubles, Fleurie, Morgon, and…"
               },
               "grapeComposition": [],
               "agingWindow": [],
@@ -4462,7 +4336,7 @@
               "name": "BRISSAC",
               "classification": "AOC",
               "district": null,
-              "shortBlurb": "This village was singled out under the AnjouVillages appellation in 1998 and backdated for wines from 1996 onward. It covers the area of Brissac-Quincé and nine surrounding communes.",
+              "shortBlurb": "This village was singled out under the Anjou-Villages appellation in 1998 and backdated for wines from 1996 onward. It covers the area of Brissac-Quincé and nine surrounding communes.",
               "styles": {},
               "grapeComposition": [],
               "agingWindow": [],
@@ -4770,20 +4644,20 @@
               ]
             },
             {
-              "name": "COULÉE-DE-SERRANT",
+              "name": "SAVENNIÈRES COULÉE-DE-SERRANT",
               "classification": "AOC",
               "district": null,
-              "shortBlurb": "One of just two single-vineyard designations authorized for Savennières, Coulée-de-Serrant is 17 acres (7 hectares) and a mono-cru, solely owned by Nicolas Joly of Château de la Rocheaux-Moines.",
+              "shortBlurb": "One of just two single-vineyard designations authorized for Savennières, Coulée-de-Serrant is 17 acres (7 hectares) and a mono-cru, solely owned by Nicolas Joly of Château de la Roche-aux-Moines.",
               "styles": {},
               "grapeComposition": [],
               "agingWindow": [],
               "topProducers": []
             },
             {
-              "name": "ROCHE-AUX-MOINES",
+              "name": "SAVENNIÈRES ROCHE-AUX-MOINES",
               "classification": "AOC",
               "district": null,
-              "shortBlurb": "The second and largest of the two single-vineyard designations authorized for Savennières, Rocheaux-Moines is 42 acres (17 hectares) and owned by three producers: Nicolas Joly of Château de la Roche-aux-Moines, Pierre and Yves Soulez of Château de Chamboureau, and Madame Laroche ",
+              "shortBlurb": "The second and largest of the two single-vineyard designations authorized for Savennières, Roche-aux-Moines is 42 acres (17 hectares) and owned by three producers: Nicolas Joly of Château de la Roche-aux-Moines, Pierre and Yves Soulez of Château de Chamboureau, and Madame Laroche",
               "styles": {},
               "grapeComposition": [],
               "agingWindow": [],
@@ -6233,6 +6107,48 @@
               "topProducers": []
             },
             {
+              "name": "ARBOIS",
+              "classification": "AOC",
+              "district": null,
+              "shortBlurb": "This is the best-known appellation of the Jura, from in and around the town of Arbois.",
+              "styles": {
+                "red": "Trousseau wines are rich, and sometimes coarse, and Pinot wines are light and rustic.",
+                "white": "Light, fresh Chardonnays are best; pure Savagnin can be delicately aromatic when not blended with declassified vin jaune, good examples of which are world renowned. ROSÉ Famous for its firm and distinctive dry rosé wines made in the pale vin gris style. Chatelain • Michel Gahir…"
+              },
+              "grapeComposition": [
+                "Trousseau, Poulsard, Pinot Noir",
+                "Savagnin, Chardonnay, Pinot Blanc",
+                "Poulsard, Trousseau, Pinot Noir"
+              ],
+              "agingWindow": [
+                "2–8 years",
+                "1–3 years"
+              ],
+              "topProducers": [
+                "Daniel Dugois",
+                "Raphaël Fumey & Adeline"
+              ]
+            },
+            {
+              "name": "ARBOIS MOUSSEUX",
+              "classification": "AOC",
+              "district": null,
+              "shortBlurb": "This is a traditional method sparkling wine seldom seen outside Arbois.",
+              "styles": {
+                "sparkling": "WHITE These fresh, dry sparkling wines show more potential than quality."
+              },
+              "grapeComposition": [
+                "Savagnin, Chardonnay, Pinot Blanc"
+              ],
+              "agingWindow": [
+                "1–3 years"
+              ],
+              "topProducers": [
+                "Foret",
+                "Fruitière Vinicole d’Arbois"
+              ]
+            },
+            {
               "name": "ARBOIS PUPILLIN",
               "classification": "AOC",
               "district": null,
@@ -6249,7 +6165,7 @@
               "name": "ARBOIS VIN JAUNE",
               "classification": "AOC",
               "district": null,
-              "shortBlurb": "For details of production and style, see ChâteauChalon AOC. André & Mireille Tissot Y• Jacques Tissot",
+              "shortBlurb": "For details of production and style, see Château-Chalon AOC. André & Mireille Tissot Y• Jacques Tissot",
               "styles": {},
               "grapeComposition": [],
               "agingWindow": [],
@@ -6365,7 +6281,7 @@
               "name": "VIN JAUNE",
               "classification": "AOC",
               "district": null,
-              "shortBlurb": "For details of production and style, see ChâteauChalon AOC. CÔTES DU JURA",
+              "shortBlurb": "For details of production and style, see Château-Chalon AOC.",
               "styles": {},
               "grapeComposition": [],
               "agingWindow": [],
@@ -6419,7 +6335,7 @@
               "district": null,
               "shortBlurb": "These wines are named after the star-shaped fossils found in the local limestone.",
               "styles": {
-                "white": "Light, dry white wines whose aromas reveal the scents of alpine herbs and bracken. CÔTES DU JURA"
+                "white": "Light, dry white wines whose aromas reveal the scents of alpine herbs and bracken."
               },
               "grapeComposition": [
                 "Chardonnay, Poulsard, Savagnin"
@@ -6561,9 +6477,88 @@
               "styles": {
                 "sparkling": "WHITE With a full, yeasty nose, fine mousse, and elegant flavor, the Royal Seyssel Private Cuvée is a yardstick for other producers. MORE GREEN WINES In addition to the producers recommended in this directory that are either biodynamic or organic, there are also the following.…"
               },
-              "grapeComposition": [],
-              "agingWindow": [],
+              "grapeComposition": [
+                "Molette, Chasselas, plus a minimum of"
+              ],
+              "agingWindow": [
+                "1–3 years"
+              ],
+              "topProducers": [
+                "Maison Mollex",
+                "Royal Seyssel"
+              ]
+            },
+            {
+              "name": "VIN DE SAVOIE",
+              "classification": "AOC",
+              "district": null,
+              "shortBlurb": "The wines in this generic appellation are produced to a high standard.",
+              "styles": {
+                "red": "Blends and single-variety wines; the blended wines are usually better. maximum of 10% (in the Savoie département) of Cabernet Franc, and Cabernet Sauvignon, Persan, and (in the Isère département) Etraire de la Dui, Joubertin, Persan, and Serène",
+                "white": "These dry wines are the best of the AOC, with Abymes, Apremont, and Chignin the best villages. All are fine, rich, and complex. Blanche, Roussette, Veltliner Précoce, plus a maximum of 10% (in the Ain and HauteSavoie départements) of Chasselas, Gringet, Roussette d’Ayze, and (in…"
+              },
+              "grapeComposition": [
+                "Gamay, Mondeuse, Pinot Noir, plus a",
+                "Aligoté, Altesse, Jacquère, Mondeuse",
+                "Gamay, Mondeuse, Pinot Noir, plus"
+              ],
+              "agingWindow": [
+                "2–8 years",
+                "1–3 years"
+              ],
+              "topProducers": [
+                "Pierre Boniface, Dupasquier, De L’Idylle"
+              ]
+            },
+            {
+              "name": "MOUSSEUX",
+              "classification": "AOC",
+              "district": null,
+              "shortBlurb": "These are very promising, single-commune, traditional method wines, but unfortunately are seldom encountered. SEMI-SPARKLING WHITE Wispy-light wines with an Alpine-fresh, clean taste.",
+              "styles": {},
+              "grapeComposition": [
+                "Gringet, Roussette, plus up to 30% Roussette"
+              ],
+              "agingWindow": [
+                "1–3 years"
+              ],
               "topProducers": []
+            },
+            {
+              "name": "MOUSSEUX",
+              "classification": "AOC",
+              "district": null,
+              "shortBlurb": "These are very consistent and undervalued generic traditional-method wines. The Savoie does not have a large-scale sparkling-wine industry as such, although it most certainly has the potential to build one.",
+              "styles": {
+                "sparkling": "WHITE These dry and delicately fruity wines have a fragrant aroma, fine acidity, and a good balance. Pinot Gris, Mondeuse Blanche, plus (in the Ain and Haute-Savoie départements) Chasselas, (in the Haute-Savoie and Isère départements) Molette, (in the Haute-Savoie département)…"
+              },
+              "grapeComposition": [
+                "Aligoté, Roussette, Jacquère, Chardonnay,"
+              ],
+              "agingWindow": [
+                "1–2 years"
+              ],
+              "topProducers": [
+                "Maison Mollex",
+                "Des Rocailles"
+              ]
+            },
+            {
+              "name": "PÉTILLANT",
+              "classification": "AOC",
+              "district": null,
+              "shortBlurb": "A very consistent and undervalued generic traditional method wine. SEMI-SPARKLING WHITE Attractive, early-drinking dry wines with a gentle, light mousse and a fragrant flavor.",
+              "styles": {},
+              "grapeComposition": [
+                "Aligoté, Roussette, Jacquère, Chardonnay,"
+              ],
+              "agingWindow": [
+                "Within 1 year"
+              ],
+              "topProducers": [
+                "Perrier & Fils",
+                "Varichon & Clerc"
+              ]
             },
             {
               "name": "BÉARN",
@@ -7732,7 +7727,7 @@
         },
         "CHABLIS": {
           "name": "CHABLIS",
-          "shortBlurb": "D96 Viviers Chicheé D51 N6 D3 D94 D91 A6 D1 D9 NOYERS D49 VERMENTON Bazarnes Ca ais er m D95 Mailly-le-Château l d u Niv D100 na Trucy-surYonne Intensive",
+          "shortBlurb": "Viviers Chicheé NOYERS VERMENTON Bazarnes Ca ais er m Mailly-le-Château l d u Niv na Trucy-surYonne Intensive vine-growing zone Chablis Petit Chablis FOURCHAUME Just north of Chablis itself, Fourchaume is one of only two premier cru slopes that face southwest.",
           "aocs": [
             {
               "name": "BOURGOGNE CHITRY",
@@ -8346,7 +8341,7 @@
         },
         "LOIRE VALLEY": {
           "name": "LOIRE VALLEY",
-          "shortBlurb": "e rth Sa MAINE Angers Loir e Faye-d’Anjou Bonnezeaux A8 Nantes Pornic LOIRE N1 N1 D96 125 CHOLET uet T ho Ile de Noirmoutier Montaigu Thouars A87 N1 gn",
+          "shortBlurb": "e rth Sa MAINE Angers Loir e Faye-d’Anjou Bonnezeaux Nantes Pornic LOIRE 125 CHOLET uet T ho Ile de Noirmoutier Montaigu Thouars gn vr Sè L ay VENDÉE Parthenay SÈVRE",
           "aocs": [
             {
               "name": "CHÂTEAUMEILLANT",
@@ -8730,7 +8725,7 @@
         },
         "PROVENCE": {
           "name": "PROVENCE",
-          "shortBlurb": "1125 D99 N8 Peyruis HAUTE- N100 Apt BOUCHES-DUARLES RHÔNEN113 ALPES - DE -5 D1 Rhône Tarascon Banon ue Châteaurenard Beaucaire 1140 D950 D9 Ne s q N100 Avignon Sault CARPENTRAS",
+          "shortBlurb": "1125 Peyruis HAUTE- Apt BOUCHES-DUARLES RHÔNEN113 ALPES - DE -5 Rhône Tarascon Banon ue Châteaurenard Beaucaire 1140 Ne s q Avignon Sault CARPENTRAS Sorgues Sisteron 1637 GARD Séderon r an ce",
           "aocs": []
         },
         "LANGUEDOC-ROUSSILLON": {
@@ -8743,7 +8738,7 @@
               "district": null,
               "shortBlurb": "The most southerly appellation in France, the vineyards of this vin doux naturel are literally a stone’s throw from those of Spain.",
               "styles": {
-                "red": "This is the deepest and darkest of all VDNs. A rich, sweet, red Banyuls (without too much barrel-age) has a chocolaty, bottled- fruitiness, which is the nearest France gets to the great wines of Portugal’s Douro region. It lacks the fire of a great port, but has its own immense…",
+                "red": "This is the deepest and darkest of all VDNs. A rich, sweet, red Banyuls (without too much barrel-age) has a chocolaty, bottledfruitiness, which is the nearest France gets to the great wines of Portugal’s Douro region. It lacks the fire of a great port, but has its own immense…",
                 "white": "/ROSÉ/TAWNY Like all VDNs that may be made in red, white, and rosé style, they can all turn tawny with time, particularly “rancio” wines."
               },
               "grapeComposition": [],
@@ -9477,21 +9472,21 @@
     },
     "SPAIN": {
       "name": "SPAIN",
-      "shortBlurb": "40 miles 60 km VINDEPAYS , MAPA , see also p.249 (opposite) Languedoc-Roussillon encompasses the greatest concentration of zonal vins de pays and is dominated by the regional Vin de Pays d’Oc, by far the most successful vin de pays.",
+      "shortBlurb": "40 miles 60 km VINDEPAYS, MAPA, see also p.249 (opposite) Languedoc-Roussillon encompasses the greatest concentration of zonal vins de pays and is dominated by the regional Vin de Pays d’Oc, by far the most successful vin de pays.",
       "regions": {
         "PROVENCE": {
           "name": "PROVENCE",
-          "shortBlurb": "BOUCHES-DURHONE Montpellier HÉRAULT HAUTE- Verdon Rhône N85 A61 ARIÈGE Sub-zonal Vins de pays boundary 100 120 miles A3 GRENOBLE DRÔME GARD TARN HAUTEGARONNE HAUTES- Ga r o n n PYRÉNÉES rn Ta TOULOUSE 1266 50° A43 Savoie",
+          "shortBlurb": "BOUCHES-DURHONE Montpellier HÉRAULT HAUTE- Verdon Rhône ARIÈGE Sub-zonal Vins de pays boundary 100 120 miles GRENOBLE DRÔME GARD TARN HAUTEGARONNE HAUTES- Ga r o n n PYRÉNÉES rn Ta TOULOUSE 1266 50° Savoie ISÈRE Loi r 1702",
           "aocs": []
         },
         "BORDEAUX": {
           "name": "BORDEAUX",
-          "shortBlurb": "A9 A10 Corrèze A89 A38 DOUBS Jura e ôn Rh Angoulême 16c s ub Do PUYDE- e A4 A11 Vienne CREUSE r Allie N10 ALLIER Perigueux",
+          "shortBlurb": "DOUBS Jura e ôn Rh Angoulême 16c s ub Do PUYDEe Vienne CREUSE r Allie ALLIER Perigueux LANDES 85d SAÔNE-ETLOIRE DIJON CHARENTE Gironde NIÈVRE Bourges HAUTEVIENNE",
           "aocs": []
         },
         "NAVARRA": {
           "name": "NAVARRA",
-          "shortBlurb": "A1 Llobregat Rias Baixas Valdeorras BURGOS PAMPLONA Cinca Ourense OURENSE A231 N1 A9 LEÓN GUIP UZCOA ALAVA Vitoria CA S A TE LEÓN Bierzo Ponferrada VIGO",
+          "shortBlurb": "Llobregat Rias Baixas Valdeorras BURGOS PAMPLONA Cinca Ourense OURENSE LEÓN GUIP UZCOA ALAVA Vitoria CA S A TE LEÓN Bierzo Ponferrada VIGO CANTABRIA BILBAO Reinosa Hen PONTEVEDRA",
           "aocs": []
         },
         "(General)": {
@@ -13472,7 +13467,7 @@
               "name": "OSTUNI",
               "classification": "DOC",
               "district": null,
-              "shortBlurb": "Apulia A delicate, dry white made from Impigno and Francavidda and a light-bodied red from the THEMARSALAPLAINS , SICILY Vines on the hot, arid plains of western Sicily grow on a low-yielding soil called sciari, producing the finest Marsala, while farther east, but still within t",
+              "shortBlurb": "Apulia A delicate, dry white made from Impigno and Francavidda and a light-bodied red from the THEMARSALAPLAINS, SICILY Vines on the hot, arid plains of western Sicily grow on a low-yielding soil called sciari, producing the finest Marsala, while farther east, but still within th",
               "styles": {},
               "grapeComposition": [],
               "agingWindow": [],
@@ -14185,7 +14180,7 @@
               "name": "VIANA",
               "classification": "DO",
               "district": null,
-              "shortBlurb": "CASTELO Port Ponte da Barca IP4 N13 N20 Lindoso ma Pinhel Fréixo-deEspada-a` Cinta 50 km PORT: THEDOUROVALLEY PORT GRAPE VARIETIES There are 48 grape varieties permitted in the production of port.",
+              "shortBlurb": "CASTELO Port Ponte da Barca IP4 Lindoso ma Pinhel Fréixo-deEspada-a` Cinta 50 km PORT: THEDOUROVALLEY PORT GRAPE VARIETIES There are 48 grape varieties permitted in the production of port.",
               "styles": {},
               "grapeComposition": [],
               "agingWindow": [],
@@ -14640,7 +14635,7 @@
       "regions": {
         "PFALZ": {
           "name": "PFALZ",
-          "shortBlurb": "60 Wittlich Bitburg Bingen Sau MAINZ Bernkastel-Kues sel er Bad 16 Mo Kreuznach TRIER Alzey Idar-Oberstein 4 THE PFALZ THEPFALZ , see also p.345 Over 2,000 years ago the Romans built a palace in this region.",
+          "shortBlurb": "60 Wittlich Bitburg Bingen Sau MAINZ Bernkastel-Kues sel er Bad 16 Mo Kreuznach TRIER Alzey Idar-Oberstein 4 THE PFALZ THEPFALZ, see also p.345 Over 2,000 years ago the Romans built a palace in this region.",
           "aocs": []
         },
         "MOSEL": {
@@ -14650,7 +14645,7 @@
         },
         "AHR": {
           "name": "AHR",
-          "shortBlurb": "THEAHR , see also p.345 Formerly the most northerly of Germany’s wine-producing regions, the Ahr is made up of districts close to the Ahr River, a tributary of the Rhine.",
+          "shortBlurb": "THEAHR, see also p.345 Formerly the most northerly of Germany’s wine-producing regions, the Ahr is made up of districts close to the Ahr River, a tributary of the Rhine.",
           "aocs": []
         },
         "NAHE": {
@@ -14688,17 +14683,11 @@
     "SWITZERLAND": {
       "name": "SWITZERLAND",
       "shortBlurb": "At their best, Swiss wines are as fresh and clean as the Alpine air. Although many grape varieties are cultivated in Switzerland, the most famous grape grown here is the Chasselas.",
-      "regions": {
-        "JURA": {
-          "name": "JURA",
-          "shortBlurb": "Le Chaux-deFonds Morteau Porrentruy KONSTANZ Bo Bad Säckingen Bülach A3 Brugg Baden in Basel Audincourt A36 Überlingen Waldshut Lörrach I ll N1 Schaffhausen Singen A2 COMO 50 miles 80 km FACTORS AFFECTING TASTE AND QUALITY H LOCATION",
-          "aocs": []
-        }
-      }
+      "regions": {}
     },
     "LUXEMBOURG": {
       "name": "LUXEMBOURG",
-      "shortBlurb": "D46 A8 4 miles 6 km Ri i A country united by other tongues: French is used by its government and courts, with most newspapers published in German, leaving the national dialect with no official role.",
+      "shortBlurb": "4 miles 6 km Ri i A country united by other tongues: French is used by its government and courts, with most newspapers published in German, leaving the national dialect with no official role.",
       "regions": {}
     },
     "BULGARIA": {
@@ -14753,7 +14742,7 @@
     },
     "CYPRUS": {
       "name": "CYPRUS",
-      "shortBlurb": "Wine districts: Marathassa Afames, Pitsilia, Maheras Mountains, Troödos Mountains, Mesaoria Total area under vine: 4,520 acres (18,300 hectares) Wines have been made on this beautiful island for at least 4,000 Ergene 199 Kesan Sea Bartin Zonguldak .",
+      "shortBlurb": "Wine districts: Marathassa Afames, Pitsilia, Maheras Mountains, Troödos Mountains, Mesaoria Total area under vine: 4,520 acres (18,300 hectares) Wines have been made on this beautiful island for at least 4,000 Ergene 199 Kesan Sea Bartin Zonguldak.",
       "regions": {}
     },
     "ISRAEL": {

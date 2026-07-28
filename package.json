@@ -10,7 +10,8 @@
     "preview": "vite preview",
     "export:wine:excel": "ts-node --esm scripts/exportWineEntriesToExcel.ts",
     "build:wine:json": "ts-node --esm scripts/convertExcelToJson.ts",
-    "build:encyclopedia": "ts-node --esm scripts/cleanEncyclopediaText.ts"
+    "build:encyclopedia": "ts-node --esm scripts/cleanEncyclopediaText.ts",
+    "build:encyclopedia:reference": "ts-node --esm scripts/buildEncyclopediaReference.ts"
   },
   "dependencies": {
     "@iconify/react": "^6.0.2",

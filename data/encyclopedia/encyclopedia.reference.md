@@ -9,54 +9,7 @@
 
 # FRANCE
 
-CHAPTERINTRODUCTION Full-spread chapter openers give readers a brief introduction to the region in question and a taste of what is to come. FRENCH WINES ARE REGARDED AS THE BEST in the world, and a thread of this belief is even shared by France’s fiercest New-World
-
-## SAVOIE
-
-GRENOBLE HAUTE-LOIRE LOZÈRE A75 A8 VAR
-
-### ARBOIS AOC
-
-This is the best-known appellation of the Jura, from in and around the town of Arbois.
-
-- **Grapes:** Trousseau, Poulsard, Pinot Noir; Savagnin, Chardonnay, Pinot Blanc; Poulsard, Trousseau, Pinot Noir
-- **Aging:** 2–8 years; 1–3 years; 1–3 years
-- **Producers:** Daniel Dugois, Raphaël Fumey & Adeline
-
-### ARBOIS MOUSSEUX AOC
-
-This is a traditional method sparkling wine seldom seen outside Arbois.
-
-- **Grapes:** Savagnin, Chardonnay, Pinot Blanc
-- **Aging:** 1–3 years
-- **Producers:** Foret, Fruitière Vinicole d’Arbois
-
-### MOUSSEUX AOC
-
-These are very promising, single-commune, traditional method wines, but unfortunately are seldom encountered. SEMI-SPARKLING WHITE Wispy-light wines with an Alpine-fresh, clean taste. d’Ayze
-
-- **Grapes:** Gringet, Roussette, plus up to 30% Roussette
-- **Aging:** 1–3 years
-
-### MOUSSEUX AOC
-
-These are very consistent and undervalued generic traditional-method wines. The Savoie does not have a large-scale sparkling-wine industry as such, although it most certainly has the potential to build one. The tradition of making the effervescent wines in this part of
-
-- **Grapes:** Aligoté, Roussette, Jacquère, Chardonnay,
-- **Aging:** 1–2 years
-- **Producers:** Maison Mollex, Des Rocailles
-
-### PÉTILLANT AOC
-
-A very consistent and undervalued generic traditional method wine. SEMI-SPARKLING WHITE Attractive, earlydrinking dry wines with a gentle, light mousse and a fragrant flavor. Pinot Gris, Mondeuse Blanche, plus Chasselas (in the Ain and Haute-Savoie
-
-- **Grapes:** Aligoté, Roussette, Jacquère, Chardonnay,
-- **Aging:** Within 1 year
-- **Producers:** Perrier & Fils, Varichon & Clerc
-
 ## BORDEAUX
-
-Pointe de Grave SOULACSUR-MER Mirambeau N137 D937 Chenal d u Guâ
 
 ### BORDEAUX CLAIRET AOC
 
@@ -114,21 +67,21 @@ Situated above the Premières Côtes, opposite Cérons, this area corresponds to
 
 ### CADILLAC AOC
 
-Of the trio of sweet-wine areas on the right bank of the Garonne, Cadillac is the least known. It encompasses 21 communes, 16 of which form the canton of Cadillac, yet very little wine is produced under this appellation—ust one-fifth of that made in Loupiac, or one-tenth of that made
+Of the trio of sweet-wine areas on the right bank of the Garonne, Cadillac is the least known. It encompasses 21 communes, 16 of which form the canton of Cadillac, yet very little wine is produced under this appellation—just one-fifth of that made in Loupiac, or one-tenth of that made
 
 - **Grapes:** Sémillon, Sauvignon Blanc, Muscadelle
 - **Aging:** 3–8 years
 
 ### ENTRE-DEUX-MERS AOC
 
-This is the largest district in the region, and after the generic Bordeaux Blanc, it is its greatestvolume white-wine appellation. Entre-DeuxMers has a growing reputation for exceptionalvalue wines of a high technical standard.
+This is the largest district in the region, and after the generic Bordeaux Blanc, it is its greatest volume white-wine appellation. Entre-Deux-Mers has a growing reputation for exceptional-value wines of a high technical standard.
 
 - **Grapes:** At least 70 percent Sémillon, Sauvignon
 - **Aging:** 1–2 years
 
-### ENTRE-DEUX-MERSHAUT-BENAUGE AOC
+### ENTRE-DEUX-MERS-HAUT-BENAUGE AOC
 
-These wines are drier than those of the Bordeaux-Haut-Benauge appellation, and their blends may include a greater number of grape varieties, although the same nine communes comprise both appellations. The wines comply with the less rigorous regulations of Entre-DeuxMers and, consequently, this AOC produces four
+These wines are drier than those of the Bordeaux-Haut-Benauge appellation, and their blends may include a greater number of grape varieties, although the same nine communes comprise both appellations. The wines comply with the less rigorous regulations of Entre-Deux-Mers and, consequently, this AOC produces four
 
 - **Grapes:** At least 70 percent Sémillon, Sauvignon
 - **Aging:** 1–3 years
@@ -140,25 +93,9 @@ An enclave of gravelly soil on the left bank of the Dordogne, this appellation p
 - **Grapes:** Cabernet Sauvignon, Cabernet Franc,; Sémillon, Sauvignon Blanc, and Muscadelle
 - **Aging:** 4–10 years; 1–3 years
 
-## JURA
-
-SAÔNE-ET-LOIRE RHÔNE LOIRE DE- CORRÈZE DORDOGNE
-
-### VIN DE SAVOIE AOC
-
-The wines in this generic appellation are produced to a high standard. The following villages have the right to add their name to the appellation: Abymes, Apremont, Arbin, Ayze, Chautagne, Chignin, Chignin-Bergeron (white Roussanne only), Cruet, Jongieux, Marignan
-
-- **Grapes:** Gamay, Mondeuse, Pinot Noir, plus a; Aligoté, Altesse, Jacquère, Mondeuse; Gamay, Mondeuse, Pinot Noir, plus
-- **Aging:** 2–8 years; 1–3 years; 1–3 years
-- **Producers:** Pierre Boniface, Dupasquier, De L’Idylle
-
 ## MÉDOC
 
-Ch. Marsac40 Séguineau D6 Ch. Labégorce Ile Ch.
-
 ### HAUT-MÉDOC AOC
-
-This 60 AOC encompasses the Médoc’s four finest 8 10 km e
 
 ### ST-ESTÈPHE AOC
 
@@ -200,7 +137,7 @@ by the creamy richness of new oak.
 
 ### ST-JULIEN AOC
 
-colour and fruit with a full, spicySecond wine: Château La Fagotte wine is matured in wood
+colour and fruit with a full, spicy. Second wine: Château La Fagotte wine is matured in wood
 
 - **Grapes:** Cabernet Sauvignon 55%,; Cabernet Sauvignon 35%,
 - **Aging:** 5–15 years
@@ -237,7 +174,7 @@ Technically, this appellation covers the entire Médoc, but most wines actually 
 
 ### MOULIS-EN-MÉDOC AOC
 
-One of the two communal appellations located on the Atlantic side of the Médoc, Moulis-enMédoc is smaller and potentially more interesting than its neighbor Listrac. Like Listrac, it has no cru classé châteaux, despite adjoining Margaux, the appellation that has the highest number of such properties
+One of the two communal appellations located on the Atlantic side of the Médoc, Moulis-en-Médoc is smaller and potentially more interesting than its neighbor Listrac. Like Listrac, it has no cru classé châteaux, despite adjoining Margaux, the appellation that has the highest number of such properties
 
 - **Grapes:** Cabernet Sauvignon, Cabernet Franc,
 - **Aging:** 5–12 years
@@ -265,7 +202,7 @@ Haut-Médoc Cru Bourgeois cV This property is under the same ownership as Châte
 
 ## PAUILLAC
 
-D1 6 miles Livenn D251 D9 Lac d' HourtinCarcans
+6 miles Livenn Lac d' HourtinCarcans GROWTHS 4TH 5TH
 
 ## CHAMPAGNE
 
@@ -307,7 +244,7 @@ Some surprisingly good would-be Barsacs lurk beneath this appellation that is ra
 The much hillier communes of Bommes, Fargues, and Sauternes produce the richest of all Bordeaux’s dessert wines, while the châteaux in the lower-lying, flatter Preignac make wines very close in style to Barsac. The wine must include overripe botrytized grapes harvested
 
 - **Grapes:** Sémillon, Sauvignon Blanc, Muscadelle; Merlot 55%, Cabernet; Sémillon 70%, Sauvignon 30%; Cabernet Sauvignon 55%,; Sauvignon 60%, Sémillon 40%; Cabernet Sauvignon 80%,; Cabernet Sauvignon 65%,; Sauvignon 70%, Sémillon 30%; Sauvignon 50%, Sémillon 50%; Sauvignon 100%; Cabernet Sauvignon 60%,; Cabernet Sauvignon 60%,; Cabernet Sauvignon 55%,; Sauvignon 50%,; Sauvignon 60%, Sémillon 40%; Cabernet Sauvignon 50%,; Sauvignon 100%; Cabernet Sauvignon 60%,; Cabernet Sauvignon 70%,; Sémillon 65%, Sauvignon 30%,; Cabernet Sauvignon 67%,; Cabernet Sauvignon 60%,; Cabernet Sauvignon 69%,; Cabernet Sauvignon 60%,; Sémillon 55%, Sauvignon 35%,; Sémillon 80%, Sauvignon 15%,; Sémillon 63%, Sauvignon 25%,; Sémillon 90%, Sauvignon 10%; Sémillon 98%, Sauvignon 2%; Sémillon 83%, Sauvignon 15%,; Sémillon 100%; Sémillon 90%, Sauvignon 10%; Sémillon 75%, Sauvignon 23%,; Sémillon 80%, Sauvignon 20%; Sémillon 60%, Sauvignon 37%,; Sémillon 70%, Sauvignon 30%; Sémillon 98%, Sauvignon 2%; Sémillon 70%, Sauvignon 20%,; Sémillon 85%, Muscadelle 10%,; Sémillon 75%, Sauvignon 22%,; Sémillon 90%, Sauvignon 6%,; Sémillon 80%, Sauvignon 18%,; Sémillon 65%, Sauvignon 35%; Sémillon 75%, Sauvignon 22%,; Sémillon 50%, Sauvignon 40%,; Sémillon 70%, Sauvignon 25%,; Sémillon 85%, Sauvignon 15%; Sémillon 80%, Sauvignon 10%,; Sémillon 78%, Sauvignon 19%,; Sémillon 80%, Sauvignon 20%; Sémillon 80%, Sauvignon 20%
-- **Aging:** 10–30 years for most wines; between 20 and; 8–20 years; 5–10 years; nown of the two styles, is coolfermented in stainless steel and; 6–18 years; 2–5 years; 15–40 years; 8–20 years; 2–4 years; 3–8 years; 12–30 years; 12–25 years; 10–40 years; 5–20 years; 6–20 years; 7–25 years; 5–12 years; 15–45 years; 3–7 years; 20–40 years; 8–20 years; 8–20 years; 4–8 years; 8–25 years; 8–25 years; 8–30 years; 10–40 years; 8–25 years; 8–20 years; 6–15 years; 8–25 years (15–40 years for; 8–25 years; 12–35 years; 8–30 years; 7–20 years; 7–20 years; 8–25 years; 8–25 years; 8–25 years; 12–35 years; 5–12 years; 6–15 years; 6–12 years; 8–20 years; now what to pick and, just as; 20–60 years; 8–35 years
+- **Aging:** 10–30 years for most wines; between 20 and; 8–20 years; 5–10 years; nown of the two styles, is cool-fermented in stainless steel and; 6–18 years; 2–5 years; 15–40 years; 8–20 years; 2–4 years; 3–8 years; 12–30 years; 12–25 years; 10–40 years; 5–20 years; 6–20 years; 7–25 years; 5–12 years; 15–45 years; 3–7 years; 20–40 years; 8–20 years; 8–20 years; 4–8 years; 8–25 years; 8–25 years; 8–30 years; 10–40 years; 8–25 years; 8–20 years; 6–15 years; 8–25 years (15–40 years for; 8–25 years; 12–35 years; 8–30 years; 7–20 years; 7–20 years; 8–25 years; 8–25 years; 8–25 years; 12–35 years; 5–12 years; 6–15 years; 6–12 years; 8–20 years; now what to pick and, just as; 20–60 years; 8–35 years
 
 ### CÔTES-DE-FRANCS AOC
 
@@ -447,7 +384,7 @@ This covers the same area as Blaye and Côtes de Blaye, but only classic grapes 
 
 ### LOUPIAC AOC
 
-This appellation is located on the right bank of the Garonne, opposite Barsac. It is by far the best sweet-wine appellation in Entre-DeuxMers and its wines are always excellent value. According to the regulations, Loupiac must be made with the “assistance” of overripe botrytized grapes and, unlike Cadillac, these
+This appellation is located on the right bank of the Garonne, opposite Barsac. It is by far the best sweet-wine appellation in Entre-Deux-Mers and its wines are always excellent value. According to the regulations, Loupiac must be made with the “assistance” of overripe botrytized grapes and, unlike Cadillac, these
 
 - **Grapes:** Sémillon, Sauvignon Blanc, Muscadelle; Cabernet Sauvignon, Cabernet Franc,; Sémillon, Sauvignon Blanc, Muscadelle; Sémillon, Sauvignon Blanc, Muscadelle
 - **Aging:** 5–15 years (25 in exceptional cases); 4–8 years; 3–7 years; 5–15 years (25 in exceptional cases)
@@ -872,7 +809,7 @@ Premiers crus: Les Aigrots, Aux Coucherias (or Clos de la Féguine), Aux Cras, C
 - **Aging:** 10–20 years; 5–12 years
 - **Producers:** Arnoux Père & Fils, Bouchard Père & Fils
 
-### BIENVENUES-BÂTARDMONTRACHET AOC
+### BIENVENUES-BÂTARD-MONTRACHET AOC
 
 Grand Cru This is one of Puligny-Montrachet’s four grands crus.
 
@@ -983,7 +920,7 @@ While AOC Côte de Nuits-Villages covers red and white wines in a predominantly 
 - **Aging:** 7–15 years
 - **Producers:** Bernard Bachelet & Fils, Coron Père & Fils
 
-### CRIOTS-BÂTARDMONTRACHET AOC
+### CRIOTS-BÂTARD-MONTRACHET AOC
 
 Grand Cru The smallest of Chassagne-Montrachet’s three grands crus.
 
@@ -1312,7 +1249,7 @@ Premiers crus: Agneux, Bas de Vauvry, La Bressaude, Champ-Clou, Chapitre, Clos d
 
 ### MÂCON AOC
 
-Most wines from this district-wide appellation are produced in the area north of the MâconVillages area.
+Most wines from this district-wide appellation are produced in the area north of the Mâcon-Villages area.
 
 - **Grapes:** Gamay, Pinot Noir, Pinot Gris; Chardonnay, Pinot Blanc; Gamay, Pinot Noir, Pinot Gris
 - **Aging:** 2–6 years; 1–4 years; 1–3 years
@@ -1364,11 +1301,11 @@ Chaintre is home to Georges Duboeuf’s older brother, Roger. Since this village
 
 ### MÂCON-CHÂNES AOC
 
-This village is also part of the BeaujolaisVillages and Saint-Véran areas, so its wines have a choice of three appellations. tde Lalande (Les Serraudières) BURGUNDY - THE MÂCONNAIS
+This village is also part of the Beaujolais-Villages and Saint-Véran areas, so its wines have a choice of three appellations. tde Lalande (Les Serraudières) BURGUNDY - THE MÂCONNAIS
 
 ### MÂCON-LA CHAPELLEDE-GUINCHAY AOC
 
-This village is also part of the BeaujolaisVillages area and its wines therefore have the right to both appellations. villages appellation area.
+This village is also part of the Beaujolais-Villages area and its wines therefore have the right to both appellations. villages appellation area.
 
 - **Producers:** Guillot-Broux B
 
@@ -1410,7 +1347,7 @@ I have not encountered these wines.
 
 ### MÂCON-LEYNES AOC
 
-This village is also part of the BeaujolaisVillages and Saint-Véran AOCs and its wines therefore have a choice of all three appellations.
+This village is also part of the Beaujolais-Villages and Saint-Véran AOCs and its wines therefore have a choice of all three appellations.
 
 - **Producers:** André Depardon
 
@@ -1466,7 +1403,7 @@ This village is one of five communes that form Pouilly-Fuissé AOC. Moulin du Po
 
 ### MÂCON-GRÉVILLY AOC
 
-A village with a good reputation, MâconGrévilly is located in the extreme north of the This village is also part of the Saint-Véran area and its wines therefore have a choice of two appellations. Thibert Père & Fils
+A village with a good reputation, Mâcon-Grévilly is located in the extreme north of the This village is also part of the Saint-Véran area and its wines therefore have a choice of two appellations. Thibert Père & Fils
 
 - **Producers:** Groupement de Producteurs de Prissé, de
 
@@ -1707,7 +1644,7 @@ This superior, red-wine-only appellation was first delimited in 1986, but it did
 
 ### BRISSAC AOC
 
-This village was singled out under the AnjouVillages appellation in 1998 and backdated for wines from 1996 onward. It covers the area of Brissac-Quincé and nine surrounding communes. Rochelles (La Croix de Mission) • Château La Varière
+This village was singled out under the Anjou-Villages appellation in 1998 and backdated for wines from 1996 onward. It covers the area of Brissac-Quincé and nine surrounding communes. Rochelles (La Croix de Mission) • Château La Varière
 
 - **Producers:** Davieu (Château de Brissac), De HautePerche, Du Prieuré, Richou, Des
 
@@ -1830,13 +1767,13 @@ When this small portion of Anjou Coteaux de la Loire produced only sweet wines, 
 - **Aging:** 5–8 years (10–15 years for Clos de la Coulée
 - **Producers:** Des Baumard, Du Closel (Clos du Papillon)
 
-### COULÉE-DE-SERRANT AOC
+### SAVENNIÈRES COULÉE-DE-SERRANT AOC
 
-One of just two single-vineyard designations authorized for Savennières, Coulée-de-Serrant is 17 acres (7 hectares) and a mono-cru, solely owned by Nicolas Joly of Château de la Rocheaux-Moines. Many consider this to be the singlegreatest Loire dry white wine. See also Savennières AOC SAVENNIÈRES
+One of just two single-vineyard designations authorized for Savennières, Coulée-de-Serrant is 17 acres (7 hectares) and a mono-cru, solely owned by Nicolas Joly of Château de la Roche-aux-Moines. Many consider this to be the single greatest Loire dry white wine. See also Savennières AOC
 
-### ROCHE-AUX-MOINES AOC
+### SAVENNIÈRES ROCHE-AUX-MOINES AOC
 
-The second and largest of the two single-vineyard designations authorized for Savennières, Rocheaux-Moines is 42 acres (17 hectares) and owned by three producers: Nicolas Joly of Château de la Roche-aux-Moines, Pierre and Yves Soulez of Château de Chamboureau, and Madame Laroche of au Moines. See also Savennières AOC
+The second and largest of the two single-vineyard designations authorized for Savennières, Roche-aux-Moines is 42 acres (17 hectares) and owned by three producers: Nicolas Joly of Château de la Roche-aux-Moines, Pierre and Yves Soulez of Château de Chamboureau, and Madame Laroche of au Moines. See also Savennières AOC
 
 ### VINS DU THOUARSAIS VDQS
 
@@ -2388,6 +2325,22 @@ Formerly one of the single-village wines under the AOC Côtes du Rhône-Villages
 - **Grapes:** At least 50% Grenache, plus up to 20% in; Grenache Blanc, Clairette, and Bourboulenc,; At least 60% of Grenache, plus a minimum
 - **Aging:** 4–12 years; 2–3 years; 2–3 years
 
+### ARBOIS AOC
+
+This is the best-known appellation of the Jura, from in and around the town of Arbois.
+
+- **Grapes:** Trousseau, Poulsard, Pinot Noir; Savagnin, Chardonnay, Pinot Blanc; Poulsard, Trousseau, Pinot Noir
+- **Aging:** 2–8 years; 1–3 years; 1–3 years
+- **Producers:** Daniel Dugois, Raphaël Fumey & Adeline
+
+### ARBOIS MOUSSEUX AOC
+
+This is a traditional method sparkling wine seldom seen outside Arbois.
+
+- **Grapes:** Savagnin, Chardonnay, Pinot Blanc
+- **Aging:** 1–3 years
+- **Producers:** Foret, Fruitière Vinicole d’Arbois
+
 ### ARBOIS PUPILLIN AOC
 
 This is a single-commune appellation for red, white, rosé, vin jaune, and vin de paille made to the same specification as Arbois AOC. See Arbois AOC, Arbois Vin de Paille AOC, and Arbois Vin Jaune AOC. Renardière
@@ -2396,7 +2349,7 @@ This is a single-commune appellation for red, white, rosé, vin jaune, and vin d
 
 ### ARBOIS VIN JAUNE AOC
 
-For details of production and style, see ChâteauChalon AOC. André & Mireille Tissot Y• Jacques Tissot
+For details of production and style, see Château-Chalon AOC. André & Mireille Tissot Y• Jacques Tissot
 
 - **Producers:** De la Pinte Y, Jacques Puffeney, Rolet
 
@@ -2442,7 +2395,7 @@ This generic appellation contains some of the most widely encountered Jura wines
 
 ### VIN JAUNE AOC
 
-For details of production and style, see ChâteauChalon AOC. CÔTES DU JURA
+For details of production and style, see Château-Chalon AOC.
 
 - **Producers:** Château d’Arlay, Philippe Butin
 
@@ -2525,6 +2478,41 @@ This is a favorite après-ski wine.
 ### SEYSSEL MOUSSEUX AOC
 
 It was Varichon & Clerc that first carved a niche for Seyssel Mousseux in the export market.
+
+- **Grapes:** Molette, Chasselas, plus a minimum of
+- **Aging:** 1–3 years
+- **Producers:** Maison Mollex, Royal Seyssel
+
+### VIN DE SAVOIE AOC
+
+The wines in this generic appellation are produced to a high standard. The following villages have the right to add their name to the appellation: Abymes, Apremont, Arbin, Ayze, Chautagne, Chignin, Chignin-Bergeron (white Roussanne only), Cruet, Jongieux, Marignan
+
+- **Grapes:** Gamay, Mondeuse, Pinot Noir, plus a; Aligoté, Altesse, Jacquère, Mondeuse; Gamay, Mondeuse, Pinot Noir, plus
+- **Aging:** 2–8 years; 1–3 years; 1–3 years
+- **Producers:** Pierre Boniface, Dupasquier, De L’Idylle
+
+### MOUSSEUX AOC
+
+These are very promising, single-commune, traditional method wines, but unfortunately are seldom encountered. SEMI-SPARKLING WHITE Wispy-light wines with an Alpine-fresh, clean taste. d’Ayze
+
+- **Grapes:** Gringet, Roussette, plus up to 30% Roussette
+- **Aging:** 1–3 years
+
+### MOUSSEUX AOC
+
+These are very consistent and undervalued generic traditional-method wines. The Savoie does not have a large-scale sparkling-wine industry as such, although it most certainly has the potential to build one. The tradition of making the effervescent wines in this part of
+
+- **Grapes:** Aligoté, Roussette, Jacquère, Chardonnay,
+- **Aging:** 1–2 years
+- **Producers:** Maison Mollex, Des Rocailles
+
+### PÉTILLANT AOC
+
+A very consistent and undervalued generic traditional method wine. SEMI-SPARKLING WHITE Attractive, early-drinking dry wines with a gentle, light mousse and a fragrant flavor. Pinot Gris, Mondeuse Blanche, plus Chasselas (in the Ain and Haute-Savoie
+
+- **Grapes:** Aligoté, Roussette, Jacquère, Chardonnay,
+- **Aging:** Within 1 year
+- **Producers:** Perrier & Fils, Varichon & Clerc
 
 ### BÉARN AOC
 
@@ -2970,7 +2958,7 @@ In English-speaking markets the “Grand” sounds very grand indeed, and the fa
 
 ## CHABLIS
 
-D96 Viviers Chicheé D51 N6 D3
+Viviers Chicheé NOYERS VERMENTON Bazarnes Ca
 
 ### BOURGOGNE CHITRY AOC
 
@@ -3362,7 +3350,7 @@ STRETCHING FROM VIENNE TO AVIGNON, the Côtes-du- Famous for its full, fiery, an
 
 ## PROVENCE
 
-1125 D99 N8 Peyruis HAUTE- N100
+1125 Peyruis HAUTE- Apt BOUCHES-DUARLES RHÔNEN113
 
 ## LANGUEDOC-ROUSSILLON
 
@@ -3655,7 +3643,7 @@ Subregions Alexandra, Ardgau Valley, Bannockburn, Bendigo, Central Otago, Cromwe
 
 # SPAIN
 
-40 miles 60 km VINDEPAYS , MAPA , see also p.249 (opposite) Languedoc-Roussillon encompasses the greatest concentration of zonal vins de pays and is dominated by the regional Vin de Pays d’Oc, by
+40 miles 60 km VINDEPAYS, MAPA, see also p.249 (opposite) Languedoc-Roussillon encompasses the greatest concentration of zonal vins de pays and is dominated by the regional Vin de Pays d’Oc, by
 
 ## PROVENCE
 
@@ -3663,11 +3651,11 @@ BOUCHES-DURHONE Montpellier HÉRAULT HAUTE- Verdon Rhône
 
 ## BORDEAUX
 
-A9 A10 Corrèze A89 A38 DOUBS Jura
+DOUBS Jura e ôn Rh Angoulême
 
 ## NAVARRA
 
-A1 Llobregat Rias Baixas Valdeorras BURGOS
+Llobregat Rias Baixas Valdeorras BURGOS PAMPLONA
 
 ## (General)
 
@@ -5386,7 +5374,7 @@ Apulia These are full-bodied red and dry rosé Sangiovese-based wines from the v
 
 ### OSTUNI DOC
 
-Apulia A delicate, dry white made from Impigno and Francavidda and a light-bodied red from the THEMARSALAPLAINS , SICILY Vines on the hot, arid plains of western Sicily grow on a low-yielding soil called sciari, producing the finest Marsala, while farther east, but still within the DOC, the soil is more fertile and the wines are of lower quality.
+Apulia A delicate, dry white made from Impigno and Francavidda and a light-bodied red from the THEMARSALAPLAINS, SICILY Vines on the hot, arid plains of western Sicily grow on a low-yielding soil called sciari, producing the finest Marsala, while farther east, but still within the DOC, the soil is more fertile and the wines are of lower quality.
 
 ### OTTAVIANELLO DOC
 
@@ -5694,7 +5682,7 @@ IP5 Bermillo de Sayago Mogadouro Vitigudino Paiva
 
 ### VIANA DO
 
-CASTELO Port Ponte da Barca IP4 N13 N20
+CASTELO Port Ponte da Barca IP4 Lindoso ma
 
 ## (General)
 
@@ -5904,7 +5892,7 @@ dd RHEIN RHEINLAND- Prüm Schwäbischer Landwein Ahrtaler Landwein
 
 ## AHR
 
-THEAHR , see also p.345 Formerly the most northerly of Germany’s wine-producing regions, the Ahr is made up of districts close to the Ahr River, a tributary of the Rhine. Rhein
+THEAHR, see also p.345 Formerly the most northerly of Germany’s wine-producing regions, the Ahr is made up of districts close to the Ahr River, a tributary of the Rhine. Rhein
 
 ## NAHE
 
@@ -5934,13 +5922,9 @@ Austria used to be seen as a winemaking clone of Germany, but over the past deca
 
 At their best, Swiss wines are as fresh and clean as the Alpine air. Although many grape varieties are cultivated in Switzerland, the most famous grape grown here is the Chasselas. In France this variety is perceived as a table grape, yet the Swiss make it into a light, dry, spritzy, and delicately delicious wine that is the perfect partner to the Swiss cheese fondue.
 
-## JURA
-
-Le Chaux-deFonds Morteau Porrentruy KONSTANZ Bo Bad Säckingen
-
 # LUXEMBOURG
 
-D46 A8 4 miles 6 km Ri i A country united by other tongues: French is used by its government and courts, with most newspapers published in German, leaving the national dialect with no official role.
+4 miles 6 km Ri i A country united by other tongues: French is used by its government and courts, with most newspapers published in German, leaving the national dialect with no official role. THE LIEUX-DITS—LUXEMBOURG’S BEST-KEPT SECRET The lieux-dits represent Luxembourg’s richest
 
 # BULGARIA
 
@@ -6012,7 +5996,7 @@ Wine districts of the Département of Oran Coteaux de Mascara, Coteaux de Tlemce
 
 # MOROCCO
 
-1295 Souk-Ahras Nefta Gently undulating vineyards south of Cherchell in the Alger region, just west of Haut-Dahra district. Guelma KHEMISMILIANA , ALGERIA International boundary
+1295 Souk-Ahras Nefta Gently undulating vineyards south of Cherchell in the Alger region, just west of Haut-Dahra district. Guelma KHEMISMILIANA, ALGERIA International boundary
 
 # TUNISIA
 

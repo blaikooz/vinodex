@@ -108,6 +108,104 @@ interface GrapeEntry {
 
 // ---------- Phase A: text repair ----------
 
+const OCR_TEXT_REPAIRS: Array<[RegExp, string]> = [
+  [/\bgreatestvolume\b/gi, 'greatest volume'],
+  [/\bexceptionalvalue\b/gi, 'exceptional-value'],
+  [/\bearlydrinking\b/gi, 'early-drinking'],
+  [/\bcoolfermented\b/gi, 'cool-fermented'],
+  [/\bspicySecond\b/g, 'spicy. Second'],
+  [/\bAnjouVillages\b/g, 'Anjou-Villages'],
+  [/\bEntre-DeuxMers\b/g, 'Entre-Deux-Mers'],
+  [/\bENTRE-DEUX-MERSHAUT-BENAUGE\b/g, 'ENTRE-DEUX-MERS-HAUT-BENAUGE'],
+  [/\bEntre-Deux-MersHaut-Benauge\b/g, 'Entre-Deux-Mers-Haut-Benauge'],
+  [/\bMoulis-enMédoc\b/g, 'Moulis-en-Médoc'],
+  [/\bMâconVillages\b/g, 'Mâcon-Villages'],
+  [/\bMâconGrévilly\b/g, 'Mâcon-Grévilly'],
+  [/\bBeaujolaisVillages\b/g, 'Beaujolais-Villages'],
+  [/\bChâteauChalon\b/g, 'Château-Chalon'],
+  [/\bRocheaux-Moines\b/g, 'Roche-aux-Moines'],
+  [/\bRocheaux Moines\b/g, 'Roche-aux-Moines'],
+  [/\bsinglegreatest\b/gi, 'single greatest'],
+  [/\bBÂTARDMONTRACHET\b/g, 'BÂTARD-MONTRACHET'],
+  [/\bBâtardMontrachet\b/g, 'Bâtard-Montrachet'],
+  [/—ust\b/g, '—just'],
+];
+
+const SPLIT_AOC_PREFIXES = new Set([
+  'ANJOU-VILLAGES',
+  'SAVENNIÈRES',
+  'CÔTES DU JURA',
+  'CRÉMANT DU JURA',
+  'VIN DE SAVOIE',
+  'ROUSSETTE DE SAVOIE',
+]);
+
+function normalizeOcrText(line: string): string {
+  let repaired = line;
+  for (const [pattern, replacement] of OCR_TEXT_REPAIRS) {
+    repaired = repaired.replace(pattern, replacement);
+  }
+  return repaired
+    .replace(/\s+([,.;:!?])/g, '$1')
+    .replace(/\s{2,}/g, ' ')
+    .trimEnd();
+}
+
+function isLikelyMapOrLayoutDebris(line: string): boolean {
+  const t = line.trim();
+  if (!t) return true;
+  if (/^CHAPTER\s*INTRODUCTION\b/i.test(t) || /^CHAPTERINTRODUCTION\b/i.test(t)) return true;
+  if (/^readers a brief introduction\b/i.test(t)) return true;
+  if (/^the region in question\b/i.test(t)) return true;
+  if (/^FULL-SPREAD CHAPTER OPENERS\b/i.test(t)) return true;
+  if (/^\f/.test(t)) return true;
+
+  if (t.length < 160 && /\b[ADN]\d{1,4}\b/.test(t) && !/[.!?]/.test(t)) return true;
+  if (t.length < 120 && /\b(SUR-MER|MIRAMBEAU|GRENOBLE|MARSEILLE|NARBONNE|LOZÈRE|HAUTE-LOIRE|VAR)\b/i.test(t) && /\b[ADN]\d{1,4}\b/.test(t)) return true;
+  if (t.length < 80 && /^[A-ZÀ-ŸŒÆ'’.\-\s]+$/.test(t) && /\b(SUR-MER|MÉDOC|LOZÈRE|VAR|JURA|SAVOIE)\b/.test(t) && !/(AOC|DOC|VDQS|THE|VALLEY)$/.test(t)) return true;
+
+  if (t.length < 140 && /\bCh\./.test(t) && /\d/.test(t) && !/[!?]/.test(t)) return true;
+  if (t.length < 140 && /\bCh\./.test(t) && /\b(Ile Ch\.|Paveil|Cazeau|Labégorce)\b/.test(t) && !/[!?]/.test(t)) return true;
+  if (/SAÔNE-ET-LOIRE|CORRÈZE DORDOGNE/.test(t)) return true;
+  if (t.length < 120 && /\bDORDOGNE\b/.test(t) && /\bLOIRE\b/.test(t) && !/[.!?]/.test(t)) return true;
+  if (/^This\s+\d+\s+AOC\b/.test(t) || /\b\d+\s+\d+\s+km\b/.test(t)) return true;
+  if (t.length < 120 && /^[A-ZÀ-ŸŒÆ'’.\-\s]+$/.test(t)) {
+    const mapWordHits = (t.match(/\b(SAÔNE-ET-LOIRE|RHÔNE|LOIRE|CORRÈZE|DORDOGNE|HAUTE-LOIRE|LOZÈRE|VAR)\b/g) ?? []).length;
+    if (mapWordHits >= 3) return true;
+  }
+
+  return false;
+}
+
+function repairSplitAocHeadings(lines: string[]): string[] {
+  const repaired: string[] = [];
+  for (let i = 0; i < lines.length; i++) {
+    const cur = lines[i].trim();
+    const next = lines[i + 1]?.trim();
+    if (
+      next
+      && SPLIT_AOC_PREFIXES.has(cur)
+      && /^([A-ZÀ-ŸŒÆ0-9'’ .\-]+?)\s+(AOC|DOC|DOCG|DOCa|VDQS|DO|IGT|VR|VdT|VdP|VLQPRD|QmP|QbA)$/.test(next)
+    ) {
+      repaired.push(`${cur} ${next}`);
+      i++;
+      continue;
+    }
+    repaired.push(lines[i]);
+  }
+  return repaired;
+}
+
+function joinCleanText(lines: string[]): string {
+  const joined = normalizeOcrText(lines.join(' ').replace(/\s+/g, ' ').trim());
+  if (isLikelyMapOrLayoutDebris(joined)) return '';
+  if (/^taste of what is to come\b/i.test(joined)) return '';
+  if (/^This\s+\d+\s+AOC\b/.test(joined)) return '';
+  if (/RHÔNE LOIRE DE- CORRÈZE DORDOGNE/.test(joined)) return '';
+  if (/^Séguineau\b/.test(joined) && /\bCh\.\s+Margaux\b/.test(joined)) return '';
+  return joined;
+}
+
 function repairLines(rawLines: string[]): string[] {
   const out: string[] = [];
 
@@ -115,7 +213,7 @@ function repairLines(rawLines: string[]): string[] {
     let line = rawLines[i];
 
     // Normalize whitespace
-    line = line.replace(/ /g, ' ').replace(/\s+$/g, '');
+    line = normalizeOcrText(line.replace(/ /g, ' ').replace(/\u00a0/g, ' ').replace(/\s+$/g, ''));
 
     // Strip standalone page numbers
     if (/^\s*\d{1,3}\s*$/.test(line)) continue;
@@ -123,11 +221,15 @@ function repairLines(rawLines: string[]): string[] {
     // Strip "see also pXXX" debris that often appears alone
     if (/^,?\s*see also p\d+\s*$/i.test(line)) continue;
 
+    if (isLikelyMapOrLayoutDebris(line)) continue;
+
     // Strip "T H E   M É D O C" style spaced-letter headings later — keep for now but
     // collapse internal extra spaces caused by OCR
     if (/^[A-ZÀ-ŸŒÆ]( [A-ZÀ-ŸŒÆ]){2,}/.test(line)) {
       line = line.replace(/(?<=[A-ZÀ-ŸŒÆ]) (?=[A-ZÀ-ŸŒÆ])/g, '');
     }
+
+    if (isLikelyMapOrLayoutDebris(line)) continue;
 
     out.push(line);
   }
@@ -146,7 +248,7 @@ function repairLines(rawLines: string[]): string[] {
     }
   }
 
-  return dehyphenated;
+  return repairSplitAocHeadings(dehyphenated.map(normalizeOcrText).filter(line => !isLikelyMapOrLayoutDebris(line)));
 }
 
 // ---------- Phase B: heading detection ----------
@@ -411,7 +513,8 @@ function buildTree(lines: string[]): {
 
 function shortenBlurb(introLines: string[], maxChars = 300): string {
   if (introLines.length === 0) return '';
-  const joined = introLines.join(' ').replace(/\s+/g, ' ').trim();
+  const joined = joinCleanText(introLines);
+  if (!joined) return '';
   // Take first 1–2 sentences up to maxChars
   const sentences = joined.split(/(?<=[.!?])\s+/);
   let acc = '';
@@ -509,22 +612,31 @@ function buildMarkdown(countries: Map<string, CountryNode>, grapes: GrapeEntry[]
     lines.push(`# ${cname}`);
     lines.push('');
     if (c.introLines.length) {
-      lines.push(c.introLines.slice(0, 8).join(' ').replace(/\s+/g, ' ').trim());
-      lines.push('');
+      const intro = joinCleanText(c.introLines.slice(0, 8));
+      if (intro) {
+        lines.push(intro);
+        lines.push('');
+      }
     }
     for (const [, r] of c.regions) {
       lines.push(`## ${r.name}`);
       lines.push('');
       if (r.introLines.length) {
-        lines.push(r.introLines.slice(0, 6).join(' ').replace(/\s+/g, ' ').trim());
-        lines.push('');
+        const intro = joinCleanText(r.introLines.slice(0, 6));
+        if (intro) {
+          lines.push(intro);
+          lines.push('');
+        }
       }
       for (const a of r.aocs) {
         lines.push(`### ${a.name} ${a.classification}`);
         lines.push('');
         if (a.rawIntroLines.length) {
-          lines.push(a.rawIntroLines.slice(0, 6).join(' ').replace(/\s+/g, ' ').trim());
-          lines.push('');
+          const intro = joinCleanText(a.rawIntroLines.slice(0, 6));
+          if (intro) {
+            lines.push(intro);
+            lines.push('');
+          }
         }
         const facts: string[] = [];
         if (a.grapeComposition.length) facts.push(`- **Grapes:** ${a.grapeComposition.join('; ')}`);
