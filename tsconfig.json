@@ -31,5 +31,6 @@
     "allowImportingTsExtensions": true,
     "noEmit": true
   },
-  "exclude": ["node_modules", "dist", "scripts"]
+  "include": ["web/**/*.ts", "web/**/*.tsx", "web/**/*.jsx", "shared/**/*.ts"],
+  "exclude": ["node_modules", "dist", "scripts", "ios"]
 }

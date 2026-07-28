@@ -11,7 +11,11 @@
     "export:wine:excel": "ts-node --esm scripts/exportWineEntriesToExcel.ts",
     "build:wine:json": "ts-node --esm scripts/convertExcelToJson.ts",
     "build:encyclopedia": "ts-node --esm scripts/cleanEncyclopediaText.ts",
-    "build:encyclopedia:reference": "ts-node --esm scripts/buildEncyclopediaReference.ts"
+    "build:encyclopedia:reference": "ts-node --esm scripts/buildEncyclopediaReference.ts",
+    "generate:ios": "ts-node --esm scripts/generate-ios-data.ts",
+    "icons:ios": "bash scripts/rasterize-icons.sh",
+    "publish:swift": "node scripts/publish-swift.mjs",
+    "publish:swift:check": "node scripts/publish-swift.mjs --check"
   },
   "dependencies": {
     "@iconify/react": "^6.0.2",

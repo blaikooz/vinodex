@@ -7,7 +7,7 @@
 
 # Known binary types — explicit so git's content-sniffing heuristic never
 # mis-detects them as text (matters most for the large pixelflags/ and
-# native/ icon and font asset trees).
+# ios/ icon and font asset trees).
 *.png binary
 *.jpg binary
 *.jpeg binary
@@ -22,5 +22,5 @@
 
 # Treat the raw OCR encyclopedia source as generated input — exclude from
 # language stats and collapse in diff views.
-data/encyclopedia/source/** linguist-generated=true
-data/encyclopedia/source/** -diff
+web/data/encyclopedia/source/** linguist-generated=true
+web/data/encyclopedia/source/** -diff

@@ -85,7 +85,7 @@ The cap is on **App IDs registered to the profile, not apps installed on the
 device.** `xtool uninstall` reports `Success!` and frees nothing — the App IDs
 stay held.
 
-This is why `native/xtool.yml` still uses `com.example.Vinodex`: reusing an
+This is why `ios/xtool.yml` still uses `com.example.Vinodex`: reusing an
 existing App ID is the only way to deploy. Changing it to a real reverse-DNS ID
 needs the quota to free up or a paid account.
 
@@ -142,12 +142,16 @@ of truth — never edit the WSL copy.**
 
 ```bash
 rsync -a --delete --exclude ".build/" --exclude "xtool/" \
-  /mnt/c/Users/StreetPC/Desktop/xtool/VINODEX/native/ \
+  /mnt/c/Users/StreetPC/Desktop/xtool/VINODEX/ios/ \
   /root/projects/vinodex-native/
 ```
 
 Excluding `.build/` preserves the incremental cache; excluding `xtool/` preserves
 the built `.app`.
+
+The source path is `ios/` as of 2026-07-28 — it was `native/`. The mirror only
+needs the Swift package, so `shared/` and `scripts/` are deliberately not synced;
+regenerating data happens on the Windows side.
 
 ### `swift test` cannot see any UI code
 
@@ -171,18 +175,19 @@ downloads. Run long jobs inline in an attached session.
 ### Regenerating data
 
 ```bash
-npx ts-node --esm native/scripts/generate.ts      # from the monorepo root
-bash native/scripts/rasterize-icons.sh            # needs rsvg-convert + network
+npm run generate:ios      # from the monorepo root
+npm run icons:ios         # needs rsvg-convert + network
 ```
 
 Generation is **deterministic** — a change scoped to the icon tables leaves
 `entries.json` and `palette.json` byte-identical. Always `git diff --stat` the
-`Resources/` directory afterwards; an unexpectedly large diff means the change
-was wider than intended.
+`ios/Sources/VinodexCore/Resources/` directory afterwards; an unexpectedly large
+diff means the change was wider than intended.
 
-`generate.ts` reads from the **web** tree (`../../src/services/`,
-`../../data/*.ts`, `../../constants.ts`), so it only runs in the monorepo — never
-in `vinodex-swift`.
+Both scripts read from `shared/`, a sibling of `scripts/` in the monorepo **and**
+in the published mirror, so the same two commands work in a `vinodex-swift`
+checkout (as `npm run generate` / `npm run icons`). Before 2026-07-28 the
+generator reached into the web tree and could only run here.
 
 ---
 
@@ -216,32 +221,66 @@ first substring wins, so `clay` must precede `loam`.
 
 ## Repo layout
 
-The repo root is `VINODEX/`, **not** the `xtool/` folder above it (`xtool/` also
-holds `downloads/` and the WSL vhdx). Running git from `xtool/` gives
-*not a git repository*.
+The repo root is `VINODEX/`, **not** the `xtool/` folder above it. `xtool/` is
+the iOS *toolchain* container — it holds `downloads/` (the Xcode xip) and the WSL
+`ext4.vhdx` — and happens to be where this repo was cloned. Running git from
+`xtool/` gives *not a git repository*. The nesting is historical and slightly
+misleading; nothing depends on it except the rsync path below.
 
-It is a **monorepo**: the Vite/React web app sits at the root (`App.tsx`,
-`components/`, `data/`, `src/`) with the SwiftUI port under `native/`.
+It is a **monorepo with three peers** (restructured 2026-07-28, was web-at-root
+plus `native/`):
+
+| Path | What it is | Ships to `vinodex-swift`? |
+|---|---|---|
+| `shared/` | Data + colour tables, pure TS, zero deps | **Yes** |
+| `web/` | Vite/React PWA | No |
+| `ios/` | SwiftUI package | **Yes**, hoisted to the mirror root |
+| `pixelflags/` | Pixel-art flags, source for both apps | **Yes** |
+| `scripts/` | Generators, icon rasteriser, publish script | Two files only |
+
+`shared/` is the single source of truth for grapes, regions, styles, countries
+and every colour lookup. The web app reads it directly via the `@/shared/*`
+alias; the iOS app reads the JSON that `scripts/generate-ios-data.ts` renders
+from it. **There is no second copy of the data** — that was the point of the
+restructure.
 
 Two remotes:
 
 | Remote | Repo | Contents |
 |---|---|---|
 | `origin` | `blaikooz/vinodex` | full monorepo |
-| `swift` | `blaikooz/vinodex-swift` | `native/` only, as its own root |
+| `swift` | `blaikooz/vinodex-swift` | assembled iOS mirror |
 
-**`vinodex-swift` is published by subtree split, not a plain push:**
+### Publishing `vinodex-swift`
 
 ```bash
-git branch -D swift-main
-git subtree split --prefix=native -b swift-main
-git push swift swift-main:main
+npm run publish:swift:check     # assemble + verify, no commit
+npm run publish:swift           # assemble + commit on swift-main
+node scripts/publish-swift.mjs --push
 ```
 
-Commit to `master` as usual; the split is a publish step, not a working branch.
-It produces new hashes each run but fast-forwards as long as the underlying
-`native/` commits don't change.
+This **replaced `git subtree split --prefix=native`** on 2026-07-28. A subtree
+split takes only one prefix, so the published repo got the Swift package and
+nothing else: `generate.ts` shipped importing `../../constants.ts` from a web
+tree that wasn't there, and `rasterize-icons.sh` looked for a `pixelflags/` that
+wasn't either. Both were dead files in `vinodex-swift`.
 
-Note `data/encyclopedia/source/sothebys-wine-encyclopedia-2005.raw.txt` (4.5 MB
-of a copyrighted book) is committed and public in `blaikooz/vinodex`. It lives
-outside `native/`, so the subtree split excludes it from `vinodex-swift`.
+The mirror needs three prefixes, so it is assembled in a git worktree on
+`swift-main` instead. `shared/`, `scripts/` and `pixelflags/` keep their
+root-relative paths in the mirror, which is why `../shared/...` resolves
+identically in both repos and the generator needs no path rewriting. Only the
+Swift package moves — from `ios/` to the mirror root — and both scripts probe for
+`ios/Package.swift` to find it.
+
+The publish script **refuses to run with uncommitted changes** in any mirrored
+path, since it builds from the working tree rather than from HEAD. It also
+verifies that every relative import in the generator resolves inside the
+assembled mirror — the check that would have caught the original breakage.
+
+Commit to `master` as usual; publishing is a separate step and `swift-main` is
+not a working branch. Never commit directly in `vinodex-swift`; it gets
+overwritten.
+
+Note `web/data/encyclopedia/source/sothebys-wine-encyclopedia-2005.raw.txt`
+(4.5 MB of a copyrighted book) is committed and public in `blaikooz/vinodex`. It
+is not among the mirrored paths, so it stays out of `vinodex-swift`.

@@ -12,13 +12,24 @@ const gitCommitCount = (() => {
   }
 })();
 
+// The Vite app is one of three peers under this repo root (`web/`, `shared/`,
+// `ios/`), so `root` points at `web/` while the toolchain config, node_modules
+// and the build output stay at the repo root. `fs.allow` has to name the repo
+// root explicitly: the app legitimately imports from outside `web/` — the
+// `@/shared/*` data and colour tables, and `package.json` for the version
+// string — and the dev server refuses to serve those otherwise.
 export default defineConfig({
+  root: path.resolve(__dirname, 'web'),
+  publicDir: path.resolve(__dirname, 'web/public'),
   define: {
     __GIT_COMMIT_COUNT__: JSON.stringify(gitCommitCount),
   },
   server: {
     port: 3000,
     host: '0.0.0.0',
+    fs: {
+      allow: [path.resolve(__dirname)],
+    },
   },
   plugins: [
     react(),
@@ -88,9 +99,13 @@ export default defineConfig({
     }
   },
   build: {
-    target: 'es2019'
+    target: 'es2019',
+    // Keep the build output at the repo root rather than web/dist, so the
+    // existing .gitignore entry and any deploy step still find it.
+    outDir: path.resolve(__dirname, 'dist'),
+    emptyOutDir: true,
   },
   css: {
-    postcss: './postcss.config.js'
+    postcss: path.resolve(__dirname, 'postcss.config.js')
   }
 });

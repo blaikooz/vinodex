@@ -4,10 +4,10 @@
  * grapes.ts) against the encyclopedia.
  *
  * Input:
- *   data/encyclopedia/encyclopedia.json    (already parsed by cleanEncyclopediaText.ts)
- *   data/countries.ts / data/regions.ts / data/grapes.ts  (app data, regex-scraped)
+ *   web/data/encyclopedia/encyclopedia.json    (already parsed by cleanEncyclopediaText.ts)
+ *   shared/data/{countries,regions,grapes}.ts  (app data, regex-scraped)
  *
- * Output (all under data/encyclopedia/reference/, dev-only — do not bundle):
+ * Output (all under web/data/encyclopedia/reference/, dev-only — do not bundle):
  *   countries.md   — country index with blurb + region/AOC counts
  *   regions.md     — regions grouped by country with AOC count
  *   aocs.md        — full AOC entries grouped by country/region
@@ -24,11 +24,11 @@ import { fileURLToPath } from 'node:url';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const REPO_ROOT = resolve(__dirname, '..');
-const ENCYC_JSON = resolve(REPO_ROOT, 'data/encyclopedia/encyclopedia.json');
-const COUNTRIES_TS = resolve(REPO_ROOT, 'data/countries.ts');
-const REGIONS_TS = resolve(REPO_ROOT, 'data/regions.ts');
-const GRAPES_TS = resolve(REPO_ROOT, 'data/grapes.ts');
-const OUT_DIR = resolve(REPO_ROOT, 'data/encyclopedia/reference');
+const ENCYC_JSON = resolve(REPO_ROOT, 'web/data/encyclopedia/encyclopedia.json');
+const COUNTRIES_TS = resolve(REPO_ROOT, 'shared/data/countries.ts');
+const REGIONS_TS = resolve(REPO_ROOT, 'shared/data/regions.ts');
+const GRAPES_TS = resolve(REPO_ROOT, 'shared/data/grapes.ts');
+const OUT_DIR = resolve(REPO_ROOT, 'web/data/encyclopedia/reference');
 
 // Grape names that are clearly OCR debris, section headers, or appellations
 // mis-extracted as grapes. Compared case-insensitively.

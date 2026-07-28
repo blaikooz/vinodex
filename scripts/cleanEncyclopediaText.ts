@@ -1,9 +1,9 @@
 /**
  * Cleans and structures the OCR'd Sotheby's Wine Encyclopedia text.
  *
- * Input:  data/encyclopedia/source/sothebys-wine-encyclopedia-2005.raw.txt
- * Output: data/encyclopedia/encyclopedia.json         (ship-safe: facts + short blurbs)
- *         data/encyclopedia/encyclopedia.reference.md (dev-only: longer cleaned reference)
+ * Input:  web/data/encyclopedia/source/sothebys-wine-encyclopedia-2005.raw.txt
+ * Output: web/data/encyclopedia/encyclopedia.json         (ship-safe: facts + short blurbs)
+ *         web/data/encyclopedia/encyclopedia.reference.md (dev-only: longer cleaned reference)
  *
  * Public-deploy policy: encyclopedia.json contains only facts (appellation lists,
  * grape compositions, aging windows, classifications, top producer names) and
@@ -18,9 +18,9 @@ import { fileURLToPath } from 'node:url';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const REPO_ROOT = resolve(__dirname, '..');
-const SOURCE = resolve(REPO_ROOT, 'data/encyclopedia/source/sothebys-wine-encyclopedia-2005.raw.txt');
-const OUT_JSON = resolve(REPO_ROOT, 'data/encyclopedia/encyclopedia.json');
-const OUT_MD = resolve(REPO_ROOT, 'data/encyclopedia/encyclopedia.reference.md');
+const SOURCE = resolve(REPO_ROOT, 'web/data/encyclopedia/source/sothebys-wine-encyclopedia-2005.raw.txt');
+const OUT_JSON = resolve(REPO_ROOT, 'web/data/encyclopedia/encyclopedia.json');
+const OUT_MD = resolve(REPO_ROOT, 'web/data/encyclopedia/encyclopedia.reference.md');
 
 const ATTRIBUTION = {
   source: "The Sotheby's Wine Encyclopedia",

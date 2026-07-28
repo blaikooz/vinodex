@@ -8,7 +8,7 @@ node_modules
 .aider*
 node-v*-darwin-*/
 
-# Swift / Xcode build artifacts (native/ has its own .gitignore for .build/,
+# Swift / Xcode build artifacts (ios/ has its own .gitignore for .build/,
 # these cover the same tooling if it's ever invoked from the repo root or a
 # future Xcode project is added)
 .build/
