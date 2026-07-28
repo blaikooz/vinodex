@@ -195,7 +195,7 @@ const RetroGlobeScreen: React.FC<RetroGlobeScreenProps> = ({ onBack, onHome, onS
           drag.velocityPitch *= INERTIA_DAMPING;
         }
 
-        activeGlobe.rotation.y += drag.velocityYaw + 0.0032;
+        activeGlobe.rotation.y += drag.velocityYaw - 0.0032;
         activeWire.rotation.y = activeGlobe.rotation.y;
 
         activeGlobe.rotation.x = THREE.MathUtils.clamp(activeGlobe.rotation.x + drag.velocityPitch, -MAX_PITCH, MAX_PITCH);
