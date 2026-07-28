@@ -1,4 +1,4 @@
-import {
+import type {
   EntryCategory,
   FlavorEntry,
   GrapeBodyClass,
@@ -19,7 +19,7 @@ import {
   categorizeFlavor,
   categorizeFlavorSubclass,
   type FlavorClass,
-} from './src/services/entryUtils';
+} from './src/services/entryUtils.ts';
 
 // Re-export individual collections
 export { GRAPES as GRAPES_LEGACY } from './data/grapes.ts';
@@ -233,15 +233,42 @@ function canonicalizeEntry<T extends WineEntry>(entry: T): T {
   } as T;
 }
 
+/**
+ * Optional narrowing applied when assembling the entry set. Used by the native
+ * port's generator to emit a slim starter dataset; the web app passes nothing
+ * and gets the full database.
+ *
+ * Selection is applied to the *source* collections, so FLAVORS are derived only
+ * from the selected grapes rather than being filtered afterwards.
+ */
+export interface EntrySelection {
+  grapes?: readonly string[];
+  regions?: readonly string[];
+  styles?: readonly string[];
+  includeContinents?: boolean;
+  includeCountries?: boolean;
+}
+
+const selectById = <T extends { id: string }>(all: readonly T[], ids?: readonly string[]): T[] =>
+  ids ? all.filter((entry) => ids.includes(entry.id)) : [...all];
+
+export function buildWineEntries(selection?: EntrySelection): WineEntry[] {
+  const grapes = selectById(GRAPE_ENTRIES, selection?.grapes);
+  const regions = selectById(REGIONS, selection?.regions);
+  const styles = selectById(STYLES, selection?.styles);
+
+  return [
+    ...grapes,
+    ...regions,
+    ...styles,
+    ...buildFlavorEntries(grapes),
+    ...(selection?.includeContinents === false ? [] : CONTINENTS),
+    ...(selection?.includeCountries === false ? [] : COUNTRIES),
+  ].map((entry) => applyCategoryCallbacks(canonicalizeEntry(entry)));
+}
+
 // Combined wine entries for the app
-export const WINE_ENTRIES: WineEntry[] = [
-  ...GRAPE_ENTRIES,
-  ...REGIONS,
-  ...STYLES,
-  ...buildFlavorEntries(GRAPE_ENTRIES),
-  ...CONTINENTS,
-  ...COUNTRIES,
-].map((entry) => applyCategoryCallbacks(canonicalizeEntry(entry)));
+export const WINE_ENTRIES: WineEntry[] = buildWineEntries();
 
 // Re-export shared helpers so existing consumers keep importing from `./constants`.
 export { FLAVOR_CLASS_COLORS, categorizeFlavor, categorizeFlavorSubclass };

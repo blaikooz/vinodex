@@ -1,4 +1,4 @@
-import { RegionEntry, ClimateClass } from '../types.ts';
+import type { RegionEntry, ClimateClass } from '../types.ts';
 
 const C = { deepBordeaux: '#722F37', rubyRed: '#9B2335', burgundy: '#800020', merlot: '#73343A', rose: '#C48B8B', blush: '#D4A5A5', golden: '#C9A227', champagne: '#D4B896', amber: '#C67530', mahogany: '#5D3A1A' };
 

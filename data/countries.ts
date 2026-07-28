@@ -1,4 +1,4 @@
-import { CountryGateEntry } from '../types';
+import type { CountryGateEntry } from '../types';
 
 export const COUNTRIES: CountryGateEntry[] = [
   {

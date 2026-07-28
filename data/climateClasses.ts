@@ -1,4 +1,4 @@
-import { ClimateClass } from '../types.ts';
+import type { ClimateClass } from '../types.ts';
 
 export interface ClimateClassMeta {
   id: ClimateClass;

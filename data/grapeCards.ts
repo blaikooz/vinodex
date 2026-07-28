@@ -1,4 +1,4 @@
-import { GrapeCard, RarityTier } from '../types.ts';
+import type { GrapeCard, RarityTier } from '../types.ts';
 import { GRAPES as LEGACY_GRAPES } from './grapes.ts';
 
 const toRarityTier = (old?: string): RarityTier => {
