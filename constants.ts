@@ -139,6 +139,47 @@ const sanitizeTastingNoteIcon = (icon?: string): TastingNoteIcon =>
 
 const formatSubclassLabel = (subclass: string) => subclass.split('_').map(part => part.charAt(0) + part.slice(1).toLowerCase()).join(' ');
 
+/// Opening phrase per flavour class, so the 56 generated blurbs stop reading as
+/// one sentence with the nouns swapped. Every flavour also names the grapes it
+/// was derived from, which is the part that actually differs entry to entry.
+const FLAVOR_CLASS_PHRASE: Record<string, string> = {
+  SWEET: 'a ripe, sweet-leaning',
+  UMAMI: 'a savoury, umami-leaning',
+  BITTER: 'a firm, bitter-edged',
+  SOUR: 'a tart, acid-lifted',
+  SALTY: 'a saline, mineral',
+};
+
+/// "A", "A and B", "A, B and C" — flavours derive from at most three grapes.
+const formatNameList = (names: string[]): string => {
+  if (names.length <= 1) return names[0] ?? '';
+  return `${names.slice(0, -1).join(', ')} and ${names[names.length - 1]}`;
+};
+
+const buildFlavorDescription = (
+  note: string,
+  cls: string,
+  subclassLabel: string,
+  grapes: string[],
+): string => {
+  const phrase = FLAVOR_CLASS_PHRASE[cls] ?? `a ${cls.toLowerCase()}-leaning`;
+  const kind = subclassLabel.toLowerCase();
+  // Drop the subclass when it would repeat something already said: the note
+  // itself ("Herbs is ... herb note") or the class ("saline, mineral salty
+  // note", where SALTY is both the class and the subclass).
+  const redundant = !kind
+    || kind === note.toLowerCase()
+    || kind === cls.toLowerCase()
+    || phrase.includes(kind);
+  const body = redundant
+    ? `${note} is ${phrase} note`
+    : `${note} is ${phrase} ${kind} note`;
+  const named = grapes.slice(0, 3);
+  return named.length
+    ? `${body}, carried here by ${formatNameList(named)}.`
+    : `${body}.`;
+};
+
 const buildFlavorEntries = (grapeEntries: GrapeEntry[]): FlavorEntry[] => {
   const flavorMap = new Map<string, { note: string; icon: string; color?: string; grapes: string[]; cls: FlavorClass; subclass: string }>();
 
@@ -174,7 +215,7 @@ const buildFlavorEntries = (grapeEntries: GrapeEntry[]): FlavorEntry[] => {
     flavorEntries.push({
       id: `FLAVOR-${idx + 1}`,
       name: flavor.note,
-      description: `${flavor.note} is a ${subclassLabel.toLowerCase()} nuance with a ${flavor.cls.toLowerCase()} lean often found in wines.`,
+      description: buildFlavorDescription(flavor.note, flavor.cls, subclassLabel, flavor.grapes),
       category: 'FLAVORS',
       tags: [flavor.cls, subclass],
       color: clsColors.color,
