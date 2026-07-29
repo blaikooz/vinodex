@@ -266,7 +266,7 @@ const EntryDetail: React.FC<EntryDetailProps> = ({ entry, allEntries, onBack, on
 
         <div className="flex-1 flex items-center gap-2 min-w-0">
           <div className="flex-1">
-            <span className={`font-retro text-base leading-tight break-words whitespace-normal ${isLinkable ? 'text-white group-hover:text-green-400' : 'text-stone-500'}`}>
+            <span className={`font-retro text-base leading-tight break-words whitespace-normal ${isLinkable ? 'dex-text group-hover:text-green-400' : 'text-stone-500'}`}>
               {displayName}
             </span>
             {options?.useCountryFlag && classificationLabel && (
@@ -704,7 +704,12 @@ const EntryDetail: React.FC<EntryDetailProps> = ({ entry, allEntries, onBack, on
       >
         
         {/* Header Area with Title - Updated for text wrapping */}
-        <div className="w-full min-h-[6rem] border-b-4 border-green-800 bg-green-900/10 mb-4 relative overflow-hidden flex items-center justify-center shrink-0 p-4">
+        {/* Hero panel: `lcd.heroWash` behind the title, a solid accent rule at
+            the bottom. Both follow the screen mode now. */}
+        <div
+          className="w-full min-h-[6rem] dex-hero-rule mb-4 relative overflow-hidden flex items-center justify-center shrink-0 p-4"
+          style={{ backgroundColor: 'var(--lcd-hero-wash)' }}
+        >
              <div className="absolute inset-0 grid grid-cols-8 grid-rows-4 opacity-20">
                 {Array.from({ length: 32 }).map((_, i) => (
                     <div key={i} className="border border-green-900/50"></div>
@@ -728,7 +733,21 @@ const EntryDetail: React.FC<EntryDetailProps> = ({ entry, allEntries, onBack, on
                     </div>
                   );
                 })()}
-                <h1 className="text-2xl md:text-3xl lg:text-4xl font-retro text-white drop-shadow-[4px_4px_0px_rgba(0,100,0,0.8)] tracking-wide leading-tight break-words whitespace-normal uppercase w-full mt-4 mb-2" style={{ wordBreak: 'break-word', overflowWrap: 'break-word' }}>
+                {/*
+                  `lcd.text` with an accent drop shadow, as the iOS hero does.
+                  This was a hardcoded `text-white` with a fixed dark-green
+                  shadow, which is right on the black LCD and invisible on the
+                  paper-white one — white on #F2F2EC is nothing at all.
+                */}
+                <h1
+                  className="text-2xl md:text-3xl lg:text-4xl font-retro tracking-wide leading-tight break-words whitespace-normal uppercase w-full mt-4 mb-2"
+                  style={{
+                    wordBreak: 'break-word',
+                    overflowWrap: 'break-word',
+                    color: 'var(--lcd-text)',
+                    textShadow: '4px 4px 0px color-mix(in srgb, var(--lcd-accent) 55%, transparent)',
+                  }}
+                >
                   {entry.name}
                 </h1>
 
@@ -750,16 +769,16 @@ const EntryDetail: React.FC<EntryDetailProps> = ({ entry, allEntries, onBack, on
 
         {/* 3-Tile Header Row */}
         {headerTiles}
-        {headerTiles ? <div className="w-full border-b-4 border-green-800 mb-4"></div> : null}
+        {headerTiles ? <div className="w-full dex-hero-rule mb-4"></div> : null}
 
         {/* Info Section - Description at Top (skip for flavor entries) */}
         {!isFlavor && (
           <div className="mb-6">
-              <div className="flex items-center gap-2 mb-2 border-b-2 border-green-800 pb-1">
+              <div className="flex items-center gap-2 mb-2 dex-section-rule pb-1">
                   <BookOpen size={18} className="text-green-500" />
                   <span className="font-retro text-xs md:text-sm tracking-widest text-green-500">INFO</span>
               </div>
-              <div className="border-l-4 border-green-700 pl-4 py-3 bg-green-900/5">
+              <div className="dex-info-rule dex-info-wash pl-4 py-3">
                   <p className="text-lg md:text-xl leading-relaxed text-green-200 font-medium break-words whitespace-normal normal-case">
                       {grapeCard?.info || entry.description}
                   </p>
@@ -770,7 +789,7 @@ const EntryDetail: React.FC<EntryDetailProps> = ({ entry, allEntries, onBack, on
         {/* Search States Button - USA only */}
         {isCountry && entry.name === 'USA' && onViewStates && (
           <div className="mb-6">
-            <div className="flex items-center gap-2 mb-2 border-b-2 border-green-800 pb-1">
+            <div className="flex items-center gap-2 mb-2 dex-section-rule pb-1">
               <MapPinned size={18} className="text-green-500" />
               <span className="font-retro text-xs md:text-sm tracking-widest text-green-500">STATES</span>
             </div>
@@ -787,7 +806,7 @@ const EntryDetail: React.FC<EntryDetailProps> = ({ entry, allEntries, onBack, on
         {/* Main Grapes Section - States */}
         {isState && entry.details.notableGrapes && entry.details.notableGrapes.length > 0 && (
           <div className="mb-6">
-            <div className="flex items-center gap-2 mb-2 border-b-2 border-green-800 pb-1">
+            <div className="flex items-center gap-2 mb-2 dex-section-rule pb-1">
               <Leaf size={18} className="text-green-500" />
               <span className="font-retro text-xs md:text-sm tracking-widest text-green-500">MAIN GRAPES</span>
             </div>
@@ -800,7 +819,7 @@ const EntryDetail: React.FC<EntryDetailProps> = ({ entry, allEntries, onBack, on
         {/* Appellation Systems Section - States */}
         {isState && entry.tags && entry.tags.filter(t => t !== 'STATE').length > 0 && (
           <div className="mb-6">
-            <div className="flex items-center gap-2 mb-2 border-b-2 border-green-800 pb-1">
+            <div className="flex items-center gap-2 mb-2 dex-section-rule pb-1">
               <Shield size={18} className="text-green-500" />
               <span className="font-retro text-xs md:text-sm tracking-widest text-green-500">APPELLATION SYSTEMS</span>
             </div>
@@ -820,7 +839,7 @@ const EntryDetail: React.FC<EntryDetailProps> = ({ entry, allEntries, onBack, on
         {/* Key Regions Section - States */}
         {isState && entry.details.keyRegions && entry.details.keyRegions.length > 0 && (
           <div className="mb-6">
-            <div className="flex items-center gap-2 mb-2 border-b-2 border-green-800 pb-1">
+            <div className="flex items-center gap-2 mb-2 dex-section-rule pb-1">
               <MapPin size={18} className="text-green-500" />
               <span className="font-retro text-xs md:text-sm tracking-widest text-green-500">KEY REGIONS</span>
             </div>
@@ -833,7 +852,7 @@ const EntryDetail: React.FC<EntryDetailProps> = ({ entry, allEntries, onBack, on
         {/* Main Grapes Section - Countries */}
         {isCountry && entry.details.notableGrapes && entry.details.notableGrapes.length > 0 && (
           <div className="mb-6">
-              <div className="flex items-center gap-2 mb-2 border-b-2 border-green-800 pb-1">
+              <div className="flex items-center gap-2 mb-2 dex-section-rule pb-1">
                   <Leaf size={18} className="text-green-500" />
                   <span className="font-retro text-xs md:text-sm tracking-widest text-green-500">MAIN GRAPES</span>
               </div>
@@ -846,7 +865,7 @@ const EntryDetail: React.FC<EntryDetailProps> = ({ entry, allEntries, onBack, on
         {/* System Section - Appellation Systems for Countries */}
         {isCountry && entry.tags && entry.tags.length > 0 && (
           <div className="mb-6">
-              <div className="flex items-center gap-2 mb-2 border-b-2 border-green-800 pb-1">
+              <div className="flex items-center gap-2 mb-2 dex-section-rule pb-1">
                   <Shield size={18} className="text-green-500" />
                   <span className="font-retro text-xs md:text-sm tracking-widest text-green-500">APPELLATION SYSTEMS</span>
               </div>
@@ -866,7 +885,7 @@ const EntryDetail: React.FC<EntryDetailProps> = ({ entry, allEntries, onBack, on
         {/* Key Regions Section - Countries with Regions */}
         {isCountry && entry.details.keyRegions && entry.details.keyRegions.length > 0 && (
           <div className="mb-6">
-              <div className="flex items-center gap-2 mb-2 border-b-2 border-green-800 pb-1">
+              <div className="flex items-center gap-2 mb-2 dex-section-rule pb-1">
                   <MapPin size={18} className="text-green-500" />
                   <span className="font-retro text-xs md:text-sm tracking-widest text-green-500">KEY REGIONS</span>
               </div>
@@ -879,7 +898,7 @@ const EntryDetail: React.FC<EntryDetailProps> = ({ entry, allEntries, onBack, on
         {/* Alternate Names Section - Grapes */}
         {isGrapes && (
             <div className="mb-6">
-                <div className="flex items-center gap-2 mb-3 border-b-2 border-green-800 pb-1">
+                <div className="flex items-center gap-2 mb-3 dex-section-rule pb-1">
                     <Tag size={18} className="text-green-500" />
                     <span className="font-retro text-xs md:text-sm tracking-widest text-green-500">ALTERNATE NAMES</span>
                 </div>
@@ -902,7 +921,7 @@ const EntryDetail: React.FC<EntryDetailProps> = ({ entry, allEntries, onBack, on
         {/* Rarity Section - Grapes */}
         {isGrapes && (
             <div className="mb-6">
-                <div className="flex items-center gap-2 mb-3 border-b-2 border-green-800 pb-1">
+                <div className="flex items-center gap-2 mb-3 dex-section-rule pb-1">
                     <Star size={24} className="text-green-400" />
                     <span className="font-retro text-xs md:text-sm tracking-widest text-green-400">RARITY</span>
                 </div>
@@ -931,7 +950,7 @@ const EntryDetail: React.FC<EntryDetailProps> = ({ entry, allEntries, onBack, on
         {/* Stats Section - Only for GRAPES */}
         {isGrapes && grapeCard && (
             <div className="mb-6">
-                <div className="flex items-center gap-2 mb-2 border-b-2 border-green-800 pb-1">
+                <div className="flex items-center gap-2 mb-2 dex-section-rule pb-1">
                     <Activity size={18} className="text-green-500" />
                     <span className="font-retro text-xs md:text-sm tracking-widest text-green-500">CHARACTERISTICS</span>
                 </div>
@@ -944,7 +963,7 @@ const EntryDetail: React.FC<EntryDetailProps> = ({ entry, allEntries, onBack, on
                       { label: 'COLOR', value: grapeCard.characteristics.colorIntensity, color: 'bg-amber-500' },
                     ]).map(stat => (
                       <div className="flex items-center gap-3" key={stat.label}>
-                          <span className="w-24 text-base font-bold text-white font-mono tracking-widest shrink-0">{stat.label}</span>
+                          <span className="w-24 text-base font-bold dex-text font-mono tracking-widest shrink-0">{stat.label}</span>
                           <div className="flex-1 h-2 bg-stone-800 flex gap-0.5">
                               {Array.from({ length: 5 }).map((_, i) => (
                                   <div key={i} className={`flex-1 ${i < stat.value ? stat.color : 'bg-transparent'} transition-all`}></div>
@@ -959,7 +978,7 @@ const EntryDetail: React.FC<EntryDetailProps> = ({ entry, allEntries, onBack, on
         {/* System Section - Regions */}
         {isRegion && entry.details.classification && (
             <div className="mb-6">
-                <div className="flex items-center gap-2 mb-2 border-b-2 border-green-800 pb-1">
+                <div className="flex items-center gap-2 mb-2 dex-section-rule pb-1">
                     <Shield size={18} className="text-green-500" />
                     <span className="font-retro text-xs md:text-sm tracking-widest text-green-500">APPELLATION SYSTEMS</span>
                 </div>
@@ -974,7 +993,7 @@ const EntryDetail: React.FC<EntryDetailProps> = ({ entry, allEntries, onBack, on
         {/* Appellations Section - Regions with appellations */}
         {isRegion && entry.details.appellations && entry.details.appellations.length > 0 && (
             <div className="mb-6">
-                <div className="flex items-center gap-2 mb-3 border-b-2 border-green-800 pb-1">
+                <div className="flex items-center gap-2 mb-3 dex-section-rule pb-1">
                     <MapPinned size={18} className="text-green-500" />
                     <span className="font-retro text-xs md:text-sm tracking-widest text-green-500">
                         {entry.name.includes('Beaujolais') ? 'CRUS OF BEAUJOLAIS' : 'APPELLATIONS'}
@@ -993,7 +1012,7 @@ const EntryDetail: React.FC<EntryDetailProps> = ({ entry, allEntries, onBack, on
         {/* Notable Grapes Section - Regions */}
         {isRegion && listSectionData && listSectionData.length > 0 && (
             <div className="mb-6">
-                <div className="flex items-center gap-2 mb-3 border-b-2 border-green-800 pb-1">
+                <div className="flex items-center gap-2 mb-3 dex-section-rule pb-1">
                    <List size={18} className="text-green-500" />
                    <span className="font-retro text-xs md:text-sm tracking-widest text-green-500">NOTABLE GRAPES</span>
                 </div>
@@ -1006,7 +1025,7 @@ const EntryDetail: React.FC<EntryDetailProps> = ({ entry, allEntries, onBack, on
         {/* Notable Regions Section - Grapes */}
         {isGrapes && listSectionData && listSectionData.length > 0 && (
             <div className="mb-6">
-                <div className="flex items-center gap-2 mb-3 border-b-2 border-green-800 pb-1">
+                <div className="flex items-center gap-2 mb-3 dex-section-rule pb-1">
                    <MapPin size={18} className="text-green-500" />
                    <span className="font-retro text-xs md:text-sm tracking-widest text-green-500">NOTABLE REGIONS</span>
                 </div>
@@ -1019,7 +1038,7 @@ const EntryDetail: React.FC<EntryDetailProps> = ({ entry, allEntries, onBack, on
         {/* Countries Section - Continents */}
         {isContinent && listSectionData && listSectionData.length > 0 && (
             <div className="mb-6">
-                <div className="flex items-center gap-2 mb-3 border-b-2 border-green-800 pb-1">
+                <div className="flex items-center gap-2 mb-3 dex-section-rule pb-1">
                    <List size={18} className="text-green-500" />
                    <span className="font-retro text-xs md:text-sm tracking-widest text-green-500">{listSectionTitle}</span>
                 </div>
@@ -1032,7 +1051,7 @@ const EntryDetail: React.FC<EntryDetailProps> = ({ entry, allEntries, onBack, on
         {/* Climate Section - Regions */}
         {isRegion && (
             <div className="mb-6">
-                <div className="flex items-center gap-2 mb-2 border-b-2 border-green-800 pb-1">
+                <div className="flex items-center gap-2 mb-2 dex-section-rule pb-1">
                     <Wind size={18} className="text-green-500" />
                     <span className="font-retro text-xs md:text-sm tracking-widest text-green-500">CLIMATE</span>
                 </div>
@@ -1052,7 +1071,7 @@ const EntryDetail: React.FC<EntryDetailProps> = ({ entry, allEntries, onBack, on
         {/* Soil Composition Section - Regions */}
         {isRegion && (
             <div className="mb-6">
-                 <div className="flex items-center gap-2 mb-3 border-b-2 border-green-800 pb-1">
+                 <div className="flex items-center gap-2 mb-3 dex-section-rule pb-1">
                    <Mountain size={18} className="text-green-500" />
                    <span className="font-retro text-xs md:text-sm tracking-widest text-green-500">SOIL COMPOSITION</span>
                  </div>
@@ -1073,7 +1092,7 @@ const EntryDetail: React.FC<EntryDetailProps> = ({ entry, allEntries, onBack, on
                                     {icon}
                                   </span>
                                 </div>
-                                <span className="font-retro text-xs text-white uppercase text-center leading-tight group-hover:text-green-300">
+                                <span className="font-retro text-xs dex-text uppercase text-center leading-tight group-hover:text-green-300">
                                   {soil}
                                 </span>
                             </button>
@@ -1086,7 +1105,7 @@ const EntryDetail: React.FC<EntryDetailProps> = ({ entry, allEntries, onBack, on
         {/* Tasting Notes Section - List Tile (For Grapes only) */}
         {isGrapes && (
             <div className="mb-6">
-                <div className="flex items-center gap-2 mb-3 border-b-2 border-green-800 pb-1">
+                <div className="flex items-center gap-2 mb-3 dex-section-rule pb-1">
                     <Grape size={18} className="text-green-500" />
                     <span className="font-retro text-xs md:text-sm tracking-widest text-green-500">FLAVOR PROFILE</span>
                 </div>
@@ -1117,7 +1136,7 @@ const EntryDetail: React.FC<EntryDetailProps> = ({ entry, allEntries, onBack, on
                           </div>
                           {/* Name and Chips */}
                           <div className="flex flex-col flex-1 min-w-0 justify-center h-full items-start py-1">
-                            <span className="font-retro text-base text-white leading-tight tracking-tight whitespace-normal break-words">
+                            <span className="font-retro text-base dex-text leading-tight tracking-tight whitespace-normal break-words">
                               {label.toUpperCase()}
                             </span>
                             <div className="flex gap-1 mt-1">
@@ -1140,7 +1159,7 @@ const EntryDetail: React.FC<EntryDetailProps> = ({ entry, allEntries, onBack, on
         {/* Method Class: Key Grapes */}
         {isStyle && isMethodClass && entry.details.notableGrapes && entry.details.notableGrapes.length > 0 && (
           <div className="mb-6">
-              <div className="flex items-center gap-2 mb-3 border-b-2 border-green-800 pb-1">
+              <div className="flex items-center gap-2 mb-3 dex-section-rule pb-1">
                   <Grape size={18} className="text-green-500" />
                   <span className="font-retro text-xs md:text-sm tracking-widest text-green-500">KEY GRAPES</span>
               </div>
@@ -1153,7 +1172,7 @@ const EntryDetail: React.FC<EntryDetailProps> = ({ entry, allEntries, onBack, on
         {/* Notable Grapes Section - For Styles (Style class) */}
         {isStyle && isStyleClassType && styleGrapes.length > 0 && (
             <div className="mb-6">
-                <div className="flex items-center gap-2 mb-3 border-b-2 border-green-800 pb-1">
+                <div className="flex items-center gap-2 mb-3 dex-section-rule pb-1">
                     <Grape size={18} className="text-green-500" />
                     <span className="font-retro text-xs md:text-sm tracking-widest text-green-500">NOTABLE GRAPES</span>
                 </div>
@@ -1167,7 +1186,7 @@ const EntryDetail: React.FC<EntryDetailProps> = ({ entry, allEntries, onBack, on
         {/* Flavor entries: notable grapes */}
         {isFlavor && entry.details.notableGrapes && entry.details.notableGrapes.length > 0 && (
           <div className="mb-6">
-              <div className="flex items-center gap-2 mb-3 border-b-2 border-green-800 pb-1">
+              <div className="flex items-center gap-2 mb-3 dex-section-rule pb-1">
                   <Grape size={18} className="text-green-500" />
                   <span className="font-retro text-xs md:text-sm tracking-widest text-green-500">NOTABLE GRAPES</span>
               </div>
@@ -1180,7 +1199,7 @@ const EntryDetail: React.FC<EntryDetailProps> = ({ entry, allEntries, onBack, on
         {/* Origin Class: Notable Grapes */}
         {isStyle && isOriginClass && entry.details.notableGrapes && entry.details.notableGrapes.length > 0 && (
           <div className="mb-6">
-              <div className="flex items-center gap-2 mb-3 border-b-2 border-green-800 pb-1">
+              <div className="flex items-center gap-2 mb-3 dex-section-rule pb-1">
                   <Grape size={18} className="text-green-500" />
                   <span className="font-retro text-xs md:text-sm tracking-widest text-green-500">NOTABLE GRAPES</span>
               </div>
@@ -1192,7 +1211,7 @@ const EntryDetail: React.FC<EntryDetailProps> = ({ entry, allEntries, onBack, on
 
         {isStyle && isOriginClass && entry.details.keyRegions && entry.details.keyRegions.length > 0 && (
           <div className="mb-6">
-              <div className="flex items-center gap-2 mb-3 border-b-2 border-green-800 pb-1">
+              <div className="flex items-center gap-2 mb-3 dex-section-rule pb-1">
                   <MapPin size={18} className="text-green-500" />
                   <span className="font-retro text-xs md:text-sm tracking-widest text-green-500">KEY REGIONS</span>
               </div>
@@ -1205,7 +1224,7 @@ const EntryDetail: React.FC<EntryDetailProps> = ({ entry, allEntries, onBack, on
         {/* Key Regions for Styles (skip Origin class) */}
         {isStyle && !isOriginClass && entry.details.keyRegions && entry.details.keyRegions.length > 0 && (
             <div className="mb-6">
-                <div className="flex items-center gap-2 mb-3 border-b-2 border-green-800 pb-1">
+                <div className="flex items-center gap-2 mb-3 dex-section-rule pb-1">
                     <MapPin size={18} className="text-green-500" />
                     <span className="font-retro text-xs md:text-sm tracking-widest text-green-500">KEY REGIONS</span>
                 </div>

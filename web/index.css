@@ -236,3 +236,32 @@ body {
 /* Text scale, from `TextScale` in DexTheme.swift. Applied to the LCD only —
    the chassis is physical furniture and does not resize with the copy. */
 .lcd-themed { font-size: calc(1em * var(--text-scale, 1)); }
+
+/* ---------------------------------------------------------------------------
+   Entry readout rules, from EntryDetailScreen.swift
+
+   The web drew every rule as a solid dark green (`border-green-800`), which
+   flattened three visually distinct things into one. iOS separates them:
+
+   - `section(_:symbol:)` underlines its header with `accent.opacity(0.4)` at
+     2pt — present, but subordinate to the label above it.
+   - The hero's bottom edge is solid `accent` at 4pt — a hard stop between the
+     title panel and the readout.
+   - The INFO block carries a solid `accent` rule 4pt down its left edge, over
+     a 6% accent wash.
+
+   Drawn from the theme variable so they follow the screen mode, which the
+   hardcoded greens could not.
+   --------------------------------------------------------------------------- */
+
+.dex-section-rule { border-bottom: 2px solid color-mix(in srgb, var(--lcd-accent) 40%, transparent); }
+.dex-hero-rule { border-bottom: 4px solid var(--lcd-accent); }
+.dex-info-rule { border-left: 4px solid var(--lcd-accent); }
+.dex-info-wash { background-color: color-mix(in srgb, var(--lcd-accent) 6%, transparent); }
+
+/* Row and label copy that sits directly on the LCD ground. `text-white` is
+   correct on the black screen and invisible on the paper-white one; these
+   follow `lcd.text` instead. Deliberately not a blanket remap of `.text-white`
+   — that class is also carried by copy sitting on coloured chips and buttons,
+   which should stay white in both modes. */
+.dex-text { color: var(--lcd-text); }

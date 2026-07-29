@@ -109,7 +109,7 @@ const EntryTile: React.FC<EntryTileProps> = ({ entry, onPress, index, anchorId }
       {/* Middle: Title and Tags */}
       <div className="flex flex-col flex-1 min-w-0 justify-center h-full items-start py-1">
           {/* Title - Optimized for wrapping without truncation */}
-          <h3 className="font-retro text-base text-white leading-tight group-hover:text-green-400 transition-colors w-full text-left mb-2 tracking-tight whitespace-normal break-words">
+          <h3 className="font-retro text-base dex-text leading-tight group-hover:text-green-400 transition-colors w-full text-left mb-2 tracking-tight whitespace-normal break-words">
             {entry.name.toUpperCase()}
           </h3>
 
