@@ -1,4 +1,4 @@
-import { Icon } from '@iconify/react';
+import { Icon } from '../components/LocalIcon';
 import type { ClimateClass } from '@/shared/types';
 
 const CLIMATE_ICON_MAP: Record<ClimateClass, string> = {

@@ -1,5 +1,5 @@
 import React, { useMemo, useState } from 'react';
-import { Icon } from '@iconify/react';
+import { Icon } from '../src/components/LocalIcon';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 import DeviceLayout from './DeviceLayout';
 import {

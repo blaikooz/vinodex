@@ -1,7 +1,8 @@
 import React from 'react';
 import { Globe } from 'lucide-react';
-import { Icon } from '@iconify/react';
+import { Icon } from '../components/LocalIcon';
 import { getLucideIcon } from './lucideIconMap';
+import iconManifest from '../data/iconManifest.json';
 import type { GrapeEntry, StyleEntry, WineEntry } from '@/shared/types';
 import { CLIMATE_CLASS_MAP } from '@/shared/data/climateClasses';
 import { getFlagGradient } from '@/shared/data/flagGradients';
@@ -206,8 +207,15 @@ const COUNTRY_SHAPE_ICON_MAP: Record<string, string> = {
 
 const normalizeCountryKey = (origin: string) => normalizeLabel(origin).trim();
 
+const OFFLINE_ICONS = new Set((iconManifest as { unique: string[] }).unique);
+
+// Shaped flags (France, Italy, ...) mask a background image through an icon
+// silhouette. Prefer the same locally bundled PNG LocalIcon renders glyphs
+// from; only reach for the live Iconify API for a key outside that set.
 const iconifyMaskUrl = (iconName: string) =>
-	`url(https://api.iconify.design/${iconName.replace(':', '/')}.svg)`;
+	OFFLINE_ICONS.has(iconName)
+		? `url(/icons/${iconName.replace(':', '--')}@3x.png)`
+		: `url(https://api.iconify.design/${iconName.replace(':', '/')}.svg)`;
 
 const renderShapedFlag = (background: string, iconName: string): React.ReactNode => {
 	const maskUrl = iconifyMaskUrl(iconName);

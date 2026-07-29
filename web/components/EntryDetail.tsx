@@ -1,6 +1,6 @@
 import React, { useMemo, useReducer, useRef } from 'react';
 import { Tag, MapPin, Activity, Droplet, Grape, Mountain, ChevronRight, List, Circle, Leaf, Sparkles, Flame, Shield, BookOpen, Bookmark, MapPinned, Flower2, Apple, Wind, Citrus, Star, Crown, Waves, Coffee, Beef, Cherry, TreePalm, LeafyGreen, Carrot, Drumstick, Ham, Croissant, Cookie, Earth, TreePine, Shell, Hop, Nut } from 'lucide-react';
-import { Icon } from '@iconify/react';
+import { Icon } from '../src/components/LocalIcon';
 import DeviceLayout from './DeviceLayout';
 import { EntryCategory, WineEntry, isCountryGateEntry, isFlavorEntry, isGrapeEntry, isRegionEntry, isStyleEntry } from '@/shared/types';
 import { CLIMATE_CLASS_MAP } from '@/shared/data/climateClasses';

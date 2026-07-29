@@ -1,4 +1,4 @@
-import { Icon } from '@iconify/react';
+import { Icon } from '../src/components/LocalIcon';
 import {
   FLAVOR_ICON_MAP,
   FLAVOR_NAME_ICON_MAP,
