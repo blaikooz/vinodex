@@ -1011,9 +1011,21 @@ const EntryDetail: React.FC<EntryDetailProps> = ({ entry, allEntries, onBack, on
           className="w-full min-h-[6rem] dex-hero-rule mb-4 relative overflow-hidden flex items-center justify-center shrink-0 p-4"
           style={{ backgroundColor: 'var(--lcd-hero-wash)' }}
         >
-             <div className="absolute inset-0 grid grid-cols-8 grid-rows-4 opacity-20">
+             {/*
+               The grid over the hero wash. `--lcd-hero-grid` rather than a
+               fixed green-900 (#14532d), which is the shade iOS singled out as
+               reading heavy on the light hero — light mode lifts it toward the
+               paper. Every country, state and continent page renders through
+               this component, so this is the web's whole equivalent of the four
+               hero grids the Swift pass touched.
+             */}
+             <div className="absolute inset-0 grid grid-cols-8 grid-rows-4 opacity-20" aria-hidden="true">
                 {Array.from({ length: 32 }).map((_, i) => (
-                    <div key={i} className="border border-green-900/50"></div>
+                    <div
+                      key={i}
+                      className="border"
+                      style={{ borderColor: 'color-mix(in srgb, var(--lcd-hero-grid) 50%, transparent)' }}
+                    ></div>
                 ))}
              </div>
              <div className="text-center z-10 w-full flex flex-col items-center px-2">

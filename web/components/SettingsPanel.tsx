@@ -142,12 +142,24 @@ const ChoiceRow: React.FC<{ label: string; selected: boolean; onClick: () => voi
   onClick,
   swatch,
 }) => (
+  /*
+    The selected row is filled with the accent and its label switches to
+    `--lcd-on-accent`, matching `SettingsSectionPanel` on iOS. The web used to
+    keep every row on `--lcd-surface` and mark the selection with a border and a
+    tick alone, which read as a much weaker "this one".
+
+    `onAccent` is the audit's M44 fix and the reason it is a token rather than
+    just `white`: dark mode's accent is mint, and white on it is about 1.8:1.
+    Black on mint is ~12:1; light mode's deep green takes white.
+  */
   <button
     onClick={onClick}
+    aria-pressed={selected}
     className="w-full flex items-center gap-3 px-3 py-3 rounded border-2 transition-all active:translate-y-0.5 mb-2"
     style={{
-      backgroundColor: 'var(--lcd-surface)',
+      backgroundColor: selected ? 'var(--lcd-accent)' : 'var(--lcd-surface)',
       borderColor: selected ? 'var(--lcd-accent)' : 'var(--lcd-surface-edge)',
+      color: selected ? 'var(--lcd-on-accent)' : 'var(--lcd-subtext)',
     }}
   >
     {swatch && (
@@ -157,10 +169,10 @@ const ChoiceRow: React.FC<{ label: string; selected: boolean; onClick: () => voi
         aria-hidden="true"
       />
     )}
-    <span className="font-retro text-[0.6rem] tracking-widest text-left flex-1" style={{ color: 'var(--lcd-text)' }}>
+    <span className="font-retro text-[0.6rem] tracking-widest text-left flex-1">
       {label}
     </span>
-    {selected && <Check size={18} style={{ color: 'var(--lcd-accent)' }} />}
+    {selected && <Check size={18} />}
   </button>
 );
 

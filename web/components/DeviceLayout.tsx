@@ -170,7 +170,11 @@ const DeviceLayout: React.FC<DeviceLayoutProps> = ({
               */}
               <button
                 type="button"
+                /* Labelled even when inert, and hidden from the tree when it is:
+                   a nameless button is the exact fault H10 covers, and this one
+                   is decorative on every screen that gives it no flip handler. */
                 aria-label={onTitleTap ? 'Hold to flip device' : undefined}
+                aria-hidden={onTitleTap ? undefined : true}
                 onPointerDown={onTitleTap ? beginOrbHold : undefined}
                 onPointerUp={onTitleTap ? cancelOrbHold : undefined}
                 onPointerLeave={onTitleTap ? cancelOrbHold : undefined}
@@ -298,7 +302,10 @@ const DeviceLayout: React.FC<DeviceLayoutProps> = ({
               <button
                 type="button"
                 onClick={backEnabled ? onBack : () => navigate('/saved')}
-                aria-label={backEnabled ? 'Back' : 'Saved'}
+                /* "Saved entries", not "Saved": the slot shows a person glyph
+                   when Back has nowhere to go, and the shorter label left a
+                   screen reader with no idea what it opened. (audit H10) */
+                aria-label={backEnabled ? 'Back' : 'Saved entries'}
                 className="relative -translate-y-1 w-16 h-16 md:w-20 md:h-20 rounded-full bg-gradient-to-b from-stone-700 to-stone-950 border-[3px] border-stone-400 shadow-[inset_0_3px_6px_rgba(255,255,255,0.15),0_8px_12px_rgba(0,0,0,0.6)] transition-transform focus:outline-none hover:scale-[1.02] active:translate-x-[1px] active:scale-[0.98]"
               >
                 <div className="absolute inset-0 flex items-center justify-center pointer-events-none">

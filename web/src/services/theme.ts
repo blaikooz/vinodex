@@ -138,6 +138,21 @@ export interface LcdTheme {
   well: string;
   /** A row that exists but cannot be opened. */
   disabledText: string;
+  /**
+   * Foreground for content sitting on an `accent` fill — a selected settings
+   * option, an active chip.
+   *
+   * Dark mode's accent is mint (#4ADE80); white text on it is about 1.8:1, so it
+   * takes black. Light mode's accent is a deep bottle green and takes white.
+   * From `LcdMode.onAccent` (audit M44).
+   */
+  onAccent: string;
+  /**
+   * Grid lines drawn over the hero wash. Dark mode's deep #14532d reads heavy on
+   * the light hero, so light mode lifts it toward the paper.
+   * From `LcdMode.heroGrid` (audit L29).
+   */
+  heroGrid: string;
 }
 
 export const LCD_MODES: Record<LcdModeId, LcdTheme> = {
@@ -155,6 +170,8 @@ export const LCD_MODES: Record<LcdModeId, LcdTheme> = {
     subtext: '#a8a29e',
     well: '#000000',
     disabledText: '#57534e',
+    onAccent: '#000000',
+    heroGrid: '#14532d',
   },
   LIGHT: {
     id: 'LIGHT',
@@ -174,6 +191,8 @@ export const LCD_MODES: Record<LcdModeId, LcdTheme> = {
     // Not the dark theme's stone600: against a white surface that grey is close
     // enough to `text` to look like an ordinary enabled row.
     disabledText: '#A3A39B',
+    onAccent: '#FFFFFF',
+    heroGrid: '#1B6B3A',
   },
 };
 
@@ -276,6 +295,8 @@ export function applyTheme(): void {
   root.style.setProperty('--lcd-subtext', l.subtext);
   root.style.setProperty('--lcd-well', l.well);
   root.style.setProperty('--lcd-disabled-text', l.disabledText);
+  root.style.setProperty('--lcd-on-accent', l.onAccent);
+  root.style.setProperty('--lcd-hero-grid', l.heroGrid);
 
   root.style.setProperty('--text-scale', String(TEXT_SCALES[scale].factor));
 

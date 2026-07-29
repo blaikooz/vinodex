@@ -8,8 +8,9 @@ allow, and ship it on Vercel.
 > it, so combining the three was a fast-forward with no conflicts; `master` is
 > pushed at 18 commits ahead of where it stood. Blocks 9 and 10 below were added
 > after the merge; block 11 closes the last of the untested services; blocks
-> 12–13 replace the moon dial and start on the readout interiors; block 14 is
-> the screen-by-screen plan that follows. See "Still open" at the foot.
+> 12–13 replace the moon dial and start on the readout interiors; block 14
+> brings across the iOS audit branch; block 15 is the screen-by-screen plan
+> that follows. See "Still open" at the foot.
 
 `vinodex-ios` is the reference and stays **read-only**. Every block below ports
 *from* Swift *to* React.
@@ -278,7 +279,61 @@ rules already matched; these are the interiors.
   including SALTY being both. This one found nothing — the web already complied
   — but the bug it guards is invisible, so it is worth holding.
 
-## Block 14 — Screen-by-screen visual parity (planned)
+## Block 14 — The iOS audit pass, brought across ✅
+
+`vinodex-ios` ran an audit and remediation effort on an unmerged
+`audit-fixes` branch — pushed ~13 hours after `main`, and the newest work in
+that repo. `main` itself holds nothing the frozen `ios/` snapshot here does not
+already have, and `shared/` is byte-identical between the two repos, so the
+branch is the whole of what there was to take.
+
+Ported:
+
+- **M44 — `onAccent`.** New token: dark → black, light → white. Dark mode's
+  accent is mint, and white on it is about 1.8:1. The selected settings row now
+  fills with `--lcd-accent` and labels with `--lcd-on-accent`, which is also a
+  visual change: the web marked the selection with a border and a tick alone,
+  where iOS fills the row.
+- **L29 — `heroGrid`.** The entry hero drew its grid in a fixed `green-900`
+  (#14532d), the shade iOS singled out as reading heavy on the light hero. Now
+  a token, lifted toward the paper in light mode. Countries, states and
+  continents all render through `EntryDetail`, so this one place is the web's
+  equivalent of the four hero grids the Swift pass touched.
+- **L34 — search clear button.** Emptying the field meant holding backspace
+  through a query `screenState` had deliberately kept alive across Back.
+- **H10 — chassis labels.** The Saved control announced as "Saved"; it is now
+  "Saved entries", as on iOS. The orb is worse than iOS's case and was missed by
+  the original audit: it is a `<button>` with no accessible name at all on every
+  screen that gives it no flip handler, so it is now `aria-hidden` when inert.
+- **M19 — modal dialog.** The CLEAR ALL SAVED confirm had no `role="dialog"` or
+  `aria-modal`, so a screen reader could wander into the list behind the scrim.
+- **M25 — 44px hit target.** The destructive remove-bookmark button was ~28px
+  and sits a few pixels from the tile that opens the entry, so a near-miss
+  opened something instead of removing it. 44px target, same visual.
+
+Already satisfied here, and verified rather than assumed:
+
+- **M14 and M15** (secondary text and the filter banner using theme tokens) are
+  structural on the web: the `.lcd-themed` remap in `index.css` already sends
+  `text-stone-400` → `--lcd-subtext`, `bg-stone-800` → `--lcd-surface` and
+  `text-stone-200` → `--lcd-text`. The banner needed no edit.
+- **L30** (hero title shadow on `lcd.accent`) was already done.
+- **M13** (search field repainting on a live mode toggle) cannot occur here —
+  the field is styled by CSS variables, so it repaints by construction.
+- **M1, L4, L5, L6, L16** are Swift-internal: `tiers.json` decode handling (the
+  web ships no tiers manifest), dead Swift properties, stale Swift comments, and
+  `UIFont` probing.
+
+`theme.ts` gained a suite in the same pass — it is a port of `DexTheme.swift`,
+was on the untested list, and had just gained two tokens. 283 tests.
+
+One thing worth watching: the audit branch strips "Swift-unused" fields from the
+generated JSON. `icons.json` was checked key by key against `main` and is
+structurally identical — the 625-line diff is minification — so the web's
+`iconManifest.json` copy is still valid. A future strip could quietly remove a
+field this app reads; `soilDisplay` and `flavorIcon` now depend on that file.
+
+## Block 15 — Screen-by-screen visual parity (planned)
 
 Blocks 5–13 brought the *data* and the *chrome* into line. What is left is each
 screen's interior read side by side with its Swift counterpart. Ordered by how
@@ -330,7 +385,7 @@ their structure is legible, then compare, then move.
 - **Section bodies below the chrome.** Partly closed by block 13 — the
   appellation system, climate and soil interiors now match. The remaining chip
   clouds, linked rows and tile grids are still a parallel implementation showing
-  the same data through different markup; block 14 is the plan for them.
+  the same data through different markup; block 15 is the plan for them.
 - **The scanner still uses a flat country list** where iOS walks the globe.
 - **Every Swift case now has a web counterpart**, including the four that were
   previously recorded as unportable (`drinkingDays`, `quotes`,

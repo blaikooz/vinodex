@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useLocation } from "react-router-dom";
-import { Search, List, Map, Droplet, Grape, Mountain, MapPin, Star, Shield, Wind } from "lucide-react";
+import { Search, List, Map, Droplet, Grape, Mountain, MapPin, Star, Shield, Wind, X } from "lucide-react";
 import EntryTile from "./EntryTile";
 import DeviceLayout from "./DeviceLayout";
 import { WineEntry, EntryCategory, ClimateClass } from "@/shared/types";
@@ -226,6 +226,28 @@ export default function EncyclopediaList({ category, filterMode, filterValue, in
                     style={{ left: `${cursorOffset}px` }}
                   ></div>
                 </div>
+                {/*
+                  Clear button, shown only while there is something to clear —
+                  iOS added one in the same pass (audit L34). Emptying the field
+                  by hand meant holding backspace through a query the store had
+                  deliberately kept alive across Back.
+
+                  44px square around the 18px glyph: the same minimum-target
+                  rule the audit applied to the destructive bookmark control.
+                */}
+                {searchQuery && (
+                  <button
+                    type="button"
+                    aria-label="Clear search"
+                    onClick={() => {
+                      setSearchQuery('');
+                      searchInputRef.current?.focus();
+                    }}
+                    className="w-11 h-11 -mr-2 shrink-0 flex items-center justify-center text-green-500 hover:text-green-300 transition-colors"
+                  >
+                    <X size={18} />
+                  </button>
+                )}
               </div>
             </div>
           )}
