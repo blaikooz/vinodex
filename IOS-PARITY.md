@@ -7,7 +7,8 @@ allow, and ship it on Vercel.
 > to be wholly contained in `screen-state-port`, and `master` was an ancestor of
 > it, so combining the three was a fast-forward with no conflicts; `master` is
 > pushed at 18 commits ahead of where it stood. Blocks 9 and 10 below were added
-> after the merge. See "Still open" at the foot for what remains.
+> after the merge; block 11 closes the last of the untested services. See
+> "Still open" at the foot for what remains.
 
 `vinodex-ios` is the reference and stays **read-only**. Every block below ports
 *from* Swift *to* React.
@@ -188,8 +189,50 @@ next section had been claiming for weeks: `WHO WE\nARE` as a tile label put a
 literal newline in the button's accessible name. Wrapping is left to the browser
 now; the visual result is identical.
 
+## Block 11 — The last four Swift suites, and what they caught ✅
+
+`MoonCalendar`, `EntryFilter`, `Continent` and `Coverage` are ported. 219 tests
+across 13 files. Porting them found two places where the web had silently
+drifted from the reference — which is the entire argument for doing it.
+
+**`EntryFilter` had to be extracted before it could be tested.** iOS keeps the
+predicate in `VinodexCore/EntryFilter.swift` with its own suite; the web had it
+as a ~120-line `useMemo` inside `EncyclopediaList.tsx`, closing over eight
+component locals. `FilterTests.swift` opens by saying it "exercises the ported
+`EncyclopediaList.tsx` filter predicate" — and nothing on this side could run a
+line of it. It now lives in `src/services/entryFilter.ts`; the component keeps
+only the input state. Same extract-first move as block 8.
+
+**Bug 1 — search was not diacritic-insensitive.** The predicate compared
+`.toLowerCase()` on both sides, so "albarino" did not find Albariño and "rias"
+did not find Rías Baixas: you had to type the accent to reach an entry whose
+distinguishing feature is that it has one. `normalizeLabel` already folded
+diacritics and was used by every *filter* — it simply was never applied to the
+search path. iOS folds here and `FilterTests.diacritics` pins both names.
+
+**Bug 2 — the globe markers were on cities, not continents.** North America was
+pinned to (38, -122), which is San Francisco; Africa to (-33, 20), Cape Town;
+South America to Santiago. Markers hung off the landmass they label. This is not
+a new discovery — iOS fixed it a while ago and `WineDatabase.swift` names *this
+repo's* `RetroGlobeScreen.tsx` as where the bad values came from, but the fix was
+never brought back. The coordinates and their bounding boxes now live in
+`src/services/continents.ts`, ported from the Swift enum, and
+`continents.test.ts` pins every marker inside its own continent's box. The globe
+is UI, so nothing else here would ever have noticed.
+
+Two Swift cases could not be ported as written: `MoonCalendar.quote` lives in
+`MoonDialScreen` on the web rather than in the service, and `drinkingDays`
+asserts flower days that the web reading does not expose. Both are noted in the
+suite headers.
+
 ## Still open
 
+- **Continent glyphs are paired, not unique.** iOS asserts six distinct glyphs
+  (`continentPresentation`); the web resolves three across the six —
+  Africa/Europe, Asia/Oceania and the two Americas each share one, because the
+  game-icons set genuinely pairs those landmasses. Colours *are* all distinct,
+  which is what `continents.test.ts` asserts instead. Closing this properly
+  means choosing six glyphs, which is a design call rather than a port.
 - **Most of it still has not been looked at in a browser.** The burgundy shell,
   the light screen, the cog, the expanders — all compile and none have been
   seen. The website screens are the exception: they are rendered and driven by
@@ -210,11 +253,13 @@ now; the visual result is identical.
   same data through different markup. Order, titles, rules and rarity now
   match; the interiors have not been transcribed.
 - **The scanner still uses a flat country list** where iOS walks the globe.
-- **The untested services are now covered** — `screenState`, `dailyPick`,
-  `grapeScan`, `bookmarks`, `access` and `appUnlock` all have suites; see block
-  10. Still untested: `theme`, `entryFilter`, `moonService` and the display
-  helpers. `MoonCalendar`, `EntryFilter`, `Continent` and `Coverage` all have
-  Swift suites with no web counterpart yet, so those are the next four to port.
+- **Every Swift suite now has a web counterpart.** What remains untested here is
+  what has no Swift original either: `theme`, `appVersion`, `useScreenAnchor`
+  and the display helpers (`grapeDisplay`, `styleDisplay`, `flavorDisplay`,
+  `soilDisplay`, `climateDisplay`, `iconRendering`). The display helpers are the
+  highest-value of those — `CoverageTests` reaches into iOS's icon tables for
+  soil keyword order and flavour taxonomy glyphs, and the web equivalents of
+  those assertions are not written.
 - **Only three components are tested.** The two website screens and the unlock
   keypad. The dex screens have no render coverage at all.
 
