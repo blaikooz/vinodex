@@ -900,7 +900,7 @@ const EntryDetail: React.FC<EntryDetailProps> = ({ entry, allEntries, onBack, on
             <div className="mb-6">
                 <div className="flex items-center gap-2 mb-3 dex-section-rule pb-1">
                     <Tag size={18} className="text-green-500" />
-                    <span className="font-retro text-xs md:text-sm tracking-widest text-green-500">ALTERNATE NAMES</span>
+                    <span className="font-retro text-xs md:text-sm tracking-widest text-green-500">ALSO KNOWN AS</span>
                 </div>
                 {grapeAlternateNames.length > 0 ? (
                   <div className="flex flex-wrap gap-2">
@@ -931,12 +931,25 @@ const EntryDetail: React.FC<EntryDetailProps> = ({ entry, allEntries, onBack, on
                     <span className="ml-2 flex items-center">
                       {(() => {
                         const rarity = (entry.rarity || '').toUpperCase();
+                        // NOBLE is a crown on its own, not a crown capping three
+                        // stars — the stars implied it was simply one rank above
+                        // RARE rather than a different kind of thing.
                         if (rarity === 'NOBLE') {
                           return <Crown size={20} className="text-yellow-400 ml-1" />;
                         }
-                        const starCount = rarity === 'RARE' ? 3 : rarity === 'COMMON' ? 2 : rarity === 'UNCOMMON' ? 1 : 1;
-                        return Array.from({ length: starCount }).map((_, i) => (
-                          <Star key={i} size={18} className="text-yellow-400 ml-0.5" fill="#facc15" />
+                        // `rarityRank` in Swift: common 1, uncommon 2, rare 3.
+                        // This read COMMON 2 / UNCOMMON 1, so a common grape
+                        // outranked an uncommon one on screen.
+                        const filled = rarity === 'RARE' ? 3 : rarity === 'UNCOMMON' ? 2 : 1;
+                        // Always three slots, unfilled ones outlined — a count
+                        // only means something against a visible ceiling.
+                        return Array.from({ length: 3 }).map((_, i) => (
+                          <Star
+                            key={i}
+                            size={18}
+                            className={`ml-0.5 ${i < filled ? 'text-yellow-400' : 'text-stone-600'}`}
+                            fill={i < filled ? '#facc15' : 'none'}
+                          />
                         ));
                       })()}
                     </span>
@@ -980,7 +993,7 @@ const EntryDetail: React.FC<EntryDetailProps> = ({ entry, allEntries, onBack, on
             <div className="mb-6">
                 <div className="flex items-center gap-2 mb-2 dex-section-rule pb-1">
                     <Shield size={18} className="text-green-500" />
-                    <span className="font-retro text-xs md:text-sm tracking-widest text-green-500">APPELLATION SYSTEMS</span>
+                    <span className="font-retro text-xs md:text-sm tracking-widest text-green-500">APPELLATION SYSTEM</span>
                 </div>
                 <div className="flex flex-wrap gap-2">
                     <span className="px-4 py-2 rounded text-xl font-bold font-mono tracking-widest" style={{ backgroundColor: SYSTEM_CHIP_COLOR.bg, border: `1px solid ${SYSTEM_CHIP_COLOR.border}`, color: SYSTEM_CHIP_COLOR.text }}>
