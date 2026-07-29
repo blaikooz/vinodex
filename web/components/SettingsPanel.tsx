@@ -29,6 +29,8 @@ import {
   toggleEntitlement,
 } from '../src/services/access';
 import { useAccess } from '../src/services/useAccess';
+import { isAppUnlocked, lockApp } from '../src/services/appUnlock';
+import { useAppUnlock } from '../src/services/useAppUnlock';
 
 export type SettingsSectionId = 'CUSTOMIZATION' | 'DATA' | 'ACCESS' | 'DEV';
 
@@ -238,6 +240,9 @@ export const SettingsSectionPanel: React.FC<{
   useAccess();
   const locked = starterOnly();
 
+  useAppUnlock();
+  const vinodexUnlocked = isAppUnlocked('vinodex');
+
   const countIn = (category: string) => allEntries.filter(e => e.category === category).length;
 
   // Category tiles, in the order the iOS DATABASE block lists them.
@@ -346,6 +351,28 @@ export const SettingsSectionPanel: React.FC<{
               <p className="font-mono text-sm leading-relaxed normal-case mt-2" style={{ color: 'var(--lcd-subtext)' }}>
                 Entries shipped, from the first starter selection to the current
                 build.
+              </p>
+            </Section>
+
+            {/*
+              The website's app gate lives here rather than under ACCESS, which
+              is the paywall harness and a different concept — see `appUnlock`.
+              DATA is also the panel the website's own DATA tile opens, so
+              someone arriving from there lands on the switch they came for.
+            */}
+            <Section title="WEBSITE ACCESS">
+              <StatRow label="VINODEX" value={vinodexUnlocked ? 'UNLOCKED' : 'LOCKED'} />
+              {vinodexUnlocked && (
+                <button
+                  onClick={() => lockApp('vinodex')}
+                  className="w-full mt-2 py-3 rounded border-2 border-red-800 font-retro text-[0.6rem] tracking-widest text-red-400 hover:bg-red-950 transition-colors"
+                >
+                  RE-LOCK VINODEX
+                </button>
+              )}
+              <p className="font-mono text-sm leading-relaxed normal-case mt-2" style={{ color: 'var(--lcd-subtext)' }}>
+                The code the website asks for before it hands over the app.
+                Unlocking is remembered in this browser; re-locking asks again.
               </p>
             </Section>
           </>

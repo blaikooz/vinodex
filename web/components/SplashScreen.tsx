@@ -1,13 +1,15 @@
 import React from 'react';
-import { Construction, Wine } from 'lucide-react';
+import { Globe, Wine } from 'lucide-react';
 import DeviceLayout from './DeviceLayout';
 
 interface SplashScreenProps {
   onEnterDex: () => void;
+  onEnterWebsite: () => void;
 }
 
 /**
- * The landing fork: DEX enters the encyclopedia, WEBSITE is a teaser.
+ * The landing fork: DEX enters the encyclopedia, WEBSITE opens the four-page
+ * site around it.
  *
  * Rendered inside `DeviceLayout` rather than as a plain page, because the
  * splash is the first thing anyone sees and the handheld chassis *is* the
@@ -17,7 +19,7 @@ interface SplashScreenProps {
  * No Home button: `DeviceLayout` only renders one when given `onHome`, and
  * Home is an in-app control. There is nowhere above the splash to go.
  */
-const SplashScreen: React.FC<SplashScreenProps> = ({ onEnterDex }) => {
+const SplashScreen: React.FC<SplashScreenProps> = ({ onEnterDex, onEnterWebsite }) => {
   return (
     <DeviceLayout title="VINODEX" subtitle="" showBack={false} showSystemButtons={false} showWordmark>
       <div className="flex-1 min-h-0 w-full flex flex-col items-center bg-dex-screen relative overflow-hidden">
@@ -63,23 +65,19 @@ const SplashScreen: React.FC<SplashScreenProps> = ({ onEnterDex }) => {
             </button>
 
             {/*
-              Inert by design. `disabled` rather than a click handler that does
-              nothing, so it is inert to the keyboard and to assistive tech too
-              — and muted hard enough that it reads as "not built yet" rather
-              than "broken". No active:translate, because nothing depresses.
+              Live as of the website build — it was a muted "coming soon" stub
+              until there was something behind it. Blue rather than the dex's
+              purple so the fork reads as two destinations at a glance, and
+              otherwise identical: same height, same depress, same sheen.
             */}
             <button
               type="button"
-              disabled
-              aria-disabled="true"
-              className="flex-1 min-h-[7rem] bg-stone-600/60 border-b-[6px] border-stone-800/70 rounded-xl shadow-lg flex flex-col items-center justify-center relative overflow-hidden opacity-60 cursor-not-allowed"
+              onClick={onEnterWebsite}
+              className="flex-1 min-h-[7rem] bg-blue-500 border-b-[6px] border-blue-800 rounded-xl shadow-lg active:translate-y-1 active:border-b-0 transition-all flex flex-col items-center justify-center group hover:bg-blue-400 relative overflow-hidden"
             >
-              <div className="absolute inset-0 bg-gradient-to-br from-white/5 to-transparent pointer-events-none"></div>
-              <Construction size={44} className="text-stone-300 mb-2 drop-shadow-md" />
-              <span className="font-retro text-sm sm:text-xl text-stone-200 tracking-widest drop-shadow-md">WEBSITE</span>
-              <span className="font-retro text-[0.6rem] sm:text-xs text-amber-300/90 tracking-widest mt-1">
-                COMING SOON
-              </span>
+              <div className="absolute inset-0 bg-gradient-to-br from-white/10 to-transparent pointer-events-none"></div>
+              <Globe size={48} className="text-white mb-2 group-hover:scale-110 transition-transform drop-shadow-md" />
+              <span className="font-retro text-sm sm:text-xl text-white tracking-widest drop-shadow-md">WEBSITE</span>
             </button>
 
           </div>

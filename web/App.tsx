@@ -18,6 +18,7 @@ import DeviceLayout from './components/DeviceLayout';
 import { WineEntry, EntryCategory } from '@/shared/types';
 import { getAllEntries } from './src/services/wineData';
 import { clear as clearScreenState } from './src/services/screenState';
+import { isAppUnlocked } from './src/services/appUnlock';
 import { SETTINGS_SECTIONS, SettingsSectionId } from './components/SettingsPanel';
 
 const RetroGlobeScreen = lazy(() => import('./components/RetroGlobeScreen'));
@@ -27,6 +28,13 @@ const DailyGrapeScreen = lazy(() => import('./components/DailyGrapeScreen'));
 const ScannerScreen = lazy(() => import('./components/ScannerScreen'));
 const BookmarksScreen = lazy(() => import('./components/BookmarksScreen'));
 const SettingsGrid = lazy(() => import('./components/SettingsPanel'));
+// The website pages. Lazy for the same reason the minigames are: a visitor who
+// goes straight into the dex should not pay for them in the initial bundle.
+const WebsiteMenu = lazy(() => import('./components/WebsiteMenu'));
+const OurAppsScreen = lazy(() => import('./components/OurAppsScreen'));
+const UnlockScreen = lazy(() => import('./components/UnlockScreen'));
+const WhoWeAreScreen = lazy(() => import('./components/WhoWeAreScreen'));
+const ContactScreen = lazy(() => import('./components/ContactScreen'));
 const SettingsSectionPanel = lazy(() =>
   import('./components/SettingsPanel').then(m => ({ default: m.SettingsSectionPanel })),
 );
@@ -89,6 +97,42 @@ const App: React.FC = () => {
   const handleBack = () => {
     if (location.key === 'default') navigate('/dex');
     else navigate(-1);
+  };
+
+  // The website is its own section, so Home there means the website menu, not
+  // the dex — the same rule as in the app (Home is the top of where you are),
+  // pointed at a different top. Sending it to /dex would push a visitor through
+  // the unlock gate they have not passed yet.
+  const handleWebsiteHome = () => navigate('/website');
+
+  // Cold-loaded website page falls back to the website menu, mirroring the way
+  // `handleBack` falls back to the dex menu rather than to the splash.
+  const handleWebsiteBack = () => {
+    if (location.key === 'default') navigate('/website');
+    else navigate(-1);
+  };
+
+  /**
+   * The gate. Unlocked apps skip it outright — an unlocked visitor should not
+   * be asked for a code they have already given.
+   */
+  const handleSelectVinodex = () => {
+    navigate(isAppUnlocked('vinodex') ? '/dex' : '/website/unlock');
+  };
+
+  const UnlockRoute: React.FC = () => {
+    // Arriving here already unlocked means the gate is satisfied, so it steps
+    // aside. `replace`, so Back does not bounce off the redirect.
+    if (isAppUnlocked('vinodex')) return <Navigate to="/dex" replace />;
+    return (
+      <Suspense fallback={<ScreenLoading label="LOADING..." onBack={handleWebsiteBack} onHome={handleWebsiteHome} />}>
+        <UnlockScreen
+          onUnlocked={() => navigate('/dex', { replace: true })}
+          onBack={handleWebsiteBack}
+          onHome={handleWebsiteHome}
+        />
+      </Suspense>
+    );
   };
 
   const buildListUrl = (
@@ -252,7 +296,67 @@ const App: React.FC = () => {
           coming-soon website. The dex menu, which used to live here, is at
           "/dex" — a real route, so browser Back from it reaches the splash.
         */}
-        <Route path="/" element={<SplashScreen onEnterDex={() => navigate('/dex')} />} />
+        <Route
+          path="/"
+          element={
+            <SplashScreen
+              onEnterDex={() => navigate('/dex')}
+              onEnterWebsite={() => navigate('/website')}
+            />
+          }
+        />
+        {/*
+          The website: a four-tile menu mirroring the dex's, and the pages
+          behind it. Back from the menu is the splash explicitly rather than
+          `handleWebsiteBack`, because the menu is the one website screen whose
+          parent is outside the section.
+        */}
+        <Route
+          path="/website"
+          element={
+            <Suspense fallback={<ScreenLoading label="LOADING..." onBack={() => navigate('/')} onHome={handleWebsiteHome} />}>
+              <WebsiteMenu
+                onOurApps={() => navigate('/website/apps')}
+                onWhoWeAre={() => navigate('/website/about')}
+                onContact={() => navigate('/website/contact')}
+                // Straight to the existing SETTINGS → DATA panel rather than a
+                // second copy of it: one readout, reachable from both sides.
+                onData={() => navigate('/settings/DATA')}
+                onBack={() => navigate('/')}
+              />
+            </Suspense>
+          }
+        />
+        <Route
+          path="/website/apps"
+          element={
+            <Suspense fallback={<ScreenLoading label="LOADING APPS..." onBack={handleWebsiteBack} onHome={handleWebsiteHome} />}>
+              <OurAppsScreen
+                onSelectVinodex={handleSelectVinodex}
+                onBack={handleWebsiteBack}
+                onHome={handleWebsiteHome}
+              />
+            </Suspense>
+          }
+        />
+        <Route path="/website/unlock" element={<UnlockRoute />} />
+        <Route
+          path="/website/about"
+          element={
+            <Suspense fallback={<ScreenLoading label="LOADING..." onBack={handleWebsiteBack} onHome={handleWebsiteHome} />}>
+              <WhoWeAreScreen onBack={handleWebsiteBack} onHome={handleWebsiteHome} />
+            </Suspense>
+          }
+        />
+        <Route
+          path="/website/contact"
+          element={
+            <Suspense fallback={<ScreenLoading label="LOADING..." onBack={handleWebsiteBack} onHome={handleWebsiteHome} />}>
+              <ContactScreen onBack={handleWebsiteBack} onHome={handleWebsiteHome} />
+            </Suspense>
+          }
+        />
+
         <Route
           path="/dex"
           element={
