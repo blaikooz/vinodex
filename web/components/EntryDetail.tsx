@@ -1,4 +1,4 @@
-import React, { useMemo, useRef } from 'react';
+import React, { useMemo, useReducer, useRef } from 'react';
 import { Tag, MapPin, Activity, Droplet, Grape, Mountain, ChevronRight, List, Circle, Leaf, Sparkles, Flame, Shield, BookOpen, Bookmark, MapPinned, Flower2, Apple, Wind, Citrus, Star, Crown, Waves, Coffee, Beef, Cherry, TreePalm, LeafyGreen, Carrot, Drumstick, Ham, Croissant, Cookie, Earth, TreePine, Shell, Hop, Nut } from 'lucide-react';
 import { Icon } from '@iconify/react';
 import DeviceLayout from './DeviceLayout';
@@ -24,7 +24,7 @@ import { getSoilIcon, getSoilsForRegion } from '../src/services/soilDisplay';
 import { normalizeTypeClass, getStyleClassTileColors, getStyleColorTileColors, getWineTypeTileColors } from '../src/services/styleDisplay';
 import { getFlavorClassTileColors, getFlavorSubclassTileColors } from '../src/services/flavorDisplay';
 import { getClimateIcon } from '../src/services/climateDisplay';
-import { keyForDetail } from '../src/services/screenState';
+import { isOn as isFlagOn, keyForDetail, toggleFlag } from '../src/services/screenState';
 import { useScreenAnchor } from '../src/services/useScreenAnchor';
 import { isBookmarked, toggleBookmark } from '../src/services/bookmarks';
 import { useBookmarks } from '../src/services/useBookmarks';
@@ -59,6 +59,12 @@ const EntryDetail: React.FC<EntryDetailProps> = ({ entry, allEntries, onBack, on
   // a change made anywhere else — the saved list, another tab.
   useBookmarks();
   const saved = isBookmarked(entry.id);
+
+  // The expander state lives in the screen-state store so it survives Back,
+  // which means React has to be told to repaint when it changes. A counter
+  // rather than mirroring the flags into state: the store stays the single
+  // source of truth, and two sections cannot drift out of step with it.
+  const [, forceRender] = useReducer((n: number) => n + 1, 0);
 
   const formatUpper = (value?: string) => {
     return value ? value.toUpperCase() : 'N/A';
@@ -167,6 +173,44 @@ const EntryDetail: React.FC<EntryDetailProps> = ({ entry, allEntries, onBack, on
     showRegionMetaTiles?: boolean;
     preferCountryGate?: boolean;
   }
+
+  /**
+   * A linked list capped at `cap`, with a SHOW ALL toggle when there is more
+   * behind it.
+   *
+   * These lists used to truncate silently — `.slice(0, 6)` and nothing to say
+   * a seventh region existed. iOS solved that with an expander per section
+   * (see CountryScreen.swift), and the open/closed state is exactly what the
+   * `flags` half of the screen-state store was built to hold: it survives Back
+   * along with the scroll position, so opening a region from an expanded list
+   * and returning does not re-collapse it.
+   */
+  const expandableList = (
+    items: string[],
+    cap: number,
+    flag: string,
+    options?: RenderLinkedTileOptions,
+  ) => {
+    const key = keyForDetail(entry.id);
+    const expanded = isFlagOn(key, flag);
+    const shown = expanded ? items : items.slice(0, cap);
+    return (
+      <>
+        {shown.map((item, idx) => renderLinkedTile(item, idx, options))}
+        {items.length > cap && (
+          <button
+            onClick={() => {
+              toggleFlag(key, flag);
+              forceRender();
+            }}
+            className="w-full flex items-center justify-center gap-2 py-3 rounded border-2 border-stone-700 hover:border-green-500 transition-colors font-retro text-[0.6rem] tracking-widest text-green-500"
+          >
+            {expanded ? 'SHOW FEWER' : `SHOW ALL (${items.length})`}
+          </button>
+        )}
+      </>
+    );
+  };
 
   const renderLinkedTile = (label: string, idx: number, options?: RenderLinkedTileOptions) => {
     const relatedEntry = getRelatedEntry(label, options?.preferCountryGate ? 'COUNTRY_GATE' : undefined);
@@ -748,7 +792,7 @@ const EntryDetail: React.FC<EntryDetailProps> = ({ entry, allEntries, onBack, on
               <span className="font-retro text-xs md:text-sm tracking-widest text-green-500">MAIN GRAPES</span>
             </div>
             <div className="space-y-2">
-              {entry.details.notableGrapes.slice(0, 3).map((grape, idx) => renderLinkedTile(grape, idx))}
+              {expandableList(entry.details.notableGrapes, 3, 'grapes')}
             </div>
           </div>
         )}
@@ -781,7 +825,7 @@ const EntryDetail: React.FC<EntryDetailProps> = ({ entry, allEntries, onBack, on
               <span className="font-retro text-xs md:text-sm tracking-widest text-green-500">KEY REGIONS</span>
             </div>
             <div className="space-y-2">
-              {entry.details.keyRegions.slice(0, 6).map((item, idx) => renderLinkedTile(item, idx, { showRegionMetaTiles: true }))}
+              {expandableList(entry.details.keyRegions, 6, 'regions', { showRegionMetaTiles: true })}
             </div>
           </div>
         )}
@@ -794,7 +838,7 @@ const EntryDetail: React.FC<EntryDetailProps> = ({ entry, allEntries, onBack, on
                   <span className="font-retro text-xs md:text-sm tracking-widest text-green-500">MAIN GRAPES</span>
               </div>
               <div className="space-y-2">
-                {entry.details.notableGrapes.slice(0, 3).map((grape, idx) => renderLinkedTile(grape, idx))}
+                {expandableList(entry.details.notableGrapes, 3, 'grapes')}
               </div>
           </div>
         )}
@@ -827,7 +871,7 @@ const EntryDetail: React.FC<EntryDetailProps> = ({ entry, allEntries, onBack, on
                   <span className="font-retro text-xs md:text-sm tracking-widest text-green-500">KEY REGIONS</span>
               </div>
               <div className="space-y-2">
-                {entry.details.keyRegions.slice(0, 6).map((item, idx) => renderLinkedTile(item, idx, { showRegionMetaTiles: true }))}
+                {expandableList(entry.details.keyRegions, 6, 'regions', { showRegionMetaTiles: true })}
               </div>
           </div>
         )}
@@ -954,7 +998,7 @@ const EntryDetail: React.FC<EntryDetailProps> = ({ entry, allEntries, onBack, on
                    <span className="font-retro text-xs md:text-sm tracking-widest text-green-500">NOTABLE GRAPES</span>
                 </div>
                 <div className="grid grid-cols-1 gap-2">
-                     {listSectionData.slice(0, 8).map((item, idx) => renderLinkedTile(item, idx))}
+                     {expandableList(listSectionData, 8, 'list')}
                 </div>
             </div>
         )}
@@ -967,7 +1011,7 @@ const EntryDetail: React.FC<EntryDetailProps> = ({ entry, allEntries, onBack, on
                    <span className="font-retro text-xs md:text-sm tracking-widest text-green-500">NOTABLE REGIONS</span>
                 </div>
                 <div className="grid grid-cols-1 gap-2">
-                     {listSectionData.slice(0, 8).map((item, idx) => renderLinkedTile(item, idx, { showRegionMetaTiles: true }))}
+                     {expandableList(listSectionData, 8, 'list', { showRegionMetaTiles: true })}
                 </div>
             </div>
         )}
@@ -1101,7 +1145,7 @@ const EntryDetail: React.FC<EntryDetailProps> = ({ entry, allEntries, onBack, on
                   <span className="font-retro text-xs md:text-sm tracking-widest text-green-500">KEY GRAPES</span>
               </div>
               <div className="grid grid-cols-1 gap-2">
-                  {entry.details.notableGrapes.slice(0, 6).map((item, idx) => renderLinkedTile(item, idx))}
+                  {expandableList(entry.details.notableGrapes, 6, 'grapes')}
               </div>
           </div>
         )}
@@ -1114,7 +1158,7 @@ const EntryDetail: React.FC<EntryDetailProps> = ({ entry, allEntries, onBack, on
                     <span className="font-retro text-xs md:text-sm tracking-widest text-green-500">NOTABLE GRAPES</span>
                 </div>
                 <div className="grid grid-cols-1 gap-2">
-                     {styleGrapes.slice(0, 6).map((item, idx) => renderLinkedTile(item, idx))}
+                     {expandableList(styleGrapes, 6, 'stylegrapes')}
                 </div>
             </div>
         )}
@@ -1128,7 +1172,7 @@ const EntryDetail: React.FC<EntryDetailProps> = ({ entry, allEntries, onBack, on
                   <span className="font-retro text-xs md:text-sm tracking-widest text-green-500">NOTABLE GRAPES</span>
               </div>
               <div className="grid grid-cols-1 gap-2">
-                   {entry.details.notableGrapes.slice(0, 8).map((item, idx) => renderLinkedTile(item, idx))}
+                   {expandableList(entry.details.notableGrapes, 8, 'grapes')}
               </div>
           </div>
         )}
@@ -1141,7 +1185,7 @@ const EntryDetail: React.FC<EntryDetailProps> = ({ entry, allEntries, onBack, on
                   <span className="font-retro text-xs md:text-sm tracking-widest text-green-500">NOTABLE GRAPES</span>
               </div>
               <div className="grid grid-cols-1 gap-2">
-                   {entry.details.notableGrapes.slice(0, 6).map((item, idx) => renderLinkedTile(item, idx))}
+                   {expandableList(entry.details.notableGrapes, 6, 'grapes')}
               </div>
           </div>
         )}
@@ -1153,7 +1197,7 @@ const EntryDetail: React.FC<EntryDetailProps> = ({ entry, allEntries, onBack, on
                   <span className="font-retro text-xs md:text-sm tracking-widest text-green-500">KEY REGIONS</span>
               </div>
               <div className="grid grid-cols-1 gap-2">
-                   {entry.details.keyRegions.slice(0, 6).map((item, idx) => renderLinkedTile(item, idx, { showRegionMetaTiles: true }))}
+                   {expandableList(entry.details.keyRegions, 6, 'regions', { showRegionMetaTiles: true })}
               </div>
           </div>
         )}
@@ -1166,7 +1210,7 @@ const EntryDetail: React.FC<EntryDetailProps> = ({ entry, allEntries, onBack, on
                     <span className="font-retro text-xs md:text-sm tracking-widest text-green-500">KEY REGIONS</span>
                 </div>
                 <div className="grid grid-cols-1 gap-2">
-                     {entry.details.keyRegions.slice(0, 6).map((item, idx) => renderLinkedTile(item, idx, { showRegionMetaTiles: true }))}
+                     {expandableList(entry.details.keyRegions, 6, 'regions', { showRegionMetaTiles: true })}
                 </div>
             </div>
         )}
