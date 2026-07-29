@@ -266,7 +266,7 @@ const EntryDetail: React.FC<EntryDetailProps> = ({ entry, allEntries, onBack, on
 
         <div className="flex-1 flex items-center gap-2 min-w-0">
           <div className="flex-1">
-            <span className={`font-retro text-base leading-tight break-words whitespace-normal ${isLinkable ? 'dex-text group-hover:text-green-400' : 'text-stone-500'}`}>
+            <span className={`font-retro text-base leading-tight break-words whitespace-normal ${isLinkable ? 'dex-text group-hover:text-green-400' : 'dex-disabled'}`}>
               {displayName}
             </span>
             {options?.useCountryFlag && classificationLabel && (
@@ -912,7 +912,7 @@ const EntryDetail: React.FC<EntryDetailProps> = ({ entry, allEntries, onBack, on
                   </div>
                 ) : (
                   <div className="border border-stone-700 bg-stone-900/80 rounded p-3">
-                    <p className="text-xl font-bold font-mono text-stone-300 tracking-widest">NO ALTERNATE NAMES LISTED.</p>
+                    <p className="text-xl font-bold font-mono dex-subtext tracking-widest">NO ALTERNATE NAMES LISTED.</p>
                   </div>
                 )}
             </div>
@@ -926,7 +926,7 @@ const EntryDetail: React.FC<EntryDetailProps> = ({ entry, allEntries, onBack, on
                     <span className="font-retro text-xs md:text-sm tracking-widest text-green-400">RARITY</span>
                 </div>
                 <div className="flex items-center gap-2">
-                  <span className="flex-1 flex items-center px-3 py-1.5 rounded-full border-2 border-green-500 bg-green-950 text-base font-extrabold uppercase text-green-300 justify-between" style={{ letterSpacing: '0.1em' }}>
+                  <span className="flex-1 flex items-center px-3 py-1.5 rounded-full border-2 border-green-500 dex-chip-well text-base font-extrabold uppercase text-green-300 justify-between" style={{ letterSpacing: '0.1em' }}>
                     {displayClass}
                     <span className="ml-2 flex items-center">
                       {(() => {
@@ -1150,7 +1150,7 @@ const EntryDetail: React.FC<EntryDetailProps> = ({ entry, allEntries, onBack, on
                   </div>
                 ) : (
                   <div className="border border-stone-700 bg-stone-900/80 rounded p-3">
-                    <p className="text-sm text-stone-300">No flavor profile listed.</p>
+                    <p className="text-sm dex-subtext">No flavor profile listed.</p>
                   </div>
                 )}
             </div>

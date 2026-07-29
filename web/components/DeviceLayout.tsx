@@ -196,7 +196,7 @@ const DeviceLayout: React.FC<DeviceLayoutProps> = ({
 
             {showWordmark && (
               <h1
-                className="font-retro text-[1.6rem] md:text-[2.1rem] italic tracking-tighter transform -skew-x-12 whitespace-nowrap leading-tight drop-shadow-md"
+                className="font-retro text-[2.1rem] md:text-[2.9rem] italic tracking-tighter transform -skew-x-12 whitespace-nowrap leading-tight drop-shadow-md"
                 style={{
                   color: 'var(--chassis-on-body)',
                   textShadow: '2px 2px 0px var(--chassis-on-body-shadow)',

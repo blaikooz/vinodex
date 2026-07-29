@@ -208,6 +208,20 @@ body {
 
    In DARK mode every variable resolves to the same hex the utility already
    carried, so this is a no-op until the mode is switched.
+
+   IOS-PARITY-PLAN.md flagged this remap as unaudited beyond the original
+   seven components. A pass across RetroGlobeScreen, MinigamesScreen,
+   BookmarksScreen, SettingsPanel and MoonDialScreen found border-green-600,
+   text-green-700 and text-green-600 in plain use (an empty state's icon and
+   label) that weren't in the original shade list — added below rather than
+   left to go stale in whichever mode they weren't tuned for.
+
+   text-stone-300 (BookmarksScreen's confirm-clear dialog body copy and
+   Cancel button) was deliberately NOT added here, even though it showed up
+   in the same pass: DexAlert.swift, the dialog's iOS reference, is entirely
+   fixed-color end to end (Dex.stone900/Dex.green/Dex.stone400/etc, no lcd.*
+   anywhere), so that dialog's text stays fixed to match, same as its
+   Dex.stone900-backed background does on iOS.
    --------------------------------------------------------------------------- */
 
 .lcd-themed .bg-black { background-color: var(--lcd-page); }
@@ -219,7 +233,10 @@ body {
 .lcd-themed .border-stone-600 { border-color: var(--lcd-surface-edge); }
 .lcd-themed .border-green-800 { border-color: var(--lcd-accent); }
 .lcd-themed .border-green-700 { border-color: var(--lcd-accent); }
+.lcd-themed .border-green-600 { border-color: var(--lcd-accent); }
 
+.lcd-themed .text-green-700 { color: var(--lcd-accent); }
+.lcd-themed .text-green-600 { color: var(--lcd-accent); }
 .lcd-themed .text-green-500 { color: var(--lcd-accent); }
 .lcd-themed .text-green-400 { color: var(--lcd-accent); }
 .lcd-themed .text-green-300 { color: var(--lcd-body-text); }
@@ -259,9 +276,34 @@ body {
 .dex-info-rule { border-left: 4px solid var(--lcd-accent); }
 .dex-info-wash { background-color: color-mix(in srgb, var(--lcd-accent) 6%, transparent); }
 
+/* MoonDialScreen's prev/next nav buttons and DAY/WEEK toggle group were
+   solid black at fixed opacity (bg-black/50, bg-black/70) — a Tailwind
+   opacity modifier compiles to its own class, so the .lcd-themed remap above
+   never touched these regardless of which base shade they'd used.
+   MoonDialScreen.swift has no interactive dial to point at directly (the
+   control was deliberately simplified away there — see that file's header
+   comment) but every actual panel it does have (dayType, quote) tracks
+   lcd.surface, not a fixed color; matching that house convention rather than
+   leaving these three as the one hardcoded-black exception. */
+.dex-nav-button-wash { background-color: color-mix(in srgb, var(--lcd-surface) 50%, transparent); }
+.dex-nav-button-wash:hover { background-color: color-mix(in srgb, var(--lcd-surface) 70%, transparent); }
+.dex-toggle-group-wash { background-color: color-mix(in srgb, var(--lcd-surface) 70%, transparent); }
+
 /* Row and label copy that sits directly on the LCD ground. `text-white` is
    correct on the black screen and invisible on the paper-white one; these
    follow `lcd.text` instead. Deliberately not a blanket remap of `.text-white`
    — that class is also carried by copy sitting on coloured chips and buttons,
    which should stay white in both modes. */
 .dex-text { color: var(--lcd-text); }
+
+/* Detail-readout copy that the utility remap deliberately does not cover.
+   `text-stone-300` is remapped nowhere on purpose — BookmarksScreen's
+   confirm dialog uses it, and DexAlert.swift is fixed-colour end to end — so
+   the entry readout's own empty states opt in by class instead.
+
+   `dex-disabled` is the semantic match for iOS `lcd.disabledText`: a row that
+   exists but cannot be opened. Light mode does not reuse the dark theme's grey
+   there, because against a white surface it reads as an ordinary enabled row. */
+.dex-subtext { color: var(--lcd-subtext); }
+.dex-disabled { color: var(--lcd-disabled-text); }
+.dex-chip-well { background-color: color-mix(in srgb, var(--lcd-accent) 12%, transparent); }

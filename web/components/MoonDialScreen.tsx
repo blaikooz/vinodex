@@ -237,7 +237,7 @@ const MoonDialScreen: React.FC<MoonDialScreenProps> = ({ onBack, onHome }) => {
             type="button"
             aria-label="Previous"
             onClick={() => navigate(-1)}
-            className="w-10 h-10 flex items-center justify-center rounded-full border-2 border-green-600 bg-black/50 text-green-300 active:scale-95 hover:bg-black/70 shadow-[0_0_8px_rgba(34,197,94,0.3)]"
+            className="w-10 h-10 flex items-center justify-center rounded-full border-2 border-green-600 dex-nav-button-wash text-green-300 active:scale-95 shadow-[0_0_8px_rgba(34,197,94,0.3)]"
           >
             <ChevronLeft size={22} />
           </button>
@@ -246,7 +246,7 @@ const MoonDialScreen: React.FC<MoonDialScreenProps> = ({ onBack, onHome }) => {
             type="button"
             aria-label="Next"
             onClick={() => navigate(1)}
-            className="w-10 h-10 flex items-center justify-center rounded-full border-2 border-green-600 bg-black/50 text-green-300 active:scale-95 hover:bg-black/70 shadow-[0_0_8px_rgba(34,197,94,0.3)]"
+            className="w-10 h-10 flex items-center justify-center rounded-full border-2 border-green-600 dex-nav-button-wash text-green-300 active:scale-95 shadow-[0_0_8px_rgba(34,197,94,0.3)]"
           >
             <ChevronRight size={22} />
           </button>
@@ -363,7 +363,7 @@ const MoonDialScreen: React.FC<MoonDialScreenProps> = ({ onBack, onHome }) => {
         </div>
 
         {/* DAY / WEEK toggle */}
-        <div className="z-10 shrink-0 flex items-center gap-2 bg-black/70 border-2 border-green-600 rounded-lg p-1.5 shadow-[0_0_10px_rgba(34,197,94,0.3)]">
+        <div className="z-10 shrink-0 flex items-center gap-2 dex-toggle-group-wash border-2 border-green-600 rounded-lg p-1.5 shadow-[0_0_10px_rgba(34,197,94,0.3)]">
           {(['DAY', 'WEEK'] as DialMode[]).map(m => {
             const active = m === mode;
             return (

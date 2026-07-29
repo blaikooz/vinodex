@@ -39,10 +39,15 @@ const SplashScreen: React.FC<SplashScreenProps> = ({ onEnterDex }) => {
             mark — it reads as an H rather than as the wordmark, which is
             wrong for the one screen whose job is to say what this is.
           */}
+          {/*
+            Rounded to match the mark's own artwork: the SVG version draws its
+            red plate with `rx="92"` on a 512 box — 18% — so the PNG gets the
+            same proportion rather than sitting as a hard square.
+          */}
           <img
             src="/vinodex-logo.png"
             alt="VINODEX"
-            className="w-40 sm:w-56 max-w-full shrink-0 drop-shadow-[0_4px_12px_rgba(0,0,0,0.5)]"
+            className="w-40 sm:w-56 max-w-full shrink-0 rounded-[18%] shadow-[0_4px_12px_rgba(0,0,0,0.5)]"
           />
 
           {/* Stacked on a phone, side by side once there is room. */}

@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Grape, Globe, Leaf, Search, Wine } from 'lucide-react';
+import { Grip, Globe, Leaf, Search, Wine } from 'lucide-react';
 import DeviceLayout from './DeviceLayout';
 import DeviceBackPanel from './DeviceBackPanel';
 import { EntryCategory } from '@/shared/types';
@@ -52,7 +52,9 @@ const MainMenu: React.FC<MainMenuProps> = ({ onNavigate }) => {
                   className="flex-1 bg-purple-500 border-b-[6px] border-purple-800 rounded-xl shadow-lg active:translate-y-1 active:border-b-0 transition-all flex flex-col items-center justify-center group hover:bg-purple-400 relative overflow-hidden"
                 >
                     <div className="absolute inset-0 bg-gradient-to-br from-white/10 to-transparent pointer-events-none"></div>
-                    <Grape size={48} className="text-white mb-2 group-hover:scale-110 transition-transform drop-shadow-md sm:w-16 sm:h-16" />
+                    {/* iOS uses `circle.grid.3x3.fill` here, not a grape —
+                        lucide's Grip is the same nine-dot arrangement. */}
+                    <Grip size={48} className="text-white mb-2 group-hover:scale-110 transition-transform drop-shadow-md sm:w-16 sm:h-16" />
                     <span className="font-retro text-sm sm:text-xl text-white tracking-widest drop-shadow-md">GRAPES</span>
                 </button>
                 
