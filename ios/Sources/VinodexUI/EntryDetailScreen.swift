@@ -363,13 +363,19 @@ public struct EntryDetailScreen: View {
         }
     }
 
-    /// Style sections vary by classification, matching the reference exactly:
-    /// METHOD shows KEY GRAPES, STYLE and ORIGIN show NOTABLE GRAPES, and every
-    /// class shows KEY REGIONS.
+    /// Style sections vary by classification: METHOD shows KEY GRAPES, every
+    /// other class shows NOTABLE GRAPES, and all of them show KEY REGIONS.
     ///
-    /// Note TYPE and BLEND therefore show no grape list at all — that is what
-    /// the web app does, and it is almost certainly an oversight there, since
-    /// those styles do carry `notableGrapes`.
+    /// TYPE used to show no grape list at all. That was faithful to the web app,
+    /// which is where the omission comes from — but TYPE styles ("Full-Bodied
+    /// Red", "Aromatic White") *do* carry `notableGrapes`, and they are the
+    /// entries where the list matters most: a class defined by how the wine
+    /// tastes rather than by where it is from is only useful once you know which
+    /// grapes make it. The data was already there and simply was not drawn.
+    ///
+    /// BLEND is deliberately still excluded: its `notableGrapes` are the
+    /// components of the blend, already named in the entry's own description,
+    /// and listing them again as "notable" reads as a duplicate.
     @ViewBuilder
     private func styleRelatedSections(_ s: StyleEntry) -> some View {
         let cls = EntryDisplay.styleClass(name: s.common.name, classification: s.details.classification)
@@ -377,9 +383,9 @@ public struct EntryDetailScreen: View {
         switch cls {
         case .method:
             linkedSection("KEY GRAPES", symbol: "list.bullet", names: s.details.notableGrapes, limit: 6)
-        case .style, .origin:
+        case .style, .origin, .type:
             linkedSection("NOTABLE GRAPES", symbol: "list.bullet", names: s.details.notableGrapes, limit: 6)
-        case .type, .blend:
+        case .blend:
             EmptyView()
         }
 
@@ -719,7 +725,11 @@ struct LinkedRow: View {
 
                 Text(title.uppercased())
                     .font(DexFont.retro(11))
-                    .foregroundStyle(resolved ? .white : Dex.stone600)
+                    // Not `.white`: this row's ground is `lcd.surface`, which is
+                    // white in light mode — the label was white-on-white and
+                    // vanished. This is the row FLAVOR PROFILE, NOTABLE GRAPES
+                    // and every other linked list is built from.
+                    .foregroundStyle(resolved ? lcd.text : lcd.disabledText)
                     .multilineTextAlignment(.leading)
                     .fixedSize(horizontal: false, vertical: true)
 

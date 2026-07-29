@@ -1,13 +1,20 @@
 import Foundation
 import Observation
 
-/// In-flight search queries, kept alive across navigation.
+/// In-flight search queries **and scroll positions**, kept alive across
+/// navigation.
 ///
 /// `RootView` has no `NavigationStack` — it swaps the LCD's content on a `path`
 /// change — so a list screen is *destroyed* when you open an entry from it and
-/// rebuilt when you come back. Its `@State` query went with it, and returning
-/// from a result dropped you into the unfiltered list with an empty field, which
-/// meant retyping the search to look at the second result.
+/// rebuilt when you come back. Its `@State` went with it, and returning from a
+/// result dropped you into the unfiltered list with an empty field, which meant
+/// retyping the search to look at the second result.
+///
+/// Restoring the query alone was not enough: the rebuilt `ScrollView` still
+/// started at the top, so on a long result list you came back to the right
+/// *list* but the wrong *place* in it, and had to scroll to find the row you had
+/// just tapped. The anchor — the id of the row at the top of the viewport —
+/// is stored alongside the query and handed back to `scrollPosition(id:)`.
 ///
 /// Keyed per listing rather than globally: master search, world search and each
 /// filtered category listing are different searches, and carrying one screen's
@@ -15,13 +22,15 @@ import Observation
 ///
 /// Deliberately **not** persisted to `UserDefaults`. A query is session state —
 /// a cold launch should open on the full list, not on whatever was being typed
-/// last week.
+/// last week. `clear()` is called when the Home button is pressed, so going Home
+/// and re-entering a list is the way to get a clean one.
 @MainActor
 @Observable
 public final class SearchStateStore {
     public static let shared = SearchStateStore()
 
     private var queries: [String: String] = [:]
+    private var anchors: [String: String] = [:]
 
     public init() {}
 
@@ -37,13 +46,31 @@ public final class SearchStateStore {
         } else {
             queries[key] = query
         }
+        // A changed query renders the old anchor meaningless — that row may not
+        // even be in the new results — and restoring it would scroll to a
+        // seemingly random position mid-type.
+        anchors.removeValue(forKey: key)
+    }
+
+    /// The id of the row at the top of the viewport, or nil for the top.
+    public func anchor(for key: String) -> String? {
+        anchors[key]
+    }
+
+    public func setAnchor(_ anchor: String?, for key: String) {
+        if let anchor {
+            anchors[key] = anchor
+        } else {
+            anchors.removeValue(forKey: key)
+        }
     }
 
     public func clear() {
         queries.removeAll()
+        anchors.removeAll()
     }
 
-    public var isEmpty: Bool { queries.isEmpty }
+    public var isEmpty: Bool { queries.isEmpty && anchors.isEmpty }
 
     /// Stable identity for one listing.
     ///

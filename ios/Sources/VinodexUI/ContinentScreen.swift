@@ -189,7 +189,7 @@ public struct ContinentScreen: View {
 
                 Text(country.uppercased())
                     .font(DexFont.retro(11))
-                    .foregroundStyle(hasRegions ? .white : Dex.stone600)
+                    .foregroundStyle(hasRegions ? lcd.text : lcd.disabledText)
                     .multilineTextAlignment(.leading)
                     .fixedSize(horizontal: false, vertical: true)
 

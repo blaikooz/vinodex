@@ -287,7 +287,7 @@ public struct CountryScreen: View {
                             FlagSwatch(country: state, width: 68, height: 44)
                             Text(state.uppercased())
                                 .font(DexFont.retro(12))
-                                .foregroundStyle(.white)
+                                .foregroundStyle(lcd.text)
                             Spacer()
                             Text("\(regionCount(in: state))")
                                 .font(DexFont.mono(18))

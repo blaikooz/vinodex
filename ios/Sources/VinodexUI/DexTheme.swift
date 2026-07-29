@@ -58,6 +58,16 @@ public enum Dex {
     public static let bone = Color(dexHex: "#D8D8D0")
     public static let bonePanel = Color(dexHex: "#EFEFE9")
     public static let boneEdge = Color(dexHex: "#9A9A93")
+    /// Burgundy Velour — a velvet purple shell with a dusty lilac panel, so the
+    /// pairing reads as upholstery rather than as a flat purple slab.
+    public static let velour = Color(dexHex: "#4B1D3F")
+    public static let velourPanel = Color(dexHex: "#D3BBCE")
+    public static let velourEdge = Color(dexHex: "#2C0F24")
+    /// Electric Riesling — the yellow of a 1980s sports Walkman, with the cream
+    /// panel those shells carried rather than white.
+    public static let walkman = Color(dexHex: "#F2C11B")
+    public static let walkmanPanel = Color(dexHex: "#FBF0CC")
+    public static let walkmanEdge = Color(dexHex: "#9A7A0A")
     public static let blue = Color(dexHex: "#2AB5FF")
     public static let yellow = Color(dexHex: "#FACC15")
     public static let green = Color(dexHex: "#4ADE80")
@@ -230,6 +240,14 @@ public enum DexMetrics {
     /// so it does not need to shrink to fit. Scaled with `footerControl`.
     public static let marqueeTextSize: CGFloat = 1.45 * rem
 
+    /// How long the device takes to turn over.
+    ///
+    /// Lives here rather than on `DeviceChassis` because that type is generic
+    /// over its content, and Swift has no static stored properties on generic
+    /// types — the half of this value is what times the face swap, so the two
+    /// must come from one number.
+    public static let flipDuration: Double = 0.7
+
     /// Scanline overlay
     public static let scanlineSpacing: CGFloat = 4
     public static let scanlineThickness: CGFloat = 2
@@ -341,10 +359,18 @@ public enum TextScale: String, CaseIterable, Identifiable, Sendable {
 
     public var id: String { rawValue }
 
+    /// Both steps moved down one notch: LARGE is now what SMALL used to be
+    /// (1.0), and SMALL goes below it. The old pair ran 1.0/1.2, which meant
+    /// the *smallest* the app could be was already the size the tiles were
+    /// drawn against — there was headroom above the layout but none below it,
+    /// and LARGE was the one that crowded its tiles.
+    ///
+    /// 1.0 stays the ceiling for the same reason it was the old floor: the
+    /// retro face has no optical sizes and the tile metrics are tuned to it.
     public var factor: CGFloat {
         switch self {
-        case .small: 1.0
-        case .large: 1.2
+        case .small: 0.85
+        case .large: 1.0
         }
     }
 
@@ -460,6 +486,19 @@ public enum LcdMode: String, CaseIterable, Identifiable, Sendable {
         }
     }
 
+    /// Text on a row that exists but cannot be opened — a cross-link pointing
+    /// outside the current selection, or a country with no region written yet.
+    ///
+    /// Has to read as *inactive* without disappearing, which is why light mode
+    /// does not simply share the dark theme's stone600: against `surface` that
+    /// grey is close enough to `text` to look like an ordinary enabled row.
+    public var disabledText: Color {
+        switch self {
+        case .dark: Dex.stone600
+        case .light: Color(dexHex: "#A3A39B")
+        }
+    }
+
     public static var current: LcdMode {
         LcdMode(rawValue: UserDefaults.standard.string(forKey: storageKey) ?? "") ?? .dark
     }
@@ -475,10 +514,34 @@ public enum ChassisSkin: String, CaseIterable, Identifiable, Sendable {
     case midnight = "MIDNIGHT"
     /// The original grey-and-white shell rather than the red one.
     case original = "ORIGINAL"
+    /// Velvet purple.
+    case burgundy = "BURGUNDY"
+    /// Vintage Walkman yellow.
+    case riesling = "RIESLING"
 
     public static let storageKey = "chassisSkin"
 
     public var id: String { rawValue }
+
+    /// What the picker calls this skin.
+    ///
+    /// Deliberately separate from `rawValue`: the raw value is the persisted
+    /// `@AppStorage` key, so renaming ORIGINAL to "Blanc de Blancs" by editing
+    /// the case would silently reset every device already storing "ORIGINAL"
+    /// back to the default shell. The stored vocabulary stays put and only the
+    /// label moves.
+    public var displayName: String {
+        switch self {
+        // The house colourway, named for the house rather than described as
+        // "classic" — every other skin here has a wine name, and the default
+        // was the only one still labelled by category.
+        case .classic: "VINODEX CLASSIC"
+        case .midnight: "CÔTE DE NUITS"
+        case .original: "BLANC DE BLANCS"
+        case .burgundy: "BURGUNDY VELOUR"
+        case .riesling: "ELECTRIC RIESLING"
+        }
+    }
 
     /// The moulding.
     public var body: Color {
@@ -486,6 +549,8 @@ public enum ChassisSkin: String, CaseIterable, Identifiable, Sendable {
         case .classic: Dex.red
         case .midnight: Dex.graphite
         case .original: Dex.bone
+        case .burgundy: Dex.velour
+        case .riesling: Dex.walkman
         }
     }
 
@@ -495,6 +560,8 @@ public enum ChassisSkin: String, CaseIterable, Identifiable, Sendable {
         case .classic: Dex.red.opacity(0.7)
         case .midnight: Dex.graphite.opacity(0.75)
         case .original: Dex.bone.opacity(0.75)
+        case .burgundy: Dex.velour.opacity(0.75)
+        case .riesling: Dex.walkman.opacity(0.7)
         }
     }
 
@@ -504,6 +571,8 @@ public enum ChassisSkin: String, CaseIterable, Identifiable, Sendable {
         case .classic: Dex.ui
         case .midnight: Dex.graphitePanel
         case .original: Dex.bonePanel
+        case .burgundy: Dex.velourPanel
+        case .riesling: Dex.walkmanPanel
         }
     }
 
@@ -512,6 +581,8 @@ public enum ChassisSkin: String, CaseIterable, Identifiable, Sendable {
         case .classic: Dex.stone400
         case .midnight: Dex.graphiteEdge
         case .original: Dex.boneEdge
+        case .burgundy: Dex.velourEdge
+        case .riesling: Dex.walkmanEdge
         }
     }
 
@@ -521,6 +592,8 @@ public enum ChassisSkin: String, CaseIterable, Identifiable, Sendable {
         case .classic: Dex.stone400
         case .midnight: Dex.stone600
         case .original: Dex.stone400
+        case .burgundy: Dex.velourEdge
+        case .riesling: Dex.walkmanEdge
         }
     }
 

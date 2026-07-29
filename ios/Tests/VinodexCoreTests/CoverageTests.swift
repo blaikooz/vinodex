@@ -31,6 +31,43 @@ struct CoverageTests {
         #expect(db.entries(in: .continents).count == 6)
     }
 
+    /// The DATA panel draws these. A drift here is a wrong number shown to the
+    /// user rather than a crash, so it needs pinning as much as the raw counts
+    /// do — and `VinodexUI`, where the panel lives, has no test target.
+    @Test("database stats account for every entry")
+    func databaseStats() {
+        let stats = db.databaseStats
+
+        #expect(stats.grapes == db.entries(in: .grapes).count)
+        #expect(stats.regions == db.entries(in: .regions).count)
+        #expect(stats.styles == db.entries(in: .styles).count)
+        #expect(stats.flavors == db.entries(in: .flavors).count)
+        #expect(stats.continents == db.entries(in: .continents).count)
+        #expect(stats.total == db.entries.count)
+
+        // Every entry belongs to exactly one of the five categories, so they
+        // must sum to the total — a new category that nobody added a line for
+        // shows up here as a shortfall.
+        let sum = stats.grapes + stats.regions + stats.styles + stats.flavors + stats.continents
+        #expect(sum == stats.total, "categories do not account for every entry")
+
+        #expect(stats.total == 284)
+        #expect(stats.countries == 18)
+        #expect(stats.categoryLines.count == 6)
+    }
+
+    /// The growth wave sweeps these in order. A total that fell below an
+    /// earlier milestone would make the curve double back on itself, which
+    /// reads as a rendering bug rather than as the data shrinking.
+    @Test("growth milestones rise to the live total")
+    func waveMilestones() {
+        let milestones = db.databaseStats.waveMilestones
+
+        #expect(milestones.first == 0)
+        #expect(milestones.last == db.entries.count)
+        #expect(milestones == milestones.sorted(), "milestones go backwards: \(milestones)")
+    }
+
     /// Flavours are derived from the grapes' tasting notes, collapsing shared
     /// notes (e.g. "cherry") across grapes — so the count must stay well below
     /// the number of note *instances*. The real assertion is the loop: every

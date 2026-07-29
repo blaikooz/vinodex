@@ -462,6 +462,112 @@ public final class WineDatabase: Sendable {
         if case .continent(let c)? = entry(id: "CONT_\(continent.rawValue)") { return c }
         return nil
     }
+
+    /// Distinct countries the regions come from.
+    ///
+    /// Counted off region origins rather than `palette.continentCountries`,
+    /// which lists every country the globe *knows about* including ones with no
+    /// region written yet — the DATA panel should report what is actually in
+    /// here, not what is planned. Folded through `TextNormalize.label` for the
+    /// same reason `hasRegions(inCountry:)` is: origins are hand-authored and
+    /// do not always agree on case.
+    public var countryCount: Int {
+        Set(
+            entries(in: .regions)
+                .compactMap(\.origin)
+                .map { TextNormalize.label($0) }
+                .filter { !$0.isEmpty }
+        ).count
+    }
+
+    /// Per-category counts for the DATA readout.
+    ///
+    /// In `VinodexCore` rather than the panel that draws it so it is reachable
+    /// from `VinodexCoreTests` — `VinodexUI` has no test target, and a count
+    /// that silently drifts is exactly the kind of thing `CoverageTests` is for.
+    public var databaseStats: DatabaseStats {
+        DatabaseStats(
+            grapes: entries(in: .grapes).count,
+            regions: entries(in: .regions).count,
+            styles: entries(in: .styles).count,
+            flavors: entries(in: .flavors).count,
+            continents: entries(in: .continents).count,
+            countries: countryCount,
+            total: entries.count
+        )
+    }
+}
+
+/// What the shipped database holds, for the DATA panel.
+///
+/// `countries` is deliberately not an `EntryCategory`: countries are not
+/// entries — a country page is assembled from the regions naming it as their
+/// origin — so it is counted separately and carries no category.
+public struct DatabaseStats: Sendable, Hashable {
+    public let grapes: Int
+    public let regions: Int
+    public let styles: Int
+    public let flavors: Int
+    public let continents: Int
+    public let countries: Int
+    public let total: Int
+
+    public init(
+        grapes: Int,
+        regions: Int,
+        styles: Int,
+        flavors: Int,
+        continents: Int,
+        countries: Int,
+        total: Int
+    ) {
+        self.grapes = grapes
+        self.regions = regions
+        self.styles = styles
+        self.flavors = flavors
+        self.continents = continents
+        self.countries = countries
+        self.total = total
+    }
+
+    /// One labelled count in the DATA panel's grid.
+    ///
+    /// A struct rather than a tuple because the panel feeds these to `ForEach`,
+    /// and key paths — which `Identifiable` and `ForEach(_:id:)` both need —
+    /// cannot address tuple elements.
+    public struct Line: Sendable, Hashable, Identifiable {
+        public let label: String
+        public let count: Int
+
+        public var id: String { label }
+
+        public init(label: String, count: Int) {
+            self.label = label
+            self.count = count
+        }
+    }
+
+    /// Category counts in the order the panel lists them, paired with the
+    /// label each is shown under. Countries sit last, after the five real
+    /// categories, because they are the one line that is not an entry count.
+    public var categoryLines: [Line] {
+        [
+            Line(label: "GRAPES", count: grapes),
+            Line(label: "REGIONS", count: regions),
+            Line(label: "STYLES", count: styles),
+            Line(label: "FLAVORS", count: flavors),
+            Line(label: "CONTINENTS", count: continents),
+            Line(label: "COUNTRIES", count: countries),
+        ]
+    }
+
+    /// Milestones the DATA panel's wave sweeps through: empty, the original
+    /// starter selection, the first full import, and wherever the data stands
+    /// now. Fixed history plus a live tail, so the graph keeps meaning as the
+    /// dataset grows.
+    public var waveMilestones: [Int] {
+        [0, 25, 186, total]
+    }
 }
 
 /// The free-tier manifest, generated alongside the dataset.

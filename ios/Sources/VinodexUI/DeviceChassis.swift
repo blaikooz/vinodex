@@ -25,6 +25,14 @@ public struct DeviceChassis<Content: View>: View {
     /// confined to the LCD — see `SettingsPanel`.
     /// Whether the device is showing its underside — see `DeviceBackPlate`.
     @State private var isFlipped = false
+    /// Which face is *drawn*, stepped at the midpoint of the turn rather than
+    /// following `isFlipped` directly — see the flip in `body`.
+    @State private var showsBackFace = false
+    /// The pending midpoint swap, cancelled if the flip is reversed before it
+    /// lands. Without this, flipping back within the half-second leaves a stale
+    /// task to fire afterwards and show the wrong face.
+    @State private var flipSwapTask: Task<Void, Never>?
+
     /// Drives the orb's depress animation while the flip gesture is held.
     @State private var orbHeld = false
     /// Shared with `SettingsPanel` through `@AppStorage`, so toggling it there
@@ -68,15 +76,23 @@ public struct DeviceChassis<Content: View>: View {
                 // Front and back are both mounted, each hidden when facing
                 // away, and the pair is rotated together — the same structure
                 // as the web app's preserve-3d flip container.
+                //
+                // The opacity swap is deliberately **not** animated with the
+                // rotation. Sharing the 0.7s easing cross-faded the two faces
+                // through each other, so for most of the turn you saw a ghost of
+                // the LCD lying over the metal — which reads as a dissolve, not
+                // as a panel being turned over. `flipSwap` steps at the midpoint
+                // instead, when the plate is edge-on and the cut is invisible,
+                // so the flip is purely physical.
                 frontFace(topStrip: topStrip)
-                    .opacity(isFlipped ? 0 : 1)
+                    .opacity(showsBackFace ? 0 : 1)
                     .accessibilityHidden(isFlipped)
 
                 DeviceBackPlate()
                     // Pre-rotated so it reads the right way round once the
                     // container has turned; without this it arrives mirrored.
                     .rotation3DEffect(.degrees(180), axis: (x: 0, y: 1, z: 0))
-                    .opacity(isFlipped ? 1 : 0)
+                    .opacity(showsBackFace ? 1 : 0)
                     .accessibilityHidden(!isFlipped)
                     // Swipe rather than tap, so returning is the same gesture
                     // in reverse. A tap gave no sense of the panel turning.
@@ -94,7 +110,18 @@ public struct DeviceChassis<Content: View>: View {
                 axis: (x: 0, y: 1, z: 0),
                 perspective: 0.45
             )
-            .animation(.easeInOut(duration: 0.7), value: isFlipped)
+            .animation(.easeInOut(duration: DexMetrics.flipDuration), value: isFlipped)
+            // Hard cut at the halfway point: no duration, so the faces swap in
+            // one frame rather than fading, and it lands while the plate is
+            // edge-on so nothing is visibly on screen to pop.
+            .onChange(of: isFlipped) { _, flipped in
+                flipSwapTask?.cancel()
+                flipSwapTask = Task { @MainActor in
+                    try? await Task.sleep(for: .seconds(DexMetrics.flipDuration / 2))
+                    guard !Task.isCancelled else { return }
+                    showsBackFace = flipped
+                }
+            }
             .frame(maxWidth: .infinity, maxHeight: .infinity)
             .ignoresSafeArea()
         }
@@ -147,7 +174,12 @@ public struct DeviceChassis<Content: View>: View {
                 // is a poor primary affordance, but this one is a deliberate
                 // easter egg: the orb depresses under the finger so the
                 // feedback arrives before the flip does.
-                .onLongPressGesture(minimumDuration: 2.0) {
+                //
+                // One second, down from two. Two is long enough that someone who
+                // already knows the gesture assumes it has stopped working and
+                // lets go early — the orb depressing gives immediate feedback,
+                // so the hold only has to be long enough not to fire on a tap.
+                .onLongPressGesture(minimumDuration: 1.0) {
                     Haptics.tap()
                     orbHeld = false
                     isFlipped = true
