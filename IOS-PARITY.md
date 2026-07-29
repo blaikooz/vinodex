@@ -3,10 +3,11 @@
 Goal: bring `vinodex-web` as close to `vinodex-ios` v0.4.1.7 as the platforms
 allow, and ship it on Vercel.
 
-> **Status — all blocks below are built and pushed** on
-> `vinodex-web@screen-state-port` (9 commits, unmerged). Nothing has been
-> verified in a browser: the gates run were `npm run typecheck`, `npm run build`
-> and every route resolving under the dev server. See "Still open" at the foot.
+> **Status — all blocks below are built and merged.** `splash-split` turned out
+> to be wholly contained in `screen-state-port`, and `master` was an ancestor of
+> it, so combining the three was a fast-forward with no conflicts; `master` is
+> pushed at 18 commits ahead of where it stood. Blocks 9 and 10 below were added
+> after the merge. See "Still open" at the foot for what remains.
 
 `vinodex-ios` is the reference and stays **read-only**. Every block below ports
 *from* Swift *to* React.
@@ -143,10 +144,57 @@ stars ranked COMMON above UNCOMMON (`rarityRank` is common 1, uncommon 2,
 rare 3; the web read COMMON 2 / UNCOMMON 1), and only filled stars were drawn,
 so two and three stars were the same shape at different widths.
 
+## Block 9 — The website ✅
+
+Web-only: there is no Swift counterpart, and this block does not port anything.
+`/` already forked between the dex and a muted "coming soon" stub; the stub now
+leads somewhere.
+
+- `/website` is the dex menu's face with the categories swapped — OUR APPS, WHO
+  WE ARE, CONTACT US, DATA. Tile geometry, depress, sheen and grid are lifted
+  from `MainMenu` rather than reinvented, so the two menus read as one screen
+  with different labels. The centre slot holds the mark as a decorative disc:
+  nothing on a four-page site earns a control as prominent as master search, and
+  a circle that looked pressable and did nothing would be worse.
+- **DATA opens `/settings/DATA`**, the existing panel, rather than a second copy
+  of the readout.
+- `appUnlock.ts` gates Vinodex behind a code (`0000`), persisted like
+  `bookmarks` — a gate that reopened on every refresh reads as a bug. It is
+  deliberately *not* `access.ts`: that is the paywall harness and models bundles
+  someone owns, this models whether the site hands the app over at all. They
+  never consult each other. SETTINGS → DATA can re-lock.
+- Home inside the website means the website menu, not `/dex` — otherwise it
+  would push a visitor through a gate they have not passed.
+
+## Block 10 — A test runner ✅
+
+The "no test runner" item below is closed. Vitest under jsdom, configured by
+`vitest.config.ts` separately from `vite.config.ts` (which sets `root: web/` and
+mounts the PWA plugin — neither of which a unit test wants).
+
+jsdom rather than node because the stores are localStorage-backed, and the Swift
+originals run against a real `UserDefaults`; a stubbed store would not exercise
+the JSON round trip or the corrupt-value guards, which is where the bugs are.
+
+126 tests across 9 files. The service suites are ports of
+`ios/Tests/VinodexCoreTests/`, each file's header recording which Swift cases
+were adapted or dropped and why — `bookmarks` drops the `SavedItem` place cases
+(the web has COUNTRY_GATE entries, so the distinction is absent), `dailyPick`
+adapts the free-tier assertions (the web ships no tiers manifest), `grapeScan`
+derives the body chips from the data rather than a closed enum.
+
+The component tests are the first in the repo, and they found the bug that the
+next section had been claiming for weeks: `WHO WE\nARE` as a tile label put a
+literal newline in the button's accessible name. Wrapping is left to the browser
+now; the visual result is identical.
+
 ## Still open
 
-- **Nothing has been looked at in a browser.** The burgundy shell, the light
-  screen, the cog, the expanders — all compile and none have been seen.
+- **Most of it still has not been looked at in a browser.** The burgundy shell,
+  the light screen, the cog, the expanders — all compile and none have been
+  seen. The website screens are the exception: they are rendered and driven by
+  the component tests, so the unlock flow, the tile wiring and the lock badge's
+  subscription are exercised rather than assumed.
 - **The `.lcd-themed` remap is broad.** If an element inside the LCD wants a
   fixed `bg-stone-900`, it now follows the screen mode. The audit is done: the
   classes left outside the remap are saturated accents on buttons and chips,
@@ -162,9 +210,13 @@ so two and three stars were the same shape at different widths.
   same data through different markup. Order, titles, rules and rarity now
   match; the interiors have not been transcribed.
 - **The scanner still uses a flat country list** where iOS walks the globe.
-- **No test runner on the web side.** `screenState`, `dailyPick`, `grapeScan`
-  and `bookmarks` are untested here; their Swift originals have unit tests.
-- **Nothing is merged.** Three branches sit on their PR links.
+- **The untested services are now covered** — `screenState`, `dailyPick`,
+  `grapeScan`, `bookmarks`, `access` and `appUnlock` all have suites; see block
+  10. Still untested: `theme`, `entryFilter`, `moonService` and the display
+  helpers. `MoonCalendar`, `EntryFilter`, `Continent` and `Coverage` all have
+  Swift suites with no web counterpart yet, so those are the next four to port.
+- **Only three components are tested.** The two website screens and the unlock
+  keypad. The dex screens have no render coverage at all.
 
 ## Out of scope, deliberately
 

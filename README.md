@@ -28,9 +28,15 @@ wrapped in a plastic shell you can re-skin five different ways.
 | **Moon dial** | The biodynamic day — fruit, root, leaf or flower — for anyone who plans a tasting around it. |
 | **Saved** | Bookmark anything. Stored as ids, so a data update never leaves you looking at stale text. |
 | **Five chassis skins** | Vinodex Classic, Côte de Nuits, Blanc de Blancs, Burgundy Velour, Electric Riesling. Plus a light screen mode and two text sizes. |
+| **The website** | `/` forks into the dex and a four-page site wearing the same chassis: OUR APPS, WHO WE ARE, CONTACT US, and the DATA readout. Vinodex is handed over from the app shelf behind a code. |
 
-Everything is unlocked. There is no account, no paywall and no tracking; your
+Every entry is unlocked. There is no account, no paywall and no tracking; your
 saved entries and your chosen skin live in your own browser's storage.
+
+The one gate is the code the website's app shelf asks for before it opens
+Vinodex, and it is a doorman rather than a lock — the code lives in the client
+bundle, and `/dex` is still reachable directly from the splash. It exists so the
+app is handed over rather than stumbled into.
 
 ## The iOS app is the sibling, not the source
 
@@ -73,11 +79,19 @@ npm run dev        # Vite dev server, port 3000
 
 ```bash
 npm run typecheck  # tsc --noEmit
+npm test           # vitest run
 npm run build      # production build into dist/
 npm run preview    # serve that build
 ```
 
-There is no test runner in this repo. `typecheck` and `build` are the gates.
+`typecheck`, `test` and `build` are the gates.
+
+Tests are Vitest under jsdom, configured by [`vitest.config.ts`](vitest.config.ts)
+and colocated with what they cover (`*.test.ts` beside the service, `*.test.tsx`
+beside the component). The service suites are ports of the XCTest suites in
+`vinodex-ios/Tests/VinodexCoreTests/`, and each file's header records which
+Swift cases were adapted or dropped and why. `npm run test:watch` for the
+watcher.
 
 ## Deploying
 
