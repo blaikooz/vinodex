@@ -385,6 +385,7 @@ const App: React.FC = () => {
             <Suspense fallback={<ScreenLoading label="LOADING SYSTEM..." onBack={handleBack} onHome={handleHome} />}>
               <SettingsGrid
                 onSection={id => navigate(`/settings/${id}`)}
+                onMinigames={() => navigate('/minigames')}
                 onBack={handleBack}
                 onHome={handleHome}
               />
