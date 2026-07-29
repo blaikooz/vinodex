@@ -690,6 +690,265 @@ const EntryDetail: React.FC<EntryDetailProps> = ({ entry, allEntries, onBack, on
 
   const headerTiles = renderHeaderTiles();
 
+  {/* Alternate Names Section - Grapes */}
+  const grapeAlsoKnownAs = isGrapes ? (
+            <div className="mb-6">
+                <div className="flex items-center gap-2 mb-3 dex-section-rule pb-1">
+                    <Tag size={18} className="text-green-500" />
+                    <span className="font-retro text-xs md:text-sm tracking-widest text-green-500">ALSO KNOWN AS</span>
+                </div>
+                {grapeAlternateNames.length > 0 ? (
+                  <div className="flex flex-wrap gap-2">
+                      {grapeAlternateNames.map((name, i) => (
+                          <span key={i} className="px-4 py-2 bg-stone-800 text-stone-200 border border-stone-600 text-xl font-bold font-mono rounded tracking-widest">
+                              {name}
+                          </span>
+                      ))}
+                  </div>
+                ) : (
+                  <div className="border border-stone-700 bg-stone-900/80 rounded p-3">
+                    <p className="text-xl font-bold font-mono dex-subtext tracking-widest">NO ALTERNATE NAMES LISTED.</p>
+                  </div>
+                )}
+            </div>
+  ) : null;
+
+  {/* Rarity Section - Grapes */}
+  const grapeRarity = isGrapes ? (
+            <div className="mb-6">
+                <div className="flex items-center gap-2 mb-3 dex-section-rule pb-1">
+                    <Star size={24} className="text-green-400" />
+                    <span className="font-retro text-xs md:text-sm tracking-widest text-green-400">RARITY</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <span className="flex-1 flex items-center px-3 py-1.5 rounded-full border-2 border-green-500 dex-chip-well text-base font-extrabold uppercase text-green-300 justify-between" style={{ letterSpacing: '0.1em' }}>
+                    {displayClass}
+                    <span className="ml-2 flex items-center">
+                      {(() => {
+                        const rarity = (entry.rarity || '').toUpperCase();
+                        // NOBLE is a crown on its own, not a crown capping three
+                        // stars — the stars implied it was simply one rank above
+                        // RARE rather than a different kind of thing.
+                        if (rarity === 'NOBLE') {
+                          return <Crown size={20} className="text-yellow-400 ml-1" />;
+                        }
+                        // `rarityRank` in Swift: common 1, uncommon 2, rare 3.
+                        // This read COMMON 2 / UNCOMMON 1, so a common grape
+                        // outranked an uncommon one on screen.
+                        const filled = rarity === 'RARE' ? 3 : rarity === 'UNCOMMON' ? 2 : 1;
+                        // Always three slots, unfilled ones outlined — a count
+                        // only means something against a visible ceiling.
+                        return Array.from({ length: 3 }).map((_, i) => (
+                          <Star
+                            key={i}
+                            size={18}
+                            className={`ml-0.5 ${i < filled ? 'text-yellow-400' : 'text-stone-600'}`}
+                            fill={i < filled ? '#facc15' : 'none'}
+                          />
+                        ));
+                      })()}
+                    </span>
+                  </span>
+                </div>
+            </div>
+  ) : null;
+
+  {/* Stats Section - Only for GRAPES */}
+  const grapeCharacteristics = isGrapes && grapeCard ? (
+            <div className="mb-6">
+                <div className="flex items-center gap-2 mb-2 dex-section-rule pb-1">
+                    <Activity size={18} className="text-green-500" />
+                    <span className="font-retro text-xs md:text-sm tracking-widest text-green-500">CHARACTERISTICS</span>
+                </div>
+                <div className="space-y-4 bg-stone-900 p-3 rounded border border-stone-800">
+                    {([
+                      { label: 'BODY', value: grapeCard.characteristics.body, color: 'bg-green-500' },
+                      { label: 'ACID', value: grapeCard.characteristics.acid, color: 'bg-yellow-500' },
+                      { label: 'TANNIN', value: grapeCard.characteristics.tannin, color: 'bg-red-500' },
+                      { label: 'AROMATICS', value: grapeCard.characteristics.aromatics, color: 'bg-purple-400' },
+                      { label: 'COLOR', value: grapeCard.characteristics.colorIntensity, color: 'bg-amber-500' },
+                    ]).map(stat => (
+                      <div className="flex items-center gap-3" key={stat.label}>
+                          <span className="w-24 text-base font-bold dex-text font-mono tracking-widest shrink-0">{stat.label}</span>
+                          <div className="flex-1 h-2 bg-stone-800 flex gap-0.5">
+                              {Array.from({ length: 5 }).map((_, i) => (
+                                  <div key={i} className={`flex-1 ${i < stat.value ? stat.color : 'bg-transparent'} transition-all`}></div>
+                              ))}
+                          </div>
+                      </div>
+                    ))}
+                </div>
+            </div>
+  ) : null;
+
+  {/* System Section - Regions */}
+  const regionSystem = isRegion && entry.details.classification ? (
+            <div className="mb-6">
+                <div className="flex items-center gap-2 mb-2 dex-section-rule pb-1">
+                    <Shield size={18} className="text-green-500" />
+                    <span className="font-retro text-xs md:text-sm tracking-widest text-green-500">APPELLATION SYSTEM</span>
+                </div>
+                <div className="flex flex-wrap gap-2">
+                    <span className="px-4 py-2 rounded text-xl font-bold font-mono tracking-widest" style={{ backgroundColor: SYSTEM_CHIP_COLOR.bg, border: `1px solid ${SYSTEM_CHIP_COLOR.border}`, color: SYSTEM_CHIP_COLOR.text }}>
+                      {extractTagAbbrev(entry.details.classification || '')}
+                    </span>
+                </div>
+            </div>
+  ) : null;
+
+  {/* Appellations Section - Regions with appellations */}
+  const regionAppellations = isRegion && entry.details.appellations && entry.details.appellations.length > 0 ? (
+            <div className="mb-6">
+                <div className="flex items-center gap-2 mb-3 dex-section-rule pb-1">
+                    <MapPinned size={18} className="text-green-500" />
+                    <span className="font-retro text-xs md:text-sm tracking-widest text-green-500">
+                        {entry.name.includes('Beaujolais') ? 'CRUS OF BEAUJOLAIS' : 'APPELLATIONS'}
+                    </span>
+                </div>
+                <div className="grid grid-cols-2 gap-2">
+                    {entry.details.appellations.map((appellation, i) => (
+                        <div key={i} className="px-4 py-2 bg-stone-800 text-stone-200 border border-stone-600 text-xl font-bold font-mono rounded text-center tracking-widest">
+                            {appellation}
+                        </div>
+                    ))}
+                </div>
+            </div>
+  ) : null;
+
+  {/* Notable Grapes Section - Regions */}
+  const regionNotableGrapes = isRegion && listSectionData && listSectionData.length > 0 ? (
+            <div className="mb-6">
+                <div className="flex items-center gap-2 mb-3 dex-section-rule pb-1">
+                   <List size={18} className="text-green-500" />
+                   <span className="font-retro text-xs md:text-sm tracking-widest text-green-500">NOTABLE GRAPES</span>
+                </div>
+                <div className="grid grid-cols-1 gap-2">
+                     {expandableList(listSectionData, 8, 'list')}
+                </div>
+            </div>
+  ) : null;
+
+  {/* Notable Regions Section - Grapes */}
+  const grapeNotableRegions = isGrapes && listSectionData && listSectionData.length > 0 ? (
+            <div className="mb-6">
+                <div className="flex items-center gap-2 mb-3 dex-section-rule pb-1">
+                   <MapPin size={18} className="text-green-500" />
+                   <span className="font-retro text-xs md:text-sm tracking-widest text-green-500">NOTABLE REGIONS</span>
+                </div>
+                <div className="grid grid-cols-1 gap-2">
+                     {expandableList(listSectionData, 8, 'list', { showRegionMetaTiles: true })}
+                </div>
+            </div>
+  ) : null;
+
+  {/* Climate Section - Regions */}
+  const regionClimate = isRegion ? (
+            <div className="mb-6">
+                <div className="flex items-center gap-2 mb-2 dex-section-rule pb-1">
+                    <Wind size={18} className="text-green-500" />
+                    <span className="font-retro text-xs md:text-sm tracking-widest text-green-500">CLIMATE</span>
+                </div>
+                <div className="flex flex-wrap gap-2">
+                    {(() => {
+                      const sectionClimateColors = (entry.climate && CLIMATE_CLASS_MAP[entry.climate]?.colors) || CLIMATE_CHIP_COLOR;
+                      return (
+                        <span className="px-4 py-2 rounded text-xl font-bold font-mono tracking-widest" style={{ backgroundColor: sectionClimateColors.bg, border: `1px solid ${sectionClimateColors.border}`, color: sectionClimateColors.text }}>
+                          {(entry.climate && CLIMATE_CLASS_MAP[entry.climate]?.name) || 'Unknown Climate'}
+                        </span>
+                      );
+                    })()}
+                </div>
+            </div>
+  ) : null;
+
+  {/* Soil Composition Section - Regions */}
+  const regionSoil = isRegion ? (
+            <div className="mb-6">
+                 <div className="flex items-center gap-2 mb-3 dex-section-rule pb-1">
+                   <Mountain size={18} className="text-green-500" />
+                   <span className="font-retro text-xs md:text-sm tracking-widest text-green-500">SOIL COMPOSITION</span>
+                 </div>
+                 <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 items-stretch">
+                    {regionSoils.map((soil, i) => {
+                        const { icon, color } = getSoilIcon(soil);
+                        return (
+                            <button 
+                                key={`${soil}-${i}`}
+                                onClick={() => onFilterBySoil(soil)}
+                                className="w-full flex flex-col items-center gap-3 p-3 bg-stone-900 border-2 border-stone-800 rounded-lg hover:border-green-500 hover:bg-stone-800 transition-all active:scale-95 group h-full"
+                            >
+                                <div 
+                                  className="w-12 h-12 rounded-lg flex items-center justify-center shadow-inner group-hover:scale-110 transition-transform border-2"
+                                  style={{ backgroundColor: '#0b0f19', borderColor: color }}
+                                >
+                                  <span style={{ color }}>
+                                    {icon}
+                                  </span>
+                                </div>
+                                <span className="font-retro text-xs dex-text uppercase text-center leading-tight group-hover:text-green-300">
+                                  {soil}
+                                </span>
+                            </button>
+                        );
+                    })}
+                 </div>
+            </div>
+  ) : null;
+
+  {/* Tasting Notes Section - List Tile (For Grapes only) */}
+  const grapeFlavorProfile = isGrapes ? (
+            <div className="mb-6">
+                <div className="flex items-center gap-2 mb-3 dex-section-rule pb-1">
+                    <Grape size={18} className="text-green-500" />
+                    <span className="font-retro text-xs md:text-sm tracking-widest text-green-500">FLAVOR PROFILE</span>
+                </div>
+                {matchedFlavorNotes.length > 0 ? (
+                  <div className="flex flex-col gap-2 w-full">
+                    {matchedFlavorNotes.map((note, i) => {
+                      // Get icon, color, and label
+                      const { relatedFlavor, iconNode, borderColor, bgColor, label } = getFlavorTileVisual(note);
+                      // Get class and type
+                      const subclass = categorizeFlavorSubclass(label);
+                      const flavorClass = categorizeFlavor(label, subclass);
+                      const classColor = getFlavorClassChipColors(flavorClass);
+                      const typeColor = getFlavorSubclassChipColors(subclass);
+                      return (
+                        <button
+                          type="button"
+                          key={i}
+                          onClick={() => relatedFlavor && onSelectRelated(relatedFlavor)}
+                          disabled={!relatedFlavor}
+                          className="w-full bg-stone-900 border-2 border-stone-700 rounded p-2 flex items-center gap-3 relative overflow-hidden min-h-[4.5rem] text-left hover:border-green-500 hover:bg-stone-800 transition-colors disabled:cursor-not-allowed cursor-pointer"
+                        >
+                          {/* Hero Icon */}
+                          <div
+                            className={`shrink-0 ${CONTAINER_SIZE_LIST} ${CONTAINER_BORDER_CLASS} ${CONTAINER_SHADOW_CLASS} flex items-center justify-center ${CONTAINER_BORDER}`}
+                            style={{ backgroundColor: bgColor, borderColor }}
+                          >
+                            {iconNode}
+                          </div>
+                          {/* Name and Chips */}
+                          <div className="flex flex-col flex-1 min-w-0 justify-center h-full items-start py-1">
+                            <span className="font-retro text-base dex-text leading-tight tracking-tight whitespace-normal break-words">
+                              {label.toUpperCase()}
+                            </span>
+                            <div className="flex gap-1 mt-1">
+                              <Chip label={flavorClass} colorStyle={classColor} />
+                              <Chip label={subclass.replace(/_/g, ' ')} colorStyle={typeColor} />
+                            </div>
+                          </div>
+                        </button>
+                      );
+                    })}
+                  </div>
+                ) : (
+                  <div className="border border-stone-700 bg-stone-900/80 rounded p-3">
+                    <p className="text-sm dex-subtext">No flavor profile listed.</p>
+                  </div>
+                )}
+            </div>
+  ) : null;
+
   return (
     <DeviceLayout
       title={scanTitle}
@@ -895,158 +1154,30 @@ const EntryDetail: React.FC<EntryDetailProps> = ({ entry, allEntries, onBack, on
           </div>
         )}
 
-        {/* Alternate Names Section - Grapes */}
-        {isGrapes && (
-            <div className="mb-6">
-                <div className="flex items-center gap-2 mb-3 dex-section-rule pb-1">
-                    <Tag size={18} className="text-green-500" />
-                    <span className="font-retro text-xs md:text-sm tracking-widest text-green-500">ALSO KNOWN AS</span>
-                </div>
-                {grapeAlternateNames.length > 0 ? (
-                  <div className="flex flex-wrap gap-2">
-                      {grapeAlternateNames.map((name, i) => (
-                          <span key={i} className="px-4 py-2 bg-stone-800 text-stone-200 border border-stone-600 text-xl font-bold font-mono rounded tracking-widest">
-                              {name}
-                          </span>
-                      ))}
-                  </div>
-                ) : (
-                  <div className="border border-stone-700 bg-stone-900/80 rounded p-3">
-                    <p className="text-xl font-bold font-mono dex-subtext tracking-widest">NO ALTERNATE NAMES LISTED.</p>
-                  </div>
-                )}
-            </div>
-        )}
+        {/* Grape sections, in the order EntryDetailScreen.swift lists them:
+            characteristics, rarity, flavour profile, synonyms, regions. */}
+        {grapeCharacteristics}
+        {grapeRarity}
+        {grapeFlavorProfile}
+        {grapeAlsoKnownAs}
+        {grapeNotableRegions}
 
-        {/* Rarity Section - Grapes */}
-        {isGrapes && (
-            <div className="mb-6">
-                <div className="flex items-center gap-2 mb-3 dex-section-rule pb-1">
-                    <Star size={24} className="text-green-400" />
-                    <span className="font-retro text-xs md:text-sm tracking-widest text-green-400">RARITY</span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <span className="flex-1 flex items-center px-3 py-1.5 rounded-full border-2 border-green-500 dex-chip-well text-base font-extrabold uppercase text-green-300 justify-between" style={{ letterSpacing: '0.1em' }}>
-                    {displayClass}
-                    <span className="ml-2 flex items-center">
-                      {(() => {
-                        const rarity = (entry.rarity || '').toUpperCase();
-                        // NOBLE is a crown on its own, not a crown capping three
-                        // stars — the stars implied it was simply one rank above
-                        // RARE rather than a different kind of thing.
-                        if (rarity === 'NOBLE') {
-                          return <Crown size={20} className="text-yellow-400 ml-1" />;
-                        }
-                        // `rarityRank` in Swift: common 1, uncommon 2, rare 3.
-                        // This read COMMON 2 / UNCOMMON 1, so a common grape
-                        // outranked an uncommon one on screen.
-                        const filled = rarity === 'RARE' ? 3 : rarity === 'UNCOMMON' ? 2 : 1;
-                        // Always three slots, unfilled ones outlined — a count
-                        // only means something against a visible ceiling.
-                        return Array.from({ length: 3 }).map((_, i) => (
-                          <Star
-                            key={i}
-                            size={18}
-                            className={`ml-0.5 ${i < filled ? 'text-yellow-400' : 'text-stone-600'}`}
-                            fill={i < filled ? '#facc15' : 'none'}
-                          />
-                        ));
-                      })()}
-                    </span>
-                  </span>
-                </div>
-            </div>
-        )}
+        {/* Region sections, likewise: the system that governs the region, its
+            denominations, then climate and soil, then the grapes. The grape
+            list sat third here, above climate and soil. */}
+        {regionSystem}
+        {regionAppellations}
+        {regionClimate}
+        {regionSoil}
+        {regionNotableGrapes}
 
 
 
-        {/* Stats Section - Only for GRAPES */}
-        {isGrapes && grapeCard && (
-            <div className="mb-6">
-                <div className="flex items-center gap-2 mb-2 dex-section-rule pb-1">
-                    <Activity size={18} className="text-green-500" />
-                    <span className="font-retro text-xs md:text-sm tracking-widest text-green-500">CHARACTERISTICS</span>
-                </div>
-                <div className="space-y-4 bg-stone-900 p-3 rounded border border-stone-800">
-                    {([
-                      { label: 'BODY', value: grapeCard.characteristics.body, color: 'bg-green-500' },
-                      { label: 'ACID', value: grapeCard.characteristics.acid, color: 'bg-yellow-500' },
-                      { label: 'TANNIN', value: grapeCard.characteristics.tannin, color: 'bg-red-500' },
-                      { label: 'AROMATICS', value: grapeCard.characteristics.aromatics, color: 'bg-purple-400' },
-                      { label: 'COLOR', value: grapeCard.characteristics.colorIntensity, color: 'bg-amber-500' },
-                    ]).map(stat => (
-                      <div className="flex items-center gap-3" key={stat.label}>
-                          <span className="w-24 text-base font-bold dex-text font-mono tracking-widest shrink-0">{stat.label}</span>
-                          <div className="flex-1 h-2 bg-stone-800 flex gap-0.5">
-                              {Array.from({ length: 5 }).map((_, i) => (
-                                  <div key={i} className={`flex-1 ${i < stat.value ? stat.color : 'bg-transparent'} transition-all`}></div>
-                              ))}
-                          </div>
-                      </div>
-                    ))}
-                </div>
-            </div>
-        )}
 
-        {/* System Section - Regions */}
-        {isRegion && entry.details.classification && (
-            <div className="mb-6">
-                <div className="flex items-center gap-2 mb-2 dex-section-rule pb-1">
-                    <Shield size={18} className="text-green-500" />
-                    <span className="font-retro text-xs md:text-sm tracking-widest text-green-500">APPELLATION SYSTEM</span>
-                </div>
-                <div className="flex flex-wrap gap-2">
-                    <span className="px-4 py-2 rounded text-xl font-bold font-mono tracking-widest" style={{ backgroundColor: SYSTEM_CHIP_COLOR.bg, border: `1px solid ${SYSTEM_CHIP_COLOR.border}`, color: SYSTEM_CHIP_COLOR.text }}>
-                      {extractTagAbbrev(entry.details.classification || '')}
-                    </span>
-                </div>
-            </div>
-        )}
 
-        {/* Appellations Section - Regions with appellations */}
-        {isRegion && entry.details.appellations && entry.details.appellations.length > 0 && (
-            <div className="mb-6">
-                <div className="flex items-center gap-2 mb-3 dex-section-rule pb-1">
-                    <MapPinned size={18} className="text-green-500" />
-                    <span className="font-retro text-xs md:text-sm tracking-widest text-green-500">
-                        {entry.name.includes('Beaujolais') ? 'CRUS OF BEAUJOLAIS' : 'APPELLATIONS'}
-                    </span>
-                </div>
-                <div className="grid grid-cols-2 gap-2">
-                    {entry.details.appellations.map((appellation, i) => (
-                        <div key={i} className="px-4 py-2 bg-stone-800 text-stone-200 border border-stone-600 text-xl font-bold font-mono rounded text-center tracking-widest">
-                            {appellation}
-                        </div>
-                    ))}
-                </div>
-            </div>
-        )}
 
-        {/* Notable Grapes Section - Regions */}
-        {isRegion && listSectionData && listSectionData.length > 0 && (
-            <div className="mb-6">
-                <div className="flex items-center gap-2 mb-3 dex-section-rule pb-1">
-                   <List size={18} className="text-green-500" />
-                   <span className="font-retro text-xs md:text-sm tracking-widest text-green-500">NOTABLE GRAPES</span>
-                </div>
-                <div className="grid grid-cols-1 gap-2">
-                     {expandableList(listSectionData, 8, 'list')}
-                </div>
-            </div>
-        )}
 
-        {/* Notable Regions Section - Grapes */}
-        {isGrapes && listSectionData && listSectionData.length > 0 && (
-            <div className="mb-6">
-                <div className="flex items-center gap-2 mb-3 dex-section-rule pb-1">
-                   <MapPin size={18} className="text-green-500" />
-                   <span className="font-retro text-xs md:text-sm tracking-widest text-green-500">NOTABLE REGIONS</span>
-                </div>
-                <div className="grid grid-cols-1 gap-2">
-                     {expandableList(listSectionData, 8, 'list', { showRegionMetaTiles: true })}
-                </div>
-            </div>
-        )}
+
 
         {/* Countries Section - Continents */}
         {isContinent && listSectionData && listSectionData.length > 0 && (
@@ -1061,113 +1192,8 @@ const EntryDetail: React.FC<EntryDetailProps> = ({ entry, allEntries, onBack, on
             </div>
         )}
 
-        {/* Climate Section - Regions */}
-        {isRegion && (
-            <div className="mb-6">
-                <div className="flex items-center gap-2 mb-2 dex-section-rule pb-1">
-                    <Wind size={18} className="text-green-500" />
-                    <span className="font-retro text-xs md:text-sm tracking-widest text-green-500">CLIMATE</span>
-                </div>
-                <div className="flex flex-wrap gap-2">
-                    {(() => {
-                      const sectionClimateColors = (entry.climate && CLIMATE_CLASS_MAP[entry.climate]?.colors) || CLIMATE_CHIP_COLOR;
-                      return (
-                        <span className="px-4 py-2 rounded text-xl font-bold font-mono tracking-widest" style={{ backgroundColor: sectionClimateColors.bg, border: `1px solid ${sectionClimateColors.border}`, color: sectionClimateColors.text }}>
-                          {(entry.climate && CLIMATE_CLASS_MAP[entry.climate]?.name) || 'Unknown Climate'}
-                        </span>
-                      );
-                    })()}
-                </div>
-            </div>
-        )}
 
-        {/* Soil Composition Section - Regions */}
-        {isRegion && (
-            <div className="mb-6">
-                 <div className="flex items-center gap-2 mb-3 dex-section-rule pb-1">
-                   <Mountain size={18} className="text-green-500" />
-                   <span className="font-retro text-xs md:text-sm tracking-widest text-green-500">SOIL COMPOSITION</span>
-                 </div>
-                 <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 items-stretch">
-                    {regionSoils.map((soil, i) => {
-                        const { icon, color } = getSoilIcon(soil);
-                        return (
-                            <button 
-                                key={`${soil}-${i}`}
-                                onClick={() => onFilterBySoil(soil)}
-                                className="w-full flex flex-col items-center gap-3 p-3 bg-stone-900 border-2 border-stone-800 rounded-lg hover:border-green-500 hover:bg-stone-800 transition-all active:scale-95 group h-full"
-                            >
-                                <div 
-                                  className="w-12 h-12 rounded-lg flex items-center justify-center shadow-inner group-hover:scale-110 transition-transform border-2"
-                                  style={{ backgroundColor: '#0b0f19', borderColor: color }}
-                                >
-                                  <span style={{ color }}>
-                                    {icon}
-                                  </span>
-                                </div>
-                                <span className="font-retro text-xs dex-text uppercase text-center leading-tight group-hover:text-green-300">
-                                  {soil}
-                                </span>
-                            </button>
-                        );
-                    })}
-                 </div>
-            </div>
-        )}
 
-        {/* Tasting Notes Section - List Tile (For Grapes only) */}
-        {isGrapes && (
-            <div className="mb-6">
-                <div className="flex items-center gap-2 mb-3 dex-section-rule pb-1">
-                    <Grape size={18} className="text-green-500" />
-                    <span className="font-retro text-xs md:text-sm tracking-widest text-green-500">FLAVOR PROFILE</span>
-                </div>
-                {matchedFlavorNotes.length > 0 ? (
-                  <div className="flex flex-col gap-2 w-full">
-                    {matchedFlavorNotes.map((note, i) => {
-                      // Get icon, color, and label
-                      const { relatedFlavor, iconNode, borderColor, bgColor, label } = getFlavorTileVisual(note);
-                      // Get class and type
-                      const subclass = categorizeFlavorSubclass(label);
-                      const flavorClass = categorizeFlavor(label, subclass);
-                      const classColor = getFlavorClassChipColors(flavorClass);
-                      const typeColor = getFlavorSubclassChipColors(subclass);
-                      return (
-                        <button
-                          type="button"
-                          key={i}
-                          onClick={() => relatedFlavor && onSelectRelated(relatedFlavor)}
-                          disabled={!relatedFlavor}
-                          className="w-full bg-stone-900 border-2 border-stone-700 rounded p-2 flex items-center gap-3 relative overflow-hidden min-h-[4.5rem] text-left hover:border-green-500 hover:bg-stone-800 transition-colors disabled:cursor-not-allowed cursor-pointer"
-                        >
-                          {/* Hero Icon */}
-                          <div
-                            className={`shrink-0 ${CONTAINER_SIZE_LIST} ${CONTAINER_BORDER_CLASS} ${CONTAINER_SHADOW_CLASS} flex items-center justify-center ${CONTAINER_BORDER}`}
-                            style={{ backgroundColor: bgColor, borderColor }}
-                          >
-                            {iconNode}
-                          </div>
-                          {/* Name and Chips */}
-                          <div className="flex flex-col flex-1 min-w-0 justify-center h-full items-start py-1">
-                            <span className="font-retro text-base dex-text leading-tight tracking-tight whitespace-normal break-words">
-                              {label.toUpperCase()}
-                            </span>
-                            <div className="flex gap-1 mt-1">
-                              <Chip label={flavorClass} colorStyle={classColor} />
-                              <Chip label={subclass.replace(/_/g, ' ')} colorStyle={typeColor} />
-                            </div>
-                          </div>
-                        </button>
-                      );
-                    })}
-                  </div>
-                ) : (
-                  <div className="border border-stone-700 bg-stone-900/80 rounded p-3">
-                    <p className="text-sm dex-subtext">No flavor profile listed.</p>
-                  </div>
-                )}
-            </div>
-        )}
 
         {/* Method Class: Key Grapes */}
         {isStyle && isMethodClass && entry.details.notableGrapes && entry.details.notableGrapes.length > 0 && (
