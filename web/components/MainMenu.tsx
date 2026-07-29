@@ -58,7 +58,8 @@ const MainMenu: React.FC<MainMenuProps> = ({ onNavigate }) => {
                 
                 <button 
                   onClick={() => onNavigate('REGIONS')}
-                  className="flex-1 bg-green-500 border-b-[6px] border-green-800 rounded-xl shadow-lg active:translate-y-1 active:border-b-0 transition-all flex flex-col items-center justify-center group hover:bg-green-400 relative overflow-hidden"
+                  /* green-700 (#15803d), matching the iOS tile's shadow hex. */
+                  className="flex-1 bg-green-500 border-b-[6px] border-green-700 rounded-xl shadow-lg active:translate-y-1 active:border-b-0 transition-all flex flex-col items-center justify-center group hover:bg-green-400 relative overflow-hidden"
                 >
                     <div className="absolute inset-0 bg-gradient-to-br from-white/10 to-transparent pointer-events-none"></div>
                     <Globe size={48} className="text-white mb-2 group-hover:scale-110 transition-transform drop-shadow-md sm:w-16 sm:h-16" />

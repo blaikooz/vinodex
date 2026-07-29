@@ -1,21 +1,52 @@
-# Vinodex — web
+<div align="center">
 
-Vinodex is a retro-styled wine encyclopedia PWA built with React, TypeScript, and Vite.
+<img src="web/public/vinodex-logo.png" alt="Vinodex" width="180" />
 
-![Vinodex logo](web/public/vinodex-logo.png)
+# VINODEX
 
-> ## The iOS app moved out
+### A wine encyclopedia that looks like a 90s handheld.
+
+284 grapes, regions, styles and flavours — colour-coded, cross-linked, and
+wrapped in a plastic shell you can re-skin five different ways.
+
+**[Open the app →](https://vinodex.vercel.app)**
+
+`React 19` · `TypeScript` · `Vite` · `Tailwind v4` · `PWA`
+
+</div>
+
+---
+
+## What's in it
+
+| | |
+|---|---|
+| **The dex** | Grapes, regions, styles and flavours. Every entry cross-links to the others — a grape names its regions, a region names its grapes, and both resolve. |
+| **Globe scan** | A draggable 3D globe. Pick a continent, drill to a country, land on its regions. |
+| **Scanner** | Four questions about the glass in front of you — colour, body, origin, flavours — then a deduction. Flavours are ANDed, so three notes narrow 80 grapes to a handful. |
+| **What's that…?** | A daily reveal, played as a guess. Silhouette first, name second. Rotates through grapes, regions and styles so it is not a grape-only habit. |
+| **Moon dial** | The biodynamic day — fruit, root, leaf or flower — for anyone who plans a tasting around it. |
+| **Saved** | Bookmark anything. Stored as ids, so a data update never leaves you looking at stale text. |
+| **Five chassis skins** | Vinodex Classic, Côte de Nuits, Blanc de Blancs, Burgundy Velour, Electric Riesling. Plus a light screen mode and two text sizes. |
+
+Everything is unlocked. There is no account, no paywall and no tracking; your
+saved entries and your chosen skin live in your own browser's storage.
+
+## The iOS app is the sibling, not the source
+
+**[`blaikooz/vinodex-ios`](https://github.com/blaikooz/vinodex-ios)** is a native
+SwiftUI build of the same device. This web app is kept deliberately close to it —
+same chassis, same screens, same rules — and the Swift source is the reference
+when the two disagree.
+
+> ### Frozen paths — do not edit
 >
-> **[`blaikooz/vinodex-ios`](https://github.com/blaikooz/vinodex-ios) is the iOS
-> app's home as of 2026-07-29.** It owns its source, its data and its tooling,
-> and nothing is copied between the two repos in either direction.
->
-> Until then it was *generated* from this repo by `scripts/publish-swift.mjs`,
-> which emptied that repo's tree and rebuilt it on every run — so a commit made
-> there did not survive. That script, the `swift` remote, the `swift-main` branch
-> and the `publish:swift*` npm scripts are all deleted.
->
-> **These paths are now frozen leftovers. Do not edit them:**
+> The iOS app moved out on 2026-07-29 and now owns its source, data and
+> tooling. Nothing is copied between the repos in either direction. Until then
+> it was *generated* from here by `scripts/publish-swift.mjs`, which emptied
+> that repo's tree on every run, so a commit made there did not survive. That
+> script, the `swift` remote, the `swift-main` branch and the `publish:swift*`
+> npm scripts are all deleted.
 >
 > | Frozen | Live copy |
 > |---|---|
@@ -25,102 +56,73 @@ Vinodex is a retro-styled wine encyclopedia PWA built with React, TypeScript, an
 > | `scripts/generate-ios-data.ts`, `scripts/rasterize-icons.sh` | `vinodex-ios/scripts/` |
 >
 > They are still here because the web app imports `shared/` (7 files under
-> `web/src/services/`), and it still will: `/` is now a splash that forks to the
-> dex app and a coming-soon website page, so the encyclopedia stays rather than
-> being replaced by a landing page. The `generate:ios` / `icons:ios` npm scripts
-> have been removed so nothing here can regenerate the frozen copies;
-> **an iOS data change is made in `vinodex-ios`.**
+> `web/src/services/`), and it still will: `/` is a splash that forks to the dex
+> and a coming-soon website page, so the encyclopedia stays rather than being
+> replaced by a landing page. The `generate:ios` / `icons:ios` scripts are gone
+> so nothing here can regenerate the frozen copies — **an iOS data change is
+> made in `vinodex-ios`.**
 
-## Features
+## Running it
 
-- Grape varieties with tasting profiles and rarity tiers
-- Wine regions with map-driven exploration
-- Wine style and flavor reference entries
-- Installable PWA experience
-- Retro handheld-inspired UI
-
-## Tech Stack
-
-- React 19
-- TypeScript
-- Vite
-- Tailwind CSS v4
-- Lucide React
-- Iconify React with game-icons icon set
-- `vite-plugin-pwa`
-
-## Getting Started
-
-### Prerequisites
-
-- Node.js 20 or newer
-- npm
-
-The repo includes an `.nvmrc` pinned to `20.18.0` if you use `nvm`.
-
-### Install
+Node 20 or newer (`.nvmrc` pins `20.18.0`).
 
 ```bash
 npm install
+npm run dev        # Vite dev server, port 3000
 ```
-
-### Run the app
 
 ```bash
-npm run dev
+npm run typecheck  # tsc --noEmit
+npm run build      # production build into dist/
+npm run preview    # serve that build
 ```
 
-The Vite dev server will print the local URL it is using, typically `http://localhost:5173`.
+There is no test runner in this repo. `typecheck` and `build` are the gates.
 
-### Validate the project
+## Deploying
 
-```bash
-npm run typecheck
-npm run build
-```
+Vercel, configured by [`vercel.json`](vercel.json):
 
-### Preview the production build
+- **SPA rewrite** so `/dex` and `/detail/<id>` resolve on a cold load instead
+  of 404ing. Anything with a file extension, plus `assets/` and `icons/`, is
+  left alone and served statically.
+- **Immutable caching** on hashed assets; **no-cache** on `sw.js` and
+  `manifest.webmanifest`, so a returning browser picks up a new build rather
+  than serving yesterday's shell forever.
+- Output directory is the repo-root `dist/`, which is where `vite.config.ts`
+  writes — not `web/dist`.
 
-```bash
-npm run preview
-```
-
-## Project Structure
+## Layout
 
 ```text
 vinodex-web/
   web/               The Vite/React PWA — the live part of this repo
-    App.tsx          Top-level navigation state
-    components/      React UI screens and tiles
-    src/services/    Web-only rendering helpers (icons, display formatting)
-    data/            Web-only data (flag image imports, encyclopedia)
+    App.tsx          Routing and navigation handlers
+    components/      Screens, the device chassis, tiles
+    src/services/    Theme, screen state, bookmarks, daily pick, scanner
+    data/            Web-only data (flag imports, encyclopedia)
     public/          Static assets
 
-  shared/            FROZEN — see the banner above. Live copy in vinodex-ios.
+  shared/            FROZEN — live copy in vinodex-ios
   ios/               FROZEN — the SwiftUI app now lives in vinodex-ios
   pixelflags/        FROZEN — live copy in vinodex-ios
   scripts/           Encyclopedia tooling (live) + two frozen iOS generators
 ```
 
-The web app imports `shared/` through the `@/shared/*` alias, which is the only
-reason the frozen folders are still here. That dependency stays: `/` is a splash
-that forks to the dex (`/dex`) and a coming-soon website page, so the
-encyclopedia is not going away.
+`shared/constants.ts` is the runtime source of truth for entries.
+`web/public/wine-entries.json` is a static artifact and **not** the active
+runtime loader.
 
-### Working on the data or colours
+### Working on data or colours
 
-**For the iOS app, edit `shared/` in
-[`vinodex-ios`](https://github.com/blaikooz/vinodex-ios)** and regenerate there
+For the iOS app, edit `shared/` in
+[`vinodex-ios`](https://github.com/blaikooz/vinodex-ios) and regenerate there
 (`npm run generate`). The copy in this repo feeds the web app only, and changing
 it has no effect on iOS.
 
-## Notes
+## Credits
 
-- `shared/constants.ts` is the runtime source of truth for app entries.
-- `web/public/wine-entries.json` remains a generated/static artifact and is not the active runtime loader.
-- The repo no longer depends on a bundled platform-specific Node binary.
-
-## Icon Attribution
-
-- **Lucide React**: UI and utility icons (lucide.dev)
-- **game-icons**: Thematic wine, flavor, and regional icons sourced via Iconify (game-icons.net)
+- **Lucide** — UI and utility icons ([lucide.dev](https://lucide.dev))
+- **game-icons** — wine, flavour and regional glyphs, via Iconify
+  ([game-icons.net](https://game-icons.net))
+- **Press Start 2P** and **VT323** — the retro and terminal faces
