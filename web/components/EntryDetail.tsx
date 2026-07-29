@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useRef } from 'react';
+import React, { useMemo, useRef } from 'react';
 import { Tag, MapPin, Activity, Droplet, Grape, Mountain, ChevronRight, List, Circle, Leaf, Sparkles, Flame, Shield, BookOpen, MapPinned, Flower2, Apple, Wind, Citrus, Star, Crown, Waves, Coffee, Beef, Cherry, TreePalm, LeafyGreen, Carrot, Drumstick, Ham, Croissant, Cookie, Earth, TreePine, Shell, Hop, Nut } from 'lucide-react';
 import { Icon } from '@iconify/react';
 import DeviceLayout from './DeviceLayout';
@@ -24,6 +24,8 @@ import { getSoilIcon, getSoilsForRegion } from '../src/services/soilDisplay';
 import { normalizeTypeClass, getStyleClassTileColors, getStyleColorTileColors, getWineTypeTileColors } from '../src/services/styleDisplay';
 import { getFlavorClassTileColors, getFlavorSubclassTileColors } from '../src/services/flavorDisplay';
 import { getClimateIcon } from '../src/services/climateDisplay';
+import { keyForDetail } from '../src/services/screenState';
+import { useScreenAnchor } from '../src/services/useScreenAnchor';
 
 type FilterMode = 'REGION' | 'TYPE' | 'TASTING' | 'SOIL' | 'ORIGIN' | 'RARITY' | 'SYSTEM' | 'CLIMATE' | null;
 
@@ -44,12 +46,12 @@ const EntryDetail: React.FC<EntryDetailProps> = ({ entry, allEntries, onBack, on
   const scrollRef = useRef<HTMLDivElement>(null);
   const entryVisualResolver = useMemo(() => createEntryVisualResolver({ entries: allEntries }), [allEntries]);
 
-  // Scroll to top whenever the entry changes
-  useEffect(() => {
-    if (scrollRef.current) {
-      scrollRef.current.scrollTop = 0;
-    }
-  }, [entry.id]);
+  // Replaces the old `scrollTop = 0` reset keyed on entry.id. That reset existed
+  // so following a cross-link would not open a never-seen entry halfway down;
+  // this keeps the behaviour without the explicit assignment, because the store
+  // is keyed per entry and a new entry simply has no anchor to restore. An
+  // entry you have already read comes back where you left it.
+  useScreenAnchor(keyForDetail(entry.id), scrollRef, { autoAnchorChildren: true });
 
   const formatUpper = (value?: string) => {
     return value ? value.toUpperCase() : 'N/A';

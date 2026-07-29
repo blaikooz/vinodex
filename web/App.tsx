@@ -17,6 +17,7 @@ import RegionMapScreen from './components/RegionMapScreen';
 import DeviceLayout from './components/DeviceLayout';
 import { WineEntry, EntryCategory } from '@/shared/types';
 import { getAllEntries } from './src/services/wineData';
+import { clear as clearScreenState } from './src/services/screenState';
 
 const RetroGlobeScreen = lazy(() => import('./components/RetroGlobeScreen'));
 const MoonDialScreen = lazy(() => import('./components/MoonDialScreen'));
@@ -44,7 +45,15 @@ const App: React.FC = () => {
 
   // Home is an in-app control, so it lands on the dex menu — never the splash.
   // The splash is where a fresh visit starts, not a screen to bounce back to.
-  const handleHome = () => navigate('/dex');
+  //
+  // Home is also the reset: it drops every stored scroll position, so
+  // re-entering a country from the menu opens at the top. Back deliberately
+  // does not clear — restoring on Back is the point — and the splash does not
+  // clear on the way in or out either.
+  const handleHome = () => {
+    clearScreenState();
+    navigate('/dex');
+  };
 
   // `location.key === 'default'` means there is no history to pop — a deep link
   // opened cold. Back then falls back to the dex menu for the same reason Home

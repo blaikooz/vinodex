@@ -23,6 +23,11 @@ interface EntryTileProps {
   entry: WineEntry;
   onPress: (entry: WineEntry) => void;
   index: number;
+  /**
+   * Marks this row as a scroll-restore target — see `useScreenAnchor`. Optional
+   * so a list that does not restore its position renders no stray attribute.
+   */
+  anchorId?: string;
 }
 
 const formatLabelUpper = (label?: string) => {
@@ -43,7 +48,7 @@ const formatUpper = (value?: string) => {
   return value.replace(/_/g, ' ').toUpperCase();
 };
 
-const EntryTile: React.FC<EntryTileProps> = ({ entry, onPress, index }) => {
+const EntryTile: React.FC<EntryTileProps> = ({ entry, onPress, index, anchorId }) => {
   const isGrape = isGrapeEntry(entry);
   const isRegion = isRegionEntry(entry);
   const isCountryGate = entry.category === 'COUNTRY_GATE';
@@ -85,6 +90,7 @@ const EntryTile: React.FC<EntryTileProps> = ({ entry, onPress, index }) => {
   return (
     <button
       onClick={() => onPress(entry)}
+      data-screen-anchor={anchorId}
       className="w-full bg-stone-900 border-2 border-stone-700 hover:border-green-500 rounded p-2 flex items-center gap-3 relative overflow-hidden group min-h-[4.5rem] transition-all active:translate-y-0.5"
       style={{ animationDelay: `${index * 50}ms` }}
     >

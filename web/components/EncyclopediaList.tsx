@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useLocation } from "react-router-dom";
 import { Search, List, Map, Droplet, Grape, Mountain, MapPin, Star, Shield, Wind } from "lucide-react";
 import EntryTile from "./EntryTile";
 import DeviceLayout from "./DeviceLayout";
@@ -7,6 +8,8 @@ import { CLIMATE_CLASS_MAP } from "@/shared/data/climateClasses";
 import { getGrapeBodyFilterValue, getGrapeColorLabel, getGrapeBodyLabel } from "../src/services/grapeDisplay";
 import { getAllEntries } from "../src/services/wineData";
 import { getColorType, normalizeLabel } from "@/shared/services/entryUtils";
+import { keyForList } from "../src/services/screenState";
+import { useScreenAnchor } from "../src/services/useScreenAnchor";
 
 interface EncyclopediaListProps {
   category: EntryCategory;
@@ -26,6 +29,13 @@ export default function EncyclopediaList({ category, filterMode, filterValue, in
   const [cursorOffset, setCursorOffset] = useState(SEARCH_INPUT_START_OFFSET);
   const searchInputRef = useRef<HTMLInputElement>(null);
   const searchMeasureRef = useRef<HTMLSpanElement>(null);
+  const scrollRef = useRef<HTMLDivElement>(null);
+
+  // The listing is URL-addressed, so the URL is the instance key: /list/GRAPES
+  // and /list/GRAPES?filterMode=TYPE&filterValue=RED are different listings and
+  // must not share a scroll position.
+  const location = useLocation();
+  useScreenAnchor(keyForList(`${location.pathname}${location.search}`), scrollRef);
 
   const activeFilterMode = filterMode;
   const activeFilterValue = filterValue;
@@ -292,14 +302,17 @@ export default function EncyclopediaList({ category, filterMode, filterValue, in
           </div>
         )}
 
-        <div className="flex-1 overflow-y-auto custom-scrollbar p-3 bg-stone-950 relative">
+        <div ref={scrollRef} className="flex-1 overflow-y-auto custom-scrollbar p-3 bg-stone-950 relative">
           <div
             className="absolute inset-0 opacity-10 pointer-events-none"
             style={{ backgroundImage: 'linear-gradient(#333 1px, transparent 1px), linear-gradient(90deg, #333 1px, transparent 1px)', backgroundSize: '10px 10px' }}
           />
 
           {showTopSearchBar && (
-            <div className="relative z-10 mb-3">
+            // A legal restore target in its own right, so a list left scrolled
+            // to the very top comes back with the search bar in view rather
+            // than nudged past it.
+            <div data-screen-anchor="__searchbar__" className="relative z-10 mb-3">
               <div className="flex flex-row items-center justify-between h-12 bg-black border-2 border-stone-600 px-3 shadow-inner rounded-full">
                 <Search size={22} className="text-green-500 animate-pulse shrink-0" />
                 <div className="relative flex-1 h-full ml-2">
@@ -344,6 +357,10 @@ export default function EncyclopediaList({ category, filterMode, filterValue, in
                   entry={entry}
                   onPress={onSelect}
                   index={index}
+                  // Row-level restore: coming back from an entry lands on the
+                  // row you tapped. An id that the current filter no longer
+                  // yields simply resolves to nothing and the list opens at top.
+                  anchorId={entry.id}
                 />
               ))}
             </div>
