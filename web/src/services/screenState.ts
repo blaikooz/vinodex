@@ -27,6 +27,33 @@
 
 const anchors = new Map<string, string>();
 const flags = new Map<string, Set<string>>();
+const queries = new Map<string, string>();
+
+/**
+ * The in-flight search query for a listing.
+ *
+ * The third thing iOS keeps alive across navigation (`SearchStateStore`), and
+ * for the same reason as the other two: returning from a result used to drop
+ * you into the unfiltered list with an empty field, so finding the *second*
+ * result meant retyping the search.
+ */
+export function query(key: string): string {
+  return queries.get(key) ?? '';
+}
+
+/**
+ * Empty queries are removed rather than stored, so clearing a field costs
+ * nothing and `isEmpty` means what it says.
+ *
+ * Setting a query drops that listing's anchor: a changed query makes the old
+ * anchor meaningless — that row may not even be in the new results — and
+ * restoring it would scroll to a seemingly random position mid-type.
+ */
+export function setQuery(key: string, value: string): void {
+  if (value === '') queries.delete(key);
+  else queries.set(key, value);
+  anchors.delete(key);
+}
 
 /** The anchor id at the top of the viewport, or null for the top of the screen. */
 export function anchor(key: string): string | null {
@@ -67,16 +94,18 @@ export function toggleFlag(key: string, flag: string): void {
 export function clear(): void {
   anchors.clear();
   flags.clear();
+  queries.clear();
 }
 
 /** Drops one screen's state without touching the rest. */
 export function forget(key: string): void {
   anchors.delete(key);
   flags.delete(key);
+  queries.delete(key);
 }
 
 export function isEmpty(): boolean {
-  return anchors.size === 0 && flags.size === 0;
+  return anchors.size === 0 && flags.size === 0 && queries.size === 0;
 }
 
 // Keys are spelled out rather than derived, so a rename cannot silently orphan

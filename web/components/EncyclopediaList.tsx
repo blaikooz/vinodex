@@ -8,7 +8,7 @@ import { CLIMATE_CLASS_MAP } from "@/shared/data/climateClasses";
 import { getGrapeBodyFilterValue, getGrapeColorLabel, getGrapeBodyLabel } from "../src/services/grapeDisplay";
 import { getAllEntries } from "../src/services/wineData";
 import { getColorType, normalizeLabel } from "@/shared/services/entryUtils";
-import { keyForList } from "../src/services/screenState";
+import { keyForList, query as storedQuery, setQuery as setStoredQuery } from "../src/services/screenState";
 import { useScreenAnchor } from "../src/services/useScreenAnchor";
 
 interface EncyclopediaListProps {
@@ -23,7 +23,6 @@ interface EncyclopediaListProps {
 
 export default function EncyclopediaList({ category, filterMode, filterValue, initialSearchQuery, onSelect, onBack, onHome }: EncyclopediaListProps) {
   const allowedUsStates = ['California', 'New York', 'Oregon', 'Virginia', 'Washington'];
-  const [searchQuery, setSearchQuery] = useState("");
   const entries = useMemo(() => getAllEntries(), []);
   const SEARCH_INPUT_START_OFFSET = 16;
   const [cursorOffset, setCursorOffset] = useState(SEARCH_INPUT_START_OFFSET);
@@ -33,9 +32,29 @@ export default function EncyclopediaList({ category, filterMode, filterValue, in
 
   // The listing is URL-addressed, so the URL is the instance key: /list/GRAPES
   // and /list/GRAPES?filterMode=TYPE&filterValue=RED are different listings and
-  // must not share a scroll position.
+  // must not share a scroll position or a query.
   const location = useLocation();
-  useScreenAnchor(keyForList(`${location.pathname}${location.search}`), scrollRef);
+  const listKey = keyForList(`${location.pathname}${location.search}`);
+  useScreenAnchor(listKey, scrollRef);
+
+  /**
+   * The query is mirrored into local state for the controlled input, but the
+   * store is what survives navigation — returning from a result used to drop
+   * you into the unfiltered list with an empty field, so reaching the *second*
+   * result meant retyping the search.
+   *
+   * Seeded from the store first and the URL's `q` second: a stored query is
+   * something the user typed a moment ago, while `q` is where they arrived
+   * from, and the more recent of the two should win.
+   */
+  const [searchQuery, setSearchQueryLocal] = useState(
+    () => storedQuery(listKey) || initialSearchQuery || '',
+  );
+
+  const setSearchQuery = (value: string) => {
+    setSearchQueryLocal(value);
+    setStoredQuery(listKey, value);
+  };
 
   const activeFilterMode = filterMode;
   const activeFilterValue = filterValue;
@@ -44,9 +63,12 @@ export default function EncyclopediaList({ category, filterMode, filterValue, in
   const effectiveCategory = isMasterSearch ? 'GRAPES' : category;
   const showTopSearchBar = isMasterSearch || isWorldSearch || effectiveCategory === 'GRAPES' || effectiveCategory === 'STYLES' || effectiveCategory === 'FLAVORS';
 
+  // Re-seed when the listing itself changes — a different URL is a different
+  // search. Keyed on `listKey` rather than `category`, since two listings of
+  // the same category under different filters are different searches too.
   useEffect(() => {
-    setSearchQuery(initialSearchQuery || '');
-  }, [category, initialSearchQuery]);
+    setSearchQueryLocal(storedQuery(listKey) || initialSearchQuery || '');
+  }, [listKey, initialSearchQuery]);
 
   const updateSearchCursorOffset = useCallback(() => {
     const inputEl = searchInputRef.current;
