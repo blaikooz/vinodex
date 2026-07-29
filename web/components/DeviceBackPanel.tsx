@@ -1,12 +1,12 @@
 import React from 'react';
 import pkg from '../../package.json';
+import { APP_VERSION_DISPLAY } from '../src/services/appVersion';
 
 interface DeviceBackPanelProps {
   onReturn: () => void;
 }
 
 const APP_NAME = (pkg.name || 'vinodex').toUpperCase();
-const APP_VERSION = `v0.0.${__GIT_COMMIT_COUNT__}`;
 const CREATOR = 'HORIZON';
 const COPYRIGHT_YEAR = new Date().getFullYear();
 const SERIAL = `SN: VDX-${COPYRIGHT_YEAR}-001`;
@@ -75,7 +75,7 @@ const DeviceBackPanel: React.FC<DeviceBackPanelProps> = ({ onReturn }) => {
             className="mt-2 text-base md:text-lg tracking-[0.5em] text-stone-700"
             style={{ textShadow: engravedTextShadow }}
           >
-            {APP_VERSION}
+            {APP_VERSION_DISPLAY}
           </div>
         </div>
 

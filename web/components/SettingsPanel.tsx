@@ -14,6 +14,7 @@ import {
   setTextScale,
 } from '../src/services/theme';
 import { useTheme } from '../src/services/useTheme';
+import { APP_VERSION_DISPLAY, BUILD_NUMBER } from '../src/services/appVersion';
 
 export type SettingsSectionId = 'CUSTOMIZATION' | 'DATA' | 'ACCESS' | 'DEV';
 
@@ -222,8 +223,9 @@ export const SettingsSectionPanel: React.FC<{
       case 'DEV':
         return (
           <Section title="DIAGNOSTICS">
+            <StatRow label="VERSION" value={APP_VERSION_DISPLAY} />
+            <StatRow label="BUILD" value={BUILD_NUMBER} />
             <StatRow label="ENTRIES LOADED" value={String(allEntries.length)} />
-            <StatRow label="BUILD" value={String(__GIT_COMMIT_COUNT__)} />
             <StatRow label="SKIN" value={theme.skin} />
             <StatRow label="SCREEN" value={theme.lcd} />
             <StatRow label="TEXT" value={theme.scale} />

@@ -313,7 +313,17 @@ export default function EncyclopediaList({ category, filterMode, filterValue, in
             // to the very top comes back with the search bar in view rather
             // than nudged past it.
             <div data-screen-anchor="__searchbar__" className="relative z-10 mb-3">
-              <div className="flex flex-row items-center justify-between h-12 bg-black border-2 border-stone-600 px-3 shadow-inner rounded-full">
+              {/*
+                Explicitly the LCD "well" colour rather than the page ground.
+                iOS gives search fields their own `lcd.well` — black on the dark
+                theme, white on the light one — so the field reads as a recess
+                cut into the page. Letting the bg-black remap take it would make
+                it page-coloured in light mode and lose that read entirely.
+              */}
+              <div
+                className="flex flex-row items-center justify-between h-12 border-2 border-stone-600 px-3 shadow-inner rounded-full"
+                style={{ backgroundColor: 'var(--lcd-well)' }}
+              >
                 <Search size={22} className="text-green-500 animate-pulse shrink-0" />
                 <div className="relative flex-1 h-full ml-2">
                   <span
