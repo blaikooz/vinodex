@@ -24,6 +24,7 @@ import { getSoilIcon, getSoilsForRegion } from '../src/services/soilDisplay';
 import { normalizeTypeClass, getStyleClassTileColors, getStyleColorTileColors, getWineTypeTileColors } from '../src/services/styleDisplay';
 import { getFlavorClassTileColors, getFlavorSubclassTileColors } from '../src/services/flavorDisplay';
 import { getClimateIcon } from '../src/services/climateDisplay';
+import { appellationName, hasAppellationName } from '../src/services/entryDisplay';
 import { isOn as isFlagOn, keyForDetail, toggleFlag } from '../src/services/screenState';
 import { useScreenAnchor } from '../src/services/useScreenAnchor';
 import { isBookmarked, toggleBookmark } from '../src/services/bookmarks';
@@ -788,10 +789,42 @@ const EntryDetail: React.FC<EntryDetailProps> = ({ entry, allEntries, onBack, on
                     <Shield size={18} className="text-green-500" />
                     <span className="font-retro text-xs md:text-sm tracking-widest text-green-500">APPELLATION SYSTEM</span>
                 </div>
-                <div className="flex flex-wrap gap-2">
-                    <span className="px-4 py-2 rounded text-xl font-bold font-mono tracking-widest" style={{ backgroundColor: SYSTEM_CHIP_COLOR.bg, border: `1px solid ${SYSTEM_CHIP_COLOR.border}`, color: SYSTEM_CHIP_COLOR.text }}>
+                {/*
+                  The abbreviation in the chip, the spelled-out name beside it,
+                  the state at the end — matching `systemSection` in
+                  EntryDetailScreen.swift. The web printed the abbreviation
+                  alone, so "AOC" arrived with nothing to say what it stands
+                  for, and the only place the full name appeared was a country
+                  page two taps away.
+
+                  Straight from the Swift, on why the chip keeps the short form:
+                  the chip used to carry the full name, which made it five words
+                  wide and wrapped it to three lines — and it hid the
+                  abbreviation the bottle label actually prints, which is the
+                  thing worth recognising.
+                */}
+                <div className="flex flex-wrap items-start gap-x-3 gap-y-2">
+                    <span className="px-4 py-2 rounded text-xl font-bold font-mono tracking-widest shrink-0" style={{ backgroundColor: SYSTEM_CHIP_COLOR.bg, border: `1px solid ${SYSTEM_CHIP_COLOR.border}`, color: SYSTEM_CHIP_COLOR.text }}>
                       {extractTagAbbrev(entry.details.classification || '')}
                     </span>
+                    {(() => {
+                      const short = entry.details.classification || '';
+                      const country = (entry.details as { origin?: string }).origin || '';
+                      // Hidden rather than repeated when the system is unknown:
+                      // `appellationName` passes its input through, so printing
+                      // it unconditionally would render the chip's text twice.
+                      if (!hasAppellationName(short, country)) return null;
+                      return (
+                        <span className="flex-1 min-w-0 self-center font-mono text-lg text-stone-400 normal-case leading-snug">
+                          {appellationName(short, country)}
+                        </span>
+                      );
+                    })()}
+                    {(entry.details as { state?: string }).state && (
+                      <span className="self-center font-mono text-lg dex-subtext tracking-widest shrink-0">
+                        {((entry.details as { state?: string }).state || '').toUpperCase()}
+                      </span>
+                    )}
                 </div>
             </div>
   ) : null;
@@ -848,11 +881,20 @@ const EntryDetail: React.FC<EntryDetailProps> = ({ entry, allEntries, onBack, on
                     <Wind size={18} className="text-green-500" />
                     <span className="font-retro text-xs md:text-sm tracking-widest text-green-500">CLIMATE</span>
                 </div>
+                {/*
+                  Icon then name, as `climateSection` has it. The web showed a
+                  bare chip here and put the climate glyph only in the hero tile
+                  row, so the section that is actually titled CLIMATE was the
+                  one place without it.
+                */}
                 <div className="flex flex-wrap gap-2">
                     {(() => {
                       const sectionClimateColors = (entry.climate && CLIMATE_CLASS_MAP[entry.climate]?.colors) || CLIMATE_CHIP_COLOR;
                       return (
-                        <span className="px-4 py-2 rounded text-xl font-bold font-mono tracking-widest" style={{ backgroundColor: sectionClimateColors.bg, border: `1px solid ${sectionClimateColors.border}`, color: sectionClimateColors.text }}>
+                        <span className="flex items-center gap-2.5 px-3.5 py-2 rounded text-xl font-bold font-mono tracking-widest" style={{ backgroundColor: sectionClimateColors.bg, border: `1px solid ${sectionClimateColors.border}`, color: sectionClimateColors.text }}>
+                          <span className="shrink-0 flex items-center" style={{ color: sectionClimateColors.border }}>
+                            {getClimateIcon(entry.climate, 26)}
+                          </span>
                           {(entry.climate && CLIMATE_CLASS_MAP[entry.climate]?.name) || 'Unknown Climate'}
                         </span>
                       );

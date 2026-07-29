@@ -7,8 +7,9 @@ allow, and ship it on Vercel.
 > to be wholly contained in `screen-state-port`, and `master` was an ancestor of
 > it, so combining the three was a fast-forward with no conflicts; `master` is
 > pushed at 18 commits ahead of where it stood. Blocks 9 and 10 below were added
-> after the merge; block 11 closes the last of the untested services. See
-> "Still open" at the foot for what remains.
+> after the merge; block 11 closes the last of the untested services; blocks
+> 12–13 replace the moon dial and start on the readout interiors; block 14 is
+> the screen-by-screen plan that follows. See "Still open" at the foot.
 
 `vinodex-ios` is the reference and stays **read-only**. Every block below ports
 *from* Swift *to* React.
@@ -225,6 +226,84 @@ Two Swift cases could not be ported as written: `MoonCalendar.quote` lives in
 asserts flower days that the web reading does not expose. Both are noted in the
 suite headers.
 
+## Block 12 — The moon dial, replaced ✅
+
+The web's dial was a draggable control that swept the lunar month, backed by a
+sidereal (Lahiri) longitude, an ecliptic-node window and hourly sampling. iOS
+threw all of that away and said why, about this file by name:
+
+> Deliberately a readout with no interaction. The web reference
+> (`MoonDialScreen.tsx`) drove a draggable dial through the lunar month, which
+> is a lot of machinery in front of a single fact — the only thing anyone wants
+> from it is whether tonight is a good night.
+
+`moonService.ts` is now a port of `MoonCalendar.swift`: mean ecliptic longitude,
+anchored at **local noon** so a day gets one type and the screen cannot flip
+from a leaf day to a fruit day over lunch. The screen is the four-tick ring,
+the DAY TYPE / ELEMENT / MOON IN readout, the tinted verdict panel and the
+rotating line, all from `MoonDialScreen.swift`.
+
+This changes what the app *says*: the sidereal offset is roughly 24°, close to a
+whole sign, so the two builds regularly disagreed about which sign the moon was
+in on the same evening. They now agree. Both Swift cases that had been recorded
+as unportable — `drinkingDays` and `quotes` — port directly, because the service
+carries the same `MoonDay` model and the same quote pools rather than a bare
+`isFruitDay`.
+
+## Block 13 — The entry readouts ✅
+
+The first pass at the "section bodies below the chrome" item. Order, titles and
+rules already matched; these are the interiors.
+
+- **Appellation systems are spelled out.** The region readout printed a bare
+  `AOC` chip. iOS prints the abbreviation *and* the full name beside it, plus
+  the state — and the web had no `appellationName` function at all, so two
+  `CoverageTests` cases (`docIsCountrySpecific`, `appellationNamesResolve`) had
+  nothing to assert against. `src/services/entryDisplay.ts` ports it, keyed by
+  the (system, country) pair because `DOC` means three different things. The
+  chip keeps the short form for the reason the Swift gives: it is what the
+  bottle label actually prints.
+- **Soil glyphs were falling through.** `soilDisplay.tsx` kept its own seven
+  keywords while `iconManifest.json` — a direct copy of iOS's generated
+  `icons.json` — had been shipping the full fifteen all along, unread. Six terms
+  in the dataset resolved to the default brown mountain: **Alluvial, Laterite,
+  Loess, basalt, red loam, shale**. That is exactly the fault
+  `CoverageTests.soilsResolve` exists for, down to the count in its comment
+  ("six terms were silently doing exactly that"). The helper now reads the
+  manifest, so keywords, order, glyphs and colours all come from the generator.
+- **The CLIMATE section shows its glyph**, as `climateSection` does. The web had
+  the icon in the hero tile row only, so the section actually titled CLIMATE was
+  the one place without it.
+- **Flavour taxonomy glyphs** are pinned 1:1 across classes and subclasses,
+  including SALTY being both. This one found nothing — the web already complied
+  — but the bug it guards is invisible, so it is worth holding.
+
+## Block 14 — Screen-by-screen visual parity (planned)
+
+Blocks 5–13 brought the *data* and the *chrome* into line. What is left is each
+screen's interior read side by side with its Swift counterpart. Ordered by how
+much of the app they carry:
+
+1. **Grape readout** — `EntryDetailScreen.swift` `categorySections`, grape arm.
+   Stat bars, rarity, flavour profile, ALSO KNOWN AS, NOTABLE REGIONS. Stat bar
+   colours and the rarity crown already match; the chip clouds and linked-row
+   markup have not been transcribed.
+2. **Region readout** — the region arm. System and climate are done (block 13);
+   APPELLATIONS and NOTABLE GRAPES still show the same data through different
+   markup.
+3. **Style readout** — and with it the branching noted below, which is the one
+   place the web's structure genuinely diverges rather than merely differing in
+   markup.
+4. **Catalog / scan lists** — `CatalogScreen.swift` against `EncyclopediaList`.
+   The web's per-filter titles (STYLE SCAN, GEOLOGY SCAN, …) have no iOS
+   equivalent; decide whether they are a web affordance to keep or drift to
+   remove.
+5. **Scanner** — `ScannerScreen.swift` is 809 lines against the web's port, and
+   still uses a flat country list where iOS walks the globe.
+
+Each wants the same treatment block 8 used: extract the section bodies first so
+their structure is legible, then compare, then move.
+
 ## Still open
 
 - **Continent glyphs are paired, not unique.** iOS asserts six distinct glyphs
@@ -248,18 +327,19 @@ suite headers.
   then KEY REGIONS). The web has five overlapping conditionals that between
   them produce the same result. Same extract-then-simplify treatment as block 8
   would fix it; it was left inline because its *order* does not diverge.
-- **Section bodies below the chrome.** The stat rows, chip clouds and tile
-  grids inside each section are still a parallel implementation — they show the
-  same data through different markup. Order, titles, rules and rarity now
-  match; the interiors have not been transcribed.
+- **Section bodies below the chrome.** Partly closed by block 13 — the
+  appellation system, climate and soil interiors now match. The remaining chip
+  clouds, linked rows and tile grids are still a parallel implementation showing
+  the same data through different markup; block 14 is the plan for them.
 - **The scanner still uses a flat country list** where iOS walks the globe.
-- **Every Swift suite now has a web counterpart.** What remains untested here is
-  what has no Swift original either: `theme`, `appVersion`, `useScreenAnchor`
-  and the display helpers (`grapeDisplay`, `styleDisplay`, `flavorDisplay`,
-  `soilDisplay`, `climateDisplay`, `iconRendering`). The display helpers are the
-  highest-value of those — `CoverageTests` reaches into iOS's icon tables for
-  soil keyword order and flavour taxonomy glyphs, and the web equivalents of
-  those assertions are not written.
+- **Every Swift case now has a web counterpart**, including the four that were
+  previously recorded as unportable (`drinkingDays`, `quotes`,
+  `docIsCountrySpecific`, `appellationNamesResolve`) — each of which became
+  portable by fixing the thing that made it impossible to write. 266 tests
+  across 17 files. Still untested, and with no Swift original to inherit from:
+  `theme`, `appVersion`, `useScreenAnchor`, and the remaining display helpers
+  (`grapeDisplay`, `styleDisplay`, `flavorDisplay`, `climateDisplay`,
+  `iconRendering`).
 - **Only three components are tested.** The two website screens and the unlock
   keypad. The dex screens have no render coverage at all.
 

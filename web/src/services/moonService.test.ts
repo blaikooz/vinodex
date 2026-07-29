@@ -1,93 +1,107 @@
 import { describe, expect, it } from 'vitest';
 import {
-  getDailyReadings,
-  getElementForSign,
-  getHourlyReadings,
-  getMoonReading,
-  getNextDateInSign,
-  isInNodeWindow,
-  ZODIAC_SIGNS,
-  type BiodynamicElement,
+  isGoodForDrinking,
+  moonDay,
+  moonElement,
+  moonLongitude,
+  moonQuote,
+  moonSummary,
+  moonVerdict,
+  zodiacIndex,
+  zodiacName,
+  MoonDay,
+  MOON_DAYS,
 } from './moonService';
 
 /**
  * Ported from the `Moon dial` suite in
  * `vinodex-ios/Tests/VinodexCoreTests/MinigameTests.swift`.
  *
- * Two Swift cases have no counterpart. `drinkingDays` asserts that fruit *and
- * flower* days are good for drinking; the web reading exposes only
- * `isFruitDay`, so the flower half has nothing to assert against. And `quotes`
- * covers `MoonCalendar.quote`, which on the web lives in `MoonDialScreen`
- * rather than in this service — it is a view concern here.
+ * This replaces an earlier version of this file written against the sidereal
+ * implementation. Both cases that could not be ported then — `drinkingDays` and
+ * `quotes` — port directly now, because the service carries the same `MoonDay`
+ * model and the same quote pools as the Swift original rather than exposing a
+ * bare `isFruitDay`.
  *
- * Everything the web adds on top of the Swift model — the sidereal (Lahiri)
- * offset, the ecliptic-node window, `degreesIntoSign`, and the sign-crossing
- * search — is covered below, since none of it has a Swift original to inherit
- * tests from.
+ * Dates are built with the local-time constructor: the day is anchored at local
+ * noon on purpose, and `new Date('2026-07-28')` parses as UTC, which lands on
+ * the previous day west of Greenwich and can read a different sign.
  */
-const ELEMENT_CYCLE: BiodynamicElement[] = ['fruit', 'root', 'flower', 'leaf'];
-
-const utcDay = (y: number, m: number, d: number, hour = 12): Date =>
-  new Date(Date.UTC(y, m - 1, d, hour));
+const localDay = (y: number, m: number, d: number, hour = 0): Date => new Date(y, m - 1, d, hour);
 
 describe('moonService', () => {
-  describe('longitude and sign', () => {
+  describe('longitude', () => {
     /**
      * The Swift `longitudeRange` case, including dates before J2000 where the
      * raw formula goes negative and a missing wrap would index off the front of
      * the sign table.
      */
-    it('keeps the sidereal longitude in range across a long span', () => {
+    it('stays in range across a long span', () => {
       for (let offset = -20_000; offset <= 20_000; offset += 137) {
         const day = new Date(Date.UTC(2000, 0, 1) + offset * 86_400_000);
-        const { siderealLongitude, sign, degreesIntoSign } = getMoonReading(day);
+        const lon = moonLongitude(day);
+        expect(lon, `longitude ${lon} out of range at offset ${offset}`).toBeGreaterThanOrEqual(0);
+        expect(lon).toBeLessThan(360);
 
-        expect(siderealLongitude).toBeGreaterThanOrEqual(0);
-        expect(siderealLongitude).toBeLessThan(360);
-        expect(ZODIAC_SIGNS).toContain(sign);
-        expect(degreesIntoSign).toBeGreaterThanOrEqual(0);
-        expect(degreesIntoSign).toBeLessThan(30);
+        const index = zodiacIndex(day);
+        expect(index).toBeGreaterThanOrEqual(0);
+        expect(index).toBeLessThanOrEqual(11);
       }
     });
 
-    it('reports a sign consistent with the longitude', () => {
-      for (let offset = 0; offset < 60; offset++) {
-        const { siderealLongitude, sign } = getMoonReading(utcDay(2026, 1, 1 + offset));
-        expect(sign).toBe(ZODIAC_SIGNS[Math.floor(siderealLongitude / 30) % 12]);
+    it('advances about 13.18° per day', () => {
+      const a = moonLongitude(localDay(2026, 3, 10, 12));
+      const b = moonLongitude(localDay(2026, 3, 11, 12));
+      const moved = ((b - a) % 360 + 360) % 360;
+      expect(moved).toBeCloseTo(13.176, 1);
+    });
+
+    it('is anchored at J2000 to the documented start position', () => {
+      // 2000-01-01 12:00 UTC — zero days elapsed, so the constant stands alone.
+      expect(moonLongitude(new Date(Date.UTC(2000, 0, 1, 12)))).toBeCloseTo(218.316, 3);
+    });
+  });
+
+  describe('the day is judged once', () => {
+    /**
+     * The whole reason `anchor` exists: reading the live longitude made the
+     * screen flip from a leaf day to a fruit day over lunch, and the quote with
+     * it. Every hour of a calendar day must agree.
+     */
+    it('gives the same type at every hour of a day', () => {
+      for (const hour of [0, 6, 12, 18, 23]) {
+        expect(moonDay(localDay(2026, 7, 28, hour))).toBe(moonDay(localDay(2026, 7, 28, 0)));
+        expect(zodiacName(localDay(2026, 7, 28, hour))).toBe(zodiacName(localDay(2026, 7, 28, 0)));
       }
     });
 
-    it('has twelve distinct signs in the table', () => {
-      expect(ZODIAC_SIGNS).toHaveLength(12);
-      expect(new Set(ZODIAC_SIGNS).size).toBe(12);
+    it('gives the same quote at every hour of a day', () => {
+      const morning = moonQuote(localDay(2026, 1, 14, 7));
+      for (const hour of [0, 12, 22]) {
+        expect(moonQuote(localDay(2026, 1, 14, hour))).toBe(morning);
+      }
     });
   });
 
   describe('element mapping', () => {
     /**
-     * The Swift `elementMapping` case. Element follows the sign's index modulo
-     * four — fire, earth, air, water — which is the whole basis for the
-     * fruit/root/flower/leaf scheme. The web maps by sign *name*, so this is
-     * the check that the two spellings of the same rule agree.
+     * Element follows the sign index modulo four — fire, earth, air, water —
+     * which is the whole basis for the fruit/root/flower/leaf scheme. The Swift
+     * `elementMapping` case.
      */
     it('follows the sign index modulo four', () => {
-      ZODIAC_SIGNS.forEach((sign, index) => {
-        expect(getElementForSign(sign)).toBe(ELEMENT_CYCLE[index % 4]);
-      });
-    });
-
-    it('gives every reading an element matching its own sign', () => {
+      const expected: MoonDay[] = ['FRUIT', 'ROOT', 'FLOWER', 'LEAF'];
       for (let offset = 0; offset < 120; offset++) {
-        const reading = getMoonReading(utcDay(2026, 1, 1 + offset));
-        expect(reading.element).toBe(getElementForSign(reading.sign));
+        const day = localDay(2026, 1, 1 + offset);
+        expect(moonDay(day)).toBe(expected[zodiacIndex(day) % 4]);
       }
     });
 
-    it('flags fruit days and only fruit days', () => {
-      for (let offset = 0; offset < 60; offset++) {
-        const reading = getMoonReading(utcDay(2026, 1, 1 + offset));
-        expect(reading.isFruitDay).toBe(reading.element === 'fruit');
-      }
+    it('maps each day type to its classical element', () => {
+      expect(moonElement('FRUIT')).toBe('FIRE');
+      expect(moonElement('ROOT')).toBe('EARTH');
+      expect(moonElement('FLOWER')).toBe('AIR');
+      expect(moonElement('LEAF')).toBe('WATER');
     });
 
     /**
@@ -96,73 +110,74 @@ describe('moonService', () => {
      * still look plausible on any single day. The Swift `coversAllTypes` case.
      */
     it('covers all four day types within a lunar month', () => {
-      const seen = new Set(getDailyReadings(utcDay(2026, 7, 1), 30).map(r => r.element));
-      expect(seen.size).toBe(ELEMENT_CYCLE.length);
+      const seen = new Set<MoonDay>();
+      for (let offset = 0; offset < 30; offset++) seen.add(moonDay(localDay(2026, 7, 1 + offset)));
+      expect(seen.size).toBe(MOON_DAYS.length);
     });
 
     it('covers all twelve signs within a lunar month', () => {
-      const seen = new Set(getDailyReadings(utcDay(2026, 7, 1), 30).map(r => r.sign));
+      const seen = new Set<string>();
+      for (let offset = 0; offset < 30; offset++) seen.add(zodiacName(localDay(2026, 7, 1 + offset)));
       expect(seen.size).toBe(12);
     });
   });
 
-  describe('sampling helpers', () => {
-    it('returns the requested number of readings', () => {
-      expect(getDailyReadings(utcDay(2026, 3, 1), 7)).toHaveLength(7);
-      expect(getHourlyReadings(utcDay(2026, 3, 1), 24)).toHaveLength(24);
-      expect(getDailyReadings(utcDay(2026, 3, 1), 0)).toEqual([]);
+  /** The Swift `drinkingDays` case — it had no counterpart before this port. */
+  describe('the verdict', () => {
+    it('rates fruit and flower days good, leaf and root days not', () => {
+      expect(isGoodForDrinking('FRUIT')).toBe(true);
+      expect(isGoodForDrinking('FLOWER')).toBe(true);
+      expect(isGoodForDrinking('LEAF')).toBe(false);
+      expect(isGoodForDrinking('ROOT')).toBe(false);
     });
 
-    /** The moon moves ~13°/day, so a day of hourly samples must not stand still. */
-    it('advances the longitude across a day of hourly samples', () => {
-      const readings = getHourlyReadings(utcDay(2026, 3, 1, 0), 24);
-      const first = readings[0]!.siderealLongitude;
-      const last = readings[23]!.siderealLongitude;
-      // Modulo the wrap, a day should move roughly half a sign.
-      const moved = ((last - first) % 360 + 360) % 360;
-      expect(moved).toBeGreaterThan(5);
-      expect(moved).toBeLessThan(20);
+    it('words the verdict from that rating', () => {
+      expect(moonVerdict('FRUIT')).toBe('GOOD DAY TO DRINK');
+      expect(moonVerdict('ROOT')).toBe('MAYBE NOT TODAY');
+    });
+
+    it('gives every day type a non-empty, distinct summary', () => {
+      const summaries = MOON_DAYS.map(moonSummary);
+      expect(summaries.every(s => s.length > 0)).toBe(true);
+      expect(new Set(summaries).size).toBe(MOON_DAYS.length);
     });
   });
 
-  describe('the node window', () => {
-    /** Web-only: no Swift original. The flag must at least agree with itself. */
-    it('agrees with the reading it is derived from', () => {
+  /** The Swift `quotes` case — also newly portable. */
+  describe('quotes', () => {
+    it('is never empty and never changes within a day', () => {
       for (let offset = 0; offset < 40; offset++) {
-        const day = utcDay(2026, 2, 1 + offset);
-        expect(getMoonReading(day).nodeSuppressed).toBe(isInNodeWindow(day));
+        const day = localDay(2026, 1, 1 + offset);
+        const a = moonQuote(day);
+        expect(a.length, 'empty quote would render as a blank panel').toBeGreaterThan(0);
+        expect(moonQuote(localDay(2026, 1, 1 + offset, 17))).toBe(a);
       }
     });
 
-    /**
-     * The moon crosses a node roughly twice a month, so a month of daily
-     * samples must contain both suppressed and unsuppressed days — a threshold
-     * that never fired, or always fired, would be invisible on any single day.
-     */
-    it('fires sometimes and not always across a month', () => {
-      const flags = getDailyReadings(utcDay(2026, 5, 1), 30).map(r => r.nodeSuppressed);
-      expect(flags).toContain(true);
-      expect(flags).toContain(false);
-    });
-  });
-
-  describe('getNextDateInSign', () => {
-    it('finds a crossing into every sign within its horizon', () => {
-      const from = utcDay(2026, 4, 1);
-      for (const sign of ZODIAC_SIGNS) {
-        const next = getNextDateInSign(sign, from);
-        expect(next).not.toBeNull();
-        expect(next!.getTime()).toBeGreaterThan(from.getTime());
-        // It must actually be that sign when it arrives.
-        expect(getMoonReading(next!).sign).toBe(sign);
+    it('draws from the pool belonging to the day type', () => {
+      for (let offset = 0; offset < 40; offset++) {
+        const day = localDay(2026, 2, 1 + offset);
+        // Every line names its own day type, so a mismatched pool is visible.
+        expect(moonQuote(day).toUpperCase()).toContain(moonDay(day));
       }
     });
 
-    it('lands within the 32-day search horizon', () => {
-      const from = utcDay(2026, 4, 1);
-      const next = getNextDateInSign('Leo', from);
-      const days = (next!.getTime() - from.getTime()) / 86_400_000;
-      expect(days).toBeLessThanOrEqual(32);
+    /** Two consecutive days of one type must not read identically. */
+    it('rotates within a pool rather than repeating', () => {
+      const seen = new Map<MoonDay, Set<string>>();
+      for (let offset = 0; offset < 60; offset++) {
+        const day = localDay(2026, 3, 1 + offset);
+        const type = moonDay(day);
+        if (!seen.has(type)) seen.set(type, new Set());
+        seen.get(type)!.add(moonQuote(day));
+      }
+      for (const [type, quotes] of seen) {
+        expect(quotes.size, `${type} never rotated its line`).toBeGreaterThan(1);
+      }
+    });
+
+    it('resolves for dates before the epoch', () => {
+      expect(moonQuote(localDay(1962, 3, 4)).length).toBeGreaterThan(0);
     });
   });
 });

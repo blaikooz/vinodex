@@ -1,39 +1,90 @@
 import React from 'react';
-import { Circle, Cloud, Flame, Mountain } from 'lucide-react';
 import type { ClimateClass } from '@/shared/types';
+import { Icon } from '../components/LocalIcon';
+import iconManifest from '../data/iconManifest.json';
+
+/**
+ * Soil glyphs, resolved from the generated icon manifest rather than from a
+ * list hand-maintained here.
+ *
+ * `iconManifest.json` is a direct copy of iOS's generated `icons.json`, and it
+ * has carried `soilIcons`, `soilKeywords`, `climateSoilFallback` and
+ * `defaultSoils` all along — this file simply was not reading any of them. It
+ * kept its own seven keywords (volcanic, clay, sand, limestone/chalk,
+ * slate/schist, granite, gravel) against the manifest's fifteen, so six terms
+ * in the dataset fell through to the default mountain: **Alluvial, Laterite,
+ * Loess, basalt, red loam and shale**.
+ *
+ * That is precisely the bug `CoverageTests.soilsResolve` was written for — its
+ * comment reads "six terms were silently doing exactly that". iOS fixed it by
+ * generating the table; the fix never crossed back, so the web had been
+ * drawing a generic brown mountain for every alluvial and loess region since.
+ *
+ * Reading the manifest also means the keyword *order* comes from the generator,
+ * which is load-bearing: matching is first-substring-wins, so "clay" must be
+ * tried before "loam" or "clay loam" resolves as loam, and "sand" before
+ * "limestone" so "sandstone" reaches sand.
+ */
+
+interface SoilIconEntry {
+  icon: string;
+  color: string;
+}
+
+const MANIFEST = iconManifest as {
+  soilIcons: Record<string, SoilIconEntry>;
+  soilKeywords: string[];
+  climateSoilFallback: Record<string, string[]>;
+  defaultSoils: string[];
+};
+
+const SOIL_ICONS = MANIFEST.soilIcons;
+const SOIL_KEYWORDS = MANIFEST.soilKeywords;
+
+const DEFAULT_SOIL: SoilIconEntry = SOIL_ICONS.default ?? {
+  icon: 'lucide:mountain',
+  color: '#8B4513',
+};
 
 export interface SoilIconVisual {
   icon: React.ReactNode;
   color: string;
 }
 
-export const getSoilIcon = (soil: string): SoilIconVisual => {
+/** The keyword a soil name resolves to, or null when nothing matches. */
+export const soilKeywordFor = (soil: string): string | null => {
   const s = soil.toLowerCase();
-  if (s.includes('volcanic')) return { icon: <Flame size={16} />, color: '#FF4500' };
-  if (s.includes('clay')) return { icon: <Circle size={16} />, color: '#8B4513' };
-  if (s.includes('sand')) return { icon: <Cloud size={16} />, color: '#F4A460' };
-  if (s.includes('limestone') || s.includes('chalk')) return { icon: <Mountain size={16} />, color: '#E0E0E0' };
-  if (s.includes('slate') || s.includes('schist')) return { icon: <Mountain size={16} />, color: '#708090' };
-  if (s.includes('granite')) return { icon: <Mountain size={16} />, color: '#A9A9A9' };
-  if (s.includes('gravel')) return { icon: <Circle size={16} />, color: '#696969' };
-  return { icon: <Mountain size={16} />, color: '#8B4513' };
+  return SOIL_KEYWORDS.find(keyword => s.includes(keyword)) ?? null;
 };
 
-// Fallback soil triplet keyed by climate, used when a region lacks an
-// explicit soilType. Order is significant for display.
-const CLIMATE_SOIL_FALLBACK: Record<ClimateClass, [string, string, string]> = {
-  maritime: ['Alluvial', 'Clay', 'Sand'],
-  continental: ['Limestone', 'Loess', 'Gravel'],
-  cool: ['Limestone', 'Slate', 'Alluvial'],
-  warm: ['Alluvial', 'Sand', 'Clay'],
-  mediterranean: ['Limestone', 'Clay', 'Gravel'],
+/**
+ * Whether a soil name has a glyph of its own rather than falling through.
+ *
+ * Exposed so a test can assert the dataset never reaches the default — the
+ * default renders perfectly well, which is exactly why nobody noticed.
+ */
+export const soilResolves = (soil: string): boolean => soilKeywordFor(soil) !== null;
+
+export const getSoilIcon = (soil: string, size: number = 24): SoilIconVisual => {
+  const keyword = soilKeywordFor(soil);
+  const visual = (keyword && SOIL_ICONS[keyword]) || DEFAULT_SOIL;
+  return {
+    icon: <Icon icon={visual.icon} width={size} height={size} color={visual.color} />,
+    color: visual.color,
+  };
 };
 
-const DEFAULT_SOIL_TRIPLET: [string, string, string] = ['Alluvial', 'Clay', 'Limestone'];
-
+/**
+ * The soils a region shows. Regions without an explicit soil type fall back to
+ * a climate-keyed triplet rather than showing nothing. Order is significant for
+ * display, and both tables come from the manifest.
+ */
 export const getSoilsForRegion = (soilType?: string, climate?: ClimateClass): string[] => {
   if (soilType) {
-    return soilType.split(',').map((s) => s.trim()).filter(Boolean).slice(0, 3);
+    return soilType.split(',').map(s => s.trim()).filter(Boolean).slice(0, 3);
   }
-  return climate ? CLIMATE_SOIL_FALLBACK[climate] : DEFAULT_SOIL_TRIPLET;
+  if (climate && MANIFEST.climateSoilFallback[climate]) {
+    return MANIFEST.climateSoilFallback[climate]!;
+  }
+  return MANIFEST.defaultSoils;
 };
