@@ -9,11 +9,30 @@ public struct EncyclopediaListScreen: View {
     let showsSearch: Bool
     let onSelect: (WineEntry) -> Void
 
-    @State private var search = ""
+    /// Held outside the view, so it survives the screen being torn down and
+    /// rebuilt when you open an entry and come back — see `SearchStateStore`.
+    @State private var searches = SearchStateStore.shared
     @State private var access = AccessStore.shared
     @AppStorage(LcdMode.storageKey) private var lcdRaw = LcdMode.dark.rawValue
     private var lcd: LcdMode { LcdMode(rawValue: lcdRaw) ?? .dark }
     private let db = WineDatabase.shared
+
+    private var searchKey: String {
+        SearchStateStore.key(categories: categories, filter: filter)
+    }
+
+    private var search: String { searches.query(for: searchKey) }
+
+    /// Bound straight through to the store rather than mirrored into `@State`
+    /// and restored on appear: a mirror has to be seeded from *somewhere*, and
+    /// every ordering of `onAppear` / `task` against the initial `task(id:)` run
+    /// either filtered twice or flashed the unfiltered list first.
+    private var searchBinding: Binding<String> {
+        Binding(
+            get: { searches.query(for: searchKey) },
+            set: { searches.setQuery($0, for: searchKey) }
+        )
+    }
 
     public init(
         categories: Set<EntryCategory>,
@@ -115,7 +134,7 @@ public struct EncyclopediaListScreen: View {
             Image(systemName: "magnifyingglass")
                 .font(.system(size: 18, weight: .bold))
                 .foregroundStyle(Dex.green500)
-            DexSearchField(text: $search)
+            DexSearchField(text: searchBinding)
                 .frame(height: 34)
         }
         .padding(.horizontal, 12)

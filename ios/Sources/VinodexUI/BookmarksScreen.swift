@@ -214,12 +214,7 @@ public struct BookmarksScreen: View {
             action()
         } label: {
             HStack(spacing: 12) {
-                FlagSwatch(country: name)
-                    .frame(width: 48, height: 32)
-                    .overlay(
-                        RoundedRectangle(cornerRadius: 3)
-                            .strokeBorder(.black.opacity(0.3), lineWidth: 1)
-                    )
+                FlagSwatch(country: name, width: 60, height: 38)
                 VStack(alignment: .leading, spacing: 5) {
                     Text(name.uppercased())
                         .font(DexFont.retro(13))

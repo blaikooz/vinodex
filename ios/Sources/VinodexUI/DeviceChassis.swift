@@ -127,17 +127,12 @@ public struct DeviceChassis<Content: View>: View {
         // One control size across the whole chassis. The strip is sized to seat
         // it (`islandStripMinHeight`); the clamp only matters on a device that
         // reports a shorter inset than we ask for.
-        let control = min(DexMetrics.controlButton, height - 8)
+        let control = min(DexMetrics.controlButton, height - DexMetrics.islandBottomInset)
 
-        let dot = max(control * 0.2, 8)
+        let dot = max(control * 0.17, 8)
 
         return HStack(alignment: .center, spacing: 0) {
-            // Orb pinned left, directly above the Back button, wearing the
-            // status lights on its upper-right shoulder.
-            //
-            // The lights used to be a layout sibling here, absorbing the row's
-            // slack width. As an overlay they cost no width at all, which is why
-            // the two `Spacer`s below now carry the clearance instead.
+            // Orb pinned left, directly above the Back button.
             //
             // Rendering *in* the cutout is not an option, for the record: the
             // island is hardware, the OS masks anything drawn under it, and
@@ -148,16 +143,6 @@ public struct DeviceChassis<Content: View>: View {
                 .scaleEffect(orbHeld ? 0.88 : 1)
                 .brightness(orbHeld ? -0.18 : 0)
                 .animation(.easeOut(duration: 0.12), value: orbHeld)
-                .overlay(alignment: .topTrailing) {
-                    statusDots(size: dot)
-                        // Nudged out along the top-right diagonal so the cluster
-                        // sits on the orb's shoulder rather than across its face,
-                        // where it would cover the specular highlight.
-                        .offset(x: dot * 0.9, y: -dot * 0.5)
-                        // Decoration only — the orb's long-press must still get
-                        // the whole orb, including the part under the lights.
-                        .allowsHitTesting(false)
-                }
                 // Hold to flip. A hidden gesture on a decorative-looking part
                 // is a poor primary affordance, but this one is a deliberate
                 // easter egg: the orb depresses under the finger so the
@@ -172,6 +157,19 @@ public struct DeviceChassis<Content: View>: View {
                 }
                 .fixedSize()
 
+            // Status lights to the *right* of the orb, as a layout sibling.
+            //
+            // They were an overlay pinned to the orb's top-right shoulder, which
+            // cost no width but did put the cluster across the orb's own edge —
+            // at one shared control size the two collide outright. Beside it they
+            // cost real width, which the flanking spacers pay for; the cluster is
+            // sized off the orb so the pair stays proportional.
+            Color.clear.frame(width: DexMetrics.statusDotsGap)
+            statusDots(size: dot)
+                // Decoration only, and never a touch target sitting next to one.
+                .allowsHitTesting(false)
+                .fixedSize()
+
             // Clearance held open for the cutout itself, centred between the two
             // controls by the flanking spacers — the island is centred, so the
             // reserved band should be too.
@@ -184,7 +182,12 @@ public struct DeviceChassis<Content: View>: View {
                 .fixedSize()
         }
         .padding(.horizontal, DexMetrics.islandFlankPaddingH)
-        .frame(height: height)
+        // Bottom-aligned with the small inset below, mirroring the footer's
+        // asymmetry: extra strip height (a device reporting a deeper top inset
+        // than we ask for) lands above the controls, on bare chassis, rather
+        // than being split and reopening the gap to the screen housing.
+        .padding(.bottom, DexMetrics.islandBottomInset)
+        .frame(height: height, alignment: .bottom)
     }
 
     /// A brushed-silver cog: the settings button.

@@ -138,42 +138,37 @@ public enum DexMetrics {
     /// corners, and using one value for both is what makes the chassis read as
     /// symmetric top to bottom.
     public static let chassisEdgeInset: CGFloat = 16
-    /// The *island* band: one control tall plus that inset on each side.
-    ///
-    /// The footer no longer shares this. It used to, which made the two bands
-    /// identical by construction — but the footer is the band you actually
-    /// touch, and it wanted bigger controls sitting closer to the screen than a
-    /// single shared number could give both ends. See `footerHeight`.
-    public static let controlBandHeight: CGFloat = controlButton + 2 * chassisEdgeInset
     /// Gap between the screen housing and the bands. Minimal on purpose — every
     /// point here comes off the LCD — but non-zero so the housing does not butt
     /// straight into the controls.
     public static let housingGap: CGFloat = 4
-    /// Floor for the island strip: the band height, so the orb and cog are
-    /// inset from the top edge by exactly what the footer row is from the bottom.
-    public static let islandStripMinHeight: CGFloat = controlBandHeight
+    /// Gap from the island controls down to the screen housing. Matches
+    /// `footerTopInset` so the housing sits the same distance from both rows.
+    public static let islandBottomInset: CGFloat = footerTopInset
+    /// Floor for the island strip, built the same way the footer band is but
+    /// mirrored: `chassisEdgeInset` against the display edge, one control, then
+    /// the small `islandBottomInset` against the screen housing.
+    ///
+    /// It used to be `controlButton + 2 * chassisEdgeInset`, i.e. symmetric — so
+    /// the gap from the orb down to the housing was 16pt while the matching gap
+    /// from the housing down to the footer row was 6pt, and the chassis read as
+    /// top-heavy. The two bands are now mirror images: the big inset faces the
+    /// display edge at both ends, the small one faces the screen.
+    public static let islandStripMinHeight: CGFloat = chassisEdgeInset + controlButton + islandBottomInset
     public static let islandClearance: CGFloat = 138
-    /// How far down the cutout starts. The status lights top-align to this so
-    /// their top edge matches the island's rather than floating above it.
-    public static let islandTopInset: CGFloat = 11
     /// Matches `footerPaddingH` so the orb sits directly above the Back button
     /// and the cog above Home — the four chassis controls share two columns.
     public static let islandFlankPaddingH: CGFloat = cornerGuardH
-    /// Pulls flank content in toward the cutout rather than the screen edges.
-    /// Small on purpose: the orb and status lights sit closer to the island,
-    /// which reads as deliberate rather than stranded at the corner.
-    public static let islandFlankInnerGap: CGFloat = 0.125 * rem
     /// Matched to `ventStripHeight` so the white housing frames the LCD evenly
     /// top and bottom. Trimmed from 1.75rem: symmetric was right, but that much
     /// white read as a thick border and it was all LCD height.
     public static let bezelTopMargin: CGFloat = rem
-    /// Orb, cog and the two footer buttons are all `controlButton` now — one
-    /// size for every physical control on the chassis.
-    public static let lcdOrb: CGFloat = controlButton
-    public static let statusDot: CGFloat = 0.5 * rem
     /// Tightened so the three status lights read as one cluster next to the
     /// larger orb rather than a spread-out row.
     public static let statusDotSpacing: CGFloat = 0.2 * rem
+    /// Gap between the orb and the status-light cluster now that the lights sit
+    /// beside it rather than on its shoulder.
+    public static let statusDotsGap: CGFloat = 6
     public static let titleSize: CGFloat = 0.9375 * rem
 
     /// Screen housing
@@ -217,11 +212,14 @@ public enum DexMetrics {
     /// inset below the row — see `footerHeight`.
     public static let footerTopInset: CGFloat = 6
     public static let footerPaddingH: CGFloat = cornerGuardH
-    /// Every control on the island strip: orb and cog.
-    public static let controlButton: CGFloat = 3.5 * rem
-    /// The footer's own controls, larger than the island's. These are the
-    /// buttons in constant use — Back, Home, saved — and at `controlButton`
-    /// they were the same size as two pieces of chassis decoration.
+    /// **One** diameter for every physical control on the chassis: the orb and
+    /// the cog on the island strip, Back/saved and Home in the footer.
+    ///
+    /// The island pair used to be 3.5rem against the footer's 4rem, on the
+    /// argument that the footer buttons are the ones in constant use. Sitting in
+    /// the same two columns at two different sizes just read as a mistake, so
+    /// they are all `footerControl` now and the strip is sized to seat it.
+    public static let controlButton: CGFloat = footerControl
     public static let footerControl: CGFloat = 4 * rem
     public static let marqueeMaxWidth: CGFloat = 16.5 * rem
     public static let marqueeCorner: CGFloat = 0.8 * rem

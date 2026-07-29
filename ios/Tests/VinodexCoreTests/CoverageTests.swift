@@ -168,6 +168,53 @@ struct CoverageTests {
         }
     }
 
+    /// Every country you can navigate to has a country page, and that page's
+    /// INFO block needs authored prose. Without one it falls back to a derived
+    /// summary line, which is what the whole block used to be.
+    @Test("every region's country has an authored INFO blurb")
+    func countryBlurbs() {
+        let origins = Set(db.entries(in: .regions).compactMap(\.origin)).filter { !$0.isEmpty }
+        #expect(!origins.isEmpty, "no region origins — nothing was checked")
+
+        for origin in origins.sorted() {
+            let info = db.countryInfo(origin)
+            #expect(info != nil, "\(origin) has no entry in countries.json")
+            #expect(info?.description.isEmpty == false, "\(origin) has an empty blurb")
+        }
+    }
+
+    /// The flavour scan's CLASS and SUBCLASS tiles sit side by side. They both
+    /// used to draw the entry's own glyph, so they were always identical to each
+    /// other and changed with whichever note was open. Each level now owns a
+    /// glyph, and no two levels may share one.
+    @Test("every flavor class and subclass has its own glyph")
+    func flavorTaxonomyGlyphs() {
+        var owners: [String: String] = [:]
+        // Qualified by kind, not by name alone: SALTY is *both* a class and a
+        // subclass, and they are two levels that each need their own glyph.
+        var levels: Set<String> = []
+
+        for entry in db.entries(in: .flavors) {
+            guard case .flavor(let f) = entry else { continue }
+            for (kind, value, icon) in [
+                ("class", f.details.classification, db.icons.flavorClassIcon(f.details.classification)),
+                ("subclass", f.details.subclass, db.icons.flavorSubclassIcon(f.details.subclass)),
+            ] {
+                let level = "\(kind) \(value)"
+                levels.insert(level)
+                #expect(icon != db.icons.fallback, "flavor \(level) has no glyph")
+                #expect(
+                    owners[icon] == nil || owners[icon] == level,
+                    "flavor \(level) reuses \(icon), already owned by \(owners[icon] ?? "")"
+                )
+                owners[icon] = level
+            }
+        }
+
+        #expect(!levels.isEmpty, "no flavor classes or subclasses were exercised")
+        #expect(owners.count == levels.count, "glyphs and taxonomy levels are not 1:1")
+    }
+
     /// Every soil the region screen can show must match a keyword. Falling
     /// through to the default mountain renders, but reads as a bug — six terms
     /// were silently doing exactly that.

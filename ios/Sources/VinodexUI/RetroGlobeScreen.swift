@@ -30,11 +30,11 @@ public struct RetroGlobeScreen: View {
 
     public var body: some View {
         ZStack {
-            Color.black
-
-            // 24pt scan grid behind the globe.
-            DexGridBackground(spacing: 24, color: Dex.green, opacity: 0.24)
-                .opacity(0.3)
+            // The same ground and grid every other screen uses, rather than a
+            // black plate under a 24pt green grid of its own. The globe screen
+            // was the only place the backdrop changed pitch, which read as a
+            // different app — and it ignored the LCD mode setting entirely.
+            DexScreenBackground()
 
             VStack(spacing: 12) {
                 // Looks like the other screens' search bars, but it opens the
