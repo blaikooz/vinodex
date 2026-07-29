@@ -19,7 +19,7 @@ interface SplashScreenProps {
  */
 const SplashScreen: React.FC<SplashScreenProps> = ({ onEnterDex }) => {
   return (
-    <DeviceLayout title="VINODEX" subtitle="" showBack={false}>
+    <DeviceLayout title="VINODEX" subtitle="" showBack={false} showSystemButtons={false}>
       <div className="flex-1 min-h-0 w-full flex flex-col items-center bg-dex-screen relative overflow-hidden">
 
         {/* Retro grid background — same treatment as the dex menu. */}

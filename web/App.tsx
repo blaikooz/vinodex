@@ -18,6 +18,7 @@ import DeviceLayout from './components/DeviceLayout';
 import { WineEntry, EntryCategory } from '@/shared/types';
 import { getAllEntries } from './src/services/wineData';
 import { clear as clearScreenState } from './src/services/screenState';
+import { SETTINGS_SECTIONS, SettingsSectionId } from './components/SettingsPanel';
 
 const RetroGlobeScreen = lazy(() => import('./components/RetroGlobeScreen'));
 const MoonDialScreen = lazy(() => import('./components/MoonDialScreen'));
@@ -25,6 +26,10 @@ const MinigamesScreen = lazy(() => import('./components/MinigamesScreen'));
 const DailyGrapeScreen = lazy(() => import('./components/DailyGrapeScreen'));
 const ScannerScreen = lazy(() => import('./components/ScannerScreen'));
 const BookmarksScreen = lazy(() => import('./components/BookmarksScreen'));
+const SettingsGrid = lazy(() => import('./components/SettingsPanel'));
+const SettingsSectionPanel = lazy(() =>
+  import('./components/SettingsPanel').then(m => ({ default: m.SettingsSectionPanel })),
+);
 
 type FilterMode = 'REGION' | 'TYPE' | 'TASTING' | 'SOIL' | 'ORIGIN' | 'STATE' | 'RARITY' | 'SYSTEM' | 'CLIMATE' | null;
 
@@ -103,7 +108,9 @@ const App: React.FC = () => {
 
   const handleNavigateToCategory = (category: EntryCategory) => {
     if (category === 'REGIONS') {
-      navigate('/region-map');
+      // REGIONS opens the globe, matching iOS — the 2D region map is no longer
+      // the way in. `/region-map` keeps its route for existing links.
+      navigate('/retro-globe');
     } else if (category === 'RETRO_GLOBE') {
       navigate('/retro-globe');
     } else {
@@ -198,6 +205,22 @@ const App: React.FC = () => {
     );
   };
 
+  const SettingsSectionRoute: React.FC = () => {
+    const { section } = useParams<{ section: string }>();
+    const known = SETTINGS_SECTIONS.some(s => s.id === section);
+    if (!known) return <Navigate to="/settings" replace />;
+    return (
+      <Suspense fallback={<ScreenLoading label="LOADING..." onBack={handleBack} onHome={handleHome} />}>
+        <SettingsSectionPanel
+          section={section as SettingsSectionId}
+          allEntries={allEntries}
+          onBack={handleBack}
+          onHome={handleHome}
+        />
+      </Suspense>
+    );
+  };
+
   const DetailRoute: React.FC = () => {
     const { entryId } = useParams<{ entryId: string }>();
     const entry = useMemo(
@@ -233,11 +256,7 @@ const App: React.FC = () => {
         <Route
           path="/dex"
           element={
-            <MainMenu
-              onNavigate={handleNavigateToCategory}
-              onOpenMinigames={() => navigate('/minigames')}
-              onOpenSaved={() => navigate('/saved')}
-            />
+            <MainMenu onNavigate={handleNavigateToCategory} />
           }
         />
         <Route
@@ -360,6 +379,19 @@ const App: React.FC = () => {
             </Suspense>
           }
         />
+        <Route
+          path="/settings"
+          element={
+            <Suspense fallback={<ScreenLoading label="LOADING SYSTEM..." onBack={handleBack} onHome={handleHome} />}>
+              <SettingsGrid
+                onSection={id => navigate(`/settings/${id}`)}
+                onBack={handleBack}
+                onHome={handleHome}
+              />
+            </Suspense>
+          }
+        />
+        <Route path="/settings/:section" element={<SettingsSectionRoute />} />
         <Route path="/list/:category" element={<ListRoute />} />
         <Route path="/detail/:entryId" element={<DetailRoute />} />
         {/* A URL that matches nothing is an outside arrival, so it lands on the
