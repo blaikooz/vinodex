@@ -1,5 +1,5 @@
 import React, { useMemo, useRef } from 'react';
-import { Tag, MapPin, Activity, Droplet, Grape, Mountain, ChevronRight, List, Circle, Leaf, Sparkles, Flame, Shield, BookOpen, MapPinned, Flower2, Apple, Wind, Citrus, Star, Crown, Waves, Coffee, Beef, Cherry, TreePalm, LeafyGreen, Carrot, Drumstick, Ham, Croissant, Cookie, Earth, TreePine, Shell, Hop, Nut } from 'lucide-react';
+import { Tag, MapPin, Activity, Droplet, Grape, Mountain, ChevronRight, List, Circle, Leaf, Sparkles, Flame, Shield, BookOpen, Bookmark, MapPinned, Flower2, Apple, Wind, Citrus, Star, Crown, Waves, Coffee, Beef, Cherry, TreePalm, LeafyGreen, Carrot, Drumstick, Ham, Croissant, Cookie, Earth, TreePine, Shell, Hop, Nut } from 'lucide-react';
 import { Icon } from '@iconify/react';
 import DeviceLayout from './DeviceLayout';
 import { EntryCategory, WineEntry, isCountryGateEntry, isFlavorEntry, isGrapeEntry, isRegionEntry, isStyleEntry } from '@/shared/types';
@@ -26,6 +26,8 @@ import { getFlavorClassTileColors, getFlavorSubclassTileColors } from '../src/se
 import { getClimateIcon } from '../src/services/climateDisplay';
 import { keyForDetail } from '../src/services/screenState';
 import { useScreenAnchor } from '../src/services/useScreenAnchor';
+import { isBookmarked, toggleBookmark } from '../src/services/bookmarks';
+import { useBookmarks } from '../src/services/useBookmarks';
 
 type FilterMode = 'REGION' | 'TYPE' | 'TASTING' | 'SOIL' | 'ORIGIN' | 'RARITY' | 'SYSTEM' | 'CLIMATE' | null;
 
@@ -52,6 +54,11 @@ const EntryDetail: React.FC<EntryDetailProps> = ({ entry, allEntries, onBack, on
   // is keyed per entry and a new entry simply has no anchor to restore. An
   // entry you have already read comes back where you left it.
   useScreenAnchor(keyForDetail(entry.id), scrollRef, { autoAnchorChildren: true });
+
+  // Subscribes this screen to the bookmark store so the SAVE control reflects
+  // a change made anywhere else — the saved list, another tab.
+  useBookmarks();
+  const saved = isBookmarked(entry.id);
 
   const formatUpper = (value?: string) => {
     return value ? value.toUpperCase() : 'N/A';
@@ -676,6 +683,20 @@ const EntryDetail: React.FC<EntryDetailProps> = ({ entry, allEntries, onBack, on
                 <h1 className="text-2xl md:text-3xl lg:text-4xl font-retro text-white drop-shadow-[4px_4px_0px_rgba(0,100,0,0.8)] tracking-wide leading-tight break-words whitespace-normal uppercase w-full mt-4 mb-2" style={{ wordBreak: 'break-word', overflowWrap: 'break-word' }}>
                   {entry.name}
                 </h1>
+
+                {/* Ported from the iOS hero's SAVE control — see BookmarkStore. */}
+                <button
+                  onClick={() => toggleBookmark(entry.id)}
+                  aria-pressed={saved}
+                  className={`flex items-center gap-2 rounded-full px-5 py-2 border-2 transition-all active:translate-y-0.5 ${
+                    saved
+                      ? 'bg-green-600 border-green-400 text-white'
+                      : 'bg-stone-900/70 border-green-700 text-green-400 hover:bg-stone-800'
+                  }`}
+                >
+                  <Bookmark size={16} fill={saved ? 'currentColor' : 'none'} />
+                  <span className="font-retro text-[0.6rem] tracking-widest">{saved ? 'SAVED' : 'SAVE'}</span>
+                </button>
              </div>
         </div>
 

@@ -21,6 +21,10 @@ import { clear as clearScreenState } from './src/services/screenState';
 
 const RetroGlobeScreen = lazy(() => import('./components/RetroGlobeScreen'));
 const MoonDialScreen = lazy(() => import('./components/MoonDialScreen'));
+const MinigamesScreen = lazy(() => import('./components/MinigamesScreen'));
+const DailyGrapeScreen = lazy(() => import('./components/DailyGrapeScreen'));
+const ScannerScreen = lazy(() => import('./components/ScannerScreen'));
+const BookmarksScreen = lazy(() => import('./components/BookmarksScreen'));
 
 type FilterMode = 'REGION' | 'TYPE' | 'TASTING' | 'SOIL' | 'ORIGIN' | 'STATE' | 'RARITY' | 'SYSTEM' | 'CLIMATE' | null;
 
@@ -37,6 +41,24 @@ const KNOWN_CATEGORIES: ReadonlySet<EntryCategory> = new Set<EntryCategory>([
   'CONTINENTS',
   'RETRO_GLOBE',
 ]);
+
+/**
+ * Suspense fallback for the lazily loaded screens. The chassis stays put and
+ * only the LCD shows the spinner, so a load does not flash the device away —
+ * same shape as the hand-rolled fallbacks the globe and moon dial already used.
+ */
+const ScreenLoading: React.FC<{ label: string; onBack: () => void; onHome: () => void }> = ({
+  label,
+  onBack,
+  onHome,
+}) => (
+  <DeviceLayout title={label.replace('LOADING ', '').replace('...', '')} subtitle="" showBack={true} onBack={onBack} onHome={onHome} centerHeaderText={true}>
+    <div className="flex-1 bg-black flex flex-col items-center justify-center gap-4">
+      <div className="w-16 h-16 rounded-full border-2 border-green-400 border-t-transparent animate-spin" />
+      <span className="font-retro text-green-300 tracking-widest text-sm">{label}</span>
+    </div>
+  </DeviceLayout>
+);
 
 const App: React.FC = () => {
   const navigate = useNavigate();
@@ -213,7 +235,8 @@ const App: React.FC = () => {
           element={
             <MainMenu
               onNavigate={handleNavigateToCategory}
-              onOpenMoonDial={() => navigate('/moon-dial')}
+              onOpenMinigames={() => navigate('/minigames')}
+              onOpenSaved={() => navigate('/saved')}
             />
           }
         />
@@ -277,6 +300,62 @@ const App: React.FC = () => {
                 onHome={handleHome}
                 onSelectContinent={handleContinentSelect}
                 onWorldSearch={handleManualSearch}
+              />
+            </Suspense>
+          }
+        />
+        {/* Ported from the iOS app — see MinigamesScreen. The moon dial keeps
+            its own top-level path so existing links still work; the hub simply
+            links to it. */}
+        <Route
+          path="/minigames"
+          element={
+            <Suspense fallback={<ScreenLoading label="LOADING MINIGAMES..." onBack={handleBack} onHome={handleHome} />}>
+              <MinigamesScreen
+                onDailyGrape={() => navigate('/daily')}
+                onScanner={() => navigate('/scanner')}
+                onMoonDial={() => navigate('/moon-dial')}
+                onBack={handleBack}
+                onHome={handleHome}
+              />
+            </Suspense>
+          }
+        />
+        <Route
+          path="/daily"
+          element={
+            <Suspense fallback={<ScreenLoading label="LOADING REVEAL..." onBack={handleBack} onHome={handleHome} />}>
+              <DailyGrapeScreen
+                allEntries={allEntries}
+                onOpen={handleSelectEntry}
+                onBack={handleBack}
+                onHome={handleHome}
+              />
+            </Suspense>
+          }
+        />
+        <Route
+          path="/scanner"
+          element={
+            <Suspense fallback={<ScreenLoading label="LOADING SCANNER..." onBack={handleBack} onHome={handleHome} />}>
+              <ScannerScreen
+                allEntries={allEntries}
+                onOpen={handleSelectEntry}
+                onBack={handleBack}
+                onHome={handleHome}
+              />
+            </Suspense>
+          }
+        />
+        <Route
+          path="/saved"
+          element={
+            <Suspense fallback={<ScreenLoading label="LOADING SAVED..." onBack={handleBack} onHome={handleHome} />}>
+              <BookmarksScreen
+                allEntries={allEntries}
+                onSelect={handleSelectEntry}
+                onBack={handleBack}
+                onHome={handleHome}
               />
             </Suspense>
           }

@@ -1,16 +1,21 @@
 import React, { useState } from 'react';
-import { Grape, Globe, Leaf, Search, Wine } from 'lucide-react';
-import { Icon } from '@iconify/react';
+import { Bookmark, Gamepad2, Grape, Globe, Leaf, Search, Wine } from 'lucide-react';
 import DeviceLayout from './DeviceLayout';
 import DeviceBackPanel from './DeviceBackPanel';
 import { EntryCategory } from '@/shared/types';
 
 interface MainMenuProps {
   onNavigate: (category: EntryCategory) => void;
-  onOpenMoonDial: () => void;
+  /**
+   * The moon dial is reached through the minigames hub now, matching iOS — it
+   * is a game, not a top-level category, and there is more than one of them.
+   * The `/moon-dial` route stays for existing links.
+   */
+  onOpenMinigames: () => void;
+  onOpenSaved: () => void;
 }
 
-const MainMenu: React.FC<MainMenuProps> = ({ onNavigate, onOpenMoonDial }) => {
+const MainMenu: React.FC<MainMenuProps> = ({ onNavigate, onOpenMinigames, onOpenSaved }) => {
   const [isFlipped, setIsFlipped] = useState(false);
 
   return (
@@ -77,16 +82,19 @@ const MainMenu: React.FC<MainMenuProps> = ({ onNavigate, onOpenMoonDial }) => {
               </button>
 
               <button
-                onClick={onOpenMoonDial}
-                aria-label="Open moon dial"
+                onClick={onOpenMinigames}
+                aria-label="Open minigames"
                 className="w-16 h-16 sm:w-20 sm:h-20 rounded-full bg-indigo-600 border-[5px] border-indigo-900 shadow-[0_0_20px_rgba(99,102,241,0.45)] flex items-center justify-center active:scale-95 active:border-indigo-950 transition-all group hover:bg-indigo-500"
               >
-                <Icon
-                  icon="game-icons:moon-orbit"
-                  className="text-white group-hover:scale-110 transition-transform"
-                  width={32}
-                  height={32}
-                />
+                <Gamepad2 size={32} className="text-white group-hover:scale-110 transition-transform" />
+              </button>
+
+              <button
+                onClick={onOpenSaved}
+                aria-label="Open saved"
+                className="w-16 h-16 sm:w-20 sm:h-20 rounded-full bg-rose-600 border-[5px] border-rose-900 shadow-[0_0_20px_rgba(244,63,94,0.45)] flex items-center justify-center active:scale-95 active:border-rose-950 transition-all group hover:bg-rose-500"
+              >
+                <Bookmark size={30} className="text-white group-hover:scale-110 transition-transform" />
               </button>
             </div>
 
