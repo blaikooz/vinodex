@@ -386,6 +386,12 @@ const App: React.FC = () => {
               <SettingsGrid
                 onSection={id => navigate(`/settings/${id}`)}
                 onMinigames={() => navigate('/minigames')}
+                // Leaving the app clears screen state for the same reason Home
+                // does — re-entering the dex should not resume mid-page.
+                onExitToSplash={() => {
+                  clearScreenState();
+                  navigate('/');
+                }}
                 onBack={handleBack}
                 onHome={handleHome}
               />

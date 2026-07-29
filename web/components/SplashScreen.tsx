@@ -19,7 +19,7 @@ interface SplashScreenProps {
  */
 const SplashScreen: React.FC<SplashScreenProps> = ({ onEnterDex }) => {
   return (
-    <DeviceLayout title="VINODEX" subtitle="" showBack={false} showSystemButtons={false}>
+    <DeviceLayout title="VINODEX" subtitle="" showBack={false} showSystemButtons={false} showWordmark>
       <div className="flex-1 min-h-0 w-full flex flex-col items-center bg-dex-screen relative overflow-hidden">
 
         {/* Retro grid background — same treatment as the dex menu. */}
@@ -34,8 +34,13 @@ const SplashScreen: React.FC<SplashScreenProps> = ({ onEnterDex }) => {
 
         <div className="relative w-full h-full z-10 flex flex-col p-6 gap-6 justify-center items-center">
 
+          {/*
+            The PNG, not `vinodex-logo.svg`. That SVG is a blocky one-glyph
+            mark — it reads as an H rather than as the wordmark, which is
+            wrong for the one screen whose job is to say what this is.
+          */}
           <img
-            src="/vinodex-logo.svg"
+            src="/vinodex-logo.png"
             alt="VINODEX"
             className="w-40 sm:w-56 max-w-full shrink-0 drop-shadow-[0_4px_12px_rgba(0,0,0,0.5)]"
           />

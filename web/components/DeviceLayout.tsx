@@ -22,6 +22,15 @@ interface DeviceLayoutProps {
    * The splash turns them off — there is no app behind it yet.
    */
   showSystemButtons?: boolean;
+  /**
+   * Shows the VINODEX wordmark in the island's right slot, where the settings
+   * cog otherwise sits. Splash only: iOS dropped the wordmark from the chassis
+   * because a logo reads as decoration next to real controls, and that
+   * reasoning holds everywhere the cog is present — but the splash has no cog
+   * and no app behind it yet, so the wordmark is the only thing naming the
+   * product on the first screen anyone sees.
+   */
+  showWordmark?: boolean;
 }
 
 const DeviceLayout: React.FC<DeviceLayoutProps> = ({
@@ -38,6 +47,7 @@ const DeviceLayout: React.FC<DeviceLayoutProps> = ({
   backFace,
   onTitleTap,
   showSystemButtons = true,
+  showWordmark = false,
 }) => {
   const navigate = useNavigate();
 
@@ -183,6 +193,18 @@ const DeviceLayout: React.FC<DeviceLayoutProps> = ({
                 <div className="w-3 h-3 md:w-3.5 md:h-3.5 rounded-full bg-green-500 border border-green-700 dot-pulse-green"></div>
               </div>
             </div>
+
+            {showWordmark && (
+              <h1
+                className="font-retro text-[1.6rem] md:text-[2.1rem] italic tracking-tighter transform -skew-x-12 whitespace-nowrap leading-tight drop-shadow-md"
+                style={{
+                  color: 'var(--chassis-on-body)',
+                  textShadow: '2px 2px 0px var(--chassis-on-body-shadow)',
+                }}
+              >
+                VINODEX
+              </h1>
+            )}
 
             {showSystemButtons && (
               // Brushed silver, same diameter family as the footer controls, so

@@ -1,5 +1,5 @@
 import React from 'react';
-import { Palette, BarChart3, Lock, Bug, Check, Gamepad2 } from 'lucide-react';
+import { Palette, BarChart3, Lock, Bug, Check, Gamepad2, LogOut } from 'lucide-react';
 import DeviceLayout from './DeviceLayout';
 import { WineEntry, isGrapeEntry, isRegionEntry } from '@/shared/types';
 import {
@@ -55,15 +55,35 @@ export const SETTINGS_SECTIONS: {
 export const SettingsGrid: React.FC<{
   onSection: (id: SettingsSectionId) => void;
   onMinigames: () => void;
+  onExitToSplash: () => void;
   onBack: () => void;
   onHome: () => void;
-}> = ({ onSection, onMinigames, onBack, onHome }) => (
+}> = ({ onSection, onMinigames, onExitToSplash, onBack, onHome }) => (
   <DeviceLayout title="SYSTEM" subtitle="" showBack={true} onBack={onBack} onHome={onHome} centerHeaderText={true}>
     <div
       className="flex-1 min-h-0 overflow-y-auto custom-scrollbar p-3"
       style={{ backgroundColor: 'var(--lcd-page)' }}
     >
       <div className="grid grid-cols-2 gap-3">
+        {/*
+          First, not last. Minigames is the only tile here anyone opens for
+          fun — the other four are configuration and diagnostics — and burying
+          it under them made the cog feel like a dead end.
+        */}
+        <button
+          onClick={onMinigames}
+          className="aspect-square flex flex-col items-center justify-center gap-3 rounded-xl border-2 border-indigo-700 transition-all active:translate-y-0.5"
+          style={{ backgroundColor: 'var(--lcd-surface)' }}
+        >
+          <span className="text-indigo-400"><Gamepad2 size={30} /></span>
+          <span
+            className="font-retro text-[0.55rem] sm:text-[0.65rem] tracking-widest text-center px-1"
+            style={{ color: 'var(--lcd-text)' }}
+          >
+            MINIGAMES
+          </span>
+        </button>
+
         {SETTINGS_SECTIONS.map(s => (
           <button
             key={s.id}
@@ -81,25 +101,23 @@ export const SettingsGrid: React.FC<{
           </button>
         ))}
 
-        {/*
-          Minigames hangs off the settings grid, as on iOS — the cog is the
-          only door to it. Removing the menu's spare circles left /minigames
-          reachable only by typing the URL, which is not reachable at all.
-        */}
-        <button
-          onClick={onMinigames}
-          className="aspect-square flex flex-col items-center justify-center gap-3 rounded-xl border-2 border-indigo-700 transition-all active:translate-y-0.5"
-          style={{ backgroundColor: 'var(--lcd-surface)' }}
-        >
-          <span className="text-indigo-400"><Gamepad2 size={30} /></span>
-          <span
-            className="font-retro text-[0.55rem] sm:text-[0.65rem] tracking-widest text-center px-1"
-            style={{ color: 'var(--lcd-text)' }}
-          >
-            MINIGAMES
-          </span>
-        </button>
       </div>
+
+      {/*
+        The way out of the app entirely, back to the DEX / WEBSITE fork. Home
+        goes to the dex menu by design, so without this the splash was
+        unreachable once you had entered — you had to edit the URL.
+      */}
+      <button
+        onClick={onExitToSplash}
+        className="w-full mt-3 flex items-center justify-center gap-2 py-4 rounded-xl border-2 transition-all active:translate-y-0.5"
+        style={{ backgroundColor: 'var(--lcd-surface)', borderColor: 'var(--lcd-surface-edge)' }}
+      >
+        <LogOut size={18} style={{ color: 'var(--lcd-subtext)' }} />
+        <span className="font-retro text-[0.6rem] tracking-widest" style={{ color: 'var(--lcd-text)' }}>
+          EXIT TO SPLASH
+        </span>
+      </button>
     </div>
   </DeviceLayout>
 );
