@@ -76,15 +76,6 @@ const MainMenu: React.FC<MainMenuProps> = ({ onNavigate }) => {
                 <div className="absolute inset-0 bg-white/20 animate-pulse rounded-full"></div>
                 <Search size={40} className="text-yellow-900 relative z-10 group-hover:scale-110 transition-transform sm:w-16 sm:h-16" />
               </button>
-
-              <button
-                onClick={() => onNavigate('RETRO_GLOBE')}
-                aria-label="Open regions"
-                className="w-24 h-24 sm:w-32 sm:h-32 rounded-full bg-blue-500 border-[6px] border-blue-800 shadow-[0_0_25px_rgba(42,181,255,0.4)] flex items-center justify-center active:scale-95 active:border-blue-900 transition-all group hover:bg-blue-400"
-              >
-                <Globe size={40} className="text-white group-hover:scale-110 transition-transform sm:w-16 sm:h-16" />
-              </button>
-
             </div>
 
             {/* Bottom Row */}

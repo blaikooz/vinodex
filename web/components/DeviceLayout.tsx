@@ -166,7 +166,9 @@ const DeviceLayout: React.FC<DeviceLayoutProps> = ({
                 onPointerLeave={onTitleTap ? cancelOrbHold : undefined}
                 onPointerCancel={onTitleTap ? cancelOrbHold : undefined}
                 disabled={!onTitleTap}
-                className={`w-[3.125rem] h-[3.125rem] md:w-[3.75rem] md:h-[3.75rem] rounded-full bg-cyan-300 border-[3px] border-white relative overflow-hidden shrink-0 shadow-[0_4px_8px_rgba(0,0,0,0.5)] lcd-pulse p-0 transition-transform duration-100 ${
+                /* Same diameter as the footer controls and the cog: on iOS
+                   every button on the chassis is one size (`footerControl`). */
+                className={`w-16 h-16 md:w-20 md:h-20 rounded-full bg-cyan-300 border-[3px] border-white relative overflow-hidden shrink-0 shadow-[0_4px_8px_rgba(0,0,0,0.5)] lcd-pulse p-0 transition-transform duration-100 ${
                   orbHeld ? 'scale-90 brightness-75' : ''
                 } ${onTitleTap ? 'cursor-pointer' : 'cursor-default'}`}
               >
@@ -174,9 +176,11 @@ const DeviceLayout: React.FC<DeviceLayoutProps> = ({
               </button>
 
               <div className="flex flex-row gap-2 items-center" aria-hidden="true">
-                <div className="w-4 h-4 rounded-full bg-red-600 border border-red-800 dot-pulse-red"></div>
-                <div className="w-4 h-4 rounded-full bg-yellow-400 border border-yellow-600 dot-pulse-yellow"></div>
-                <div className="w-4 h-4 rounded-full bg-green-500 border border-green-700 dot-pulse-green"></div>
+                {/* 17% of the control size, sized off the orb so the pair stays
+                    proportional — `let dot = max(control * 0.17, 8)`. */}
+                <div className="w-3 h-3 md:w-3.5 md:h-3.5 rounded-full bg-red-600 border border-red-800 dot-pulse-red"></div>
+                <div className="w-3 h-3 md:w-3.5 md:h-3.5 rounded-full bg-yellow-400 border border-yellow-600 dot-pulse-yellow"></div>
+                <div className="w-3 h-3 md:w-3.5 md:h-3.5 rounded-full bg-green-500 border border-green-700 dot-pulse-green"></div>
               </div>
             </div>
 
@@ -186,14 +190,15 @@ const DeviceLayout: React.FC<DeviceLayoutProps> = ({
               <button
                 onClick={() => navigate('/settings')}
                 aria-label="Settings"
-                className="w-12 h-12 md:w-14 md:h-14 rounded-full flex items-center justify-center shrink-0 border-2 active:scale-90 transition-transform shadow-[0_2px_4px_rgba(0,0,0,0.45)]"
+                className="w-16 h-16 md:w-20 md:h-20 rounded-full flex items-center justify-center shrink-0 border-[3px] active:scale-90 transition-transform shadow-[0_2px_4px_rgba(0,0,0,0.45)]"
                 style={{
                   background: 'linear-gradient(to bottom, #44403c, #1c1917)',
                   borderColor: '#a8a29e',
                 }}
               >
+                {/* 52% of the button, as `settingsButton(size:)` does. */}
                 <Settings
-                  size={24}
+                  className="w-[52%] h-[52%]"
                   style={{ color: '#e8ebee', filter: 'drop-shadow(0 1px 0 rgba(0,0,0,0.5))' }}
                 />
               </button>
@@ -267,22 +272,27 @@ const DeviceLayout: React.FC<DeviceLayoutProps> = ({
             greyed-out stub. Straight from iOS `ChassisButton.Kind`.
           */}
           <div className="flex justify-start">
-            <button
-              type="button"
-              onClick={backEnabled ? onBack : () => navigate('/saved')}
-              aria-label={backEnabled ? 'Back' : 'Saved'}
-              className="relative -translate-y-1 w-16 h-16 md:w-20 md:h-20 rounded-full bg-gradient-to-b from-stone-700 to-stone-950 border-[3px] border-stone-400 shadow-[inset_0_3px_6px_rgba(255,255,255,0.15),0_8px_12px_rgba(0,0,0,0.6)] transition-transform focus:outline-none hover:scale-[1.02] active:translate-x-[1px] active:scale-[0.98]"
-            >
-              <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-                {backEnabled ? (
-                  <svg viewBox="0 0 24 24" className="w-10 h-10 text-white" fill="none" stroke="currentColor" strokeWidth={4} strokeLinecap="round" strokeLinejoin="round">
-                    <path d="M15 5L7 12l8 7" />
-                  </svg>
-                ) : (
-                  <CircleUser className="w-9 h-9 text-white" strokeWidth={2} />
-                )}
-              </div>
-            </button>
+            {(backEnabled || showSystemButtons) && (
+              <button
+                type="button"
+                onClick={backEnabled ? onBack : () => navigate('/saved')}
+                aria-label={backEnabled ? 'Back' : 'Saved'}
+                className="relative -translate-y-1 w-16 h-16 md:w-20 md:h-20 rounded-full bg-gradient-to-b from-stone-700 to-stone-950 border-[3px] border-stone-400 shadow-[inset_0_3px_6px_rgba(255,255,255,0.15),0_8px_12px_rgba(0,0,0,0.6)] transition-transform focus:outline-none hover:scale-[1.02] active:translate-x-[1px] active:scale-[0.98]"
+              >
+                <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+                  {backEnabled ? (
+                    <svg viewBox="0 0 24 24" className="w-10 h-10 text-white" fill="none" stroke="currentColor" strokeWidth={4} strokeLinecap="round" strokeLinejoin="round">
+                      <path d="M15 5L7 12l8 7" />
+                    </svg>
+                  ) : (
+                    /* Back has nowhere to go, so the slot earns its keep as the
+                       way into saved entries — iOS ChassisButton.Kind.bookmarks.
+                       Suppressed on the splash, which has no app behind it. */
+                    <CircleUser className="w-9 h-9 text-white" strokeWidth={2} />
+                  )}
+                </div>
+              </button>
+            )}
           </div>
 
           <div className="flex justify-center items-center px-1 self-center -translate-y-0.5 min-w-0">
