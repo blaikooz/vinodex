@@ -1,4 +1,17 @@
 /**
+ * FROZEN — do not edit, do not run.
+ *
+ * The live copy of this generator is `scripts/generate-ios-data.ts` in
+ * https://github.com/blaikooz/vinodex-ios, which owns the iOS app outright as of
+ * 2026-07-29. Nothing copies between the two repos any more, so edits here reach
+ * nothing; the `generate:ios` npm script has been removed for the same reason.
+ *
+ * This file remains only because `ios/` and `shared/` are still checked in while
+ * the web app imports `shared/`. The landing-page pivot removes that dependency
+ * and can then delete this file.
+ */
+
+/**
  * Generates the iOS app's bundled data from the shared data + colour tables.
  *
  * Emits five files into the VinodexCore resource directory:

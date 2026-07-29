@@ -1,5 +1,13 @@
 #!/usr/bin/env bash
 #
+# FROZEN -- do not edit, do not run.
+#
+# The live copy of this rasteriser is scripts/rasterize-icons.sh in
+# https://github.com/blaikooz/vinodex-ios, which owns the iOS app outright as of
+# 2026-07-29. Nothing copies between the two repos any more, so edits here reach
+# nothing; the icons:ios npm script has been removed for the same reason.
+#
+#
 # Rasterises the icon set listed in icons.json to PNGs bundled with the app.
 #
 # iOS cannot render SVG at runtime, and `actool` (the asset-catalog compiler) is

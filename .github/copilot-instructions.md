@@ -1,7 +1,9 @@
 # Copilot Instructions for Vinodex
 
 ## Overview
-Vinodex is a retro-styled wine encyclopedia. This is a **monorepo with three peers**: a shared dataset (`shared/`) rendered by two apps — a React/Vite PWA (`web/`) and a SwiftUI iOS app (`ios/`). The web app is installable as a PWA and uses a map-driven exploration interface.
+Vinodex is a retro-styled wine encyclopedia. **This repo is the web app** — a React/Vite PWA, installable, with a map-driven exploration interface. It is being pivoted toward a landing page for the iOS app.
+
+**The iOS app lives in [`blaikooz/vinodex-ios`](https://github.com/blaikooz/vinodex-ios) and is not built from here.** `ios/`, `shared/`, `pixelflags/` and the two iOS scripts in `scripts/` are **frozen leftovers** of the old arrangement, kept only because `web/src/services/` still imports `shared/`. Do not edit them and do not regenerate iOS data here — an iOS change is made in `vinodex-ios`.
 
 ## Key Conventions
 - **React 19 + TypeScript**: All web UI is built with React function components and TypeScript types.
@@ -9,9 +11,9 @@ Vinodex is a retro-styled wine encyclopedia. This is a **monorepo with three pee
 - **Tailwind CSS v4**: Styling is handled via Tailwind utility classes. No CSS-in-JS or SCSS.
 - **Data**: All runtime wine data is sourced from `shared/constants.ts` and the `shared/data/` directory. Do not load from `web/public/wine-entries.json` at runtime.
 - **The `@/` alias points at the repo root.** Cross-tree imports use it — `@/shared/types`, `@/shared/data/grapes`, `@/shared/services/chipColors`. Imports *within* `web/` stay relative.
-- **`shared/` must stay dependency-free.** It is read both by the web app and by the iOS generator running under plain ts-node, where `react` is not installed. No framework imports, no JSX, no asset imports.
+- **`shared/` here is frozen.** The live copy is `vinodex-ios/shared/`. This one feeds the web app only; editing it does not reach iOS. It must still stay dependency-free while the web app reads it.
 - **Icons**: SVG icons are in `web/public/icons/`. Use Lucide React for UI icons, and custom SVGs for wine/flavor visuals.
-- **Component Structure**: UI screens and tiles are in `web/components/`. Web-only rendering helpers are in `web/src/services/`; anything the iOS app also needs belongs in `shared/services/`.
+- **Component Structure**: UI screens and tiles are in `web/components/`. Rendering helpers are in `web/src/services/`.
 
 ## Build & Test Commands
 - Install: `npm install`
@@ -19,7 +21,6 @@ Vinodex is a retro-styled wine encyclopedia. This is a **monorepo with three pee
 - Type check: `npm run typecheck`
 - Build: `npm run build`
 - Preview: `npm run preview`
-- Regenerate iOS data after editing `shared/`: `npm run generate:ios`
 
 ## Project Structure
 - `shared/` — **Single source of truth.** Entry types, dataset, colour and classification lookups
@@ -27,16 +28,14 @@ Vinodex is a retro-styled wine encyclopedia. This is a **monorepo with three pee
 - `web/src/services/` — Web-only rendering helpers
 - `web/data/` — Web-only data (flag image imports, the encyclopedia corpus)
 - `web/public/` — Static assets and generated JSON
-- `ios/` — SwiftUI package; its bundled JSON is generated from `shared/`
-- `pixelflags/` — Pixel-art flags, consumed by both apps
-- `scripts/` — Data generators and the `vinodex-swift` publish script
+- `scripts/` — encyclopedia tooling (live), plus two frozen iOS generators
+- `shared/`, `ios/`, `pixelflags/` — **frozen**; live copies are in `vinodex-ios`
 
 ## Pitfalls & Tips
 - **Do not edit `web/public/wine-entries.json` directly.**
 - **Always update `shared/constants.ts` and `shared/data/` for new entries.**
-- **A change under `shared/` is not finished until `npm run generate:ios` has been run** and the resulting diff under `ios/Sources/VinodexCore/Resources/` reviewed. Generation is deterministic, so an unexpectedly wide diff means the change was wider than intended.
-- **Never add a colour or lookup table to `web/src/services/` if the iOS app needs it too** — it belongs in `shared/services/`, or the two apps drift.
-- **Do not commit in `blaikooz/vinodex-swift`.** It is a generated mirror, overwritten by `npm run publish:swift`.
+- **Do not edit the frozen paths** (`ios/`, `shared/`, `pixelflags/`, `scripts/generate-ios-data.ts`, `scripts/rasterize-icons.sh`). Nothing copies between this repo and `vinodex-ios` in either direction, so an edit here silently diverges from the app.
+- **`blaikooz/vinodex-ios` takes direct commits and pull requests.** The old warning that it was a generated mirror is obsolete — the publish script that overwrote it has been deleted.
 - **Use only Tailwind for styling.**
 - **SVG icons:** Add new icons to `web/public/icons/` and reference them in UI components.
 - **PWA:** Test installability after build with `npm run preview`.
@@ -49,7 +48,8 @@ Vinodex is a retro-styled wine encyclopedia. This is a **monorepo with three pee
 
 ## See Also
 - [README.md](../README.md) for setup and structure
-- [KNOWN-ISSUES.md](../KNOWN-ISSUES.md) for the iOS build/deploy runbook and repo layout
+- [KNOWN-ISSUES.md](../KNOWN-ISSUES.md) for what is live here and what is frozen
+- [`vinodex-ios`](https://github.com/blaikooz/vinodex-ios) for the iOS app and its build/deploy runbook
 - [web/public/icons/README.md](../web/public/icons/README.md) for icon usage
 
 ---
