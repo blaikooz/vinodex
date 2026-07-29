@@ -24,11 +24,11 @@ Vinodex is a retro-styled wine encyclopedia PWA built with React, TypeScript, an
 > | `pixelflags/` | `vinodex-ios/pixelflags/` |
 > | `scripts/generate-ios-data.ts`, `scripts/rasterize-icons.sh` | `vinodex-ios/scripts/` |
 >
-> They are still here only because the web app currently imports `shared/`
-> (7 files under `web/src/services/`). As this app is pivoted to a landing page
-> that dependency goes away, and these can be deleted outright — that cleanup
-> belongs to the pivot, not to the split. The `generate:ios` / `icons:ios` npm
-> scripts have been removed so nothing here can regenerate the frozen copies;
+> They are still here because the web app imports `shared/` (7 files under
+> `web/src/services/`), and it still will: `/` is now a splash that forks to the
+> dex app and a coming-soon website page, so the encyclopedia stays rather than
+> being replaced by a landing page. The `generate:ios` / `icons:ios` npm scripts
+> have been removed so nothing here can regenerate the frozen copies;
 > **an iOS data change is made in `vinodex-ios`.**
 
 ## Features
@@ -102,9 +102,10 @@ vinodex-web/
   scripts/           Encyclopedia tooling (live) + two frozen iOS generators
 ```
 
-The web app still imports `shared/` through the `@/shared/*` alias, which is the
-only reason the frozen folders are still here. Removing that dependency is part
-of the landing-page pivot.
+The web app imports `shared/` through the `@/shared/*` alias, which is the only
+reason the frozen folders are still here. That dependency stays: `/` is a splash
+that forks to the dex (`/dex`) and a coming-soon website page, so the
+encyclopedia is not going away.
 
 ### Working on the data or colours
 

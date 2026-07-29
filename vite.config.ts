@@ -44,7 +44,10 @@ export default defineConfig({
         background_color: '#232323',
         display: 'standalone',
         orientation: 'portrait',
-        start_url: '/',
+        // An installed PWA opens the app, not the splash. Someone who has
+        // added Vinodex to their home screen has already made the choice the
+        // splash exists to offer.
+        start_url: '/dex',
         icons: [
           {
             src: 'vinodex-logo.png',
