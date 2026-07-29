@@ -653,7 +653,11 @@ const EntryDetail: React.FC<EntryDetailProps> = ({ entry, allEntries, onBack, on
       showBack={true}
       onHome={onHome}
     >
-      <div ref={scrollRef} className="h-full overflow-y-auto custom-scrollbar bg-black text-green-400 p-4 font-mono pb-20 text-[15px] md:text-base">
+      <div
+        ref={scrollRef}
+        className="h-full overflow-y-auto custom-scrollbar p-4 font-mono pb-20 text-[15px] md:text-base"
+        style={{ backgroundColor: 'var(--lcd-page)', color: 'var(--lcd-accent)' }}
+      >
         
         {/* Header Area with Title - Updated for text wrapping */}
         <div className="w-full min-h-[6rem] border-b-4 border-green-800 bg-green-900/10 mb-4 relative overflow-hidden flex items-center justify-center shrink-0 p-4">

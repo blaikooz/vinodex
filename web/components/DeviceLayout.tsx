@@ -1,6 +1,6 @@
 
-import React from 'react';
-import { Home, Bookmark, Settings } from 'lucide-react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
+import { Home, CircleUser, Settings } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 
 interface DeviceLayoutProps {
@@ -41,7 +41,32 @@ const DeviceLayout: React.FC<DeviceLayoutProps> = ({
 }) => {
   const navigate = useNavigate();
 
-  const topTitle = "VINODEX";
+  const [orbHeld, setOrbHeld] = useState(false);
+  const holdTimer = useRef<number | null>(null);
+
+  const cancelOrbHold = useCallback(() => {
+    if (holdTimer.current !== null) {
+      window.clearTimeout(holdTimer.current);
+      holdTimer.current = null;
+    }
+    setOrbHeld(false);
+  }, []);
+
+  const beginOrbHold = useCallback(() => {
+    setOrbHeld(true);
+    holdTimer.current = window.setTimeout(() => {
+      holdTimer.current = null;
+      setOrbHeld(false);
+      onTitleTap?.();
+    }, 1000);
+  }, [onTitleTap]);
+
+  // A pointer released outside the orb still has to clear the timer, or the
+  // device flips a beat after the user has given up and looked away.
+  useEffect(() => cancelOrbHold, [cancelOrbHold]);
+
+  // The wordmark is gone from the island (a cog took its place), so the only
+  // place the app still names itself is the footer marquee.
   const isMainScreen = title === 'VINODEX';
   const footerTitle = isMainScreen
     ? 'CHEERS! - SANTE! - SALUTE! - PROST! - KANPAI!'
@@ -71,10 +96,8 @@ const DeviceLayout: React.FC<DeviceLayoutProps> = ({
       </div>
     </div>
   );
-  const headerTitleSize = topTitle === 'VINODEX'
-    ? 'text-[2.031rem] md:text-[2.656rem]'
-    : 'text-[1.21875rem] md:text-[1.59375rem]';
-  const headerAlignment = 'items-end text-right';
+  // The header title sizing that used to live here went with the wordmark —
+  // the island carries no text now, only the orb, the lights and the cog.
 
   const footerHeight = '6.5rem';
   const footerBottomPad = 'max(0.5rem, env(safe-area-inset-bottom))';
@@ -118,64 +141,63 @@ const DeviceLayout: React.FC<DeviceLayoutProps> = ({
           >
             <div className="flex h-full flex-col">
         
-        {/* Device Top Bar */}
+        {/*
+          The island strip. No wordmark: iOS replaced the pixel-V logo with a
+          settings cog, because a logo looks like branding and so reads as
+          decoration — nobody expects it to be tappable. A cog states what it
+          does. Orb and status lights sit left, cog pinned right above Home.
+        */}
         {!hideHeader && (
-          <div className="shrink-0 flex items-end px-4 pr-5 py-2.5 justify-between">
-            <div className="flex flex-row items-start gap-3">
-              <div className="w-[3.125rem] h-[3.125rem] md:w-[3.75rem] md:h-[3.75rem] rounded-full bg-cyan-300 border-[3px] border-white relative overflow-hidden shrink-0 shadow-[0_4px_8px_rgba(0,0,0,0.5)] lcd-pulse">
-                <div className="absolute top-1 left-1/2 -translate-x-1/2 w-3 h-3 bg-white rounded-full opacity-80 blur-[1px]"></div>
-              </div>
-              <div className="flex flex-col gap-1.5 pt-1">
-                <div className="flex flex-row gap-2 items-center">
-                  <div className="w-4 h-4 rounded-full bg-red-600 border border-red-800 dot-pulse-red"></div>
-                  <div className="w-4 h-4 rounded-full bg-yellow-400 border border-yellow-600 dot-pulse-yellow"></div>
-                  <div className="w-4 h-4 rounded-full bg-green-500 border border-green-700 dot-pulse-green"></div>
-                </div>
+          <div className="shrink-0 flex items-center px-4 pr-5 py-2.5 justify-between">
+            <div className="flex flex-row items-center gap-3">
+              {/*
+                Hold the orb to flip the device. A hidden gesture on a
+                decorative-looking part is a poor primary affordance, but this
+                one is a deliberate easter egg — the orb depresses under the
+                finger so the feedback arrives before the flip does. One second:
+                long enough not to fire on a tap, short enough that someone who
+                knows the gesture does not assume it has broken.
+              */}
+              <button
+                type="button"
+                aria-label={onTitleTap ? 'Hold to flip device' : undefined}
+                onPointerDown={onTitleTap ? beginOrbHold : undefined}
+                onPointerUp={onTitleTap ? cancelOrbHold : undefined}
+                onPointerLeave={onTitleTap ? cancelOrbHold : undefined}
+                onPointerCancel={onTitleTap ? cancelOrbHold : undefined}
+                disabled={!onTitleTap}
+                className={`w-[3.125rem] h-[3.125rem] md:w-[3.75rem] md:h-[3.75rem] rounded-full bg-cyan-300 border-[3px] border-white relative overflow-hidden shrink-0 shadow-[0_4px_8px_rgba(0,0,0,0.5)] lcd-pulse p-0 transition-transform duration-100 ${
+                  orbHeld ? 'scale-90 brightness-75' : ''
+                } ${onTitleTap ? 'cursor-pointer' : 'cursor-default'}`}
+              >
+                <span className="absolute top-1 left-1/2 -translate-x-1/2 w-3 h-3 bg-white rounded-full opacity-80 blur-[1px]"></span>
+              </button>
 
-                {showSystemButtons && (
-                  <div className="flex flex-row gap-2 items-center">
-                    <button
-                      onClick={() => navigate('/saved')}
-                      aria-label="Saved"
-                      className="w-7 h-7 rounded-full bg-black/25 border border-white/30 flex items-center justify-center active:scale-95 transition-transform hover:bg-black/40"
-                    >
-                      <Bookmark size={14} style={{ color: 'var(--chassis-on-body)' }} />
-                    </button>
-                    <button
-                      onClick={() => navigate('/settings')}
-                      aria-label="Settings"
-                      className="w-7 h-7 rounded-full bg-black/25 border border-white/30 flex items-center justify-center active:scale-95 transition-transform hover:bg-black/40"
-                    >
-                      <Settings size={14} style={{ color: 'var(--chassis-on-body)' }} />
-                    </button>
-                  </div>
-                )}
+              <div className="flex flex-row gap-2 items-center" aria-hidden="true">
+                <div className="w-4 h-4 rounded-full bg-red-600 border border-red-800 dot-pulse-red"></div>
+                <div className="w-4 h-4 rounded-full bg-yellow-400 border border-yellow-600 dot-pulse-yellow"></div>
+                <div className="w-4 h-4 rounded-full bg-green-500 border border-green-700 dot-pulse-green"></div>
               </div>
             </div>
-            <div className={`flex-1 flex flex-col justify-end min-w-0 gap-[1px] ${headerAlignment}`}>
-              {onTitleTap ? (
-                <button
-                  type="button"
-                  onClick={onTitleTap}
-                  aria-label="Flip device to view back panel"
-                  className="bg-transparent border-0 p-0 m-0 cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-white/60 rounded transition-transform active:scale-[0.97]"
-                >
-                  <h1
-                    className={`font-retro ${headerTitleSize} italic tracking-tighter drop-shadow-md transform -skew-x-12 whitespace-nowrap mb-0 leading-tight`}
-                    style={{ color: 'var(--chassis-on-body)', textShadow: '2px 2px 0px var(--chassis-on-body-shadow)' }}
-                  >
-                    {topTitle}
-                  </h1>
-                </button>
-              ) : (
-                <h1
-                  className={`font-retro ${headerTitleSize} text-white italic tracking-tighter drop-shadow-md transform -skew-x-12 whitespace-nowrap mb-0 leading-tight`}
-                  style={{ textShadow: '2px 2px 0px #89061C' }}
-                >
-                  {topTitle}
-                </h1>
-              )}
-            </div>
+
+            {showSystemButtons && (
+              // Brushed silver, same diameter family as the footer controls, so
+              // every button on the chassis reads as one set.
+              <button
+                onClick={() => navigate('/settings')}
+                aria-label="Settings"
+                className="w-12 h-12 md:w-14 md:h-14 rounded-full flex items-center justify-center shrink-0 border-2 active:scale-90 transition-transform shadow-[0_2px_4px_rgba(0,0,0,0.45)]"
+                style={{
+                  background: 'linear-gradient(to bottom, #44403c, #1c1917)',
+                  borderColor: '#a8a29e',
+                }}
+              >
+                <Settings
+                  size={24}
+                  style={{ color: '#e8ebee', filter: 'drop-shadow(0 1px 0 rgba(0,0,0,0.5))' }}
+                />
+              </button>
+            )}
           </div>
         )}
 
@@ -208,8 +230,9 @@ const DeviceLayout: React.FC<DeviceLayoutProps> = ({
               {/* Scanlines Overlay */}
               <div className="absolute inset-0 z-10 scanlines opacity-20 pointer-events-none"></div>
               
-              {/* Content */}
-              <div className="relative z-0 h-full w-full overflow-hidden flex flex-col uppercase">
+              {/* Content. `lcd-themed` scopes the screen-mode palette remap to
+                  the LCD — see index.css; the chassis must not follow it. */}
+              <div className="lcd-themed relative z-0 h-full w-full overflow-hidden flex flex-col uppercase">
                 {children}
               </div>
             </div>
@@ -238,18 +261,26 @@ const DeviceLayout: React.FC<DeviceLayoutProps> = ({
             paddingBottom: 'max(0.5rem, env(safe-area-inset-bottom))',
           }}
         >
+          {/*
+            Back where there is somewhere to go; otherwise the slot earns its
+            keep as the way into saved entries, rather than sitting there as a
+            greyed-out stub. Straight from iOS `ChassisButton.Kind`.
+          */}
           <div className="flex justify-start">
             <button
               type="button"
-              onClick={onBack}
-              disabled={!backEnabled}
-              aria-label="Back"
-              className={`relative -translate-y-1 w-16 h-16 md:w-20 md:h-20 rounded-full bg-gradient-to-b from-stone-700 to-stone-950 border-[3px] border-stone-900 shadow-[inset_0_3px_6px_rgba(255,255,255,0.15),0_8px_12px_rgba(0,0,0,0.6)] transition-transform focus:outline-none hover:translate-x-0 hover:scale-[1.02] active:translate-x-[1px] active:scale-[0.98] ${!backEnabled ? 'pointer-events-none' : ''}`}
+              onClick={backEnabled ? onBack : () => navigate('/saved')}
+              aria-label={backEnabled ? 'Back' : 'Saved'}
+              className="relative -translate-y-1 w-16 h-16 md:w-20 md:h-20 rounded-full bg-gradient-to-b from-stone-700 to-stone-950 border-[3px] border-stone-400 shadow-[inset_0_3px_6px_rgba(255,255,255,0.15),0_8px_12px_rgba(0,0,0,0.6)] transition-transform focus:outline-none hover:scale-[1.02] active:translate-x-[1px] active:scale-[0.98]"
             >
               <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-                <svg viewBox="0 0 24 24" className="w-10 h-10 text-white" fill="none" stroke="currentColor" strokeWidth={4} strokeLinecap="round" strokeLinejoin="round">
-                  <path d="M15 5L7 12l8 7" />
-                </svg>
+                {backEnabled ? (
+                  <svg viewBox="0 0 24 24" className="w-10 h-10 text-white" fill="none" stroke="currentColor" strokeWidth={4} strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M15 5L7 12l8 7" />
+                  </svg>
+                ) : (
+                  <CircleUser className="w-9 h-9 text-white" strokeWidth={2} />
+                )}
               </div>
             </button>
           </div>

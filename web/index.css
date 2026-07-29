@@ -190,3 +190,49 @@ body {
   animation-duration: 15s;
 }
 
+
+/* ---------------------------------------------------------------------------
+   LCD theming (screen mode)
+
+   The content screens were written against a fixed dark palette — bg-stone-950
+   grounds, green-500 rules, stone-700 edges — spread across roughly two hundred
+   class names in seven components. Rather than rewriting each call site, the
+   palette utilities are remapped once onto the theme variables that `theme.ts`
+   writes to :root.
+
+   Scoped to `.lcd-themed`, which DeviceLayout puts on the LCD content wrapper.
+   That keeps the remap off the chassis: the footer marquee and the coloured
+   menu tiles are moulding and branding respectively, and neither should follow
+   the screen mode. Specificity of `.lcd-themed .x` (0,2,0) beats the bare
+   utility (0,1,0), so no !important is needed.
+
+   In DARK mode every variable resolves to the same hex the utility already
+   carried, so this is a no-op until the mode is switched.
+   --------------------------------------------------------------------------- */
+
+.lcd-themed .bg-black { background-color: var(--lcd-page); }
+.lcd-themed .bg-stone-950 { background-color: var(--lcd-page); }
+.lcd-themed .bg-stone-900 { background-color: var(--lcd-surface); }
+.lcd-themed .bg-stone-800 { background-color: var(--lcd-surface); }
+
+.lcd-themed .border-stone-700 { border-color: var(--lcd-surface-edge); }
+.lcd-themed .border-stone-600 { border-color: var(--lcd-surface-edge); }
+.lcd-themed .border-green-800 { border-color: var(--lcd-accent); }
+.lcd-themed .border-green-700 { border-color: var(--lcd-accent); }
+
+.lcd-themed .text-green-500 { color: var(--lcd-accent); }
+.lcd-themed .text-green-400 { color: var(--lcd-accent); }
+.lcd-themed .text-green-300 { color: var(--lcd-body-text); }
+.lcd-themed .text-green-200 { color: var(--lcd-body-text); }
+.lcd-themed .text-stone-200 { color: var(--lcd-text); }
+.lcd-themed .text-stone-400 { color: var(--lcd-subtext); }
+.lcd-themed .text-stone-600 { color: var(--lcd-disabled-text); }
+
+/* The grid washes behind list and menu backgrounds are drawn with hardcoded
+   dark hex values inline; in light mode they read as dirt. Softened rather than
+   removed, so the texture survives the switch. */
+:root[data-lcd="light"] .lcd-themed .opacity-10 { opacity: 0.04; }
+
+/* Text scale, from `TextScale` in DexTheme.swift. Applied to the LCD only —
+   the chassis is physical furniture and does not resize with the copy. */
+.lcd-themed { font-size: calc(1em * var(--text-scale, 1)); }
