@@ -1,5 +1,6 @@
 import React from 'react';
-import { Palette, BarChart3, Lock, Bug, Check, Gamepad2, LogOut } from 'lucide-react';
+import { Palette, BarChart3, Lock, Bug, Check, Gamepad2, LogOut, Grip, Globe, Wine, Leaf, Map, Flag, Layers } from 'lucide-react';
+import DataWave from './DataWave';
 import DeviceLayout from './DeviceLayout';
 import { WineEntry, isGrapeEntry, isRegionEntry } from '@/shared/types';
 import {
@@ -136,11 +137,65 @@ const Section: React.FC<{ title: string; children: React.ReactNode }> = ({ title
 );
 
 /** A radio-style row: label on the left, tick when active. */
-const ChoiceRow: React.FC<{ label: string; selected: boolean; onClick: () => void; swatch?: string }> = ({
+/**
+ * Glyph and tint per table, from `statGlyph` in SettingsPanel.swift.
+ *
+ * The five categories reuse the main menu's own symbols and colours so a count
+ * is recognisably the same thing as the tile that opens it; COUNTRIES is the odd
+ * one out and gets a flag. The web previously drew a bare number with a caption
+ * and no glyph at all.
+ */
+const STAT_GLYPHS: Record<string, { icon: React.ReactNode; tint: string }> = {
+  GRAPES: { icon: <Grip size={20} />, tint: '#a855f7' },
+  REGIONS: { icon: <Globe size={20} />, tint: '#22c55e' },
+  STYLES: { icon: <Wine size={20} />, tint: '#f97316' },
+  FLAVORS: { icon: <Leaf size={20} />, tint: '#10b981' },
+  CONTINENTS: { icon: <Map size={20} />, tint: '#3b82f6' },
+};
+
+const DEFAULT_STAT_GLYPH = { icon: <Flag size={20} />, tint: '#eab308' };
+
+/** Glyph left, count over label right — `statTile` on iOS. */
+const StatTile: React.FC<{ label: string; count: number }> = ({ label, count }) => {
+  const glyph = STAT_GLYPHS[label] ?? DEFAULT_STAT_GLYPH;
+  return (
+    <div
+      className="flex items-center gap-2.5 rounded border-2 px-3 py-3"
+      style={{ backgroundColor: 'var(--lcd-surface)', borderColor: 'var(--lcd-surface-edge)' }}
+    >
+      <span className="shrink-0 w-6 flex items-center justify-center" style={{ color: glyph.tint }}>
+        {glyph.icon}
+      </span>
+      <span className="flex flex-col gap-0.5 min-w-0">
+        <span className="font-retro text-[0.7rem]" style={{ color: 'var(--lcd-text)' }}>
+          {count}
+        </span>
+        <span className="font-mono text-[0.65rem] truncate" style={{ color: 'var(--lcd-subtext)' }}>
+          {label}
+        </span>
+      </span>
+    </div>
+  );
+};
+
+const ChoiceRow: React.FC<{
+  label: string;
+  selected: boolean;
+  onClick: () => void;
+  swatch?: string;
+  /**
+   * A chassis swatch: the moulding with the LCD panel below it, as the iOS skin
+   * picker draws it — "body over panel, so the pair reads as the actual shell
+   * rather than one flat swatch". A single `swatch` colour could not say which
+   * of the five shells you were choosing once two of them were similar.
+   */
+  skinSwatch?: { body: string; panel: string; panelEdge: string };
+}> = ({
   label,
   selected,
   onClick,
   swatch,
+  skinSwatch,
 }) => (
   /*
     The selected row is filled with the accent and its label switches to
@@ -162,12 +217,22 @@ const ChoiceRow: React.FC<{ label: string; selected: boolean; onClick: () => voi
       color: selected ? 'var(--lcd-on-accent)' : 'var(--lcd-subtext)',
     }}
   >
-    {swatch && (
+    {skinSwatch ? (
       <span
-        className="w-6 h-6 rounded border border-black/30 shrink-0"
-        style={{ backgroundColor: swatch }}
+        className="w-11 h-[34px] rounded shrink-0 overflow-hidden flex flex-col justify-end border"
+        style={{ backgroundColor: skinSwatch.body, borderColor: skinSwatch.panelEdge }}
         aria-hidden="true"
-      />
+      >
+        <span className="h-3 w-full" style={{ backgroundColor: skinSwatch.panel }} />
+      </span>
+    ) : (
+      swatch && (
+        <span
+          className="w-6 h-6 rounded border border-black/30 shrink-0"
+          style={{ backgroundColor: swatch }}
+          aria-hidden="true"
+        />
+      )
     )}
     <span className="font-retro text-[0.6rem] tracking-widest text-left flex-1">
       {label}
@@ -214,19 +279,6 @@ const ToggleRow: React.FC<{ title: string; detail: string; on: boolean; onToggle
   </button>
 );
 
-/** A big single number, as the iOS TOTAL ENTRIES block renders it. */
-const BigStat: React.FC<{ value: string; caption: string }> = ({ value, caption }) => (
-  <div
-    className="flex flex-col items-center py-5 rounded border-2 mb-2"
-    style={{ backgroundColor: 'var(--lcd-surface)', borderColor: 'var(--lcd-surface-edge)' }}
-  >
-    <span className="font-retro text-3xl" style={{ color: 'var(--lcd-accent)' }}>{value}</span>
-    <span className="font-retro text-[0.55rem] tracking-widest mt-2" style={{ color: 'var(--lcd-subtext)' }}>
-      {caption}
-    </span>
-  </div>
-);
-
 const StatRow: React.FC<{ label: string; value: string }> = ({ label, value }) => (
   <div
     className="flex items-center justify-between px-3 py-2.5 rounded border-2 mb-2"
@@ -267,6 +319,16 @@ export const SettingsSectionPanel: React.FC<{
     { label: 'CONTINENTS', count: countIn('CONTINENTS') },
   ].filter(l => l.count > 0);
 
+  const totalEntries = allEntries.length;
+
+  /**
+   * Milestones the DATA panel's wave sweeps through: empty, the original
+   * starter selection, the first full import, and wherever the data stands now.
+   * Fixed history plus a live tail, so the graph keeps meaning as the dataset
+   * grows. Straight from `WineDatabase.waveMilestones`.
+   */
+  const waveMilestones = [0, 25, 186, totalEntries];
+
   const bag = (e: WineEntry) => e.details as { origin?: string; classification?: string };
   const origins = new Set(allEntries.flatMap(e => (bag(e).origin ? [bag(e).origin!] : [])));
   const systems = new Set(
@@ -287,20 +349,11 @@ export const SettingsSectionPanel: React.FC<{
       case 'CUSTOMIZATION':
         return (
           <>
-            {/* "CHASSIS SKIN", not "SHELL SKIN" — the rest of the app calls this
-                part of the device the chassis. */}
-            <Section title="CHASSIS SKIN">
-              {(Object.keys(CHASSIS_SKINS) as ChassisSkinId[]).map(id => (
-                <ChoiceRow
-                  key={id}
-                  label={CHASSIS_SKINS[id].displayName}
-                  swatch={CHASSIS_SKINS[id].body}
-                  selected={theme.skin === id}
-                  onClick={() => setSkin(id)}
-                />
-              ))}
-            </Section>
-
+            {/*
+              Screen mode, text size, then the shell — the order `customization`
+              lists them in on iOS. The web led with the skin picker, which put
+              the cosmetic choice above the two that change legibility.
+            */}
             <Section title="SCREEN MODE">
               {(Object.keys(LCD_MODES) as LcdModeId[]).map(id => (
                 <ChoiceRow
@@ -323,36 +376,70 @@ export const SettingsSectionPanel: React.FC<{
                 />
               ))}
             </Section>
+
+            {/* "CHASSIS SKIN", not "SHELL SKIN" — the rest of the app calls this
+                part of the device the chassis. */}
+            <Section title="CHASSIS SKIN">
+              {(Object.keys(CHASSIS_SKINS) as ChassisSkinId[]).map(id => (
+                <ChoiceRow
+                  key={id}
+                  label={CHASSIS_SKINS[id].displayName}
+                  skinSwatch={{
+                    body: CHASSIS_SKINS[id].body,
+                    panel: CHASSIS_SKINS[id].panel,
+                    panelEdge: CHASSIS_SKINS[id].panelEdge,
+                  }}
+                  selected={theme.skin === id}
+                  onClick={() => setSkin(id)}
+                />
+              ))}
+            </Section>
           </>
         );
 
       case 'DATA':
         return (
           <>
+            {/* Glyph tiles rather than bare numbers — see STAT_GLYPHS. */}
             <Section title="DATABASE">
               <div className="grid grid-cols-2 gap-2">
                 {categoryLines.map(line => (
-                  <div
-                    key={line.label}
-                    className="flex flex-col items-center py-4 rounded border-2"
-                    style={{ backgroundColor: 'var(--lcd-surface)', borderColor: 'var(--lcd-surface-edge)' }}
-                  >
-                    <span className="font-mono text-2xl font-bold" style={{ color: 'var(--lcd-text)' }}>
-                      {line.count}
-                    </span>
-                    <span
-                      className="font-retro text-[0.5rem] tracking-widest mt-1.5 text-center px-1"
-                      style={{ color: 'var(--lcd-subtext)' }}
-                    >
-                      {line.label}
-                    </span>
-                  </div>
+                  <StatTile key={line.label} label={line.label} count={line.count} />
                 ))}
               </div>
             </Section>
 
+            {/* Glyph, count, then the table count pushed right — the iOS row. */}
             <Section title="TOTAL ENTRIES">
-              <BigStat value={String(allEntries.length)} caption={`ACROSS ${categoryLines.length} TABLES`} />
+              <div
+                className="flex items-center gap-3 rounded border px-3 py-3.5"
+                style={{ backgroundColor: 'var(--lcd-surface)', borderColor: 'var(--lcd-surface-edge)' }}
+              >
+                <Layers size={26} style={{ color: 'var(--lcd-accent)' }} className="shrink-0" />
+                <span className="font-retro text-xl" style={{ color: 'var(--lcd-text)' }}>
+                  {totalEntries}
+                </span>
+                <span className="flex-1" />
+                <span className="font-mono text-xs" style={{ color: 'var(--lcd-subtext)' }}>
+                  ACROSS {categoryLines.length} TABLES
+                </span>
+              </div>
+            </Section>
+
+            {/*
+              GROWTH — the sweep iOS draws here. The web had a static COVERAGE
+              list in this slot and no graph at all; the list survives below,
+              because those four counts are real data rather than decoration and
+              iOS simply has no equivalent panel for them.
+            */}
+            <Section title="GROWTH">
+              <div className="flex flex-col gap-2">
+                <DataWave milestones={waveMilestones} />
+                <p className="font-mono text-sm leading-relaxed normal-case" style={{ color: 'var(--lcd-subtext)' }}>
+                  Entries shipped, from the first starter selection to the current
+                  build.
+                </p>
+              </div>
             </Section>
 
             <Section title="COVERAGE">
@@ -360,17 +447,22 @@ export const SettingsSectionPanel: React.FC<{
               <StatRow label="RARITY TIERS" value={String(rarities.size)} />
               <StatRow label="COUNTRIES OF ORIGIN" value={String(origins.size)} />
               <StatRow label="APPELLATION SYSTEMS" value={String(systems.size)} />
-              <p className="font-mono text-sm leading-relaxed normal-case mt-2" style={{ color: 'var(--lcd-subtext)' }}>
-                Entries shipped, from the first starter selection to the current
-                build.
-              </p>
             </Section>
 
+          </>
+        );
+
+      case 'ACCESS':
+        return (
+          <>
             {/*
-              The website's app gate lives here rather than under ACCESS, which
-              is the paywall harness and a different concept — see `appUnlock`.
-              DATA is also the panel the website's own DATA tile opens, so
-              someone arriving from there lands on the switch they came for.
+              The website's app gate. It sat under DATA — reachable, but filed
+              with the database readout rather than with the other things that
+              decide what opens. ACCESS is the panel about being let in, so it
+              belongs here even though it is a different mechanism from the
+              paywall harness below: that models which bundles someone owns,
+              this models whether the site hands the app over at all. They never
+              consult each other — see `appUnlock`.
             */}
             <Section title="WEBSITE ACCESS">
               <StatRow label="VINODEX" value={vinodexUnlocked ? 'UNLOCKED' : 'LOCKED'} />
@@ -387,12 +479,7 @@ export const SettingsSectionPanel: React.FC<{
                 Unlocking is remembered in this browser; re-locking asks again.
               </p>
             </Section>
-          </>
-        );
 
-      case 'ACCESS':
-        return (
-          <>
             <Section title="FREE TIER">
               <ToggleRow
                 title={locked ? 'FREE TIER' : 'EVERYTHING UNLOCKED'}
