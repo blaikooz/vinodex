@@ -1,22 +1,38 @@
 /**
  * The running build's version, for anywhere in the UI that states it.
  *
- * Ported from `vinodex-ios/Sources/VinodexCore/AppVersion.swift`, and kept in
- * step with it deliberately: the two apps are the same product, and a web build
- * claiming a different version from the phone in your hand is worse than no
- * version at all.
+ * Hand-edited, and deliberately not derived from git. The commit count at the
+ * foot of this file is what a derived version looks like: honest about the
+ * history, silent about the app. This constant is the one place to bump, and
+ * the back plate is the one screen whose whole job is to state what this is.
  *
- * The back plate used to read `v0.0.<commit count>`, which was honest about the
- * git history and told a reader nothing about the app. A literal nobody
- * remembers to edit is a literal that silently lies — this constant is the one
- * place to bump, and the back plate is the one screen whose whole job is to
- * state what this thing is.
+ * **This number is the web app's own.** It used to mirror `AppVersion.swift`,
+ * because the two apps were one repo shipping one product, and a web build
+ * claiming a different version from the phone in your hand was worse than no
+ * version at all. The repos split on 2026-07-29 and both halves of that
+ * stopped being true:
+ *
+ * - They release on different clocks. A Vercel push is live in a minute; an
+ *   App Store build waits on review. A shared number has to be wrong on one
+ *   platform for as long as the gap lasts, and the gap is the normal state.
+ * - They are no longer the same feature set, on purpose. There is no paywall
+ *   and no `tiers.json` here (see `access.ts`), the scanner walks a flat
+ *   country list where iOS walks the globe, there are no haptics, and the
+ *   splash/website branch — `SplashScreen`, `WebsiteMenu`, `OurAppsScreen`,
+ *   `WhoWeAreScreen`, `ContactScreen` — has no Swift counterpart at all.
+ *
+ * The mirroring had already failed before it was dropped: this repo held
+ * 0.4.1.7 here and 0.4.1.5 in the frozen `ios/` copy while the live phone was
+ * on 0.4.2.1.2. So the web starts over and counts on its own. Three parts,
+ * plain semver, rather than the four- and five-part strings iOS carries — so
+ * `package.json`, the `v0.1.0` tag and the nameplate are one spelling.
+ * `appVersion.test.ts` pins that they stay that way.
  */
 
-/** Bump with the batch. Matches `AppVersion.fallback` in Swift. */
-export const APP_VERSION = '0.4.1.7';
+/** Bump on release. The single source of truth for the web app's version. */
+export const APP_VERSION = '0.1.0';
 
-/** Display form, e.g. `v0.4.1.7`. */
+/** Display form, e.g. `v0.1.0`. */
 export const APP_VERSION_DISPLAY = `v${APP_VERSION}`;
 
 /**

@@ -26,6 +26,16 @@ export default defineConfig({
       '@': path.resolve(__dirname, '.'),
     },
   },
+  // The second build-time contract the tests rely on, alongside the alias
+  // above. `vite.config.ts` injects the real commit count; there is no git rev
+  // worth injecting here, and a test whose output moved with the history would
+  // be a bad test — so this is the same '0' fallback that config uses when
+  // `git rev-list` fails. Without it, importing `appVersion.ts` from a test
+  // throws `ReferenceError: __GIT_COMMIT_COUNT__ is not defined`, which is why
+  // that service was the last one with no suite.
+  define: {
+    __GIT_COMMIT_COUNT__: JSON.stringify('0'),
+  },
   test: {
     environment: 'jsdom',
     include: ['web/**/*.test.ts', 'web/**/*.test.tsx'],

@@ -3,6 +3,11 @@
 Goal: bring `vinodex-web` as close to `vinodex-ios` v0.4.1.7 as the platforms
 allow, and ship it on Vercel.
 
+That was the target when this document was written. The repos split on
+2026-07-29 and now version independently, so **v0.4.1.7 names the iOS build this
+app was matched against — it is not a number the web app claims.** The web is on
+its own line at v0.1.0; see "Two products, two numbers" at the foot.
+
 > **Status — all blocks below are built and merged.** `splash-split` turned out
 > to be wholly contained in `screen-state-port`, and `master` was an ancestor of
 > it, so combining the three was a fast-forward with no conflicts; `master` is
@@ -99,9 +104,13 @@ take them would make the field flush with the page instead of a recess in it.
   so an expanded list survives Back.
 - **Search queries survive Back**, completing the `SearchStateStore` port —
   scroll anchor, section flags and query are all now kept.
-- **One version number.** `appVersion.ts` mirrors `AppVersion.swift` at
-  0.4.1.7; the back plate said `v0.0.<commit count>` while the phone said
-  0.4.1.7. Commit count demoted to a build id in the DEV panel.
+- **A version number the app can state.** The back plate read
+  `v0.0.<commit count>`, which was honest about the git history and told a
+  reader nothing about the app. `appVersion.ts` became the one place to bump,
+  and the commit count was demoted to a build id in the DEV panel — telling two
+  deploys of the same version apart is the job it can actually do.
+  *(This block set the constant to mirror `AppVersion.swift` at 0.4.1.7. The
+  mirroring ended with the repo split — see "Two products, two numbers".)*
 
 ## Block 7 — Button-by-button and chrome pass ✅
 
@@ -434,13 +443,46 @@ their structure is legible, then compare, then move.
 - **Every Swift case now has a web counterpart**, including the four that were
   previously recorded as unportable (`drinkingDays`, `quotes`,
   `docIsCountrySpecific`, `appellationNamesResolve`) — each of which became
-  portable by fixing the thing that made it impossible to write. 266 tests
-  across 17 files. Still untested, and with no Swift original to inherit from:
-  `theme`, `appVersion`, `useScreenAnchor`, and the remaining display helpers
-  (`grapeDisplay`, `styleDisplay`, `flavorDisplay`, `climateDisplay`,
-  `iconRendering`).
-- **Only three components are tested.** The two website screens and the unlock
-  keypad. The dex screens have no render coverage at all.
+  portable by fixing the thing that made it impossible to write. 300 tests
+  across 20 files. Still untested, and with no Swift original to inherit from:
+  `useScreenAnchor`, `wineData`, the `use*` store hooks, and the remaining
+  display helpers (`grapeDisplay`, `styleDisplay`, `flavorDisplay`,
+  `climateDisplay`, `iconRendering`, `entryIconVisuals`).
+- **Five components are tested** — the two website screens, the unlock keypad,
+  the moon dial and the growth wave. The dex screens still have no render
+  coverage at all.
+
+## Two products, two numbers
+
+`vinodex-web` and `vinodex-ios` shared one version string while they shared one
+repo. They split on 2026-07-29 and release on different clocks — a Vercel push
+is live in a minute, an App Store build waits on review — so a shared number
+has to be wrong on one platform for as long as the gap lasts, and the gap is
+the normal state rather than the exception.
+
+It had already broken. Before this change **this repo alone held three
+spellings** of "the" version: 0.4.1.7 in `appVersion.ts`, 0.4.1.5 in the frozen
+`ios/` copy of `AppVersion.swift`, and 0.4.2.1.2 on the live phone — plus
+`package.json` still on the Vite scaffold's 0.0.0. "One version number" failed
+inside its own repo before anyone noticed.
+
+- **iOS** is at 0.4.2.1.2 and owns `AppVersion.swift` in `vinodex-ios`. The copy
+  under `ios/` here is frozen and is not the live one.
+- **Web** restarts at **0.1.0** in `web/src/services/appVersion.ts`. Three-part
+  semver, so `package.json`, the `v0.1.0` git tag and the string engraved on the
+  back plate are one identical spelling. `appVersion.test.ts` pins that —
+  including a shape check that structurally rejects the five-part iOS format, so
+  a bump made out of habit fails rather than ships.
+
+Matching numbers were only ever readable while the feature sets matched, and
+they no longer do: no paywall and no `tiers.json` here, a flat country list
+where iOS walks the globe, no haptics, and a whole splash/website branch with no
+Swift counterpart. One number across that is the same silent lie the old
+`v0.0.<commit count>` back plate told, just better dressed.
+
+This does not loosen the parity effort — the Swift source is still the reference
+for design, and blocks 5–15 all stand. It only stops the two apps pretending to
+ship in lockstep when they demonstrably do not.
 
 ## Out of scope, deliberately
 
