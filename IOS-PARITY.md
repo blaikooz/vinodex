@@ -9,8 +9,8 @@ allow, and ship it on Vercel.
 > pushed at 18 commits ahead of where it stood. Blocks 9 and 10 below were added
 > after the merge; block 11 closes the last of the untested services; blocks
 > 12–13 replace the moon dial and start on the readout interiors; block 14
-> brings across the iOS audit branch; block 15 is the screen-by-screen plan
-> that follows. See "Still open" at the foot.
+> brings across the iOS audit branch; block 15 rebuilds the DATA panel;
+> block 16 is the screen-by-screen plan that follows. See "Still open".
 
 `vinodex-ios` is the reference and stays **read-only**. Every block below ports
 *from* Swift *to* React.
@@ -333,7 +333,51 @@ structurally identical — the 625-line diff is minification — so the web's
 `iconManifest.json` copy is still valid. A future strip could quietly remove a
 field this app reads; `soilDisplay` and `flavorIcon` now depend on that file.
 
-## Block 15 — Screen-by-screen visual parity (planned)
+## Block 15 — The DATA panel ✅
+
+The three things `dataReadout` does that the web did not:
+
+- **DATABASE tiles carry a glyph and a tint per table**, from `statGlyph`. The
+  five categories reuse the main menu's own symbols and colours so a count is
+  recognisably the same thing as the tile that opens it; COUNTRIES is the odd
+  one out and gets a flag. The web drew a bare number over a caption.
+- **TOTAL ENTRIES** becomes the iOS row — stack glyph, count, and the table
+  count pushed right — rather than a centred block.
+- **GROWTH**, which the web had no equivalent of at all. `DataWave` is a port of
+  the Swift `Canvas` sweep across `waveMilestones` (`[0, 25, 186, total]`): the
+  counter and the curve render from one value, so the number climbing to the
+  total *is* the line being drawn, smoothstep-eased between milestones so it
+  arcs into each one instead of turning a corner. Swift drives it from a
+  `TimelineView` clock; the web equivalent is `requestAnimationFrame`, stopping
+  once the sweep is done rather than repainting forever, and honouring
+  `prefers-reduced-motion` by jumping to the settled frame.
+
+The wave's viewBox is measured rather than fixed. A fixed one needs
+`preserveAspectRatio="none"` to fill the panel, which stretches the x axis —
+harmless for the curve, but it turns the head dot into an ellipse at every width
+but one.
+
+COVERAGE stays below GROWTH. iOS has no equivalent panel for those four counts,
+but they are real data rather than decoration.
+
+Also in this pass: **RE-LOCK VINODEX moved from DATA to ACCESS**, where the other
+controls that decide what opens live; **CUSTOMIZE reordered** to screen mode,
+text size, then shell, as `customization` lists them (the web led with the
+cosmetic choice above the two that change legibility); and the **skin swatch
+draws body over panel**, so it reads as the actual shell rather than one flat
+colour.
+
+### Not found: skin-tinted buttons and orb
+
+Searched for and **not present in `vinodex-ios` at any point in its history**.
+`ChassisSkin` carries only `body`, `footerWash`, `panel`, `panelEdge` and
+`grill` — no control colours. The orb is `Dex.cyan300` in every commit that has
+ever touched `DeviceChassis.swift`, the status dots are a fixed red/yellow/green,
+and `ChassisButton` is stone for Back and Saved, amber for Home. The web already
+matches all of that. If a skin-tinted chassis exists, it is somewhere outside
+this repo's three branches; deferred rather than invented.
+
+## Block 16 — Screen-by-screen visual parity (planned)
 
 Blocks 5–13 brought the *data* and the *chrome* into line. What is left is each
 screen's interior read side by side with its Swift counterpart. Ordered by how
@@ -385,7 +429,7 @@ their structure is legible, then compare, then move.
 - **Section bodies below the chrome.** Partly closed by block 13 — the
   appellation system, climate and soil interiors now match. The remaining chip
   clouds, linked rows and tile grids are still a parallel implementation showing
-  the same data through different markup; block 15 is the plan for them.
+  the same data through different markup; block 16 is the plan for them.
 - **The scanner still uses a flat country list** where iOS walks the globe.
 - **Every Swift case now has a web counterpart**, including the four that were
   previously recorded as unportable (`drinkingDays`, `quotes`,
