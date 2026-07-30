@@ -1,17 +1,35 @@
 <div align="center">
 
-<img src="web/public/vinodex-logo.png" alt="Vinodex" width="180" />
+<img src="web/public/vinodex-logo.png" alt="Vinodex" width="132" />
 
 # VINODEX
 
 ### A wine encyclopedia that looks like a 90s handheld.
 
-284 grapes, regions, styles and flavours — colour-coded, cross-linked, and
+**284 grapes, regions, styles and flavours** — colour-coded, cross-linked, and
 wrapped in a plastic shell you can re-skin five different ways.
 
-**[Open the app →](https://vinodex.vercel.app)**
+### **[Open the app →](https://vinodex.vercel.app)**
 
 `React 19` · `TypeScript` · `Vite` · `Tailwind v4` · `PWA`
+
+<p>
+<img src="pixelflags/Europe/france/france.png" alt="France" height="26" />
+<img src="pixelflags/Europe/italy/italy.png" alt="Italy" height="26" />
+<img src="pixelflags/Europe/spain/spain.png" alt="Spain" height="26" />
+<img src="pixelflags/Europe/portugal/portugal.png" alt="Portugal" height="26" />
+<img src="pixelflags/Europe/germany/germany.png" alt="Germany" height="26" />
+<img src="pixelflags/Europe/austria/austria.png" alt="Austria" height="26" />
+<img src="pixelflags/Europe/greece/greece.png" alt="Greece" height="26" />
+<img src="pixelflags/North%20America/united_states/united_states.png" alt="United States" height="26" />
+<img src="pixelflags/South%20America/argentina/argentina.png" alt="Argentina" height="26" />
+<img src="pixelflags/South%20America/chile/chile.png" alt="Chile" height="26" />
+<img src="pixelflags/Oceania/australia/australia.png" alt="Australia" height="26" />
+<img src="pixelflags/Oceania/new_zealand/new_zealand.png" alt="New Zealand" height="26" />
+<img src="pixelflags/Africa/south_africa/south_africa.png" alt="South Africa" height="26" />
+</p>
+
+*Hand-drawn pixel flags, one per wine-producing country and state in the atlas.*
 
 </div>
 
@@ -40,10 +58,14 @@ app is handed over rather than stumbled into.
 
 ## The iOS app is the sibling, not the source
 
+<img src="ios/AppIcon.png" alt="Vinodex for iOS" width="76" align="left" hspace="16" vspace="4" />
+
 **[`blaikooz/vinodex-ios`](https://github.com/blaikooz/vinodex-ios)** is a native
-SwiftUI build of the same device. This web app is kept deliberately close to it —
-same chassis, same screens, same rules — and the Swift source is the reference
+SwiftUI build of the same device — same chassis, same screens, same rules. This
+web app is kept deliberately close to it, and the Swift source is the reference
 when the two disagree.
+
+<br clear="left" />
 
 > ### Frozen paths — do not edit
 >
