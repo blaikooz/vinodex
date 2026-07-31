@@ -33,14 +33,16 @@ and owns itself completely.
 |---|---|
 | `web/` | live — the Vite/React PWA |
 | `scripts/{cleanEncyclopediaText,buildEncyclopediaReference}.ts` | live |
-| `shared/` | **frozen** — live copy is `vinodex-ios/shared/` |
-| `ios/` | **frozen** — live copy is the whole of `vinodex-ios` |
-| `pixelflags/` | **frozen** — live copy is `vinodex-ios/pixelflags/` |
+| `shared/` | **mirrored** — master is `HGapps\shared`, pushed here by `sync-shared.ps1`. Edit the master, never this copy |
+| `shared/pixelflags/` | **live and mirrored** — `web/data/flagImages.ts` imports these; master is `HGapps\shared\pixelflags` |
 | `scripts/{generate-ios-data.ts,rasterize-icons.sh}` | **frozen** — live copies in `vinodex-ios/scripts/` |
 
-`shared/` stays only because `web/src/services/` imports it in 7 files. The
-landing-page pivot removes that dependency and can then delete every frozen path
-above. **Nothing copies between the two repos in either direction.**
+`shared/` stays because `web/src/services/` imports it in 7 files and
+`web/data/flagImages.ts` imports the flags. It is **not** frozen: a
+`sync-shared.ps1` run overwrites this copy from the master, so an edit made
+here is lost on the next sync. `ios/` — the 419-file frozen copy of the Swift
+package — was removed in the 0.6.5 cleanup; the app lives entirely in
+`vinodex-ios`.
 
 One remote, `origin` → `blaikooz/vinodex-web`.
 
