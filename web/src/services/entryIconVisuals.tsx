@@ -454,20 +454,22 @@ export const resolveEntryIconVisual = (
 
 	if (entry.category === 'CONTINENTS') {
 		const iconColor = OLYMPIC_CONTINENT_COLORS[entry.id] || entry.color || '#444';
-		const continentIconName: Record<string, string> = {
-			CONT_AFRICA: 'game-icons:earth-africa-europe',
-			CONT_EUROPE: 'game-icons:earth-africa-europe',
-			CONT_ASIA: 'game-icons:earth-asia-oceania',
-			CONT_OCEANIA: 'game-icons:earth-asia-oceania',
-			CONT_NORTH_AMERICA: 'game-icons:earth-america',
-			CONT_SOUTH_AMERICA: 'game-icons:earth-america',
+		// Full-colour ClassArt globes (v0.5.7 `art:` ids), one per continent.
+		const globeStem: Record<string, string> = {
+			CONT_AFRICA: 'globe-africa',
+			CONT_EUROPE: 'globe-europe',
+			CONT_ASIA: 'globe-asia',
+			CONT_OCEANIA: 'globe-oceania',
+			CONT_NORTH_AMERICA: 'globe-north-america',
+			CONT_SOUTH_AMERICA: 'globe-south-america',
 		};
-		const iconifyName = continentIconName[entry.id];
-		const continentSize = Math.round(size * 1.6);
+		const stem = globeStem[entry.id];
+		// Globes render near full-bleed (iconScale ~0.9 on iOS).
+		const continentSize = Math.round(size * 1.9);
 		return {
 			style: { backgroundColor: '#ffffff' },
-			iconNode: iconifyName ? (
-				<Icon icon={iconifyName} width={continentSize} height={continentSize} style={{ color: iconColor }} />
+			iconNode: stem ? (
+				<Icon icon={`art:${stem}`} width={continentSize} height={continentSize} />
 			) : (
 				<Globe size={continentSize} className="opacity-90" fill="none" stroke={iconColor} strokeWidth={2.6} />
 			),

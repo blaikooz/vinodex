@@ -1,5 +1,5 @@
 import React from 'react';
-import { Circle, Cloud, Flame, Mountain } from 'lucide-react';
+import { Icon } from '../components/LocalIcon';
 import type { ClimateClass } from '@/shared/types';
 
 export interface SoilIconVisual {
@@ -7,16 +7,23 @@ export interface SoilIconVisual {
   color: string;
 }
 
-export const getSoilIcon = (soil: string): SoilIconVisual => {
+// The 16 ClassArt soil sprites (v0.5.7 `art:` ids). First stem the soil name
+// contains wins; anything unrecognised falls to `default`.
+const SOIL_STEMS = [
+  'volcanic', 'basalt', 'limestone', 'chalk', 'clay', 'granite', 'gravel', 'laterite',
+  'loam', 'loess', 'sand', 'schist', 'shale', 'slate', 'alluvial',
+];
+const SOIL_COLOR: Record<string, string> = {
+  volcanic: '#FF4500', basalt: '#2F4F4F', clay: '#B5651D', loam: '#8B5A2B',
+  limestone: '#E0E0E0', chalk: '#E0E0E0', slate: '#708090', schist: '#708090',
+  granite: '#A9A9A9', gravel: '#696969', sand: '#F4A460', laterite: '#A0522D',
+  loess: '#C2B280', shale: '#5A5A5A', alluvial: '#9B7653', default: '#8B4513',
+};
+
+export const getSoilIcon = (soil: string, size = 16): SoilIconVisual => {
   const s = soil.toLowerCase();
-  if (s.includes('volcanic')) return { icon: <Flame size={16} />, color: '#FF4500' };
-  if (s.includes('clay')) return { icon: <Circle size={16} />, color: '#8B4513' };
-  if (s.includes('sand')) return { icon: <Cloud size={16} />, color: '#F4A460' };
-  if (s.includes('limestone') || s.includes('chalk')) return { icon: <Mountain size={16} />, color: '#E0E0E0' };
-  if (s.includes('slate') || s.includes('schist')) return { icon: <Mountain size={16} />, color: '#708090' };
-  if (s.includes('granite')) return { icon: <Mountain size={16} />, color: '#A9A9A9' };
-  if (s.includes('gravel')) return { icon: <Circle size={16} />, color: '#696969' };
-  return { icon: <Mountain size={16} />, color: '#8B4513' };
+  const stem = SOIL_STEMS.find(x => s.includes(x)) ?? 'default';
+  return { icon: <Icon icon={`art:soil-${stem}`} width={size} height={size} />, color: SOIL_COLOR[stem] ?? SOIL_COLOR.default! };
 };
 
 // Fallback soil triplet keyed by climate, used when a region lacks an

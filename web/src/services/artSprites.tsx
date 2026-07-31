@@ -55,17 +55,40 @@ export const grapeArtKey = (grape: GrapeEntry): string => {
 	return `${color}-${grapeDepth(grape.grapeBodyClass)}-${grapeBlend(grape.name, grape.grapeStyle, grape.wineType)}`;
 };
 
-export const resolveGrapeArtStem = (grape: GrapeEntry): string | undefined => GRAPE_ART[grapeArtKey(grape)];
+// The grape sprites actually on disk (web/public/art/grape). The manifest maps
+// each key to a `-rare` base; where a rarity-specific variant exists we swap the
+// suffix so the leaf reads the tier. UNCOMMON/GODFORSAKEN have no baked variant,
+// so they keep the base bunch (the detail rarity emblem still signals the tier).
+const GRAPE_SPRITES = new Set([
+  'gold-full-rare', 'gold-light-rare', 'gold-medium-rare',
+  'green-amber-common', 'green-amber-noble', 'green-amber-rare', 'green-common',
+  'green-full-common', 'green-full-noble', 'green-full-rare', 'green-light-noble',
+  'green-light-rare', 'green-medium-common', 'green-medium-noble', 'green-medium-rare',
+  'green-pink-light-common', 'green-pink-light-rare', 'green-pink-rare',
+  'red-amber-medium-common', 'red-amber-medium-noble', 'red-amber-medium-rare',
+  'red-full-common', 'red-full-noble', 'red-full-rare', 'red-light-common',
+  'red-light-noble', 'red-light-rare', 'red-medium-common', 'red-medium-noble',
+  'red-medium-rare', 'red-pink-common', 'red-pink-noble', 'red-pink-rare',
+]);
+
+export const resolveGrapeArtStem = (grape: GrapeEntry): string | undefined => {
+  const base = GRAPE_ART[grapeArtKey(grape)];
+  if (!base) return undefined;
+  const rarity = String((grape as any).rarity ?? '').toLowerCase();
+  if (rarity && rarity !== 'rare') {
+    const variant = base.replace(/-rare$/, `-${rarity}`);
+    if (GRAPE_SPRITES.has(variant)) return variant;
+  }
+  return base;
+};
 export const resolveStyleArtStem = (name: string): string | undefined => STYLE_ART[normalizeLabel(name)];
 export const resolveFlavorArtStem = (name: string): string | undefined => FLAVOR_ART[normalizeLabel(name)];
 
 /**
  * A full-colour pixel-art node. Unlike the glyph path this is a plain <img>:
  * no mask, no tint, no outline filter — the art is already finished.
- * NOTE (deferred, Phase A follow-up): grapes render their base `-rare` bunch;
- * the per-rarity leaf recolour (GrapeSpriteLoader.swift) is not yet ported, so
- * leaf colour does not vary by tier. The detail screen's rarity emblem still
- * signals the tier, so this is cosmetic-only.
+ * Grapes pick a rarity-specific bunch where one is baked (see
+ * resolveGrapeArtStem); UNCOMMON/GODFORSAKEN fall back to the base sprite.
  */
 export const artSprite = (dir: 'flavor' | 'style' | 'grape', stem: string, size: number): React.ReactNode => (
 	<img

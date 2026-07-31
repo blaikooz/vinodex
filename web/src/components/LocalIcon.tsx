@@ -38,6 +38,32 @@ export interface LocalIconProps {
  * regresses for the keys this pass doesn't cover.
  */
 export function Icon({ icon, width, height, color, style, className }: LocalIconProps) {
+  // `art:`-prefixed ids are the bundled full-colour pixel art (ClassArt —
+  // globes, outlines, soils, climate/colour/class tiles). They carry their own
+  // colours and outline, so they render as a plain <img>, no mask, no tint.
+  if (icon.startsWith('art:')) {
+    const stem = icon.slice(4);
+    return (
+      <img
+        src={`/art/class/${stem}.png`}
+        alt=""
+        width={width as number | undefined}
+        height={height as number | undefined}
+        draggable={false}
+        className={className}
+        style={{
+          width: width ?? '1em',
+          height: height ?? '1em',
+          objectFit: 'contain',
+          imageRendering: 'pixelated',
+          display: 'inline-block',
+          ...style,
+          color: undefined,
+        }}
+      />
+    );
+  }
+
   if (!OFFLINE_ICONS.has(icon)) {
     return (
       <IconifyIcon
