@@ -1,5 +1,5 @@
-import React, { useMemo, useReducer, useRef } from 'react';
-import { Tag, MapPin, Activity, Droplet, Grape, Mountain, ChevronRight, List, Circle, Leaf, Sparkles, Flame, Shield, BookOpen, Bookmark, MapPinned, Flower2, Apple, Wind, Citrus, Star, Crown, Waves, Coffee, Beef, Cherry, TreePalm, LeafyGreen, Carrot, Drumstick, Ham, Croissant, Cookie, Earth, TreePine, Shell, Hop, Nut } from 'lucide-react';
+import React, { useEffect, useMemo, useReducer, useRef, useState } from 'react';
+import { Tag, MapPin, Activity, Droplet, Grape, Mountain, ChevronRight, List, Circle, Leaf, Sparkles, Flame, Shield, BookOpen, Bookmark, MapPinned, Flower2, Apple, Wind, Citrus, Star, Crown, Waves, Coffee, Beef, Cherry, TreePalm, LeafyGreen, Carrot, Drumstick, Ham, Croissant, Cookie, Earth, TreePine, Shell, Hop, Nut, PlusCircle, CheckCircle2 } from 'lucide-react';
 import { Icon } from '../src/components/LocalIcon';
 import DeviceLayout from './DeviceLayout';
 import { EntryCategory, WineEntry, isCountryGateEntry, isFlavorEntry, isGrapeEntry, isRegionEntry, isStyleEntry } from '@/shared/types';
@@ -26,8 +26,11 @@ import { getFlavorClassTileColors, getFlavorSubclassTileColors } from '../src/se
 import { getClimateIcon } from '../src/services/climateDisplay';
 import { isOn as isFlagOn, keyForDetail, toggleFlag } from '../src/services/screenState';
 import { useScreenAnchor } from '../src/services/useScreenAnchor';
-import { isBookmarked, toggleBookmark } from '../src/services/bookmarks';
+import { isBookmarked, toggleBookmark, isOnShelf, toggleShelf, getRating, setRating, makeRating } from '../src/services/bookmarks';
 import { useBookmarks } from '../src/services/useBookmarks';
+import { recordRecentlyViewed } from '../src/services/recentlyViewed';
+import { isTastable } from '../src/services/wineData';
+import RatingPrompt from './RatingPrompt';
 
 type FilterMode = 'REGION' | 'TYPE' | 'TASTING' | 'SOIL' | 'ORIGIN' | 'RARITY' | 'SYSTEM' | 'CLIMATE' | null;
 
@@ -55,10 +58,23 @@ const EntryDetail: React.FC<EntryDetailProps> = ({ entry, allEntries, onBack, on
   // entry you have already read comes back where you left it.
   useScreenAnchor(keyForDetail(entry.id), scrollRef, { autoAnchorChildren: true });
 
-  // Subscribes this screen to the bookmark store so the SAVE control reflects
-  // a change made anywhere else — the saved list, another tab.
+  // Subscribes this screen to the bookmark store so the shelf controls reflect
+  // a change made anywhere else — the collection screen, another tab.
   useBookmarks();
   const saved = isBookmarked(entry.id);
+  // Only grapes and styles are tastable, so only they get WANT/TRIED + rating.
+  const tastable = isTastable(entry);
+  const want = isOnShelf('wantToTry', entry.id);
+  const tried = isOnShelf('tried', entry.id);
+  const rating = getRating(entry.id);
+  const [showRating, setShowRating] = useState(false);
+
+  // Record this open in the recently-viewed trail. Keyed on entry.id, not [],
+  // because following a cross-link swaps the entry without remounting the
+  // screen — an empty-dep effect would credit only the first entry in a chain.
+  useEffect(() => {
+    recordRecentlyViewed(entry.id);
+  }, [entry.id]);
 
   // The expander state lives in the screen-state store so it survives Back,
   // which means React has to be told to repaint when it changes. A counter
@@ -970,6 +986,7 @@ const EntryDetail: React.FC<EntryDetailProps> = ({ entry, allEntries, onBack, on
       showBack={true}
       onHome={onHome}
     >
+      <div className="relative h-full">
       <div
         ref={scrollRef}
         className="h-full overflow-y-auto custom-scrollbar p-4 font-mono pb-20 text-[15px] md:text-base"
@@ -1024,19 +1041,82 @@ const EntryDetail: React.FC<EntryDetailProps> = ({ entry, allEntries, onBack, on
                   {entry.name}
                 </h1>
 
-                {/* Ported from the iOS hero's SAVE control — see BookmarkStore. */}
-                <button
-                  onClick={() => toggleBookmark(entry.id)}
-                  aria-pressed={saved}
-                  className={`flex items-center gap-2 rounded-full px-5 py-2 border-2 transition-all active:translate-y-0.5 ${
-                    saved
-                      ? 'bg-green-600 border-green-400 text-white'
-                      : 'bg-stone-900/70 border-green-700 text-green-400 hover:bg-stone-800'
-                  }`}
-                >
-                  <Bookmark size={16} fill={saved ? 'currentColor' : 'none'} />
-                  <span className="font-retro text-[0.6rem] tracking-widest">{saved ? 'SAVED' : 'SAVE'}</span>
-                </button>
+                {/*
+                  Ported from the iOS hero's shelf controls (BookmarkStore):
+                  SAVE is universal; WANT and TRIED show only for tastable
+                  entries (grapes, styles). Marking TRIED opens the rating
+                  prompt; the store also pulls it off WANT (coupling).
+                */}
+                <div className="flex flex-wrap items-center justify-center gap-2">
+                  <button
+                    onClick={() => toggleBookmark(entry.id)}
+                    aria-pressed={saved}
+                    className={`flex items-center gap-1.5 rounded-full px-4 py-2 border-2 transition-all active:translate-y-0.5 ${
+                      saved
+                        ? 'bg-green-600 border-green-400 text-white'
+                        : 'bg-stone-900/70 border-green-700 text-green-400 hover:bg-stone-800'
+                    }`}
+                  >
+                    <Bookmark size={15} fill={saved ? 'currentColor' : 'none'} />
+                    <span className="font-retro text-[0.55rem] tracking-widest">{saved ? 'SAVED' : 'SAVE'}</span>
+                  </button>
+
+                  {tastable && (
+                    <button
+                      onClick={() => toggleShelf('wantToTry', entry.id)}
+                      aria-pressed={want}
+                      className={`flex items-center gap-1.5 rounded-full px-4 py-2 border-2 transition-all active:translate-y-0.5 ${
+                        want
+                          ? 'bg-sky-600 border-sky-400 text-white'
+                          : 'bg-stone-900/70 border-sky-700 text-sky-400 hover:bg-stone-800'
+                      }`}
+                    >
+                      <PlusCircle size={15} fill={want ? 'currentColor' : 'none'} />
+                      <span className="font-retro text-[0.55rem] tracking-widest">{want ? 'WANTED' : 'WANT'}</span>
+                    </button>
+                  )}
+
+                  {tastable && (
+                    <button
+                      onClick={() => {
+                        const nowTried = toggleShelf('tried', entry.id);
+                        if (nowTried) setShowRating(true);
+                      }}
+                      aria-pressed={tried}
+                      className={`flex items-center gap-1.5 rounded-full px-4 py-2 border-2 transition-all active:translate-y-0.5 ${
+                        tried
+                          ? 'bg-amber-600 border-amber-400 text-white'
+                          : 'bg-stone-900/70 border-amber-700 text-amber-400 hover:bg-stone-800'
+                      }`}
+                    >
+                      <CheckCircle2 size={15} fill={tried ? 'currentColor' : 'none'} />
+                      <span className="font-retro text-[0.55rem] tracking-widest">TRIED</span>
+                    </button>
+                  )}
+                </div>
+
+                {/* MY RATING readout — tastable entries you've tried. */}
+                {tastable && tried && (
+                  <button
+                    onClick={() => setShowRating(true)}
+                    className="mt-3 flex items-center gap-2 rounded-lg px-3 py-1.5 bg-black/30 border border-stone-700 hover:border-amber-600 transition-colors"
+                  >
+                    <span className="flex items-center gap-0.5">
+                      {Array.from({ length: 5 }).map((_, i) => (
+                        <Star
+                          key={i}
+                          size={13}
+                          className={i < (rating?.rating ?? 0) ? 'text-yellow-400' : 'text-stone-600'}
+                          fill={i < (rating?.rating ?? 0) ? '#facc15' : 'none'}
+                        />
+                      ))}
+                    </span>
+                    {rating?.note ? (
+                      <span className="font-mono text-xs text-stone-300 max-w-[10rem] truncate">{rating.note}</span>
+                    ) : null}
+                    <span className="font-retro text-[0.5rem] tracking-widest text-amber-300">{rating ? 'EDIT' : 'RATE'}</span>
+                  </button>
+                )}
              </div>
         </div>
 
@@ -1287,6 +1367,18 @@ const EntryDetail: React.FC<EntryDetailProps> = ({ entry, allEntries, onBack, on
             </div>
         )}
 
+      </div>
+      {showRating && tastable && (
+        <RatingPrompt
+          entryName={entry.name}
+          initial={rating}
+          onSave={(stars, note) => {
+            setRating(entry.id, makeRating(stars, note));
+            setShowRating(false);
+          }}
+          onSkip={() => setShowRating(false)}
+        />
+      )}
       </div>
     </DeviceLayout>
   );
