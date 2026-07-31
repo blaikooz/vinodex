@@ -1,5 +1,5 @@
 
-import React, { Suspense, lazy, useMemo } from 'react';
+import React, { Suspense, lazy, useEffect, useMemo } from 'react';
 import {
   Routes,
   Route,
@@ -20,6 +20,7 @@ import { WineEntry, EntryCategory } from '@/shared/types';
 import { getAllEntries } from './src/services/wineData';
 import { clear as clearScreenState } from './src/services/screenState';
 import { SETTINGS_SECTIONS, SettingsSectionId } from './components/SettingsPanel';
+import { installGlobalTapSound } from './src/services/sound';
 
 const RetroGlobeScreen = lazy(() => import('./components/RetroGlobeScreen'));
 const MoonDialScreen = lazy(() => import('./components/MoonDialScreen'));
@@ -29,6 +30,7 @@ const ScannerScreen = lazy(() => import('./components/ScannerScreen'));
 const ChipFilterScreen = lazy(() => import('./components/ChipFilterScreen'));
 const TastingQuizScreen = lazy(() => import('./components/TastingQuizScreen'));
 const PassportScreen = lazy(() => import('./components/PassportScreen'));
+const WalkthroughScreen = lazy(() => import('./components/WalkthroughScreen'));
 const BookmarksScreen = lazy(() => import('./components/BookmarksScreen'));
 const SettingsGrid = lazy(() => import('./components/SettingsPanel'));
 const SettingsSectionPanel = lazy(() =>
@@ -73,6 +75,9 @@ const App: React.FC = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const allEntries = useMemo(() => getAllEntries(), []);
+
+  // Opt-in SFX: one global listener rides a tap onto every button click.
+  useEffect(() => { installGlobalTapSound(); }, []);
 
   // Home is an in-app control, so it lands on the dex menu — never the splash.
   // The splash is where a fresh visit starts, not a screen to bounce back to.
@@ -420,6 +425,14 @@ const App: React.FC = () => {
           }
         />
         <Route
+          path="/walkthrough"
+          element={
+            <Suspense fallback={<ScreenLoading label="LOADING TUTORIAL..." onBack={handleBack} onHome={handleHome} />}>
+              <WalkthroughScreen onBack={handleBack} onHome={handleHome} />
+            </Suspense>
+          }
+        />
+        <Route
           path="/daily"
           element={
             <Suspense fallback={<ScreenLoading label="LOADING REVEAL..." onBack={handleBack} onHome={handleHome} />}>
@@ -466,6 +479,7 @@ const App: React.FC = () => {
               <SettingsGrid
                 onSection={id => navigate(`/settings/${id}`)}
                 onMinigames={() => navigate('/minigames')}
+                onWalkthrough={() => navigate('/walkthrough')}
                 // Leaving the app clears screen state for the same reason Home
                 // does — re-entering the dex should not resume mid-page.
                 onExitToSplash={() => {

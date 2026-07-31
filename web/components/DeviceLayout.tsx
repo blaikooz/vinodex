@@ -249,19 +249,28 @@ const DeviceLayout: React.FC<DeviceLayoutProps> = ({
           {/* Inner Screen Bezel */}
           <div className="flex-1 min-h-0 bg-stone-800 rounded-[1.75rem] relative flex flex-col overflow-hidden mx-3">
             
-            {/* Main LCD Content */}
+            {/* Main LCD Content. `isolation:isolate` keeps the monochrome
+                multiply overlay from bleeding onto the chassis behind it. */}
             <div
               className="flex-1 min-h-0 relative w-full overflow-hidden flex flex-col"
-              style={{ backgroundColor: 'var(--lcd-screen)' }}
+              style={{ backgroundColor: 'var(--lcd-screen)', isolation: 'isolate' }}
             >
               {/* Scanlines Overlay */}
               <div className="absolute inset-0 z-10 scanlines opacity-20 pointer-events-none"></div>
-              
+
               {/* Content. `lcd-themed` scopes the screen-mode palette remap to
                   the LCD — see index.css; the chassis must not follow it. */}
               <div className="lcd-themed relative z-0 h-full w-full overflow-hidden flex flex-col uppercase">
                 {children}
               </div>
+
+              {/* Monochrome phosphor tint: grayscale lives on `.lcd-themed`;
+                  this multiplies the tint over the whole LCD. Transparent in
+                  colour modes, so a harmless no-op there. */}
+              <div
+                className="absolute inset-0 z-20 pointer-events-none"
+                style={{ backgroundColor: 'var(--mono-tint, transparent)', mixBlendMode: 'multiply' }}
+              />
             </div>
 
           </div>
@@ -280,12 +289,14 @@ const DeviceLayout: React.FC<DeviceLayoutProps> = ({
         </div>
         </div>
 
-        {/* Footer controls */}
+        {/* Footer controls. `zoom` scales the whole control furniture (buttons +
+            marquee) with the UI-size axis, independent of LCD text scale. */}
         <footer
           className="absolute inset-x-0 bottom-0 px-3 pt-1 grid grid-cols-[auto_1fr_auto] items-center gap-2"
           style={{
             backgroundColor: 'var(--chassis-footer)',
             paddingBottom: 'max(0.5rem, env(safe-area-inset-bottom))',
+            zoom: 'var(--ui-scale, 1)' as unknown as number,
           }}
         >
           {/*

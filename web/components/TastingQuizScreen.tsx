@@ -23,6 +23,7 @@ import {
 import { dailySession, recordDaily, isTodayDone, currentStreak } from '../src/services/dailyChallenge';
 import { dayIndex, revealCursor } from '../src/services/dailyPick';
 import { query as ssQuery, setQuery as ssSetQuery } from '../src/services/screenState';
+import { playCorrect } from '../src/services/sound';
 
 type QuizMode = 'practice' | 'daily';
 
@@ -80,7 +81,10 @@ const TastingQuizScreen: React.FC<TastingQuizScreenProps> = ({ mode, allEntries,
   };
 
   const choose = (id: string) => {
-    if (session && question && !isAnswered(session)) setSession(chooseAnswer(session, id, question));
+    if (session && question && !isAnswered(session)) {
+      if (id === question.answerID) playCorrect();
+      setSession(chooseAnswer(session, id, question));
+    }
   };
 
   const next = () => {

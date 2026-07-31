@@ -1,5 +1,5 @@
 import React from 'react';
-import { Palette, BarChart3, Lock, Bug, Check, Gamepad2, LogOut } from 'lucide-react';
+import { Palette, BarChart3, Lock, Bug, Check, Gamepad2, LogOut, Flag } from 'lucide-react';
 import DeviceLayout from './DeviceLayout';
 import { WineEntry, isGrapeEntry, isRegionEntry } from '@/shared/types';
 import {
@@ -9,11 +9,15 @@ import {
   LcdModeId,
   TEXT_SCALES,
   TextScaleId,
+  UI_SCALES,
+  UiScaleId,
   setLcdMode,
   setSkin,
   setTextScale,
+  setUiScale,
 } from '../src/services/theme';
 import { useTheme } from '../src/services/useTheme';
+import { soundsEnabled, setSoundsEnabled } from '../src/services/sound';
 import { APP_VERSION_DISPLAY, BUILD_NUMBER } from '../src/services/appVersion';
 import {
   TESTABLE_ENTITLEMENTS,
@@ -55,20 +59,34 @@ export const SETTINGS_SECTIONS: {
 export const SettingsGrid: React.FC<{
   onSection: (id: SettingsSectionId) => void;
   onMinigames: () => void;
+  onWalkthrough: () => void;
   onExitToSplash: () => void;
   onBack: () => void;
   onHome: () => void;
-}> = ({ onSection, onMinigames, onExitToSplash, onBack, onHome }) => (
+}> = ({ onSection, onMinigames, onWalkthrough, onExitToSplash, onBack, onHome }) => {
+  const [offeringTour, setOfferingTour] = React.useState(false);
+  return (
   <DeviceLayout title="SYSTEM" subtitle="" showBack={true} onBack={onBack} onHome={onHome} centerHeaderText={true}>
     <div
       className="flex-1 min-h-0 overflow-y-auto custom-scrollbar p-3"
       style={{ backgroundColor: 'var(--lcd-page)' }}
     >
       <div className="grid grid-cols-2 gap-3">
+        {/* TUTORIAL first — it matters most to someone who just opened the app;
+            they must not have to hunt for it. Confirms before starting. */}
+        <button
+          onClick={() => setOfferingTour(true)}
+          className="aspect-square flex flex-col items-center justify-center gap-3 rounded-xl border-2 border-green-700 transition-all active:translate-y-0.5"
+          style={{ backgroundColor: 'var(--lcd-surface)' }}
+        >
+          <span className="text-green-400"><Flag size={30} /></span>
+          <span className="font-retro text-[0.55rem] sm:text-[0.65rem] tracking-widest text-center px-1" style={{ color: 'var(--lcd-text)' }}>
+            TUTORIAL
+          </span>
+        </button>
         {/*
-          First, not last. Minigames is the only tile here anyone opens for
-          fun — the other four are configuration and diagnostics — and burying
-          it under them made the cog feel like a dead end.
+          Minigames is the only tile here anyone opens for fun — the other four
+          are configuration and diagnostics.
         */}
         <button
           onClick={onMinigames}
@@ -118,9 +136,25 @@ export const SettingsGrid: React.FC<{
           EXIT TO SPLASH
         </span>
       </button>
+
+      {offeringTour && (
+        <div className="absolute inset-0 z-30 bg-black/80 flex items-center justify-center p-6">
+          <div className="w-full max-w-xs bg-stone-900 border-2 border-green-700 rounded-lg p-5 flex flex-col gap-4 text-center">
+            <p className="font-retro text-xs tracking-widest text-green-300">TAKE THE TOUR?</p>
+            <p className="font-mono text-sm text-stone-300 normal-case">
+              A quick walk round the device — what each button does and where things live. About a minute, and you can leave at any point.
+            </p>
+            <div className="flex gap-3">
+              <button onClick={() => setOfferingTour(false)} className="flex-1 font-retro text-[0.6rem] tracking-widest text-stone-300 border-2 border-stone-600 rounded py-3">NOT NOW</button>
+              <button onClick={() => { setOfferingTour(false); onWalkthrough(); }} className="flex-1 font-retro text-[0.6rem] tracking-widest text-white bg-green-700 border-2 border-green-900 rounded py-3">YES</button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   </DeviceLayout>
-);
+  );
+};
 
 const Section: React.FC<{ title: string; children: React.ReactNode }> = ({ title, children }) => (
   <div className="mb-6">
@@ -234,6 +268,7 @@ export const SettingsSectionPanel: React.FC<{
   onHome: () => void;
 }> = ({ section, allEntries, onBack, onHome }) => {
   const theme = useTheme();
+  const [sounds, setSounds] = React.useState(soundsEnabled());
 
   useAccess();
   const locked = starterOnly();
@@ -305,6 +340,26 @@ export const SettingsSectionPanel: React.FC<{
                   onClick={() => setTextScale(id)}
                 />
               ))}
+            </Section>
+
+            <Section title="UI SIZE">
+              {(Object.keys(UI_SCALES) as UiScaleId[]).map(id => (
+                <ChoiceRow
+                  key={id}
+                  label={UI_SCALES[id].displayName}
+                  selected={theme.uiScale === id}
+                  onClick={() => setUiScale(id)}
+                />
+              ))}
+            </Section>
+
+            <Section title="SOUND">
+              <ToggleRow
+                title="SOUNDS"
+                detail="Button clicks and quiz stings. Off by default."
+                on={sounds}
+                onToggle={() => { const next = !sounds; setSoundsEnabled(next); setSounds(next); }}
+              />
             </Section>
           </>
         );

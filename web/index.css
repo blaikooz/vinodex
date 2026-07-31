@@ -254,6 +254,11 @@ body {
    the chassis is physical furniture and does not resize with the copy. */
 .lcd-themed { font-size: calc(1em * var(--text-scale, 1)); }
 
+/* Monochrome phosphor modes (amber/terminal/vintage/grünerboy) desaturate the
+   whole LCD; DeviceLayout's overlay then multiplies the tint over it. Colour
+   modes set --lcd-grayscale to `none`. */
+.lcd-themed { filter: var(--lcd-grayscale, none); }
+
 /* ---------------------------------------------------------------------------
    Entry readout rules, from EntryDetailScreen.swift
 

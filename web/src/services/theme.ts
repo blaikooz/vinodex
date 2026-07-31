@@ -13,9 +13,15 @@
  * combination.
  */
 
-export type ChassisSkinId = 'CLASSIC' | 'MIDNIGHT' | 'ORIGINAL' | 'BURGUNDY' | 'RIESLING';
-export type LcdModeId = 'DARK' | 'LIGHT';
+export type ChassisSkinId =
+  | 'CLASSIC' | 'MIDNIGHT' | 'ORIGINAL' | 'BURGUNDY' | 'RIESLING'
+  | 'VINHO_VERDE' | 'GLOUGLOU' | 'SMART_GRAPE' | 'CHAMPAGNE' | 'CHRISTMAS'
+  | 'NOUVEAU' | 'OAKED' | 'NOCTURNE' | 'STEEL' | 'BLUSH';
+export type LcdModeId =
+  | 'DARK' | 'LIGHT' | 'VINTAGE' | 'AMBER' | 'WINE_OS'
+  | 'TERMINAL' | 'BLUE_SCREEN' | 'STAR_TREK' | 'GRUENER_BOY';
 export type TextScaleId = 'SMALL' | 'LARGE';
+export type UiScaleId = 'SMALL' | 'LARGE';
 
 export interface ChassisSkin {
   id: ChassisSkinId;
@@ -112,6 +118,119 @@ export const CHASSIS_SKINS: Record<ChassisSkinId, ChassisSkin> = {
     onBody: '#3A2C00',
     onBodyShadow: WALKMAN_EDGE,
   },
+  // v0.5.x–v0.6.x additions. Translucent (GLOUGLOU/NOUVEAU) and patterned
+  // (CHRISTMAS/OAKED/STEEL) skins render as solid colourways here; their smoke
+  // plastic / wrapping-paper / brushed-metal textures are a later refinement.
+  VINHO_VERDE: {
+    id: 'VINHO_VERDE',
+    displayName: 'BOX WINE',
+    body: '#24402B',
+    footerWash: 'rgba(36, 64, 43, 0.75)',
+    panel: '#2E4F36',
+    panelEdge: '#16281B',
+    grill: '#16281B',
+    onBody: '#FFFFFF',
+    onBodyShadow: '#16281B',
+  },
+  GLOUGLOU: {
+    id: 'GLOUGLOU',
+    displayName: 'EMPTY BOTTLE',
+    body: 'rgba(204, 216, 224, 0.55)',
+    footerWash: 'rgba(204, 216, 224, 0.28)',
+    panel: 'rgba(234, 241, 246, 0.7)',
+    panelEdge: 'rgba(148, 163, 184, 0.85)',
+    grill: '#64748B',
+    onBody: '#0F172A',
+    onBodyShadow: 'rgba(148, 163, 184, 0.85)',
+  },
+  SMART_GRAPE: {
+    id: 'SMART_GRAPE',
+    displayName: 'SMART GRAPE',
+    body: '#1C1C1E',
+    footerWash: 'rgba(28, 28, 30, 0.75)',
+    panel: '#2C2A28',
+    panelEdge: '#5A5148',
+    grill: '#5A5148',
+    onBody: '#FFFFFF',
+    onBodyShadow: '#000000',
+  },
+  CHAMPAGNE: {
+    id: 'CHAMPAGNE',
+    displayName: 'CHAMPAGNE GOLD',
+    body: '#E8D5A6',
+    footerWash: 'rgba(232, 213, 166, 0.75)',
+    panel: '#F6EEDC',
+    panelEdge: '#B49B62',
+    grill: '#B49B62',
+    onBody: '#2E2410',
+    onBodyShadow: '#B49B62',
+  },
+  CHRISTMAS: {
+    id: 'CHRISTMAS',
+    displayName: 'WINE XMAS',
+    body: '#1B4332',
+    footerWash: 'rgba(27, 67, 50, 0.75)',
+    panel: '#F4F7F2',
+    panelEdge: '#9CAF9C',
+    grill: '#9CAF9C',
+    onBody: '#FFFFFF',
+    onBodyShadow: '#0F380F',
+  },
+  NOUVEAU: {
+    id: 'NOUVEAU',
+    displayName: 'RETROVIN',
+    body: 'rgba(147, 51, 234, 0.55)',
+    footerWash: 'rgba(147, 51, 234, 0.3)',
+    panel: 'rgba(216, 180, 254, 0.6)',
+    panelEdge: 'rgba(233, 213, 255, 0.9)',
+    grill: '#7C3AED',
+    onBody: '#FFFFFF',
+    onBodyShadow: '#2E1065',
+  },
+  OAKED: {
+    id: 'OAKED',
+    displayName: 'OAKED',
+    body: '#5C4028',
+    footerWash: 'rgba(92, 64, 40, 0.5)',
+    panel: '#F2E8D5',
+    panelEdge: '#B5892E',
+    grill: '#8A6B45',
+    onBody: '#F2E8D5',
+    onBodyShadow: '#2E2014',
+  },
+  NOCTURNE: {
+    id: 'NOCTURNE',
+    displayName: 'VINHO VERDE',
+    body: '#C9F2BE',
+    footerWash: 'rgba(201, 242, 190, 0.75)',
+    panel: '#E9FBE0',
+    panelEdge: '#8FCB7C',
+    grill: '#8FCB7C',
+    onBody: '#123B0C',
+    onBodyShadow: '#8FCB7C',
+  },
+  STEEL: {
+    id: 'STEEL',
+    displayName: 'STAINLESS STEEL',
+    body: '#C7CBD1',
+    footerWash: 'rgba(184, 188, 194, 0.8)',
+    panel: '#DDE0E4',
+    panelEdge: '#6B7078',
+    grill: '#6B7078',
+    onBody: '#14181D',
+    onBodyShadow: '#6B7078',
+  },
+  BLUSH: {
+    id: 'BLUSH',
+    displayName: 'BLUSH',
+    body: '#EEA7B6',
+    footerWash: 'rgba(238, 167, 182, 0.75)',
+    panel: '#FBE9EC',
+    panelEdge: '#D2718A',
+    grill: '#C8879A',
+    onBody: '#4A1220',
+    onBodyShadow: '#D2718A',
+  },
 };
 
 export interface LcdTheme {
@@ -138,6 +257,14 @@ export interface LcdTheme {
   well: string;
   /** A row that exists but cannot be opened. */
   disabledText: string;
+  /**
+   * When set, the whole LCD is desaturated (grayscale) then multiplied by this
+   * tint — the phosphor look (amber/terminal/vintage/grünerboy). null = full
+   * colour. Ports DeviceChassis' `.grayscale(1).colorMultiply(tint)`.
+   */
+  monochromeTint: string | null;
+  /** Light-ground modes, for any styling that needs to know. */
+  isLight: boolean;
 }
 
 export const LCD_MODES: Record<LcdModeId, LcdTheme> = {
@@ -155,6 +282,8 @@ export const LCD_MODES: Record<LcdModeId, LcdTheme> = {
     subtext: '#a8a29e',
     well: '#000000',
     disabledText: '#57534e',
+    monochromeTint: null,
+    isLight: false,
   },
   LIGHT: {
     id: 'LIGHT',
@@ -174,6 +303,57 @@ export const LCD_MODES: Record<LcdModeId, LcdTheme> = {
     // Not the dark theme's stone600: against a white surface that grey is close
     // enough to `text` to look like an ordinary enabled row.
     disabledText: '#A3A39B',
+    monochromeTint: null,
+    isLight: true,
+  },
+  VINTAGE: {
+    id: 'VINTAGE', displayName: 'VINTAGE',
+    screen: '#E4E4DC', page: '#EDEDE4', text: '#101010', accent: '#1A1A16',
+    bodyText: '#20201C', heroWash: 'rgba(0, 0, 0, 0.06)', surface: '#F6F6EF',
+    surfaceEdge: '#84847A', subtext: '#42423C', well: '#FFFFFF', disabledText: '#96968C',
+    monochromeTint: '#C6CFB2', isLight: true,
+  },
+  AMBER: {
+    id: 'AMBER', displayName: 'AMBER',
+    screen: '#232323', page: '#000000', text: '#FFFFFF', accent: '#4ADE80',
+    bodyText: '#BBF7D0', heroWash: 'rgba(20, 83, 45, 0.1)', surface: '#1C1917',
+    surfaceEdge: '#44403C', subtext: '#A8A29E', well: '#000000', disabledText: '#57534E',
+    monochromeTint: '#FFB300', isLight: false,
+  },
+  WINE_OS: {
+    id: 'WINE_OS', displayName: 'WINE.OS',
+    screen: '#C7D3E6', page: '#D6DFEE', text: '#0E2258', accent: '#1D3E9E',
+    bodyText: '#22335E', heroWash: 'rgba(29, 62, 158, 0.07)', surface: '#E9EEF6',
+    surfaceEdge: '#8598B8', subtext: '#465578', well: '#FFFFFF', disabledText: '#9FACC6',
+    monochromeTint: null, isLight: true,
+  },
+  TERMINAL: {
+    id: 'TERMINAL', displayName: 'TERMINAL',
+    screen: '#232323', page: '#000000', text: '#FFFFFF', accent: '#4ADE80',
+    bodyText: '#BBF7D0', heroWash: 'rgba(20, 83, 45, 0.1)', surface: '#1C1917',
+    surfaceEdge: '#44403C', subtext: '#A8A29E', well: '#000000', disabledText: '#57534E',
+    monochromeTint: '#4DFF4D', isLight: false,
+  },
+  BLUE_SCREEN: {
+    id: 'BLUE_SCREEN', displayName: 'VINOFD',
+    screen: '#1021B4', page: '#0E1CA8', text: '#A6DBFF', accent: '#7DF9FF',
+    bodyText: '#BFE4FF', heroWash: 'rgba(255, 255, 255, 0.06)', surface: '#1F31CE',
+    surfaceEdge: '#5D74E8', subtext: '#8FB0F0', well: '#0A1690', disabledText: '#6272D4',
+    monochromeTint: null, isLight: false,
+  },
+  STAR_TREK: {
+    id: 'STAR_TREK', displayName: 'L-WINES',
+    screen: '#0B0910', page: '#000000', text: '#FFA94D', accent: '#C983E8',
+    bodyText: '#F2CD9A', heroWash: 'rgba(201, 131, 232, 0.08)', surface: '#191022',
+    surfaceEdge: '#5C3E78', subtext: '#C2915C', well: '#000000', disabledText: '#6D5A49',
+    monochromeTint: null, isLight: false,
+  },
+  GRUENER_BOY: {
+    id: 'GRUENER_BOY', displayName: 'GRÜNERBOY',
+    screen: '#E6EBCF', page: '#DDE3C2', text: '#141A0C', accent: '#2F3A1C',
+    bodyText: '#202817', heroWash: 'rgba(0, 0, 0, 0.06)', surface: '#EFF2DE',
+    surfaceEdge: '#7A8258', subtext: '#455030', well: '#F4F6E8', disabledText: '#939B78',
+    monochromeTint: '#9BBC0F', isLight: true,
   },
 };
 
@@ -186,18 +366,29 @@ export const TEXT_SCALES: Record<TextScaleId, { id: TextScaleId; displayName: st
   LARGE: { id: 'LARGE', displayName: 'LARGE', factor: 1.0 },
 };
 
+/**
+ * A second, independent axis (v0.5.8): TextScale sizes the LCD copy, UIScale
+ * sizes the chassis furniture — footer controls and marquee.
+ */
+export const UI_SCALES: Record<UiScaleId, { id: UiScaleId; displayName: string; factor: number }> = {
+  SMALL: { id: 'SMALL', displayName: 'SMALL', factor: 1.0 },
+  LARGE: { id: 'LARGE', displayName: 'LARGE', factor: 1.15 },
+};
+
 export interface ThemeState {
   skin: ChassisSkinId;
   lcd: LcdModeId;
   scale: TextScaleId;
+  uiScale: UiScaleId;
 }
 
 // Storage keys match the iOS `@AppStorage` keys exactly.
 const SKIN_KEY = 'chassisSkin';
 const LCD_KEY = 'lcdMode';
 const SCALE_KEY = 'textScale';
+const UI_SCALE_KEY = 'uiScale';
 
-const DEFAULTS: ThemeState = { skin: 'CLASSIC', lcd: 'DARK', scale: 'SMALL' };
+const DEFAULTS: ThemeState = { skin: 'CLASSIC', lcd: 'DARK', scale: 'SMALL', uiScale: 'SMALL' };
 
 function readKey<T extends string>(key: string, valid: Record<T, unknown>, fallback: T): T {
   try {
@@ -214,6 +405,7 @@ export function readTheme(): ThemeState {
     skin: readKey<ChassisSkinId>(SKIN_KEY, CHASSIS_SKINS, DEFAULTS.skin),
     lcd: readKey<LcdModeId>(LCD_KEY, LCD_MODES, DEFAULTS.lcd),
     scale: readKey<TextScaleId>(SCALE_KEY, TEXT_SCALES, DEFAULTS.scale),
+    uiScale: readKey<UiScaleId>(UI_SCALE_KEY, UI_SCALES, DEFAULTS.uiScale),
   };
 }
 
@@ -234,6 +426,7 @@ function persist(key: string, value: string): void {
 export const setSkin = (id: ChassisSkinId): void => persist(SKIN_KEY, id);
 export const setLcdMode = (id: LcdModeId): void => persist(LCD_KEY, id);
 export const setTextScale = (id: TextScaleId): void => persist(SCALE_KEY, id);
+export const setUiScale = (id: UiScaleId): void => persist(UI_SCALE_KEY, id);
 
 /** Cycles to the next colourway — the chassis itself is tappable on iOS. */
 export function nextSkin(): void {
@@ -252,7 +445,7 @@ export function nextSkin(): void {
  */
 export function applyTheme(): void {
   if (typeof document === 'undefined') return;
-  const { skin, lcd, scale } = readTheme();
+  const { skin, lcd, scale, uiScale } = readTheme();
   const s = CHASSIS_SKINS[skin];
   const l = LCD_MODES[lcd];
   const root = document.documentElement;
@@ -278,11 +471,18 @@ export function applyTheme(): void {
   root.style.setProperty('--lcd-disabled-text', l.disabledText);
 
   root.style.setProperty('--text-scale', String(TEXT_SCALES[scale].factor));
+  root.style.setProperty('--ui-scale', String(UI_SCALES[uiScale].factor));
+
+  // Monochrome phosphor pass: a tint drives `.lcd-themed`'s grayscale filter and
+  // the multiply overlay in DeviceLayout. Colour modes clear both.
+  root.style.setProperty('--mono-tint', l.monochromeTint ?? 'transparent');
+  root.style.setProperty('--lcd-grayscale', l.monochromeTint ? 'grayscale(1)' : 'none');
 
   // Lets plain CSS and any future `prefers-color-scheme` styling branch on the
   // screen mode without reading localStorage again.
   root.dataset.lcd = lcd.toLowerCase();
   root.dataset.skin = skin.toLowerCase();
+  root.dataset.mono = l.monochromeTint ? 'on' : 'off';
 }
 
 export function subscribeToTheme(onChange: () => void): () => void {
