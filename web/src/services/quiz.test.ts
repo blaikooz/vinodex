@@ -1,0 +1,322 @@
+import { describe, it, expect, beforeEach } from 'vitest';
+import { buildWineEntries } from '@/shared/constants';
+import { normalizeLabel } from '@/shared/services/entryUtils';
+import type { WineEntry } from '@/shared/types';
+import {
+  quizQuestion,
+  QUIZ_TIERS,
+  DEFAULT_LENGTH,
+  DEFAULT_PASS,
+  newSession,
+  chooseAnswer,
+  advance,
+  retrySession,
+  isComplete,
+  isPassed,
+  isAnswered,
+  highestUnlocked,
+  isTierUnlocked,
+  recordTierPass,
+  type QuizTier,
+} from './quiz';
+
+const all = buildWineEntries() as WineEntry[];
+const byId = new Map(all.map(e => [e.id, e]));
+const label = normalizeLabel;
+const someQ = (seed: number, tier: QuizTier = 'ENTHUSIAST') => quizQuestion(all, 0, seed, tier)!;
+
+// Mirrors ToolsTests.swift / TastingQuizTests.
+describe('quiz question generation', () => {
+  it('produces a question for every slot across a spread of seeds (negatives included)', () => {
+    for (let seed = -45; seed < 255; seed += 10) {
+      for (let n = 0; n < DEFAULT_LENGTH; n++) {
+        expect(quizQuestion(all, n, seed, 'ENTHUSIAST'), `seed ${seed} q${n}`).not.toBeNull();
+      }
+    }
+  });
+
+  it('every question is well formed: 4 distinct real options, answer among them', () => {
+    for (let seed = 0; seed < 200; seed += 10) {
+      for (let n = 0; n < DEFAULT_LENGTH; n++) {
+        const q = quizQuestion(all, n, seed, 'ENTHUSIAST');
+        if (!q) continue;
+        const tag = `seed ${seed} q${n}`;
+        expect(q.optionIDs.length, tag).toBe(4);
+        expect(new Set(q.optionIDs).size, `${tag} repeats an option`).toBe(4);
+        expect(q.optionIDs, `${tag} omits its answer`).toContain(q.answerID);
+        expect(q.prompt.length).toBeGreaterThan(0);
+        for (const id of q.optionIDs) expect(byId.get(id), `${tag} missing ${id}`).toBeTruthy();
+      }
+    }
+  });
+
+  it('a session mixes all three kinds — at least three of each', () => {
+    for (let seed = -20; seed < 120; seed += 7) {
+      const counts: Record<string, number> = {};
+      for (let n = 0; n < DEFAULT_LENGTH; n++) {
+        const q = quizQuestion(all, n, seed, 'ENTHUSIAST');
+        if (q) counts[q.kind] = (counts[q.kind] ?? 0) + 1;
+      }
+      for (const k of ['grapes', 'region', 'style']) {
+        expect(counts[k] ?? 0, `seed ${seed}: ${k}`).toBeGreaterThanOrEqual(3);
+      }
+    }
+  });
+
+  it('no distractor is also a right answer', () => {
+    for (let seed = 0; seed < 200; seed += 5) {
+      for (let n = 0; n < DEFAULT_LENGTH; n++) {
+        const q = quizQuestion(all, n, seed, 'ENTHUSIAST');
+        if (!q) continue;
+        const answer = byId.get(q.answerID) as any;
+        const tag = `seed ${seed} q${n}`;
+        if (q.kind === 'grapes') {
+          for (const id of q.optionIDs) {
+            if (id === q.answerID) continue;
+            const o = byId.get(id) as any;
+            const differs =
+              o.grapeType !== answer.grapeType ||
+              label(o.grapeBodyClass ?? '') !== label(answer.grapeBodyClass ?? '') ||
+              label(o.grapeCountryOfOrigin ?? o.details?.origin ?? '') !== label(answer.grapeCountryOfOrigin ?? answer.details?.origin ?? '');
+            expect(differs, `${tag}: ${o.name} matches every fact of ${answer.name}`).toBe(true);
+          }
+        } else {
+          // Recover the grape/country from the prompt wording.
+          const grapePrefixes = ['Which of these regions is known for ', 'Which of these styles features '];
+          const originPrefix = 'Which of these styles originates in ';
+          const gp = grapePrefixes.find(p => q.prompt.startsWith(p));
+          if (gp) {
+            const key = label(q.prompt.slice(gp.length, -1));
+            for (const id of q.optionIDs) {
+              if (id === q.answerID) continue;
+              const o = byId.get(id) as any;
+              const carries = (o.details?.notableGrapes ?? []).some((g: string) => label(g) === key);
+              expect(carries, `${tag}: ${o.name} also names it`).toBe(false);
+            }
+          } else if (q.prompt.startsWith(originPrefix)) {
+            const key = label(q.prompt.slice(originPrefix.length, -1));
+            for (const id of q.optionIDs) {
+              if (id === q.answerID) continue;
+              const o = byId.get(id) as any;
+              expect(label(o.details?.origin ?? '') !== key, `${tag}: ${o.name} also originates there`).toBe(true);
+            }
+          }
+        }
+      }
+    }
+  });
+
+  it('is deterministic — same slot, same question', () => {
+    for (let seed = 0; seed < 100; seed += 7) {
+      for (let n = 0; n < DEFAULT_LENGTH; n++) {
+        expect(quizQuestion(all, n, seed, 'ENTHUSIAST')).toEqual(quizQuestion(all, n, seed, 'ENTHUSIAST'));
+      }
+    }
+  });
+
+  it('consecutive questions differ', () => {
+    let repeats = 0;
+    for (let seed = 0; seed < 100; seed += 11) {
+      for (let n = 0; n < DEFAULT_LENGTH - 1; n++) {
+        const a = quizQuestion(all, n, seed, 'ENTHUSIAST');
+        const b = quizQuestion(all, n + 1, seed, 'ENTHUSIAST');
+        if (JSON.stringify(a) === JSON.stringify(b)) repeats++;
+      }
+    }
+    expect(repeats).toBe(0);
+  });
+});
+
+describe('quiz tiers', () => {
+  it('every tier fills every slot of every session', () => {
+    for (const tier of QUIZ_TIERS) {
+      for (let seed = -20; seed < 160; seed += 12) {
+        for (let n = 0; n < DEFAULT_LENGTH; n++) {
+          expect(quizQuestion(all, n, seed, tier), `${tier} seed ${seed} q${n}`).not.toBeNull();
+        }
+      }
+    }
+  });
+
+  it('grape answers respect the tier rarity band', () => {
+    const bands: [QuizTier, Set<string>][] = [
+      ['NOVICE', new Set(['NOBLE', 'COMMON'])],
+      ['SOMMELIER', new Set(['UNCOMMON', 'RARE', 'GODFORSAKEN'])],
+    ];
+    for (let seed = 0; seed < 200; seed += 7) {
+      for (let n = 0; n < DEFAULT_LENGTH; n++) {
+        for (const [tier, allowed] of bands) {
+          const q = quizQuestion(all, n, seed, tier);
+          if (!q || q.kind !== 'grapes') continue;
+          const a = byId.get(q.answerID) as any;
+          expect(allowed.has(a.rarity), `${tier}: ${a.name} is ${a.rarity}`).toBe(true);
+        }
+      }
+    }
+  });
+
+  it('novice region answers name at least two resolvable grapes', () => {
+    const grapeKeys = new Set(all.filter(e => e.category === 'GRAPES').map(e => label(e.name)));
+    for (let seed = 0; seed < 200; seed += 7) {
+      for (let n = 0; n < DEFAULT_LENGTH; n++) {
+        const q = quizQuestion(all, n, seed, 'NOVICE');
+        if (!q || q.kind !== 'region') continue;
+        const a = byId.get(q.answerID) as any;
+        const resolvable = (a.details?.notableGrapes ?? []).filter((g: string) => grapeKeys.has(label(g)));
+        expect(resolvable.length, `novice region ${a.name}`).toBeGreaterThanOrEqual(2);
+      }
+    }
+  });
+});
+
+describe('quiz session', () => {
+  it('a fresh session starts clean', () => {
+    const s = newSession(3);
+    expect(s.index).toBe(0);
+    expect(s.correct).toBe(0);
+    expect(s.chosenID).toBeNull();
+    expect(isAnswered(s)).toBe(false);
+    expect(isComplete(s)).toBe(false);
+    expect(isPassed(s)).toBe(false);
+  });
+
+  it('choosing scores rights not wrongs, first tap is final', () => {
+    let s = newSession(5);
+    const q = someQ(5);
+    const wrong = q.optionIDs.find(i => i !== q.answerID)!;
+    s = chooseAnswer(s, wrong, q);
+    expect(s.correct).toBe(0);
+    expect(s.chosenID).toBe(wrong);
+    s = chooseAnswer(s, q.answerID, q); // ignored
+    expect(s.correct).toBe(0);
+    expect(s.chosenID).toBe(wrong);
+  });
+
+  it('advance requires an answer, clears it, completes at ten, then is inert', () => {
+    let s = newSession(9);
+    s = advance(s); // no-op unanswered
+    expect(s.index).toBe(0);
+    for (let n = 0; n < DEFAULT_LENGTH; n++) {
+      expect(s.index).toBe(n);
+      const q = quizQuestion(all, s.index, s.seed, s.tier)!;
+      s = chooseAnswer(s, q.answerID, q);
+      expect(isAnswered(s)).toBe(true);
+      s = advance(s);
+      expect(isAnswered(s)).toBe(false);
+    }
+    expect(isComplete(s)).toBe(true);
+    expect(s.correct).toBe(DEFAULT_LENGTH);
+    expect(isPassed(s)).toBe(true);
+    const done = s;
+    s = advance(s);
+    expect(s).toEqual(done);
+  });
+
+  it('the pass mark sits at eight of ten', () => {
+    for (const target of [DEFAULT_PASS - 1, DEFAULT_PASS]) {
+      let s = newSession(12);
+      for (let n = 0; n < DEFAULT_LENGTH; n++) {
+        const q = quizQuestion(all, s.index, s.seed, s.tier)!;
+        const id = n < target ? q.answerID : q.optionIDs.find(i => i !== q.answerID)!;
+        s = chooseAnswer(s, id, q);
+        s = advance(s);
+      }
+      expect(s.correct).toBe(target);
+      expect(isPassed(s)).toBe(target === DEFAULT_PASS);
+    }
+  });
+
+  it('a custom-length session grades on its own shape (daily 5/4)', () => {
+    for (const target of [3, 4]) {
+      let s = newSession(17, 'ENTHUSIAST', 5, 4);
+      for (let n = 0; n < 5; n++) {
+        expect(isComplete(s)).toBe(false);
+        const q = quizQuestion(all, s.index, s.seed, s.tier)!;
+        const id = n < target ? q.answerID : q.optionIDs.find(i => i !== q.answerID)!;
+        s = chooseAnswer(s, id, q);
+        s = advance(s);
+      }
+      expect(isComplete(s)).toBe(true);
+      expect(isPassed(s)).toBe(target >= 4);
+    }
+  });
+
+  it('retry starts a different paper from scratch, keeping shape and tier', () => {
+    const s = newSession(9, 'NOVICE', 5, 4);
+    const next = retrySession(s);
+    expect(next.seed).not.toBe(s.seed);
+    expect(next.index).toBe(0);
+    expect(next.correct).toBe(0);
+    expect(next.chosenID).toBeNull();
+    expect(next.length).toBe(5);
+    expect(next.passMark).toBe(4);
+    expect(next.tier).toBe('NOVICE');
+  });
+});
+
+describe('quiz progress ladder', () => {
+  beforeEach(() => localStorage.clear());
+
+  it('a fresh ladder opens at novice only', () => {
+    expect(highestUnlocked()).toBe('NOVICE');
+    expect(isTierUnlocked('NOVICE')).toBe(true);
+    expect(isTierUnlocked('ENTHUSIAST')).toBe(false);
+    expect(isTierUnlocked('SOMMELIER')).toBe(false);
+  });
+
+  it('passes climb the ladder one rung at a time; repeats and the top open nothing', () => {
+    expect(recordTierPass('NOVICE')).toBe('ENTHUSIAST');
+    expect(isTierUnlocked('ENTHUSIAST')).toBe(true);
+    expect(isTierUnlocked('SOMMELIER')).toBe(false);
+    expect(recordTierPass('NOVICE')).toBeNull();
+    expect(recordTierPass('ENTHUSIAST')).toBe('SOMMELIER');
+    expect(isTierUnlocked('SOMMELIER')).toBe(true);
+    expect(recordTierPass('SOMMELIER')).toBeNull();
+  });
+
+  it('unlocks survive a reload (localStorage)', () => {
+    recordTierPass('NOVICE');
+    expect(highestUnlocked()).toBe('ENTHUSIAST');
+  });
+});
+
+// Determinism guard: pins the generated paper for fixed seeds so a refactor
+// can't silently drift the daily challenge away from what shipped.
+describe('quiz determinism golden', () => {
+  const GOLDEN: Record<string, ({ k: string; a: string; o: string[] } | null)[]> = {
+    '777': [
+      { k: 'grapes', a: 'G010', o: ['G030', 'G010', 'G048', 'G065'] },
+      { k: 'region', a: 'R100', o: ['R100', 'R011', 'R029', 'R046'] },
+      { k: 'style', a: 'S029', o: ['S030', 'S017', 'S005', 'S029'] },
+      { k: 'grapes', a: 'G088', o: ['G111', 'G129', 'G088', 'G017'] },
+      { k: 'region', a: 'R056', o: ['R068', 'R056', 'R085', 'R102'] },
+      { k: 'style', a: 'S004', o: ['S004', 'S024', 'S011', 'S028'] },
+      { k: 'grapes', a: 'G036', o: ['G031', 'G052', 'G071', 'G036'] },
+      { k: 'region', a: 'R024', o: ['R077', 'R094', 'R024', 'R007'] },
+      { k: 'style', a: 'S032', o: ['S012', 'S032', 'S029', 'S017'] },
+      { k: 'grapes', a: 'G052', o: ['G052', 'G060', 'G078', 'G096'] },
+    ],
+    '-13': [
+      { k: 'style', a: 'S004', o: ['S019', 'S006', 'S023', 'S004'] },
+      { k: 'grapes', a: 'G100', o: ['G032', 'G051', 'G100', 'G068'] },
+      { k: 'region', a: 'R064', o: ['R016', 'R064', 'R034', 'R051'] },
+      { k: 'style', a: 'S010', o: ['S010', 'S025', 'S012', 'S030'] },
+      { k: 'grapes', a: 'G020', o: ['G011', 'G029', 'G047', 'G020'] },
+      { k: 'region', a: 'R060', o: ['R031', 'R048', 'R060', 'R066'] },
+      { k: 'style', a: 'S015', o: ['S012', 'S015', 'S030', 'S017'] },
+      { k: 'grapes', a: 'G072', o: ['G072', 'G109', 'G127', 'G015'] },
+      { k: 'region', a: 'R025', o: ['R099', 'R012', 'R030', 'R025'] },
+      { k: 'style', a: 'S027', o: ['S030', 'S018', 'S027', 'S006'] },
+    ],
+  };
+
+  for (const [seed, expected] of Object.entries(GOLDEN)) {
+    it(`seed ${seed} reproduces its paper`, () => {
+      for (let n = 0; n < expected.length; n++) {
+        const q = quizQuestion(all, n, Number(seed), 'ENTHUSIAST');
+        const g = expected[n]!;
+        expect({ k: q!.kind, a: q!.answerID, o: q!.optionIDs }).toEqual(g);
+      }
+    });
+  }
+});
