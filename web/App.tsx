@@ -21,6 +21,7 @@ import { getAllEntries } from './src/services/wineData';
 import { clear as clearScreenState } from './src/services/screenState';
 import { SETTINGS_SECTIONS, SettingsSectionId } from './components/SettingsPanel';
 import { installGlobalTapSound } from './src/services/sound';
+import { installGlobalHaptics } from './src/services/haptics';
 
 const RetroGlobeScreen = lazy(() => import('./components/RetroGlobeScreen'));
 const MoonDialScreen = lazy(() => import('./components/MoonDialScreen'));
@@ -76,8 +77,9 @@ const App: React.FC = () => {
   const location = useLocation();
   const allEntries = useMemo(() => getAllEntries(), []);
 
-  // Opt-in SFX: one global listener rides a tap onto every button click.
-  useEffect(() => { installGlobalTapSound(); }, []);
+  // One global listener each rides a tap sound (opt-in) and a haptic
+  // (default on) onto every button click.
+  useEffect(() => { installGlobalTapSound(); installGlobalHaptics(); }, []);
 
   // Home is an in-app control, so it lands on the dex menu — never the splash.
   // The splash is where a fresh visit starts, not a screen to bounce back to.

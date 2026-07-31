@@ -39,6 +39,12 @@ export interface ChassisSkin {
   /** Text sitting directly on the moulding — the wordmark and its shadow. */
   onBody: string;
   onBodyShadow: string;
+  /** A tiling texture over the body (xmas-wrap / oak-grain / steel-brush). */
+  bodyPattern?: string;
+  /** Smoke-plastic skins that reveal the mock internals behind them. */
+  translucent?: boolean;
+  /** Glow-in-the-dark halo colour (NOCTURNE). */
+  rimGlow?: string;
 }
 
 // Palette constants, from `enum Dex` in DexTheme.swift.
@@ -118,9 +124,9 @@ export const CHASSIS_SKINS: Record<ChassisSkinId, ChassisSkin> = {
     onBody: '#3A2C00',
     onBodyShadow: WALKMAN_EDGE,
   },
-  // v0.5.x–v0.6.x additions. Translucent (GLOUGLOU/NOUVEAU) and patterned
-  // (CHRISTMAS/OAKED/STEEL) skins render as solid colourways here; their smoke
-  // plastic / wrapping-paper / brushed-metal textures are a later refinement.
+  // v0.5.x–v0.6.x additions. Patterned skins (CHRISTMAS/OAKED/STEEL) tile a
+  // texture over the body; translucent skins (GLOUGLOU/NOUVEAU) reveal the mock
+  // internals behind the shell.
   VINHO_VERDE: {
     id: 'VINHO_VERDE',
     displayName: 'BOX WINE',
@@ -142,6 +148,7 @@ export const CHASSIS_SKINS: Record<ChassisSkinId, ChassisSkin> = {
     grill: '#64748B',
     onBody: '#0F172A',
     onBodyShadow: 'rgba(148, 163, 184, 0.85)',
+    translucent: true,
   },
   SMART_GRAPE: {
     id: 'SMART_GRAPE',
@@ -175,6 +182,7 @@ export const CHASSIS_SKINS: Record<ChassisSkinId, ChassisSkin> = {
     grill: '#9CAF9C',
     onBody: '#FFFFFF',
     onBodyShadow: '#0F380F',
+    bodyPattern: 'xmas-wrap',
   },
   NOUVEAU: {
     id: 'NOUVEAU',
@@ -186,6 +194,7 @@ export const CHASSIS_SKINS: Record<ChassisSkinId, ChassisSkin> = {
     grill: '#7C3AED',
     onBody: '#FFFFFF',
     onBodyShadow: '#2E1065',
+    translucent: true,
   },
   OAKED: {
     id: 'OAKED',
@@ -197,6 +206,7 @@ export const CHASSIS_SKINS: Record<ChassisSkinId, ChassisSkin> = {
     grill: '#8A6B45',
     onBody: '#F2E8D5',
     onBodyShadow: '#2E2014',
+    bodyPattern: 'oak-grain',
   },
   NOCTURNE: {
     id: 'NOCTURNE',
@@ -208,6 +218,7 @@ export const CHASSIS_SKINS: Record<ChassisSkinId, ChassisSkin> = {
     grill: '#8FCB7C',
     onBody: '#123B0C',
     onBodyShadow: '#8FCB7C',
+    rimGlow: '#A8FF96',
   },
   STEEL: {
     id: 'STEEL',
@@ -219,6 +230,7 @@ export const CHASSIS_SKINS: Record<ChassisSkinId, ChassisSkin> = {
     grill: '#6B7078',
     onBody: '#14181D',
     onBodyShadow: '#6B7078',
+    bodyPattern: 'steel-brush',
   },
   BLUSH: {
     id: 'BLUSH',
@@ -457,6 +469,9 @@ export function applyTheme(): void {
   root.style.setProperty('--chassis-grill', s.grill);
   root.style.setProperty('--chassis-on-body', s.onBody);
   root.style.setProperty('--chassis-on-body-shadow', s.onBodyShadow);
+  root.style.setProperty('--chassis-pattern', s.bodyPattern ? `url(/chassis/${s.bodyPattern}.png)` : 'none');
+  root.style.setProperty('--chassis-rim-glow', s.rimGlow ?? 'transparent');
+  root.dataset.translucent = s.translucent ? 'on' : 'off';
 
   root.style.setProperty('--lcd-screen', l.screen);
   root.style.setProperty('--lcd-page', l.page);

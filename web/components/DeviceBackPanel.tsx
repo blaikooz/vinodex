@@ -1,10 +1,44 @@
 import React from 'react';
 import pkg from '../../package.json';
 import { APP_VERSION_DISPLAY } from '../src/services/appVersion';
+import { getAllEntries } from '../src/services/wineData';
+import { shelfIds } from '../src/services/bookmarks';
+import { bestStreak } from '../src/services/dailyChallenge';
+import { highestUnlocked } from '../src/services/quiz';
+import { computePassport, type BadgeId } from '../src/services/passport';
 
 interface DeviceBackPanelProps {
   onReturn: () => void;
 }
+
+// Fixed slot per badge, so an earned stamp keeps its home between flips —
+// mirrors DeviceBackPlate.swift's stampSlots.
+const STAMP_SLOT: Record<BadgeId, { pos: React.CSSProperties; rot: number; ink: string }> = {
+  firstSip: { pos: { top: '17%', left: '7%' }, rot: -12, ink: '#A63838' },
+  tenBottles: { pos: { top: '21%', right: '7%' }, rot: 8, ink: '#33518F' },
+  allNoble: { pos: { bottom: '25%', right: '9%' }, rot: -7, ink: '#6E4F8F' },
+  regionComplete: { pos: { bottom: '29%', left: '7%' }, rot: 10, ink: '#2F6E4F' },
+  streakWeek: { pos: { bottom: '13%', right: '13%' }, rot: -15, ink: '#8F5A33' },
+  sommelier: { pos: { top: '45%', left: '10%' }, rot: 5, ink: '#2F6E6E' },
+};
+
+const PassportStamp: React.FC<{ title: string; ink: string; rot: number; pos: React.CSSProperties }> = ({ title, ink, rot, pos }) => (
+  <div
+    className="absolute pointer-events-none select-none"
+    style={{ ...pos, transform: `rotate(${rot}deg)`, opacity: 0.82 }}
+    aria-hidden="true"
+  >
+    <div
+      className="px-2 py-1 rounded-md flex flex-col items-center"
+      style={{ border: `2px double ${ink}`, color: ink, WebkitMaskImage: 'linear-gradient(120deg, #000 55%, rgba(0,0,0,0.5))' }}
+    >
+      <div className="font-retro text-[0.32rem] tracking-widest">· VINODEX PASSPORT ·</div>
+      <div className="w-full h-px my-0.5" style={{ backgroundColor: ink }} />
+      <div className="font-retro text-[0.5rem] tracking-widest">{title}</div>
+      <div className="font-retro text-[0.32rem] tracking-widest mt-0.5">★ ADMITTED ★</div>
+    </div>
+  </div>
+);
 
 const APP_NAME = (pkg.name || 'vinodex').toUpperCase();
 const CREATOR = 'HORIZON';
@@ -24,6 +58,12 @@ const Screw: React.FC<{ className?: string }> = ({ className = '' }) => (
 );
 
 const DeviceBackPanel: React.FC<DeviceBackPanelProps> = ({ onReturn }) => {
+  // Earned passport stamps ink themselves onto the underside — the device
+  // "accumulates a travel record". Read once on flip.
+  const earned = React.useMemo(() => {
+    const p = computePassport(shelfIds('tried'), getAllEntries(), bestStreak(), highestUnlocked());
+    return p.badges.filter(b => b.earned);
+  }, []);
   return (
     <button
       type="button"
@@ -52,6 +92,12 @@ const DeviceBackPanel: React.FC<DeviceBackPanelProps> = ({ onReturn }) => {
             'radial-gradient(ellipse at 30% 20%, rgba(255,255,255,0.35) 0%, rgba(255,255,255,0) 55%)',
         }}
       />
+
+      {/* Passport stamps — one per earned badge, at its fixed slot. */}
+      {earned.map(b => {
+        const slot = STAMP_SLOT[b.id];
+        return <PassportStamp key={b.id} title={b.title} ink={slot.ink} rot={slot.rot} pos={slot.pos} />;
+      })}
 
       {/* Corner screws */}
       <Screw className="absolute top-3 left-3 md:top-4 md:left-4" />

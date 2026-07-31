@@ -146,6 +146,8 @@ const DeviceLayout: React.FC<DeviceLayoutProps> = ({
             className="w-full h-full md:rounded-[2.5rem] md:shadow-[0_20px_50px_rgba(0,0,0,0.35)] overflow-hidden relative border-[3px] ring-1 ring-white/10 shadow-[inset_-10px_-10px_30px_rgba(0,0,0,0.2)]"
             style={{
               backgroundColor: 'var(--chassis-body)',
+              backgroundImage: 'var(--chassis-pattern, none)',
+              backgroundSize: '96px 96px',
               borderColor: 'var(--chassis-panel-edge)',
             }}
           >

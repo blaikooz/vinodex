@@ -18,6 +18,7 @@ import {
 } from '../src/services/theme';
 import { useTheme } from '../src/services/useTheme';
 import { soundsEnabled, setSoundsEnabled } from '../src/services/sound';
+import { hapticsEnabled, setHapticsEnabled } from '../src/services/haptics';
 import { APP_VERSION_DISPLAY, BUILD_NUMBER } from '../src/services/appVersion';
 import {
   TESTABLE_ENTITLEMENTS,
@@ -269,6 +270,7 @@ export const SettingsSectionPanel: React.FC<{
 }> = ({ section, allEntries, onBack, onHome }) => {
   const theme = useTheme();
   const [sounds, setSounds] = React.useState(soundsEnabled());
+  const [haptics, setHaptics] = React.useState(hapticsEnabled());
 
   useAccess();
   const locked = starterOnly();
@@ -353,12 +355,18 @@ export const SettingsSectionPanel: React.FC<{
               ))}
             </Section>
 
-            <Section title="SOUND">
+            <Section title="FEEDBACK">
               <ToggleRow
                 title="SOUNDS"
                 detail="Button clicks and quiz stings. Off by default."
                 on={sounds}
                 onToggle={() => { const next = !sounds; setSoundsEnabled(next); setSounds(next); }}
+              />
+              <ToggleRow
+                title="HAPTICS"
+                detail="A light tap on each press. Android only."
+                on={haptics}
+                onToggle={() => { const next = !haptics; setHapticsEnabled(next); setHaptics(next); }}
               />
             </Section>
           </>
