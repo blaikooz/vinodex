@@ -1,10 +1,13 @@
 import React from 'react';
-import { Sparkles, ScanSearch, Moon } from 'lucide-react';
+import { Sparkles, ScanSearch, Moon, Filter, BadgeCheck, Flame } from 'lucide-react';
 import DeviceLayout from './DeviceLayout';
 
 interface MinigamesScreenProps {
-  onDailyGrape: () => void;
   onScanner: () => void;
+  onChipFilter: () => void;
+  onQuiz: () => void;
+  onDailyChallenge: () => void;
+  onDailyGrape: () => void;
   onMoonDial: () => void;
   onBack: () => void;
   onHome: () => void;
@@ -19,12 +22,11 @@ interface TileProps {
 }
 
 /**
- * The minigames hub, ported from `vinodex-ios/Sources/VinodexUI/MinigamesScreen.swift`.
+ * The Tools hub, ported from `vinodex-ios/Sources/VinodexUI/ToolsScreen.swift`.
  *
- * Square glyph-over-label tiles, matching the iOS grid so the two apps read as
- * one product. The moon dial already existed here as a standalone route; it
- * moves under this shelf alongside the other two rather than hanging off the
- * main menu on its own.
+ * Square glyph-over-label tiles in the iOS 3×2 order: SCANNER, FILTER SEARCH,
+ * WINE EXAM, DAILY CHALLENGE, WHAT'S THAT…?, MOON DIAL — so the two apps read as
+ * one product. Reached from the Settings TOOLS tile.
  */
 const Tile: React.FC<TileProps> = ({ title, tint, border, icon, onClick }) => (
   <button
@@ -39,42 +41,27 @@ const Tile: React.FC<TileProps> = ({ title, tint, border, icon, onClick }) => (
 );
 
 const MinigamesScreen: React.FC<MinigamesScreenProps> = ({
-  onDailyGrape,
   onScanner,
+  onChipFilter,
+  onQuiz,
+  onDailyChallenge,
+  onDailyGrape,
   onMoonDial,
   onBack,
   onHome,
 }) => {
   return (
-    <DeviceLayout title="MINIGAMES" subtitle="" showBack={true} onBack={onBack} onHome={onHome} centerHeaderText={true}>
+    <DeviceLayout title="TOOLS" subtitle="" showBack={true} onBack={onBack} onHome={onHome} centerHeaderText={true}>
       <div className="flex-1 min-h-0 overflow-y-auto custom-scrollbar bg-stone-950 p-3">
         <div className="grid grid-cols-2 gap-3">
-          {/*
-            Named for the question it asks rather than for its pick: the reveal
-            rotates through regions and styles as well as grapes, so "grape of
-            the day" was wrong two days in three.
-          */}
-          <Tile
-            title={"WHAT'S\nTHAT…?"}
-            tint="text-yellow-400"
-            border="border-yellow-700"
-            icon={<Sparkles size={32} />}
-            onClick={onDailyGrape}
-          />
-          <Tile
-            title="SCANNER"
-            tint="text-green-400"
-            border="border-green-700"
-            icon={<ScanSearch size={32} />}
-            onClick={onScanner}
-          />
-          <Tile
-            title="MOON DIAL"
-            tint="text-blue-400"
-            border="border-blue-700"
-            icon={<Moon size={32} />}
-            onClick={onMoonDial}
-          />
+          <Tile title="SCANNER" tint="text-green-400" border="border-green-700" icon={<ScanSearch size={32} />} onClick={onScanner} />
+          <Tile title={'FILTER\nSEARCH'} tint="text-sky-400" border="border-sky-700" icon={<Filter size={32} />} onClick={onChipFilter} />
+          <Tile title={'WINE\nEXAM'} tint="text-purple-400" border="border-purple-700" icon={<BadgeCheck size={32} />} onClick={onQuiz} />
+          <Tile title={'DAILY\nCHALLENGE'} tint="text-red-400" border="border-red-700" icon={<Flame size={32} />} onClick={onDailyChallenge} />
+          {/* Named for the question it asks rather than its pick — the reveal
+              rotates through regions and styles as well as grapes. */}
+          <Tile title={"WHAT'S\nTHAT…?"} tint="text-yellow-400" border="border-yellow-700" icon={<Sparkles size={32} />} onClick={onDailyGrape} />
+          <Tile title="MOON DIAL" tint="text-cyan-400" border="border-cyan-700" icon={<Moon size={32} />} onClick={onMoonDial} />
         </div>
       </div>
     </DeviceLayout>

@@ -26,6 +26,9 @@ const MoonDialScreen = lazy(() => import('./components/MoonDialScreen'));
 const MinigamesScreen = lazy(() => import('./components/MinigamesScreen'));
 const DailyGrapeScreen = lazy(() => import('./components/DailyGrapeScreen'));
 const ScannerScreen = lazy(() => import('./components/ScannerScreen'));
+const ChipFilterScreen = lazy(() => import('./components/ChipFilterScreen'));
+const TastingQuizScreen = lazy(() => import('./components/TastingQuizScreen'));
+const PassportScreen = lazy(() => import('./components/PassportScreen'));
 const BookmarksScreen = lazy(() => import('./components/BookmarksScreen'));
 const SettingsGrid = lazy(() => import('./components/SettingsPanel'));
 const SettingsSectionPanel = lazy(() =>
@@ -364,14 +367,55 @@ const App: React.FC = () => {
         <Route
           path="/minigames"
           element={
-            <Suspense fallback={<ScreenLoading label="LOADING MINIGAMES..." onBack={handleBack} onHome={handleHome} />}>
+            <Suspense fallback={<ScreenLoading label="LOADING TOOLS..." onBack={handleBack} onHome={handleHome} />}>
               <MinigamesScreen
-                onDailyGrape={() => navigate('/daily')}
                 onScanner={() => navigate('/scanner')}
+                onChipFilter={() => navigate('/chip-filter')}
+                onQuiz={() => navigate('/quiz')}
+                onDailyChallenge={() => navigate('/daily-challenge')}
+                onDailyGrape={() => navigate('/daily')}
                 onMoonDial={() => navigate('/moon-dial')}
                 onBack={handleBack}
                 onHome={handleHome}
               />
+            </Suspense>
+          }
+        />
+        <Route
+          path="/chip-filter"
+          element={
+            <Suspense fallback={<ScreenLoading label="LOADING FILTER..." onBack={handleBack} onHome={handleHome} />}>
+              <ChipFilterScreen
+                allEntries={allEntries}
+                onSelect={handleSelectEntry}
+                onSelectCountry={name => navigate(buildListUrl('REGIONS', 'ORIGIN', name))}
+                onBack={handleBack}
+                onHome={handleHome}
+              />
+            </Suspense>
+          }
+        />
+        <Route
+          path="/quiz"
+          element={
+            <Suspense fallback={<ScreenLoading label="LOADING EXAM..." onBack={handleBack} onHome={handleHome} />}>
+              <TastingQuizScreen mode="practice" allEntries={allEntries} onOpen={handleSelectEntry} onBack={handleBack} onHome={handleHome} />
+            </Suspense>
+          }
+        />
+        <Route
+          path="/daily-challenge"
+          element={
+            <Suspense fallback={<ScreenLoading label="LOADING CHALLENGE..." onBack={handleBack} onHome={handleHome} />}>
+              <TastingQuizScreen mode="daily" allEntries={allEntries} onOpen={handleSelectEntry} onBack={handleBack} onHome={handleHome} />
+            </Suspense>
+          }
+        />
+        <Route
+          path="/passport"
+          element={
+            <Suspense fallback={<ScreenLoading label="LOADING PASSPORT..." onBack={handleBack} onHome={handleHome} />}>
+              <PassportScreen allEntries={allEntries} onBack={handleBack} onHome={handleHome} />
             </Suspense>
           }
         />
@@ -408,6 +452,7 @@ const App: React.FC = () => {
               <BookmarksScreen
                 allEntries={allEntries}
                 onSelect={handleSelectEntry}
+                onPassport={() => navigate('/passport')}
                 onBack={handleBack}
                 onHome={handleHome}
               />

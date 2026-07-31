@@ -80,7 +80,7 @@ export const SettingsGrid: React.FC<{
             className="font-retro text-[0.55rem] sm:text-[0.65rem] tracking-widest text-center px-1"
             style={{ color: 'var(--lcd-text)' }}
           >
-            MINIGAMES
+            TOOLS
           </span>
         </button>
 

@@ -1,5 +1,5 @@
 import React, { useMemo, useRef, useState } from 'react';
-import { Bookmark, Trash2, PlusCircle, CheckCircle2, Camera, Pencil, Check, Star, BookMarked, UserRound } from 'lucide-react';
+import { Bookmark, Trash2, PlusCircle, CheckCircle2, Camera, Pencil, Check, Star, BookMarked, UserRound, Flame, ChevronRight } from 'lucide-react';
 import DeviceLayout from './DeviceLayout';
 import EntryTile from './EntryTile';
 import RatingPrompt from './RatingPrompt';
@@ -19,11 +19,13 @@ import { recentEntries } from '../src/services/recentlyViewed';
 import { useRecentlyViewed } from '../src/services/useRecentlyViewed';
 import { displayName, setDisplayName, avatarDataUrl, adoptAvatar } from '../src/services/profile';
 import { useProfile } from '../src/services/useProfile';
+import { currentStreak } from '../src/services/dailyChallenge';
 import { createEntryVisualResolver, resolveEntryIconVisual } from '../src/services/entryIconVisuals';
 
 interface BookmarksScreenProps {
   allEntries: WineEntry[];
   onSelect: (entry: WineEntry) => void;
+  onPassport: () => void;
   onBack: () => void;
   onHome: () => void;
 }
@@ -47,10 +49,11 @@ const EMPTY: Record<Shelf, { glyph: React.ReactNode; head: string; hint: string 
  * On the TRIED shelf each row carries its star/note journal line with an edit
  * pencil. PASSPORT is stubbed here until Phase C builds it.
  */
-const BookmarksScreen: React.FC<BookmarksScreenProps> = ({ allEntries, onSelect, onBack, onHome }) => {
+const BookmarksScreen: React.FC<BookmarksScreenProps> = ({ allEntries, onSelect, onPassport, onBack, onHome }) => {
   useBookmarks();
   useRecentlyViewed();
   useProfile();
+  const streak = currentStreak();
 
   const [shelf, setShelf] = useState<Shelf>('saved');
   const [confirmingClear, setConfirmingClear] = useState(false);
@@ -129,16 +132,22 @@ const BookmarksScreen: React.FC<BookmarksScreenProps> = ({ allEntries, onSelect,
                 </button>
               </div>
             )}
-            {/* PASSPORT — stubbed until Phase C. */}
-            <div className="mt-2">
-              <span
-                aria-disabled="true"
-                className="inline-flex items-center gap-1.5 rounded-full px-3 py-1 bg-stone-800/70 border border-stone-700 opacity-60 cursor-not-allowed"
+            {/* Streak + PASSPORT. */}
+            <div className="mt-2 flex items-center gap-2">
+              {streak > 0 && (
+                <span className="inline-flex items-center gap-1 rounded-full px-2.5 py-1 bg-amber-950/60 border border-amber-700">
+                  <Flame size={12} className="text-amber-400" />
+                  <span className="font-retro text-[0.5rem] tracking-widest text-amber-300">{streak} DAY{streak === 1 ? '' : 'S'}</span>
+                </span>
+              )}
+              <button
+                onClick={onPassport}
+                className="inline-flex items-center gap-1.5 rounded-full px-3 py-1 bg-green-700 border border-green-500 hover:bg-green-600 transition-colors"
               >
-                <BookMarked size={12} className="text-stone-400" />
-                <span className="font-retro text-[0.5rem] tracking-widest text-stone-300">PASSPORT</span>
-                <span className="font-retro text-[0.5rem] tracking-widest text-amber-300/80">SOON</span>
-              </span>
+                <BookMarked size={12} className="text-white" />
+                <span className="font-retro text-[0.5rem] tracking-widest text-white">PASSPORT</span>
+                <ChevronRight size={11} className="text-white" />
+              </button>
             </div>
           </div>
         </div>
