@@ -726,6 +726,20 @@ const EntryDetail: React.FC<EntryDetailProps> = ({ entry, allEntries, onBack, on
                     <span className="ml-2 flex items-center">
                       {(() => {
                         const rarity = (entry.rarity || '').toUpperCase();
+                        // GODFORSAKEN (0.6.2) sits above even NOBLE: a
+                        // cursed-gold flame, because nobility is fame and this
+                        // is the opposite. Its own emblem, like NOBLE's crown —
+                        // matches raritySection() in EntryDetailScreen.swift.
+                        if (rarity === 'GODFORSAKEN') {
+                          return (
+                            <Flame
+                              size={22}
+                              className="ml-1"
+                              style={{ color: '#ca8a04', filter: 'drop-shadow(0 0 4px rgba(202,138,4,0.6))' }}
+                              fill="#ca8a04"
+                            />
+                          );
+                        }
                         // NOBLE is a crown on its own, not a crown capping three
                         // stars — the stars implied it was simply one rank above
                         // RARE rather than a different kind of thing.

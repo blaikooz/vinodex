@@ -63,7 +63,27 @@ export default defineConfig({
         // Force dev mode output to avoid Workbox/terser minify crash while generating the SW.
         mode: 'development',
         globPatterns: ['**/*.{js,css,html,ico,png,svg,woff,woff2}'],
+        // The pixel-art portraits (254 PNGs) are large and only some are seen
+        // in a session — cache them on demand rather than force-precaching the
+        // whole set into the service-worker install (which otherwise pushes the
+        // precache past 6 MB). Runtime rule below caches each art PNG on first
+        // view. The glyph icon bundle stays precached (offline-first).
+        globIgnores: ['**/art/**'],
         runtimeCaching: [
+          {
+            urlPattern: /\/art\/.*\.png$/i,
+            handler: 'CacheFirst',
+            options: {
+              cacheName: 'vinodex-art-cache',
+              expiration: {
+                maxEntries: 400,
+                maxAgeSeconds: 60 * 60 * 24 * 90
+              },
+              cacheableResponse: {
+                statuses: [0, 200]
+              }
+            }
+          },
           {
             urlPattern: /^https:\/\/fonts\.googleapis\.com\/.*/i,
             handler: 'CacheFirst',

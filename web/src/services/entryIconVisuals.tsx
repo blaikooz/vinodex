@@ -21,6 +21,12 @@ import {
   getFlavorSubclassIconColor,
   getRegionClassificationIconColor,
 } from '@/shared/services/colorUtils';
+import {
+  artSprite,
+  resolveFlavorArtStem,
+  resolveGrapeArtStem,
+  resolveStyleArtStem,
+} from './artSprites';
 
 export interface EntryVisualResolver {
 	entries: WineEntry[];
@@ -328,9 +334,13 @@ export const resolveEntryIconVisual = (
 
 	if (entry.category === 'GRAPES') {
 		const visual = getGrapePrimaryFlavorVisual(entry, entries, size);
+		// Pixel-art bunch portrait replaces the primary-note glyph when the
+		// grape resolves to one (the common case at 0.6.x scale); the flavour
+		// glyph stays the fallback for anything unillustrated.
+		const grapeStem = resolveGrapeArtStem(entry);
 		return {
 			style: { backgroundColor: visual.bg },
-			iconNode: visual.iconNode,
+			iconNode: grapeStem ? artSprite('grape', grapeStem, Math.round(size * 1.5)) : visual.iconNode,
 			iconColor: visual.color,
 		};
 	}
@@ -413,7 +423,12 @@ export const resolveEntryIconVisual = (
 		const useFlag = !!origin && !isVariousOrigin(origin) && (!!getFlagImage(origin) || !!getFlagGradient(origin));
 		const colorType = getStyleColorType(entry.name);
 		const iconColor = getStyleColorTypeColor(colorType);
-		const iconNode = addOutline(getStyleIconShape(entry, iconColor, size), '#000000');
+		// Pixel-art style portrait replaces the shaped glyph when one exists;
+		// the art carries its own outline, so no addOutline() in that case.
+		const styleStem = resolveStyleArtStem(entry.name);
+		const iconNode = styleStem
+			? artSprite('style', styleStem, Math.round(size * 1.5))
+			: addOutline(getStyleIconShape(entry, iconColor, size), '#000000');
 
 		if (useFlag) {
 			const flagImage = getFlagImage(origin);
@@ -463,12 +478,17 @@ export const resolveEntryIconVisual = (
 	// Final exhaustive case: FLAVORS
 	const iconColor = getFlavorSubclassIconColor(entry.details.subclass);
 	const flavorSize = Math.round(size * 1.3);
+	// Pixel-art flavour portrait replaces the tinted glyph when one exists; the
+	// art is full-colour and self-outlined, so no tint or outline filter.
+	const flavorStem = resolveFlavorArtStem(entry.name);
 	return {
 		style: {
 			backgroundColor: entry.color || '#444',
 			boxShadow: `0 0 0 2px ${iconColor}`,
 		},
-		iconNode: (
+		iconNode: flavorStem ? (
+			artSprite('flavor', flavorStem, flavorSize)
+		) : (
 			<FlavorIcon
 				name={entry.name}
 				flavor={entry.details.subclass || ''}

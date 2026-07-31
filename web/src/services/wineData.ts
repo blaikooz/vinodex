@@ -4,6 +4,13 @@ import { WINE_ENTRIES } from '@/shared/constants';
 let cachedEntries: WineEntry[] | null = null;
 let inFlight: Promise<WineEntry[]> | null = null;
 
+/// Web port of Swift `WineEntry.isTastable`: only grapes and styles are things
+/// you can actually put in a glass, so only they earn a place on the WANT/TRIED
+/// shelves. Staged here for the Phase B collection work; keeping it in the web
+/// service layer (not shared/types.ts) leaves shared/ a clean mirror of iOS.
+export const isTastable = (entry: WineEntry): boolean =>
+  entry.category === 'GRAPES' || entry.category === 'STYLES';
+
 const canonicalizeGrapeName = (value: string) =>
   /^syrah\s*\/\s*shiraz$/i.test(value.trim()) ? 'Syrah' : value;
 
