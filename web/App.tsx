@@ -11,6 +11,7 @@ import {
 } from 'react-router-dom';
 import MainMenu from './components/MainMenu';
 import SplashScreen from './components/SplashScreen';
+import { PortalHome, OurAppsList, UnlockVinodex, WhoWeAre, ContactUs } from './components/WebsitePortal';
 import EncyclopediaList from './components/EncyclopediaList';
 import EntryDetail from './components/EntryDetail';
 import RegionMapScreen from './components/RegionMapScreen';
@@ -252,7 +253,41 @@ const App: React.FC = () => {
           coming-soon website. The dex menu, which used to live here, is at
           "/dex" — a real route, so browser Back from it reaches the splash.
         */}
-        <Route path="/" element={<SplashScreen onEnterDex={() => navigate('/dex')} />} />
+        <Route
+          path="/"
+          element={
+            <SplashScreen
+              onEnterDex={() => navigate('/dex')}
+              onEnterWebsite={() => navigate('/website')}
+            />
+          }
+        />
+
+        {/* The WEBSITE fork — the company portal. Mirrors the dex's look; its
+            screens hide the in-app chassis buttons and offer Back instead. */}
+        <Route
+          path="/website"
+          element={
+            <PortalHome
+              onBack={handleBack}
+              onOpenApps={() => navigate('/website/apps')}
+              onWhoWeAre={() => navigate('/website/who-we-are')}
+              onContactUs={() => navigate('/website/contact')}
+              onData={() => navigate('/settings/DATA')}
+            />
+          }
+        />
+        <Route
+          path="/website/apps"
+          element={<OurAppsList onBack={handleBack} onSelectVinodex={() => navigate('/website/unlock')} />}
+        />
+        <Route
+          path="/website/unlock"
+          element={<UnlockVinodex onBack={handleBack} onUnlocked={() => navigate('/dex')} />}
+        />
+        <Route path="/website/who-we-are" element={<WhoWeAre onBack={handleBack} />} />
+        <Route path="/website/contact" element={<ContactUs onBack={handleBack} />} />
+
         <Route
           path="/dex"
           element={
