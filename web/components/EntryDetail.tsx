@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useReducer, useRef, useState } from 'react';
-import { Tag, MapPin, Activity, Droplet, Grape, Mountain, ChevronRight, List, Circle, Leaf, Sparkles, Flame, Shield, BookOpen, Bookmark, MapPinned, Flower2, Apple, Wind, Citrus, Star, Crown, Waves, Coffee, Beef, Cherry, TreePalm, LeafyGreen, Carrot, Drumstick, Ham, Croissant, Cookie, Earth, TreePine, Shell, Hop, Nut, PlusCircle, CheckCircle2 } from 'lucide-react';
+import { Tag, MapPin, Activity, Grape, Mountain, ChevronRight, List, Leaf, Flame, Shield, BookOpen, Bookmark, MapPinned, Wind, Star, Crown, PlusCircle, CheckCircle2 } from 'lucide-react';
 import { Icon } from '../src/components/LocalIcon';
 import DeviceLayout from './DeviceLayout';
 import { EntryCategory, WineEntry, isCountryGateEntry, isFlavorEntry, isGrapeEntry, isRegionEntry, isStyleEntry } from '@/shared/types';
@@ -24,6 +24,7 @@ import { getSoilIcon, getSoilsForRegion } from '../src/services/soilDisplay';
 import { normalizeTypeClass, getStyleClassTileColors, getStyleColorTileColors, getWineTypeTileColors } from '../src/services/styleDisplay';
 import { getFlavorClassTileColors, getFlavorSubclassTileColors } from '../src/services/flavorDisplay';
 import { getClimateIcon } from '../src/services/climateDisplay';
+import { colorIconId, bodyIconId, styleClassIconId, flavorClassIconId, flavorSubclassIconId } from '../src/services/classArt';
 import { isOn as isFlagOn, keyForDetail, toggleFlag } from '../src/services/screenState';
 import { useScreenAnchor } from '../src/services/useScreenAnchor';
 import { isBookmarked, toggleBookmark, isOnShelf, toggleShelf, getRating, setRating, makeRating } from '../src/services/bookmarks';
@@ -356,20 +357,13 @@ const EntryDetail: React.FC<EntryDetailProps> = ({ entry, allEntries, onBack, on
           const colorTypeColors = getStyleColorTileColors(colorType);
           const colorIconNode = (
             <Icon
-              icon={colorType === 'RED' ? 'game-icons:wine-bottle' : 'game-icons:wine-glass'}
+              icon={colorIconId(colorType)}
               width={headerTileIconSize}
               height={headerTileIconSize}
             />
           );
           const bodyLabel = getGrapeBodyLabel(entry);
-          const BODY_ICON_MAP: Record<string, string> = {
-            'Light': 'game-icons:feather',
-            'Light-Medium': 'game-icons:scales-tipped',
-            'Medium': 'game-icons:scales',
-            'Medium-Full': 'game-icons:weight-lifting-up',
-            'Full': 'game-icons:weight',
-          };
-          const bodyIconName = BODY_ICON_MAP[bodyLabel] || 'game-icons:scales';
+          const bodyIconName = bodyIconId(bodyLabel);
           const countryStyle = getCountryChipColors(entry.details.origin);
           const normalizedOrigin = entry.details.origin ? entry.details.origin.toLowerCase().trim() : undefined;
           const countryFlagGradient = getFlagGradient(normalizedOrigin);
@@ -520,31 +514,17 @@ const EntryDetail: React.FC<EntryDetailProps> = ({ entry, allEntries, onBack, on
           const classColors = getStyleClassTileColors(styleClassType);
           const flagGradient = getFlagGradient(entry.details.origin);
           const flagImage = getFlagImage(entry.details.origin);
-          const STYLE_CLASS_ICON_MAP: Record<string, string> = {
-            TYPE: 'game-icons:holy-grail',
-            BLEND: 'game-icons:pouring-chalice',
-            ORIGIN: 'game-icons:atlas',
-            METHOD: 'game-icons:cellar-barrels',
-            STYLE: 'game-icons:grapes',
-          };
           const styleClassIconNode = (
             <Icon
-              icon={(styleClassType && STYLE_CLASS_ICON_MAP[styleClassType]) || 'game-icons:grapes'}
+              icon={styleClassIconId(styleClassType)}
               width={32}
               height={32}
             />
           );
 
-          const STYLE_COLOR_ICON_MAP: Record<string, string> = {
-            RED: 'game-icons:wine-bottle',
-            WHITE: 'game-icons:wine-glass',
-            ROSE: 'game-icons:rose',
-            ORANGE: 'game-icons:sun',
-            DUAL: 'game-icons:two-shadows',
-          };
           const colorIconNode = (
             <Icon
-              icon={(colorType && STYLE_COLOR_ICON_MAP[colorType]) || 'game-icons:wine-glass'}
+              icon={colorIconId(colorType)}
               width={32}
               height={32}
             />
@@ -622,44 +602,12 @@ const EntryDetail: React.FC<EntryDetailProps> = ({ entry, allEntries, onBack, on
         const linkedGrapesCount = (entry.details.notableGrapes || []).length;
         const linkedGrapesColors = { bg: '#14532d', border: '#22c55e', text: '#dcfce7' };
 
-        const flavorClassIconNode = (() => {
-          switch (flavorClass.toUpperCase()) {
-            case 'SWEET': return <Sparkles size={32} />;
-            case 'SOUR': return <Citrus size={32} />;
-            case 'SALTY': return <Waves size={32} />;
-            case 'BITTER': return <Coffee size={32} />;
-            case 'UMAMI': return <Beef size={32} />;
-            default: return <Circle size={32} />;
-          }
-        })();
+        const flavorClassIconNode = <Icon icon={flavorClassIconId(flavorClass)} width={32} height={32} />;
 
-        const subclassIconNode = (() => {
-          switch ((entry.details.subclass || '').toUpperCase()) {
-            case 'CITRUS': return <Citrus size={32} />;
-            case 'ORCHARD_FRUIT': return <Apple size={32} />;
-            case 'STONE_FRUIT': return <Cherry size={32} />;
-            case 'TROPICAL': return <TreePalm size={32} />;
-            case 'RED_FRUIT': return <Cherry size={32} />;
-            case 'DARK_FRUIT': return <Grape size={32} />;
-            case 'BERRY': return <Grape size={32} />;
-            case 'HERBAL': return <LeafyGreen size={32} />;
-            case 'VEGETAL': return <Carrot size={32} />;
-            case 'GAME': return <Drumstick size={32} />;
-            case 'SAVORY': return <Ham size={32} />;
-            case 'SPICE': return <Flame size={32} />;
-            case 'BREAD': return <Croissant size={32} />;
-            case 'BAKING': return <Cookie size={32} />;
-            case 'FLORAL': return <Flower2 size={32} />;
-            case 'EARTH': return <Earth size={32} />;
-            case 'SMOKY': return <Wind size={32} />;
-            case 'WOOD': return <TreePine size={32} />;
-            case 'SALTY': return <Droplet size={32} />;
-            case 'BRINY': return <Shell size={32} />;
-            case 'WAX': return <Hop size={32} />;
-            case 'NUT': return <Nut size={32} />;
-            default: return buildIconNode(entry.icon || 'default', subclassColors.border, 32);
-          }
-        })();
+        const subclassArtId = flavorSubclassIconId(entry.details.subclass);
+        const subclassIconNode = subclassArtId
+          ? <Icon icon={subclassArtId} width={32} height={32} />
+          : buildIconNode(entry.icon || 'default', subclassColors.border, 32);
 
         return (
           <div className={getTileRowClass(3)}>

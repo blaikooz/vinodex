@@ -227,9 +227,41 @@ const OUTLINE_ART: Record<string, string> = Object.fromEntries(
 );
 const outlineStemFor = (name?: string): string | undefined =>
 	name ? OUTLINE_ART[normalizeCountryKey(name)] : undefined;
-const outlineNode = (stem: string, size: number): React.ReactNode => (
-	<Icon icon={`art:${stem}`} width={Math.round(size * 1.7)} height={Math.round(size * 1.7)} />
-);
+const outlineNode = (
+	stem: string,
+	size: number,
+	mapPosition?: { x: number; y: number },
+): React.ReactNode => {
+	const dim = Math.round(size * 1.7);
+	const art = <Icon icon={`art:${stem}`} width={dim} height={dim} />;
+	if (!mapPosition) return art;
+	// The region's red location dot (iOS `EntryVisual.dottedOutline`). iOS snaps
+	// the authored 0–1 hint to land via OutlineDotPlacer; the web places it at
+	// the same fraction of the outline box — the hints are already land-snapped
+	// fractions of the outline PNG (see regions.ts), so raw placement tracks.
+	const dotSize = Math.max(4, Math.round(size * 0.19));
+	return (
+		<span style={{ position: 'relative', width: dim, height: dim, display: 'inline-block' }}>
+			{art}
+			<span
+				style={{
+					position: 'absolute',
+					left: `${mapPosition.x * 100}%`,
+					top: `${mapPosition.y * 100}%`,
+					width: dotSize,
+					height: dotSize,
+					marginLeft: -dotSize / 2,
+					marginTop: -dotSize / 2,
+					borderRadius: '9999px',
+					backgroundColor: '#ef4444',
+					border: `${Math.max(1, Math.round(dotSize * 0.11))}px solid rgba(0,0,0,0.7)`,
+					boxSizing: 'border-box',
+					pointerEvents: 'none',
+				}}
+			/>
+		</span>
+	);
+};
 
 const OFFLINE_ICONS = new Set((iconManifest as { unique: string[] }).unique);
 
@@ -388,7 +420,8 @@ export const resolveEntryIconVisual = (
 
 			let regionIconNode: React.ReactNode;
 			if (outlineStem) {
-				regionIconNode = outlineNode(outlineStem, size);
+				const mapPosition = (entry.details as { mapPosition?: { x: number; y: number } }).mapPosition;
+				regionIconNode = outlineNode(outlineStem, size, mapPosition);
 			} else if (useShapedFlag) {
 				const background = flagImage ? `url(${flagImage})` : (flagGradient as string);
 				regionIconNode = renderShapedFlag(background, countryShapeIcon);
