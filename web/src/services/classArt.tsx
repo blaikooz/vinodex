@@ -1,5 +1,6 @@
 import React from 'react';
 import { Icon } from '../components/LocalIcon';
+import iconManifest from '../data/iconManifest.json';
 
 /**
  * Class-art icon resolution, mirroring iOS `WineDatabase.icons.*` lookups
@@ -10,11 +11,12 @@ import { Icon } from '../components/LocalIcon';
  * a few intentional `game-icons:*` fallbacks (body Light-Medium / Medium-Full,
  * the STYLE style-class) that iOS keeps too.
  *
- * These tables are defined in code rather than read from the generated
- * `iconManifest.json`, matching the Pass-1 outline treatment: the web manifest
- * still carries the pre-`art:` game-icons values, and nothing else in the app
- * consumes these five maps, so the source of truth lives here alongside the
- * render.
+ * **Read from the generated manifest** (0.6.5). These five tables used to be
+ * hand-copied into this file, because `iconManifest.json` was a stale snapshot
+ * that still carried the pre-`art:` game-icons values — so the only way to get
+ * the drawn sprites was to write them out here. The manifest is a current copy
+ * of iOS's `icons.json` now, so the duplication is gone and a regenerated
+ * manifest reaches the web without anyone re-typing a table.
  *
  * `LocalIcon` renders `art:` ids as plain full-colour `<img>` sprites and
  * everything else through Iconify, so callers pass whatever these helpers
@@ -23,64 +25,22 @@ import { Icon } from '../components/LocalIcon';
 
 type IconMap = Record<string, string>;
 
-const COLOR_ICONS: IconMap = {
-  RED: 'art:color-red',
-  WHITE: 'art:color-white',
-  ROSE: 'art:color-rose',
-  ORANGE: 'art:color-orange',
-  DUAL: 'art:color-dual',
+const MANIFEST = iconManifest as {
+  colorIcons: IconMap;
+  bodyIcons: IconMap;
+  styleClassIcons: IconMap;
+  flavorClassIcons?: IconMap;
+  flavorSubclassIcons?: IconMap;
+  fallback: string;
 };
 
-const BODY_ICONS: IconMap = {
-  Light: 'art:body-light',
-  'Light-Medium': 'game-icons:weight-scale',
-  Medium: 'art:body-medium',
-  'Medium-Full': 'game-icons:weight-lifting-up',
-  Full: 'art:body-full',
-};
+const COLOR_ICONS: IconMap = MANIFEST.colorIcons;
+const BODY_ICONS: IconMap = MANIFEST.bodyIcons;
+const STYLE_CLASS_ICONS: IconMap = MANIFEST.styleClassIcons;
+const FLAVOR_CLASS_ICONS: IconMap = MANIFEST.flavorClassIcons ?? {};
+const FLAVOR_SUBCLASS_ICONS: IconMap = MANIFEST.flavorSubclassIcons ?? {};
 
-const STYLE_CLASS_ICONS: IconMap = {
-  TYPE: 'art:styleclass-type',
-  BLEND: 'art:styleclass-blend',
-  ORIGIN: 'art:styleclass-origin',
-  METHOD: 'art:styleclass-method',
-  STYLE: 'game-icons:wine-glass',
-};
-
-const FLAVOR_CLASS_ICONS: IconMap = {
-  SWEET: 'art:class-sweet',
-  UMAMI: 'art:class-umami',
-  BITTER: 'art:class-bitter',
-  SOUR: 'art:class-sour',
-  SALTY: 'art:class-salty',
-};
-
-const FLAVOR_SUBCLASS_ICONS: IconMap = {
-  BERRY: 'art:subclass-berry',
-  WOOD: 'art:subclass-wood',
-  SPICE: 'art:subclass-spice',
-  RED_FRUIT: 'art:subclass-red-fruit',
-  EARTH: 'art:subclass-earth',
-  FLORAL: 'art:subclass-floral',
-  ORCHARD_FRUIT: 'art:subclass-orchard-fruit',
-  BAKING: 'art:subclass-baking',
-  DARK_FRUIT: 'art:subclass-dark-fruit',
-  HERBAL: 'art:subclass-herbal',
-  SMOKY: 'art:subclass-smoky',
-  CITRUS: 'art:subclass-citrus',
-  STONE_FRUIT: 'art:subclass-stone-fruit',
-  VEGETAL: 'art:subclass-vegetal',
-  WAX: 'art:subclass-wax',
-  TROPICAL: 'art:subclass-tropical',
-  GAME: 'art:subclass-game',
-  SALTY: 'art:subclass-salty',
-  NUT: 'art:subclass-nut',
-  SAVORY: 'art:subclass-savory',
-  BREAD: 'art:subclass-bread',
-  BRINY: 'art:subclass-briny',
-};
-
-const FALLBACK = 'mdi:help-circle-outline';
+const FALLBACK = MANIFEST.fallback ?? 'mdi:help-circle-outline';
 
 const norm = (v: string | undefined | null): string => (v ?? '').toString().trim();
 

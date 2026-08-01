@@ -68,18 +68,14 @@ export const soilResolves = (soil: string): boolean => soilKeywordFor(soil) !== 
 export const getSoilIcon = (soil: string, size: number = 24): SoilIconVisual => {
   const keyword = soilKeywordFor(soil);
   const visual = (keyword && SOIL_ICONS[keyword]) || DEFAULT_SOIL;
-  // The drawn ClassArt sprite, not `visual.icon` (0.6.5 merge). The colour and
-  // the keyword ordering come from the manifest — those are generated and
-  // correct — but its `icon` field does not: `web/src/data/iconManifest.json`
-  // is a stale copy of iOS's `icons.json` and still names the pre-0.5.7 Iconify
-  // glyphs (`game-icons:volcano`), which iOS replaced with `art:soil-*` sprites.
-  // The parity line worked around that by hard-coding the stems; this keeps its
-  // sprites while taking the generator's fifteen keywords and their
-  // first-substring-wins order, which is the half the hard-coded list got wrong.
-  // Re-copying the manifest from iOS would let this read `visual.icon` again.
-  const stem = keyword ?? 'default';
+  // Straight from the manifest again (0.6.5): `visual.icon` now carries the
+  // `art:soil-*` sprite ids, because the manifest was re-copied from iOS's
+  // generated `icons.json`. It had been a stale snapshot naming the pre-0.5.7
+  // Iconify glyphs, which forced first the parity line's hard-coded stem list
+  // and then a hard-coded `art:` prefix here. Neither is needed now: the id,
+  // the colour and the keyword order all come from the generator.
   return {
-    icon: <Icon icon={`art:soil-${stem}`} width={size} height={size} />,
+    icon: <Icon icon={visual.icon} width={size} height={size} color={visual.color} />,
     color: visual.color,
   };
 };
