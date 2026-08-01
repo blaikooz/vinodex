@@ -1,5 +1,5 @@
 import React, { useMemo, useRef, useState } from 'react';
-import { Bookmark, XCircle, PlusCircle, CheckCircle2, Camera, Pencil, Check, Star, BookMarked, UserRound, Flame, ChevronRight } from 'lucide-react';
+import { Bookmark, XCircle, PlusCircle, CheckCircle2, Camera, SquarePen, Check, Star, BookOpen, UserRound, Flame } from 'lucide-react';
 import DeviceLayout from './DeviceLayout';
 import EntryTile from './EntryTile';
 import RatingPrompt from './RatingPrompt';
@@ -57,6 +57,7 @@ const BookmarksScreen: React.FC<BookmarksScreenProps> = ({ allEntries, onSelect,
 
   const [shelf, setShelf] = useState<Shelf>('saved');
   const [confirmingClear, setConfirmingClear] = useState(false);
+  const [pendingRemove, setPendingRemove] = useState<WineEntry | null>(null);
   const [editingName, setEditingName] = useState(false);
   const [nameDraft, setNameDraft] = useState('');
   const [editingRating, setEditingRating] = useState<WineEntry | null>(null);
@@ -128,25 +129,24 @@ const BookmarksScreen: React.FC<BookmarksScreenProps> = ({ allEntries, onSelect,
                   {name ? name.toUpperCase() : 'TASTER'}
                 </span>
                 <button onClick={startEditName} aria-label="Edit name" className="text-stone-500 hover:text-green-400 p-1">
-                  <Pencil size={14} />
+                  <SquarePen size={14} />
                 </button>
               </div>
             )}
             {/* Streak + PASSPORT. */}
             <div className="mt-2 flex items-center gap-2">
               {streak > 0 && (
-                <span className="inline-flex items-center gap-1 rounded-full px-2.5 py-1 bg-amber-950/60 border border-amber-700">
+                <span className="inline-flex items-center gap-1 rounded-full px-2.5 py-1 bg-stone-900 border border-stone-700">
                   <Flame size={12} className="text-amber-400" />
-                  <span className="font-retro text-[0.5rem] tracking-widest text-amber-300">{streak} DAY{streak === 1 ? '' : 'S'}</span>
+                  <span className="font-retro text-[0.5rem] tracking-widest text-stone-300">{streak} DAY{streak === 1 ? '' : 'S'}</span>
                 </span>
               )}
               <button
                 onClick={onPassport}
                 className="inline-flex items-center gap-1.5 rounded-full px-3 py-1 bg-green-700 border border-green-500 hover:bg-green-600 transition-colors"
               >
-                <BookMarked size={12} className="text-white" />
+                <BookOpen size={12} className="text-white" />
                 <span className="font-retro text-[0.5rem] tracking-widest text-white">PASSPORT</span>
-                <ChevronRight size={11} className="text-white" />
               </button>
             </div>
           </div>
@@ -168,8 +168,8 @@ const BookmarksScreen: React.FC<BookmarksScreenProps> = ({ allEntries, onSelect,
                     <span className="w-12 h-12 rounded-lg border-2 border-stone-700 flex items-center justify-center overflow-hidden" style={v.style}>
                       {v.iconNode}
                     </span>
-                    <span className="font-retro text-[0.45rem] text-stone-300 leading-tight text-center w-full line-clamp-2">
-                      {entry.name}
+                    <span className="font-retro text-[0.45rem] text-stone-300 leading-tight text-center w-full truncate line-clamp-1">
+                      {entry.name.toUpperCase()}
                     </span>
                   </button>
                 );
@@ -233,7 +233,7 @@ const BookmarksScreen: React.FC<BookmarksScreenProps> = ({ allEntries, onSelect,
                   <div key={entry.id} className="relative">
                     <EntryTile entry={entry} onPress={onSelect} index={index} />
                     <button
-                      onClick={() => removeFromShelf(shelf, entry.id)}
+                      onClick={() => setPendingRemove(entry)}
                       aria-label={`Remove ${entry.name}`}
                       className="absolute top-1 right-1 p-1.5 rounded bg-stone-950/80 border border-stone-700 text-stone-400 hover:text-red-400 hover:border-red-700 transition-colors"
                     >
@@ -260,7 +260,7 @@ const BookmarksScreen: React.FC<BookmarksScreenProps> = ({ allEntries, onSelect,
                         ) : (
                           <span className="flex-1" />
                         )}
-                        <Pencil size={12} className="text-amber-400 shrink-0" />
+                        <SquarePen size={12} className="text-amber-400 shrink-0" />
                       </button>
                     )}
                   </div>
@@ -292,6 +292,32 @@ const BookmarksScreen: React.FC<BookmarksScreenProps> = ({ allEntries, onSelect,
                   className="flex-1 font-retro text-[0.6rem] tracking-widest text-white bg-red-700 border-2 border-red-900 rounded py-3 hover:bg-red-600"
                 >
                   CLEAR
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* ---- Single-item remove confirm ---- */}
+        {pendingRemove && (
+          <div className="absolute inset-0 z-30 bg-black/80 flex items-center justify-center p-6">
+            <div className="w-full max-w-xs bg-stone-900 border-2 border-red-800 rounded-lg p-5 flex flex-col gap-4">
+              <p className="font-retro text-xs tracking-widest text-red-400 text-center">REMOVE FROM {SHELF_TITLE[shelf]}?</p>
+              <p className="font-mono text-sm text-stone-300 text-center normal-case">
+                {pendingRemove.name.toUpperCase()}
+              </p>
+              <div className="flex gap-3">
+                <button
+                  onClick={() => setPendingRemove(null)}
+                  className="flex-1 font-retro text-[0.6rem] tracking-widest text-stone-300 border-2 border-stone-600 rounded py-3 hover:bg-stone-800"
+                >
+                  CANCEL
+                </button>
+                <button
+                  onClick={() => { removeFromShelf(shelf, pendingRemove.id); setPendingRemove(null); }}
+                  className="flex-1 font-retro text-[0.6rem] tracking-widest text-white bg-red-700 border-2 border-red-900 rounded py-3 hover:bg-red-600"
+                >
+                  REMOVE
                 </button>
               </div>
             </div>

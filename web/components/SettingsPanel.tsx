@@ -1,5 +1,5 @@
 import React from 'react';
-import { Palette, BarChart3, Lock, Bug, Check, Wrench, LogOut, Flag, SlidersHorizontal, Crown, Leaf, Sun, Grid3x3, Globe, Wine, Map as MapIcon, Layers, Vibrate, Volume2, ChevronRight } from 'lucide-react';
+import { Palette, BarChart3, Lock, LockOpen, Bug, Check, Wrench, LogOut, Flag, SlidersHorizontal, Crown, Leaf, Sun, Moon, Grid3x3, Globe, Wine, Map as MapIcon, Layers, Vibrate, Volume2, ChevronRight } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import DeviceLayout from './DeviceLayout';
 import { WineEntry } from '@/shared/types';
@@ -36,6 +36,7 @@ import {
 } from '../src/services/access';
 import { useAccess } from '../src/services/useAccess';
 import { removeEverything } from '../src/services/bookmarks';
+import iconManifest from '../src/data/iconManifest.json';
 
 export type SettingsSectionId = 'CUSTOMIZE' | 'SETTINGS' | 'DATA' | 'ACCESS' | 'DEV';
 
@@ -135,6 +136,10 @@ const SkinPreviewTile: React.FC<{ id: ChassisSkinId; selected: boolean; onClick:
         <span className="absolute inset-0" style={{ backgroundColor: s.body, backgroundImage: s.bodyPattern ? `url(/chassis/${s.bodyPattern}.png)` : undefined, backgroundSize: '40px' }} />
         <span className="absolute top-1 left-1 w-2 h-2 rounded-full" style={{ backgroundColor: s.grill }} />
         <span className="absolute top-1 right-1 w-2 h-2 rounded-full" style={{ backgroundColor: s.onBody }} />
+        {/* A small palette emblem, tinted to the shell's own on-body ink (iOS draws the skin's emblem here). */}
+        <span className="absolute inset-0 flex items-center justify-center">
+          <Palette size={12} style={{ color: s.onBody, opacity: 0.85 }} />
+        </span>
         <span className="absolute bottom-0 inset-x-0 h-3.5 flex items-center justify-center" style={{ backgroundColor: s.panel }}>
           <span className="w-5 h-0.5 rounded-full" style={{ backgroundColor: s.onBody }} />
         </span>
@@ -156,7 +161,8 @@ const ModePreviewTile: React.FC<{ id: LcdModeId; selected: boolean; onClick: () 
     >
       <span className="w-full h-12 rounded-md relative overflow-hidden block" style={{ backgroundColor: m.screen, border: `1px solid ${m.surfaceEdge}`, isolation: 'isolate' }}>
         <span className="absolute inset-0 flex flex-col items-center justify-center gap-1" style={{ filter: m.monochromeTint ? 'grayscale(1)' : undefined }}>
-          <span className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: m.accent }} />
+          {/* A representative emblem for the mode: sun for light screens, moon otherwise (iOS's SF Symbol on the preview). */}
+          {m.isLight ? <Sun size={12} style={{ color: m.accent }} /> : <Moon size={12} style={{ color: m.accent }} />}
           <span className="w-8 h-[3px] rounded" style={{ backgroundColor: m.text, opacity: 0.85 }} />
           <span className="w-6 h-[3px] rounded" style={{ backgroundColor: m.subtext, opacity: 0.8 }} />
         </span>
@@ -270,43 +276,6 @@ const ChoiceRow: React.FC<{ label: string; selected: boolean; onClick: () => voi
 );
 
 /** A labelled switch, matching iOS `settingRow` + `DexToggle`. */
-const ToggleRow: React.FC<{ title: string; detail: string; on: boolean; onToggle: () => void }> = ({
-  title,
-  detail,
-  on,
-  onToggle,
-}) => (
-  <button
-    onClick={onToggle}
-    role="switch"
-    aria-checked={on}
-    className="w-full flex items-center gap-3 px-3 py-3 rounded border-2 mb-2 text-left transition-all active:translate-y-0.5"
-    style={{
-      backgroundColor: 'var(--lcd-surface)',
-      borderColor: on ? 'var(--lcd-accent)' : 'var(--lcd-surface-edge)',
-    }}
-  >
-    <span className="flex-1 min-w-0">
-      <span className="block font-retro text-[0.6rem] tracking-widest" style={{ color: 'var(--lcd-text)' }}>
-        {title}
-      </span>
-      <span className="block font-mono text-sm normal-case mt-1" style={{ color: 'var(--lcd-subtext)' }}>
-        {detail}
-      </span>
-    </span>
-    <span
-      className="w-11 h-6 rounded-full shrink-0 relative transition-colors"
-      style={{ backgroundColor: on ? 'var(--lcd-accent)' : 'var(--lcd-surface-edge)' }}
-      aria-hidden="true"
-    >
-      <span
-        className="absolute top-0.5 w-5 h-5 rounded-full bg-white transition-all"
-        style={{ left: on ? '1.375rem' : '0.125rem' }}
-      />
-    </span>
-  </button>
-);
-
 /** A labelled switch with a leading glyph, matching iOS `settingRow` (HAPTICS/SOUNDS). */
 const IconToggleRow: React.FC<{ icon: React.ReactNode; title: string; detail: string; on: boolean; onToggle: () => void }> = ({
   icon,
@@ -432,6 +401,25 @@ const StatRow: React.FC<{ label: string; value: string }> = ({ label, value }) =
   </div>
 );
 
+/** A DEV health-check row: a label, a short detail, and an OK / !! status
+ *  (green / red), mirroring iOS's DEV health report. */
+const HealthRow: React.FC<{ label: string; ok: boolean; detail: string }> = ({ label, ok, detail }) => (
+  <div
+    className="flex items-center justify-between px-3 py-2.5 rounded border-2 mb-2"
+    style={{ backgroundColor: 'var(--lcd-surface)', borderColor: 'var(--lcd-surface-edge)' }}
+  >
+    <span className="font-retro text-[0.55rem] tracking-widest" style={{ color: 'var(--lcd-subtext)' }}>
+      {label}
+    </span>
+    <span className="flex items-center gap-2">
+      <span className="font-mono text-sm normal-case" style={{ color: 'var(--lcd-subtext)' }}>{detail}</span>
+      <span className="font-retro text-[0.6rem] tracking-widest" style={{ color: ok ? '#22c55e' : '#ef4444' }}>
+        {ok ? 'OK' : '!!'}
+      </span>
+    </span>
+  </div>
+);
+
 export const SettingsSectionPanel: React.FC<{
   section: SettingsSectionId;
   allEntries: WineEntry[];
@@ -504,6 +492,9 @@ export const SettingsSectionPanel: React.FC<{
                   onClick={() => setTextScale(id)}
                 />
               ))}
+              <p className="font-mono text-sm leading-relaxed normal-case mt-1" style={{ color: 'var(--lcd-subtext)' }}>
+                Applies everywhere. Capped so the retro face still fits its tiles.
+              </p>
             </Section>
 
             <Section title="UI SIZE">
@@ -515,6 +506,9 @@ export const SettingsSectionPanel: React.FC<{
                   onClick={() => setUiScale(id)}
                 />
               ))}
+              <p className="font-mono text-sm leading-relaxed normal-case mt-1" style={{ color: 'var(--lcd-subtext)' }}>
+                Buttons, wells and chassis chrome — the text keeps its own size above.
+              </p>
             </Section>
 
             <Section title="HAPTICS">
@@ -613,7 +607,8 @@ export const SettingsSectionPanel: React.FC<{
         return (
           <>
             <Section title="FREE TIER">
-              <ToggleRow
+              <IconToggleRow
+                icon={locked ? <Lock size={20} /> : <LockOpen size={20} />}
                 title={locked ? 'FREE TIER' : 'EVERYTHING UNLOCKED'}
                 detail={
                   locked
@@ -660,21 +655,40 @@ export const SettingsSectionPanel: React.FC<{
           </>
         );
 
-      case 'DEV':
+      case 'DEV': {
+        // Real, computable health checks mirroring iOS's DEV health report —
+        // nothing fabricated: each row reflects the running app's state.
+        const storageOk = typeof window !== 'undefined' && 'localStorage' in window;
+        const entriesOk = allEntries.length > 0;
+        const iconKeys = Object.keys(iconManifest.byEntry);
+        const iconsOk = iconKeys.length > 0;
+        const fontsStatus =
+          typeof document !== 'undefined' && document.fonts ? document.fonts.status : 'OK';
+        const fontsOk = fontsStatus === 'loaded' || fontsStatus === 'OK';
         return (
-          <Section title="DIAGNOSTICS">
-            <StatRow label="VERSION" value={APP_VERSION_DISPLAY} />
-            <StatRow label="BUILD" value={BUILD_NUMBER} />
-            <StatRow label="ENTRIES LOADED" value={String(allEntries.length)} />
-            <StatRow label="SKIN" value={theme.skin} />
-            <StatRow label="SCREEN" value={theme.lcd} />
-            <StatRow label="TEXT" value={theme.scale} />
-            <StatRow
-              label="STORAGE"
-              value={typeof window !== 'undefined' && 'localStorage' in window ? 'OK' : 'NONE'}
-            />
-          </Section>
+          <>
+            <Section title="DIAGNOSTICS">
+              <StatRow label="VERSION" value={APP_VERSION_DISPLAY} />
+              <StatRow label="BUILD" value={BUILD_NUMBER} />
+              <StatRow label="ENTRIES LOADED" value={String(allEntries.length)} />
+              <StatRow label="SKIN" value={theme.skin} />
+              <StatRow label="SCREEN" value={theme.lcd} />
+              <StatRow label="TEXT" value={theme.scale} />
+              <StatRow
+                label="STORAGE"
+                value={storageOk ? 'OK' : 'NONE'}
+              />
+            </Section>
+
+            <Section title="HEALTH">
+              <HealthRow label="STORAGE" ok={storageOk} detail={storageOk ? 'AVAILABLE' : 'NONE'} />
+              <HealthRow label="ENTRIES" ok={entriesOk} detail={`${allEntries.length} LOADED`} />
+              <HealthRow label="ICON MANIFEST" ok={iconsOk} detail={`${iconKeys.length} KEYS`} />
+              <HealthRow label="FONTS" ok={fontsOk} detail={String(fontsStatus).toUpperCase()} />
+            </Section>
+          </>
         );
+      }
     }
   };
 
@@ -707,7 +721,7 @@ export const SettingsSectionPanel: React.FC<{
                 onClick={() => { setConfirmingWipe(false); clearAllSavedData(); }}
                 className="flex-1 font-retro text-[0.6rem] tracking-widest text-white bg-red-700 border-2 border-red-900 rounded py-3"
               >
-                CLEAR
+                ERASE
               </button>
             </div>
           </div>

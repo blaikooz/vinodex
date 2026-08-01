@@ -51,20 +51,6 @@ const CONTINENT_COLORS: Record<string, string> = CONTINENTS.reduce((acc, contine
   return acc;
 }, {} as Record<string, string>);
 
-const MARKER_COLOR_OVERRIDES: Record<string, string> = {
-  NORTH_AMERICA: '#E53935',
-  SOUTH_AMERICA: '#8E24AA',
-  EUROPE: '#1E88E5',
-  AFRICA: '#8D6E63',
-  ASIA: '#FDD835',
-  OCEANIA: '#43A047',
-};
-
-const MARKER_COLORS: Record<string, string> = {
-  ...CONTINENT_COLORS,
-  ...MARKER_COLOR_OVERRIDES,
-};
-
 const RetroGlobeScreen: React.FC<RetroGlobeScreenProps> = ({ onBack, onHome, onSelectContinent, onWorldSearch }) => {
   const handleWorldSearch = () => {
     onWorldSearch();
@@ -72,12 +58,12 @@ const RetroGlobeScreen: React.FC<RetroGlobeScreenProps> = ({ onBack, onHome, onS
   const [isDragging, setIsDragging] = useState(false);
   const [, setLongitudeDeg] = useState(0);
   const [regionMarkers, setRegionMarkers] = useState<RegionMarker[]>([
-    { id: 'north-america', continentKey: 'NORTH_AMERICA', color: MARKER_COLORS.NORTH_AMERICA || '#E53935', label: 'NORTH\nAMERICA', lat: 38, lng: -122, x: 0, y: 0, anchorX: 0, anchorY: 0, offsetX: 0, offsetY: 0, visible: true },
-    { id: 'south-america', continentKey: 'SOUTH_AMERICA', color: MARKER_COLORS.SOUTH_AMERICA || '#8E24AA', label: 'SOUTH\nAMERICA', lat: -33, lng: -70, x: 0, y: 0, anchorX: 0, anchorY: 0, offsetX: 0, offsetY: 0, visible: true },
-    { id: 'europe', continentKey: 'EUROPE', color: MARKER_COLORS.EUROPE || '#1E88E5', label: 'EUROPE', lat: 43, lng: 12, x: 0, y: 0, anchorX: 0, anchorY: 0, offsetX: 0, offsetY: 0, visible: true },
-    { id: 'africa', continentKey: 'AFRICA', color: MARKER_COLORS.AFRICA || '#8D6E63', label: 'AFRICA', lat: -33, lng: 20, x: 0, y: 0, anchorX: 0, anchorY: 0, offsetX: 0, offsetY: 0, visible: true },
-    { id: 'asia', continentKey: 'ASIA', color: MARKER_COLORS.ASIA || '#FDD835', label: 'ASIA', lat: 34, lng: 105, x: 0, y: 0, anchorX: 0, anchorY: 0, offsetX: 0, offsetY: 0, visible: true },
-    { id: 'oceania', continentKey: 'OCEANIA', color: MARKER_COLORS.OCEANIA || '#43A047', label: 'OCEANIA', lat: -35, lng: 147, x: 0, y: 0, anchorX: 0, anchorY: 0, offsetX: 0, offsetY: 0, visible: true },
+    { id: 'north-america', continentKey: 'NORTH_AMERICA', color: CONTINENT_COLORS.NORTH_AMERICA || '#722F37', label: 'NORTH\nAMERICA', lat: 37, lng: -108, x: 0, y: 0, anchorX: 0, anchorY: 0, offsetX: 0, offsetY: 0, visible: true },
+    { id: 'south-america', continentKey: 'SOUTH_AMERICA', color: CONTINENT_COLORS.SOUTH_AMERICA || '#73343A', label: 'SOUTH\nAMERICA', lat: -23, lng: -68, x: 0, y: 0, anchorX: 0, anchorY: 0, offsetX: 0, offsetY: 0, visible: true },
+    { id: 'europe', continentKey: 'EUROPE', color: CONTINENT_COLORS.EUROPE || '#9B2335', label: 'EUROPE', lat: 50, lng: 15, x: 0, y: 0, anchorX: 0, anchorY: 0, offsetX: 0, offsetY: 0, visible: true },
+    { id: 'africa', continentKey: 'AFRICA', color: CONTINENT_COLORS.AFRICA || '#C48B8B', label: 'AFRICA', lat: -6, lng: 12, x: 0, y: 0, anchorX: 0, anchorY: 0, offsetX: 0, offsetY: 0, visible: true },
+    { id: 'asia', continentKey: 'ASIA', color: CONTINENT_COLORS.ASIA || '#C9A227', label: 'ASIA', lat: 37, lng: 100, x: 0, y: 0, anchorX: 0, anchorY: 0, offsetX: 0, offsetY: 0, visible: true },
+    { id: 'oceania', continentKey: 'OCEANIA', color: CONTINENT_COLORS.OCEANIA || '#D4A5A5', label: 'OCEANIA', lat: -25, lng: 135, x: 0, y: 0, anchorX: 0, anchorY: 0, offsetX: 0, offsetY: 0, visible: true },
   ]);
   const viewportRef = useRef<HTMLDivElement | null>(null);
   const containerRef = useRef<HTMLDivElement | null>(null);
@@ -346,6 +332,18 @@ const RetroGlobeScreen: React.FC<RetroGlobeScreenProps> = ({ onBack, onHome, onS
           }}
         />
 
+        <div className="relative z-20 w-full px-4 shrink-0">
+          <button
+            onClick={handleWorldSearch}
+            aria-label="Search world"
+            className="w-full max-w-md mx-auto flex flex-row items-center h-12 border-2 border-stone-600 px-3 shadow-inner rounded-full hover:border-green-300 transition-colors duration-300"
+            style={{ backgroundColor: 'var(--lcd-well)' }}
+          >
+            <Search size={22} className="text-green-500 shrink-0" />
+            <span className="ml-3 font-mono font-bold uppercase tracking-widest text-sm sm:text-base text-green-900">SEARCH WORLD...</span>
+          </button>
+        </div>
+
         <div className="relative z-10 flex-1 flex items-center justify-center min-h-0 w-full">
           <div
             className="relative w-full h-full overflow-hidden"
@@ -402,12 +400,9 @@ const RetroGlobeScreen: React.FC<RetroGlobeScreenProps> = ({ onBack, onHome, onS
           </div>
         </div>
 
-        <div className="relative z-20 text-center space-y-3 shrink-0">
+        <div className="relative z-20 text-center space-y-1.5 shrink-0">
           <p className="font-retro text-sm sm:text-base text-green-300 tracking-[0.22em]">DRAG TO SPIN GLOBE</p>
-          <button onClick={handleWorldSearch} className="group mx-auto flex items-center gap-2.5 px-7 py-2.5 bg-green-400 text-black border border-green-200 rounded-full hover:bg-green-300 hover:border-white transition-all duration-300 shadow-[0_0_20px_rgba(74,222,128,0.4)]">
-            <Search size={18} className="group-hover:scale-110 transition-transform" />
-            <span className="font-retro tracking-widest text-sm sm:text-base">WORLD SEARCH</span>
-          </button>
+          <p className="font-retro text-xs sm:text-sm text-green-500 tracking-[0.18em]">TAP TO SELECT CONTINENT</p>
         </div>
       </div>
     </DeviceLayout>

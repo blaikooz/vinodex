@@ -81,7 +81,10 @@ const DailyGrapeScreen: React.FC<DailyGrapeScreenProps> = ({ allEntries, onOpen,
               {visual?.iconNode}
             </div>
 
-            <p className="font-retro text-lg sm:text-2xl text-green-300 break-words px-2">
+            <p
+              className="font-retro text-lg sm:text-2xl text-stone-100 break-words px-2"
+              style={revealed ? { textShadow: '3px 3px 0 rgba(34,197,94,0.55)' } : undefined}
+            >
               {revealed ? pick.name.toUpperCase() : '? ? ?'}
             </p>
 

@@ -13,6 +13,31 @@ each is independent.
 
 ---
 
+## Status — executed on `testing`
+
+All items below are **implemented** except a handful noted as skipped/deliberate:
+
+- **Done:** 1–2, 4 (chassis back panel), 3+5 (barcode/price-tag added; aria-label
+  n/a), 6, 8 (list), 9, 11–19 (entry detail), 21–24, 26 (collection), 27–33
+  (quiz; 32 partial), 34–38 (passport/daily/rating), 39–44 (scanner; 42 flavor
+  search + basket done, subclasses group skipped; 43 BEST-MATCH hero done),
+  46–49 (globe), 51–53 (chip filter), 54–55 (tools filled-face tiles), 56–57,
+  59–62 (settings; DEV health rows added), 63 (walkthrough).
+- **Skipped — no data:** 10 (APPELLATION full spelled-out name — the web region
+  data has no appellation-name field / lookup table; would need porting the iOS
+  `EntryDisplay.appellationName` table).
+- **Skipped — edge case:** 7 (DATA LOAD ERROR — no load-error signal exists to
+  branch on).
+- **Deliberate (not changed):** 20 (no free-tier row gating), 25 (avatar size/
+  badge — no trivial filled placeholder glyph), 58 (no mode/skin tile gating),
+  56 (TUTORIAL keeps `Flag` — lucide has no checkered flag).
+
+Verified: `tsc` clean, 63/63 tests, build OK, headless smoke of every route
+(no runtime errors), and screenshots of the quiz reveal, tools grid, passport,
+and scanner steps.
+
+---
+
 ## Main menu & chassis
 
 Largely at parity (tile faces, icons, orb hold-to-flip, nameplate, marquee all

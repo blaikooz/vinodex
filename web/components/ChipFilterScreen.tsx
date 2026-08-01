@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useState } from 'react';
-import { SlidersHorizontal, Filter, ChevronDown, X, CircleSlash, ChevronRight } from 'lucide-react';
+import { SlidersHorizontal, Filter, ChevronDown, CircleSlash, ChevronRight } from 'lucide-react';
 import DeviceLayout from './DeviceLayout';
 import EntryTile from './EntryTile';
 import { WineEntry } from '@/shared/types';
@@ -83,9 +83,9 @@ const ChipFilterScreen: React.FC<ChipFilterScreenProps> = ({ allEntries, onSelec
           {!filterIsEmpty(filter) && (
             <button
               onClick={() => setFilter({})}
-              className="font-retro text-[0.55rem] tracking-widest text-red-400 border-2 border-red-800 rounded-full px-3 py-1.5 hover:bg-red-950 flex items-center gap-1"
+              className="font-retro text-[0.55rem] tracking-widest text-red-400 border-2 border-red-800 rounded-full px-3 py-1.5 hover:bg-red-950"
             >
-              <X size={12} /> RESET
+              RESET
             </button>
           )}
         </div>
@@ -149,7 +149,7 @@ const ChipFilterScreen: React.FC<ChipFilterScreenProps> = ({ allEntries, onSelec
           <div className="text-center py-12 opacity-60 flex flex-col items-center">
             <CircleSlash size={40} className="text-stone-600 mb-3" />
             <p className="font-retro text-xs text-stone-300">NOTHING MATCHES</p>
-            <p className="font-mono text-xs text-stone-500 mt-2 normal-case">{q ? 'Try a different search or fewer chips.' : 'Loosen a chip to widen the net.'}</p>
+            <p className="font-mono text-xs text-stone-500 mt-2 normal-case">{q ? 'Nothing fits the chips and the search together.' : 'Those chips have no overlap. Turn one off.'}</p>
           </div>
         ) : (
           <div className="flex flex-col gap-2 pb-4">
@@ -159,15 +159,15 @@ const ChipFilterScreen: React.FC<ChipFilterScreenProps> = ({ allEntries, onSelec
                 <button
                   key={`c:${name}`}
                   onClick={() => onSelectCountry(name)}
-                  className="w-full flex items-center gap-3 p-3 rounded-xl bg-stone-900/70 border-2 border-yellow-800 hover:border-yellow-500 transition-colors"
+                  className="w-full flex items-center gap-3 p-3 rounded-xl bg-stone-900/70 border-2 border-stone-700 hover:border-stone-500 transition-colors"
                 >
                   {flag ? (
                     <img src={flag} alt="" className="w-8 h-6 object-cover rounded shrink-0" />
                   ) : (
                     <span className="w-8 h-6 rounded bg-stone-700 shrink-0" />
                   )}
-                  <span className="flex-1 text-left font-retro text-[0.6rem] tracking-widest text-yellow-200">{name.toUpperCase()}</span>
-                  <ChevronRight size={18} className="text-yellow-400" />
+                  <span className="flex-1 text-left font-retro text-[0.6rem] tracking-widest text-stone-200">{name.toUpperCase()}</span>
+                  <ChevronRight size={18} className="text-stone-400" />
                 </button>
               );
             })}

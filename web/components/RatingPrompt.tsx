@@ -39,7 +39,7 @@ const RatingPrompt: React.FC<RatingPromptProps> = ({ entryName, initial, onSave,
       <div className="relative w-full max-w-[20rem] rounded-2xl border-2 border-green-700 bg-stone-900 p-5 shadow-2xl flex flex-col gap-4">
         <div className="text-center">
           <div className="font-retro text-green-300 text-xs tracking-widest">HOW WAS IT?</div>
-          <div className="font-retro text-stone-300 text-[0.65rem] tracking-widest mt-1 uppercase truncate">
+          <div className="font-mono text-stone-300 text-sm mt-1 uppercase break-words">
             {entryName}
           </div>
         </div>

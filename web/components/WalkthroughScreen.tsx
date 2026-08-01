@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Search, ChevronLeft, Home, Settings, Wrench, Grip, Globe, Wine, Leaf, ChevronRight, UserRound } from 'lucide-react';
+import { Search, ChevronLeft, Home, Settings, Wrench, Grip, Globe, Wine, Leaf, ChevronRight, UserRound, Flag, Palette, SlidersHorizontal } from 'lucide-react';
 import DeviceLayout from './DeviceLayout';
 
 /**
@@ -58,10 +58,10 @@ const WalkthroughScreen: React.FC<WalkthroughScreenProps> = ({ onBack, onHome })
     <DeviceLayout title="TUTORIAL" subtitle="" showBack onBack={onBack} onHome={onHome} centerHeaderText>
       <div className="h-full overflow-y-auto custom-scrollbar p-4 flex flex-col gap-4" style={{ backgroundColor: 'var(--lcd-page)' }}>
 
-        {/* Progress */}
-        <div className="flex gap-1 justify-center">
+        {/* Progress — equal-width capsule segments that fill the row, iOS-style. */}
+        <div className="flex gap-1">
           {STEPS.map((s, i) => (
-            <span key={s.id} className="h-1.5 rounded-full transition-all" style={{ width: i === index ? 18 : 8, backgroundColor: i === index ? 'var(--lcd-accent)' : 'var(--lcd-surface-edge)' }} />
+            <span key={s.id} className="flex-1 h-1 rounded-full transition-all" style={{ backgroundColor: i <= index ? 'var(--lcd-accent)' : 'var(--lcd-surface-edge)' }} />
           ))}
         </div>
 
@@ -95,9 +95,13 @@ const WalkthroughScreen: React.FC<WalkthroughScreenProps> = ({ onBack, onHome })
             ) : h === 'tools' ? (
               <div className="grid grid-cols-2 gap-1.5">
                 <div className="rounded-md bg-yellow-400 flex items-center justify-center aspect-video" style={partStyle('tools')}><Wrench size={16} className="text-yellow-900" /></div>
-                {['TUTORIAL', 'CUSTOMIZE', 'SETTINGS'].map(t => (
-                  <div key={t} className="rounded-md aspect-video flex items-center justify-center" style={{ backgroundColor: 'var(--lcd-surface)' }}>
-                    <span className="font-retro text-[0.35rem]" style={{ color: 'var(--lcd-subtext)' }}>{t}</span>
+                {[
+                  { key: 'tutorial', Icon: Flag, bg: 'bg-green-600' },
+                  { key: 'customize', Icon: Palette, bg: 'bg-red-500' },
+                  { key: 'settings', Icon: SlidersHorizontal, bg: 'bg-orange-500' },
+                ].map(({ key, Icon, bg }) => (
+                  <div key={key} className={`rounded-md aspect-video flex items-center justify-center ${bg}`}>
+                    <Icon size={14} className="text-white" />
                   </div>
                 ))}
               </div>

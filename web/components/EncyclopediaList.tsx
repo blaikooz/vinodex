@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useLocation } from "react-router-dom";
-import { Search, List, Map, Droplet, Grape, Mountain, MapPin, Star, Shield, Wind } from "lucide-react";
+import { Search, Filter, ListChecks } from "lucide-react";
 import EntryTile from "./EntryTile";
 import DeviceLayout from "./DeviceLayout";
 import { WineEntry, EntryCategory, ClimateClass, isGrapeEntry, isRegionEntry, isStyleEntry } from "@/shared/types";
@@ -275,18 +275,9 @@ export default function EncyclopediaList({ category, filterMode, filterValue, in
       }
   };
 
-  const getFilterIcon = () => {
-      if (activeFilterMode === 'REGION') return <Map size={24} className="text-green-500" />;
-      if (activeFilterMode === 'TYPE') return <Grape size={24} className="text-purple-500" />;
-      if (activeFilterMode === 'TASTING') return <Droplet size={24} className="text-blue-500" />;
-      if (activeFilterMode === 'SOIL') return <Mountain size={24} className="text-orange-500" />;
-      if (activeFilterMode === 'ORIGIN') return <MapPin size={24} className="text-red-500" />;
-      if (activeFilterMode === 'STATE') return <MapPin size={24} className="text-cyan-400" />;
-      if (activeFilterMode === 'RARITY') return <Star size={24} className="text-yellow-500" />;
-      if (activeFilterMode === 'SYSTEM') return <Shield size={24} className="text-amber-500" />;
-      if (activeFilterMode === 'CLIMATE') return <Wind size={24} className="text-sky-400" />;
-      return null;
-  };
+  // iOS uses a single funnel glyph (line.3.horizontal.decrease.circle.fill) in
+  // the accent colour for every filter mode, rather than a per-mode glyph.
+  const getFilterIcon = () => <Filter size={24} className="text-green-500" />;
 
   const getFilterText = () => {
       const val = typeof activeFilterValue === 'string' ? activeFilterValue.toUpperCase() : 'SELECTION';
@@ -377,8 +368,8 @@ export default function EncyclopediaList({ category, filterMode, filterValue, in
           )}
 
           {filteredEntries.length === 0 ? (
-            <div className="text-center py-20 opacity-50 flex flex-col items-center">
-              <List size={48} className="text-red-500 mb-4" />
+            <div className="text-center py-20 opacity-60 flex flex-col items-center">
+              <ListChecks size={40} className="text-red-500 mb-4" />
               <p className="text-red-500 font-retro text-xs">NO DATA FOUND</p>
             </div>
           ) : (

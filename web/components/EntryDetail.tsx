@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useReducer, useRef, useState } from 'react';
-import { MapPin, Activity, Droplet, Grape, Mountain, ChevronRight, List, Leaf, Flame, Shield, BookOpen, Bookmark, MapPinned, Wind, Star, Crown, PlusCircle, CheckCircle2 } from 'lucide-react';
+import { MapPin, Activity, Droplet, Grape, Mountain, ChevronRight, ChevronUp, ChevronDown, List, Leaf, Flame, Shield, BookOpen, Bookmark, MapPinned, Wind, Star, Crown, PlusCircle, CheckCircle2 } from 'lucide-react';
 import { Icon } from '../src/components/LocalIcon';
 import DeviceLayout from './DeviceLayout';
 import { EntryCategory, WineEntry, isCountryGateEntry, isFlavorEntry, isGrapeEntry, isRegionEntry, isStyleEntry } from '@/shared/types';
@@ -17,7 +17,7 @@ import {
   getStyleClassType,
 } from '@/shared/services/entryUtils';
 import Chip from './Chip';
-import { getCountryChipColors, getFlavorClassChipColors, getFlavorSubclassChipColors, SYSTEM_CHIP_COLOR, CLIMATE_CHIP_COLOR, APPELLATION_CHIP_COLORS, extractTagAbbrev } from '@/shared/services/chipColors';
+import { getCountryChipColors, getFlavorClassChipColors, getFlavorSubclassChipColors, getRarityChipColors, SYSTEM_CHIP_COLOR, CLIMATE_CHIP_COLOR, APPELLATION_CHIP_COLORS, extractTagAbbrev } from '@/shared/services/chipColors';
 import { getGrapeColorLabel, getGrapeBodyLabel, getGrapeColorChipColors, getGrapeBodyChipColors } from '../src/services/grapeDisplay';
 import { getLucideIcon } from '../src/services/lucideIconMap';
 import { getSoilIcon, getSoilsForRegion } from '../src/services/soilDisplay';
@@ -129,6 +129,8 @@ const EntryDetail: React.FC<EntryDetailProps> = ({ entry, allEntries, onBack, on
 
   // Classification Logic
   const displayClass = isGrapes ? (grapeCard?.rarityTier?.toUpperCase() || entryRarity) : (detailsBag.classification || entryRarity);
+  // The rarity pill is tinted by its tier (iOS raritySection), not a flat green.
+  const rarityChipColors = getRarityChipColors((entryRarity || displayClass || '').toUpperCase());
 
   // List Data Selection
   const listSectionTitle = isContinent ? 'COUNTRIES' : isCountry ? 'KEY REGIONS' : (isRegion ? 'NOTABLE GRAPES' : 'NOTABLE REGIONS');
@@ -144,7 +146,6 @@ const EntryDetail: React.FC<EntryDetailProps> = ({ entry, allEntries, onBack, on
     : [];
   const grapeFlavorNotes = (grapeCard?.tastingProfile || []).map(n => ({ note: n, icon: 'default' as const, color: '#16a34a' }));
   const flavorNotes = isStyleEntry(entry) ? styleFlavorNotes : (entryTastingProfile || grapeFlavorNotes);
-  const matchedFlavorNotes = flavorNotes.filter((note) => !!getExactFlavorEntry(note.note));
   const grapeAlternateNames = isGrapeEntry(entry) ? (grapeCard?.alternateNames || entry.details.synonyms || []) : [];
 
   const getFlavorTileVisual = (note: { note: string; icon: string; color: string }) => {
@@ -220,8 +221,9 @@ const EntryDetail: React.FC<EntryDetailProps> = ({ entry, allEntries, onBack, on
               toggleFlag(key, flag);
               forceRender();
             }}
-            className="w-full flex items-center justify-center gap-2 py-3 rounded border-2 border-stone-700 hover:border-green-500 transition-colors font-retro text-[0.6rem] tracking-widest text-green-500"
+            className="w-full flex items-center justify-center gap-2 py-3 rounded-full border-2 border-stone-700 hover:border-green-500 transition-colors font-retro text-[0.6rem] tracking-widest text-green-500"
           >
+            {expanded ? <ChevronUp size={13} strokeWidth={3} /> : <ChevronDown size={13} strokeWidth={3} />}
             {expanded ? 'SHOW FEWER' : `EXPAND ALL (${items.length})`}
           </button>
         )}
@@ -653,25 +655,19 @@ const EntryDetail: React.FC<EntryDetailProps> = ({ entry, allEntries, onBack, on
   const headerTiles = renderHeaderTiles();
 
   {/* Alternate Names Section - Grapes */}
-  const grapeAlsoKnownAs = isGrapes ? (
+  const grapeAlsoKnownAs = isGrapes && grapeAlternateNames.length > 0 ? (
             <div className="mb-6">
                 <div className="flex items-center gap-2 mb-3 dex-section-rule pb-1">
                     <BookOpen size={18} className="text-green-500" />
                     <span className="font-retro text-xs md:text-sm tracking-widest text-green-500">ALSO KNOWN AS</span>
                 </div>
-                {grapeAlternateNames.length > 0 ? (
-                  <div className="flex flex-wrap gap-2">
-                      {grapeAlternateNames.map((name, i) => (
-                          <span key={i} className="px-4 py-2 bg-stone-800 text-stone-200 border border-stone-600 text-xl font-bold font-mono rounded tracking-widest">
-                              {name}
-                          </span>
-                      ))}
-                  </div>
-                ) : (
-                  <div className="border border-stone-700 bg-stone-900/80 rounded p-3">
-                    <p className="text-xl font-bold font-mono dex-subtext tracking-widest">NO ALTERNATE NAMES LISTED.</p>
-                  </div>
-                )}
+                <div className="flex flex-wrap gap-2">
+                    {grapeAlternateNames.map((name, i) => (
+                        <span key={i} className="px-4 py-2 text-xl font-bold font-mono rounded tracking-widest" style={{ backgroundColor: '#052e16', border: '1px solid #15803d', color: '#bbf7d0' }}>
+                            {name}
+                        </span>
+                    ))}
+                </div>
             </div>
   ) : null;
 
@@ -683,7 +679,7 @@ const EntryDetail: React.FC<EntryDetailProps> = ({ entry, allEntries, onBack, on
                     <span className="font-retro text-xs md:text-sm tracking-widest text-green-400">RARITY</span>
                 </div>
                 <div className="flex items-center gap-2">
-                  <span className="flex-1 flex items-center px-3 py-1.5 rounded-full border-2 border-green-500 dex-chip-well text-base font-extrabold uppercase text-green-300 justify-between" style={{ letterSpacing: '0.1em' }}>
+                  <span className="flex-1 flex items-center px-3 py-1.5 rounded-full border-2 text-base font-extrabold uppercase justify-between" style={{ letterSpacing: '0.1em', backgroundColor: rarityChipColors.bg, borderColor: rarityChipColors.border, color: rarityChipColors.text }}>
                     {displayClass}
                     <span className="ml-2 flex items-center">
                       {(() => {
@@ -706,7 +702,13 @@ const EntryDetail: React.FC<EntryDetailProps> = ({ entry, allEntries, onBack, on
                         // stars — the stars implied it was simply one rank above
                         // RARE rather than a different kind of thing.
                         if (rarity === 'NOBLE') {
-                          return <Crown size={20} className="text-yellow-400 ml-1" />;
+                          return (
+                            <Crown
+                              size={20}
+                              className="text-yellow-400 ml-1"
+                              style={{ filter: 'drop-shadow(0 0 4px rgba(250,204,21,0.55))' }}
+                            />
+                          );
                         }
                         // `rarityRank` in Swift: common 1, uncommon 2, rare 3.
                         // This read COMMON 2 / UNCOMMON 1, so a common grape
@@ -783,7 +785,7 @@ const EntryDetail: React.FC<EntryDetailProps> = ({ entry, allEntries, onBack, on
                 </div>
                 <div className="grid grid-cols-2 gap-2">
                     {entry.details.appellations.map((appellation, i) => (
-                        <div key={i} className="px-4 py-2 bg-stone-800 text-stone-200 border border-stone-600 text-xl font-bold font-mono rounded text-center tracking-widest">
+                        <div key={i} className="px-4 py-2 text-xl font-bold font-mono rounded text-center tracking-widest" style={{ backgroundColor: '#052e16', border: '1px solid #15803d', color: '#bbf7d0' }}>
                             {appellation}
                         </div>
                     ))}
@@ -799,7 +801,7 @@ const EntryDetail: React.FC<EntryDetailProps> = ({ entry, allEntries, onBack, on
                    <span className="font-retro text-xs md:text-sm tracking-widest text-green-500">NOTABLE GRAPES</span>
                 </div>
                 <div className="grid grid-cols-1 gap-2">
-                     {expandableList(listSectionData, 8, 'list')}
+                     {listSectionData.slice(0, 8).map((item, idx) => renderLinkedTile(item, idx))}
                 </div>
             </div>
   ) : null;
@@ -812,7 +814,7 @@ const EntryDetail: React.FC<EntryDetailProps> = ({ entry, allEntries, onBack, on
                    <span className="font-retro text-xs md:text-sm tracking-widest text-green-500">NOTABLE REGIONS</span>
                 </div>
                 <div className="grid grid-cols-1 gap-2">
-                     {expandableList(listSectionData, 8, 'list', { showRegionMetaTiles: true })}
+                     {listSectionData.slice(0, 8).map((item, idx) => renderLinkedTile(item, idx, { showRegionMetaTiles: true }))}
                 </div>
             </div>
   ) : null;
@@ -832,7 +834,7 @@ const EntryDetail: React.FC<EntryDetailProps> = ({ entry, allEntries, onBack, on
                       return (
                         <span className="inline-flex items-center gap-3 px-4 py-2 rounded text-xl font-bold font-mono tracking-widest" style={{ backgroundColor: sectionClimateColors.bg, border: `1px solid ${sectionClimateColors.border}`, color: sectionClimateColors.text }}>
                           <span className="inline-flex" style={{ color: sectionClimateColors.border }}>{getClimateIcon(entry.climate, 26)}</span>
-                          {(entry.climate && CLIMATE_CLASS_MAP[entry.climate]?.name) || 'Unknown Climate'}
+                          {((entry.climate && CLIMATE_CLASS_MAP[entry.climate]?.name) || 'Unknown Climate').toUpperCase()}
                         </span>
                       );
                     })()}
@@ -847,7 +849,7 @@ const EntryDetail: React.FC<EntryDetailProps> = ({ entry, allEntries, onBack, on
                    <Mountain size={18} className="text-green-500" />
                    <span className="font-retro text-xs md:text-sm tracking-widest text-green-500">SOIL COMPOSITION</span>
                  </div>
-                 <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 items-stretch">
+                 <div className="grid grid-cols-3 gap-3 items-stretch">
                     {regionSoils.map((soil, i) => {
                         const { icon, color } = getSoilIcon(soil);
                         return (
@@ -875,56 +877,53 @@ const EntryDetail: React.FC<EntryDetailProps> = ({ entry, allEntries, onBack, on
   ) : null;
 
   {/* Tasting Notes Section - List Tile (For Grapes only) */}
-  const grapeFlavorProfile = isGrapes ? (
+  const grapeFlavorProfile = isGrapes && flavorNotes.length > 0 ? (
             <div className="mb-6">
                 <div className="flex items-center gap-2 mb-3 dex-section-rule pb-1">
                     <Droplet size={18} className="text-green-500" />
                     <span className="font-retro text-xs md:text-sm tracking-widest text-green-500">FLAVOR PROFILE</span>
                 </div>
-                {matchedFlavorNotes.length > 0 ? (
-                  <div className="flex flex-col gap-2 w-full">
-                    {matchedFlavorNotes.map((note, i) => {
-                      // Get icon, color, and label
-                      const { relatedFlavor, iconNode, borderColor, bgColor, label } = getFlavorTileVisual(note);
-                      // Get class and type
-                      const subclass = categorizeFlavorSubclass(label);
-                      const flavorClass = categorizeFlavor(label, subclass);
-                      const classColor = getFlavorClassChipColors(flavorClass);
-                      const typeColor = getFlavorSubclassChipColors(subclass);
-                      return (
-                        <button
-                          type="button"
-                          key={i}
-                          onClick={() => relatedFlavor && onSelectRelated(relatedFlavor)}
-                          disabled={!relatedFlavor}
-                          className="w-full bg-stone-900 border-2 border-stone-700 rounded p-2 flex items-center gap-3 relative overflow-hidden min-h-[4.5rem] text-left hover:border-green-500 hover:bg-stone-800 transition-colors disabled:cursor-not-allowed cursor-pointer"
+                <div className="flex flex-col gap-2 w-full">
+                  {flavorNotes.map((note, i) => {
+                    // Get icon, color, and label
+                    const { relatedFlavor, iconNode, borderColor, bgColor, label } = getFlavorTileVisual(note);
+                    // Get class and type
+                    const subclass = categorizeFlavorSubclass(label);
+                    const flavorClass = categorizeFlavor(label, subclass);
+                    const classColor = getFlavorClassChipColors(flavorClass);
+                    const typeColor = getFlavorSubclassChipColors(subclass);
+                    // iOS renders every note; those that do not resolve to a
+                    // flavor entry render greyed and inert rather than dropped.
+                    const isMatched = !!relatedFlavor;
+                    return (
+                      <button
+                        type="button"
+                        key={i}
+                        onClick={() => relatedFlavor && onSelectRelated(relatedFlavor)}
+                        disabled={!relatedFlavor}
+                        className={`w-full border-2 rounded p-2 flex items-center gap-3 relative overflow-hidden min-h-[4.5rem] text-left transition-colors ${isMatched ? 'bg-stone-900 border-stone-700 hover:border-green-500 hover:bg-stone-800 cursor-pointer' : 'bg-stone-900/60 border-stone-800 opacity-70 cursor-default'}`}
+                      >
+                        {/* Hero Icon */}
+                        <div
+                          className={`shrink-0 ${CONTAINER_SIZE_LIST} ${CONTAINER_BORDER_CLASS} ${CONTAINER_SHADOW_CLASS} flex items-center justify-center ${CONTAINER_BORDER} ${isMatched ? '' : 'grayscale'}`}
+                          style={{ backgroundColor: bgColor, borderColor }}
                         >
-                          {/* Hero Icon */}
-                          <div
-                            className={`shrink-0 ${CONTAINER_SIZE_LIST} ${CONTAINER_BORDER_CLASS} ${CONTAINER_SHADOW_CLASS} flex items-center justify-center ${CONTAINER_BORDER}`}
-                            style={{ backgroundColor: bgColor, borderColor }}
-                          >
-                            {iconNode}
+                          {iconNode}
+                        </div>
+                        {/* Name and Chips */}
+                        <div className="flex flex-col flex-1 min-w-0 justify-center h-full items-start py-1">
+                          <span className={`font-retro text-base leading-tight tracking-tight whitespace-normal break-words ${isMatched ? 'dex-text' : 'dex-disabled'}`}>
+                            {label.toUpperCase()}
+                          </span>
+                          <div className="flex gap-1 mt-1">
+                            <Chip label={flavorClass} colorStyle={classColor} />
+                            <Chip label={subclass.replace(/_/g, ' ')} colorStyle={typeColor} />
                           </div>
-                          {/* Name and Chips */}
-                          <div className="flex flex-col flex-1 min-w-0 justify-center h-full items-start py-1">
-                            <span className="font-retro text-base dex-text leading-tight tracking-tight whitespace-normal break-words">
-                              {label.toUpperCase()}
-                            </span>
-                            <div className="flex gap-1 mt-1">
-                              <Chip label={flavorClass} colorStyle={classColor} />
-                              <Chip label={subclass.replace(/_/g, ' ')} colorStyle={typeColor} />
-                            </div>
-                          </div>
-                        </button>
-                      );
-                    })}
-                  </div>
-                ) : (
-                  <div className="border border-stone-700 bg-stone-900/80 rounded p-3">
-                    <p className="text-sm dex-subtext">No flavor profile listed.</p>
-                  </div>
-                )}
+                        </div>
+                      </button>
+                    );
+                  })}
+                </div>
             </div>
   ) : null;
 
@@ -1054,8 +1053,10 @@ const EntryDetail: React.FC<EntryDetailProps> = ({ entry, allEntries, onBack, on
         {headerTiles}
         {headerTiles ? <div className="w-full dex-hero-rule mb-4"></div> : null}
 
-        {/* Info Section - Description at Top (skip for flavor entries) */}
-        {!isFlavor && (
+        {/* Info Section - Description at Top. iOS gates INFO purely on a
+            non-empty description (EntryDetailScreen.body), so flavours whose
+            blurb now names their derived grapes get the block too. */}
+        {(grapeCard?.info || entry.description) && (
           <div className="mb-6">
               <div className="flex items-center gap-2 mb-2 dex-section-rule pb-1">
                   <BookOpen size={18} className="text-green-500" />
@@ -1263,7 +1264,7 @@ const EntryDetail: React.FC<EntryDetailProps> = ({ entry, allEntries, onBack, on
                   <span className="font-retro text-xs md:text-sm tracking-widest text-green-500">KEY GRAPES</span>
               </div>
               <div className="grid grid-cols-1 gap-2">
-                  {expandableList(entry.details.notableGrapes, 6, 'grapes')}
+                  {expandableList(entry.details.notableGrapes, 3, 'grapes')}
               </div>
           </div>
         )}
@@ -1276,7 +1277,7 @@ const EntryDetail: React.FC<EntryDetailProps> = ({ entry, allEntries, onBack, on
                     <span className="font-retro text-xs md:text-sm tracking-widest text-green-500">NOTABLE GRAPES</span>
                 </div>
                 <div className="grid grid-cols-1 gap-2">
-                     {expandableList(styleGrapes, 6, 'stylegrapes')}
+                     {expandableList(styleGrapes, 3, 'stylegrapes')}
                 </div>
             </div>
         )}
@@ -1289,7 +1290,7 @@ const EntryDetail: React.FC<EntryDetailProps> = ({ entry, allEntries, onBack, on
                     <span className="font-retro text-xs md:text-sm tracking-widest text-green-500">NOTABLE GRAPES</span>
                 </div>
                 <div className="grid grid-cols-1 gap-2">
-                     {expandableList(styleGrapes, 6, 'stylegrapes')}
+                     {expandableList(styleGrapes, 3, 'stylegrapes')}
                 </div>
             </div>
         )}
@@ -1316,7 +1317,7 @@ const EntryDetail: React.FC<EntryDetailProps> = ({ entry, allEntries, onBack, on
                   <span className="font-retro text-xs md:text-sm tracking-widest text-green-500">NOTABLE GRAPES</span>
               </div>
               <div className="grid grid-cols-1 gap-2">
-                   {expandableList(entry.details.notableGrapes, 6, 'grapes')}
+                   {expandableList(entry.details.notableGrapes, 3, 'grapes')}
               </div>
           </div>
         )}
@@ -1328,7 +1329,7 @@ const EntryDetail: React.FC<EntryDetailProps> = ({ entry, allEntries, onBack, on
                   <span className="font-retro text-xs md:text-sm tracking-widest text-green-500">KEY REGIONS</span>
               </div>
               <div className="grid grid-cols-1 gap-2">
-                   {expandableList(entry.details.keyRegions, 6, 'regions', { showRegionMetaTiles: true })}
+                   {expandableList(entry.details.keyRegions, 3, 'regions', { showRegionMetaTiles: true })}
               </div>
           </div>
         )}
@@ -1341,7 +1342,7 @@ const EntryDetail: React.FC<EntryDetailProps> = ({ entry, allEntries, onBack, on
                     <span className="font-retro text-xs md:text-sm tracking-widest text-green-500">KEY REGIONS</span>
                 </div>
                 <div className="grid grid-cols-1 gap-2">
-                     {expandableList(entry.details.keyRegions, 6, 'regions', { showRegionMetaTiles: true })}
+                     {expandableList(entry.details.keyRegions, 3, 'regions', { showRegionMetaTiles: true })}
                 </div>
             </div>
         )}
