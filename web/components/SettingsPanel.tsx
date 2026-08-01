@@ -1,7 +1,8 @@
 import React from 'react';
-import { Palette, BarChart3, Lock, Bug, Check, Wrench, LogOut, Flag } from 'lucide-react';
+import { Palette, BarChart3, Lock, Bug, Check, Wrench, LogOut, Flag, SlidersHorizontal, Crown, Leaf, Sun, Grid3x3, Globe, Wine, Map as MapIcon, Layers, Vibrate, Volume2, ChevronRight } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 import DeviceLayout from './DeviceLayout';
-import { WineEntry, isGrapeEntry, isRegionEntry } from '@/shared/types';
+import { WineEntry } from '@/shared/types';
 import {
   CHASSIS_SKINS,
   ChassisSkinId,
@@ -34,8 +35,43 @@ import {
   toggleEntitlement,
 } from '../src/services/access';
 import { useAccess } from '../src/services/useAccess';
+import { removeEverything } from '../src/services/bookmarks';
 
-export type SettingsSectionId = 'CUSTOMIZE' | 'DATA' | 'ACCESS' | 'DEV';
+export type SettingsSectionId = 'CUSTOMIZE' | 'SETTINGS' | 'DATA' | 'ACCESS' | 'DEV';
+
+/**
+ * Full stored-data wipe behind the SETTINGS ▸ CLEAR SAVED DATA control, mirroring
+ * iOS's reset: shelves + ratings (via the store's `removeEverything`, which also
+ * notifies subscribers), then the remaining per-user keys — recents, quiz/streak
+ * progress, name + photo, purchases, and the skin / screen / text preferences.
+ * The encyclopedia itself is untouched. Reloads so every external store re-reads
+ * from a clean slate.
+ */
+const WIPE_KEYS = [
+  'recentlyViewedEntryIDs',
+  'quizTierUnlocked',
+  'dailyStreak',
+  'dailyLastDay',
+  'dailyBestStreak',
+  'userDisplayName',
+  'avatarImage',
+  'grantedEntitlements',
+  'starterOnly',
+  'revealCursor',
+  'chassisSkin',
+  'lcdMode',
+  'textScale',
+  'uiScale',
+];
+function clearAllSavedData(): void {
+  try {
+    removeEverything();
+    for (const k of WIPE_KEYS) window.localStorage.removeItem(k);
+  } catch {
+    /* ignore */
+  }
+  if (typeof window !== 'undefined') window.location.reload();
+}
 
 export const SETTINGS_SECTIONS: {
   id: SettingsSectionId;
@@ -46,6 +82,7 @@ export const SETTINGS_SECTIONS: {
   hidden?: boolean;
 }[] = [
   { id: 'CUSTOMIZE', icon: <Palette size={30} />, tint: 'text-red-400', border: 'border-red-800' },
+  { id: 'SETTINGS', icon: <SlidersHorizontal size={30} />, tint: 'text-orange-400', border: 'border-orange-800' },
   { id: 'DATA', icon: <BarChart3 size={30} />, tint: 'text-blue-400', border: 'border-blue-800' },
   { id: 'ACCESS', icon: <Lock size={30} />, tint: 'text-yellow-400', border: 'border-yellow-700' },
   { id: 'DEV', icon: <Bug size={30} />, tint: 'text-stone-400', border: 'border-stone-600', hidden: true },
@@ -65,6 +102,7 @@ const TILE_FACE: Record<string, { dark: [string, string, string]; light: [string
   TUTORIAL: { dark: ['#22C55E', '#15803D', '#FFFFFF'], light: ['#15803D', '#0B4A24', '#FFFFFF'] },
   TOOLS: { dark: ['#FACC15', '#CA8A04', '#78350F'], light: ['#B45309', '#7A3606', '#FFFFFF'] },
   CUSTOMIZE: { dark: ['#EF4444', '#991B1B', '#FFFFFF'], light: ['#B91C1C', '#7A1010', '#FFFFFF'] },
+  SETTINGS: { dark: ['#F97316', '#9A3412', '#FFFFFF'], light: ['#C2410C', '#7C2D12', '#FFFFFF'] },
   DATA: { dark: ['#2AB5FF', '#136A99', '#FFFFFF'], light: ['#1D6FA8', '#11486E', '#FFFFFF'] },
   ACCESS: { dark: ['#A855F7', '#6B21A8', '#FFFFFF'], light: ['#7E22CE', '#4C1D95', '#FFFFFF'] },
 };
@@ -172,18 +210,6 @@ export const SettingsGrid: React.FC<{
         </span>
       </button>
 
-      {/* Developer plumbing lives under settings, not as a peer tile. */}
-      <button
-        onClick={() => onSection('DEV')}
-        className="w-full mt-2 flex items-center justify-center gap-2 py-3 rounded-xl border-2 transition-all active:translate-y-0.5"
-        style={{ backgroundColor: 'var(--lcd-surface)', borderColor: 'var(--lcd-surface-edge)' }}
-      >
-        <Bug size={16} style={{ color: 'var(--lcd-subtext)' }} />
-        <span className="font-retro text-[0.55rem] tracking-widest" style={{ color: 'var(--lcd-subtext)' }}>
-          DEVELOPER
-        </span>
-      </button>
-
       {offeringTour && (
         <div className="absolute inset-0 z-30 bg-black/80 flex items-center justify-center p-6">
           <div className="w-full max-w-xs bg-stone-900 border-2 border-green-700 rounded-lg p-5 flex flex-col gap-4 text-center">
@@ -281,18 +307,116 @@ const ToggleRow: React.FC<{ title: string; detail: string; on: boolean; onToggle
   </button>
 );
 
-/** A big single number, as the iOS TOTAL ENTRIES block renders it. */
-const BigStat: React.FC<{ value: string; caption: string }> = ({ value, caption }) => (
-  <div
-    className="flex flex-col items-center py-5 rounded border-2 mb-2"
-    style={{ backgroundColor: 'var(--lcd-surface)', borderColor: 'var(--lcd-surface-edge)' }}
+/** A labelled switch with a leading glyph, matching iOS `settingRow` (HAPTICS/SOUNDS). */
+const IconToggleRow: React.FC<{ icon: React.ReactNode; title: string; detail: string; on: boolean; onToggle: () => void }> = ({
+  icon,
+  title,
+  detail,
+  on,
+  onToggle,
+}) => (
+  <button
+    onClick={onToggle}
+    role="switch"
+    aria-checked={on}
+    className="w-full flex items-center gap-3 px-3 py-3 rounded border-2 mb-2 text-left transition-all active:translate-y-0.5"
+    style={{
+      backgroundColor: 'var(--lcd-surface)',
+      borderColor: on ? 'var(--lcd-accent)' : 'var(--lcd-surface-edge)',
+    }}
   >
-    <span className="font-retro text-3xl" style={{ color: 'var(--lcd-accent)' }}>{value}</span>
-    <span className="font-retro text-[0.55rem] tracking-widest mt-2" style={{ color: 'var(--lcd-subtext)' }}>
-      {caption}
+    <span className="shrink-0" style={{ color: on ? '#22c55e' : 'var(--lcd-subtext)' }}>{icon}</span>
+    <span className="flex-1 min-w-0">
+      <span className="block font-retro text-[0.6rem] tracking-widest" style={{ color: 'var(--lcd-text)' }}>
+        {title}
+      </span>
+      <span className="block font-mono text-sm normal-case mt-1" style={{ color: 'var(--lcd-subtext)' }}>
+        {detail}
+      </span>
     </span>
-  </div>
+    <span
+      className="w-11 h-6 rounded-full shrink-0 relative transition-colors"
+      style={{ backgroundColor: on ? 'var(--lcd-accent)' : 'var(--lcd-surface-edge)' }}
+      aria-hidden="true"
+    >
+      <span
+        className="absolute top-0.5 w-5 h-5 rounded-full bg-white transition-all"
+        style={{ left: on ? '1.375rem' : '0.125rem' }}
+      />
+    </span>
+  </button>
 );
+
+// Glyph + tint per database table, reusing the main-menu symbols so a count
+// reads as the same thing as the tile that opens it (iOS `statGlyph`).
+const STAT_GLYPH: Record<string, { icon: React.ReactNode; tint: string }> = {
+  GRAPES: { icon: <Grid3x3 size={20} />, tint: '#a855f7' },
+  REGIONS: { icon: <Globe size={20} />, tint: '#22c55e' },
+  STYLES: { icon: <Wine size={20} />, tint: '#f97316' },
+  FLAVORS: { icon: <Leaf size={20} />, tint: '#10b981' },
+  CONTINENTS: { icon: <MapIcon size={20} />, tint: '#3b82f6' },
+  COUNTRIES: { icon: <Flag size={20} />, tint: '#eab308' },
+};
+const statGlyph = (label: string) => STAT_GLYPH[label] ?? STAT_GLYPH.COUNTRIES!;
+
+// Per-bundle glyph for the ACCESS panel (iOS `bundleSymbol`).
+const bundleSymbol = (kind: string): React.ReactNode => {
+  switch (kind) {
+    case 'pro': return <Crown size={20} />;
+    case 'flavors': return <Leaf size={20} />;
+    case 'country': return <Flag size={20} />;
+    case 'skins': return <Palette size={20} />;
+    case 'lightMode': return <Sun size={20} />;
+    default: return <Lock size={20} />;
+  }
+};
+
+/** A DATABASE category tile: glyph + tint, count, label (iOS `statTile`). */
+const StatTile: React.FC<{ label: string; count: number }> = ({ label, count }) => {
+  const glyph = statGlyph(label);
+  return (
+    <div
+      className="flex items-center gap-2.5 px-2.5 py-3 rounded border-2"
+      style={{ backgroundColor: 'var(--lcd-surface)', borderColor: `${glyph.tint}73` }}
+    >
+      <span className="shrink-0 w-6 flex justify-center" style={{ color: glyph.tint }}>{glyph.icon}</span>
+      <span className="flex flex-col min-w-0">
+        <span className="font-retro text-sm" style={{ color: 'var(--lcd-text)' }}>{count}</span>
+        <span className="font-mono text-xs truncate" style={{ color: 'var(--lcd-subtext)' }}>{label}</span>
+      </span>
+    </div>
+  );
+};
+
+/** The DATA panel's GROWTH area chart — a left-to-right sweep over the running
+ *  cumulative entry total, mirroring iOS `DataWave`. Milestones are the running
+ *  totals as each table is added. */
+const GrowthWave: React.FC<{ milestones: number[] }> = ({ milestones }) => {
+  const w = 300;
+  const h = 88;
+  const pad = 4;
+  const max = Math.max(1, ...milestones);
+  const n = milestones.length;
+  const pts = milestones.map((v, i) => {
+    const x = n <= 1 ? w : pad + (i / (n - 1)) * (w - pad * 2);
+    const y = h - pad - (v / max) * (h - pad * 2);
+    return [x, y] as [number, number];
+  });
+  const line = pts.map(([x, y], i) => `${i === 0 ? 'M' : 'L'}${x.toFixed(1)},${y.toFixed(1)}`).join(' ');
+  const first = pts[0]!;
+  const last = pts[n - 1]!;
+  const area = `${line} L${last[0].toFixed(1)},${h - pad} L${first[0].toFixed(1)},${h - pad} Z`;
+  return (
+    <svg viewBox={`0 0 ${w} ${h}`} className="w-full rounded border-2" preserveAspectRatio="none"
+      style={{ backgroundColor: 'var(--lcd-surface)', borderColor: 'var(--lcd-surface-edge)', height: 96 }}>
+      <path d={area} fill="var(--lcd-accent)" fillOpacity={0.22} />
+      <path d={line} fill="none" stroke="var(--lcd-accent)" strokeWidth={2.5} strokeLinejoin="round" strokeLinecap="round" />
+      {pts.map(([x, y], i) => (
+        <circle key={i} cx={x} cy={y} r={2.6} fill="var(--lcd-accent)" />
+      ))}
+    </svg>
+  );
+};
 
 const StatRow: React.FC<{ label: string; value: string }> = ({ label, value }) => (
   <div
@@ -315,8 +439,10 @@ export const SettingsSectionPanel: React.FC<{
   onHome: () => void;
 }> = ({ section, allEntries, onBack, onHome }) => {
   const theme = useTheme();
+  const navigate = useNavigate();
   const [sounds, setSounds] = React.useState(soundsEnabled());
   const [haptics, setHaptics] = React.useState(hapticsEnabled());
+  const [confirmingWipe, setConfirmingWipe] = React.useState(false);
 
   useAccess();
   const locked = starterOnly();
@@ -332,21 +458,6 @@ export const SettingsSectionPanel: React.FC<{
     { label: 'COUNTRIES', count: countIn('COUNTRY_GATE') },
     { label: 'CONTINENTS', count: countIn('CONTINENTS') },
   ].filter(l => l.count > 0);
-
-  const bag = (e: WineEntry) => e.details as { origin?: string; classification?: string };
-  const origins = new Set(allEntries.flatMap(e => (bag(e).origin ? [bag(e).origin!] : [])));
-  const systems = new Set(
-    allEntries.flatMap(e => (bag(e).classification ? [bag(e).classification!] : [])),
-  );
-
-  // Counted as plain strings: the point is how many distinct values the data
-  // carries, not which union member each one is.
-  const climates = new Set(
-    allEntries.filter(isRegionEntry).flatMap(e => (e.climate ? [String(e.climate)] : [])),
-  );
-  const rarities = new Set(
-    allEntries.filter(isGrapeEntry).flatMap(e => (e.rarity ? [String(e.rarity)] : [])),
-  );
 
   const body = () => {
     switch (section) {
@@ -375,6 +486,15 @@ export const SettingsSectionPanel: React.FC<{
               </div>
             </Section>
 
+          </>
+        );
+
+      case 'SETTINGS':
+        // Device behaviour rather than device looks (iOS split): text/UI size,
+        // haptics + sounds as their own sections, the stored-data reset, and
+        // the developer entry — kept out of the purely-cosmetic CUSTOMIZE panel.
+        return (
+          <>
             <Section title="TEXT SIZE">
               {(Object.keys(TEXT_SCALES) as TextScaleId[]).map(id => (
                 <ChoiceRow
@@ -397,19 +517,59 @@ export const SettingsSectionPanel: React.FC<{
               ))}
             </Section>
 
-            <Section title="FEEDBACK">
-              <ToggleRow
-                title="SOUNDS"
-                detail="Button clicks and quiz stings. Off by default."
-                on={sounds}
-                onToggle={() => { const next = !sounds; setSoundsEnabled(next); setSounds(next); }}
-              />
-              <ToggleRow
+            <Section title="HAPTICS">
+              <IconToggleRow
+                icon={<Vibrate size={20} />}
                 title="HAPTICS"
-                detail="A light tap on each press. Android only."
+                detail={haptics ? 'Every chassis button clicks in your hand.' : 'The buttons are silent to the hand.'}
                 on={haptics}
                 onToggle={() => { const next = !haptics; setHapticsEnabled(next); setHaptics(next); }}
               />
+            </Section>
+
+            <Section title="SOUNDS">
+              <IconToggleRow
+                icon={<Volume2 size={20} />}
+                title="SOUNDS"
+                detail={sounds ? 'Clicks, pings and stings from the SFX pack.' : 'The device is silent to the ear.'}
+                on={sounds}
+                onToggle={() => { const next = !sounds; setSoundsEnabled(next); setSounds(next); }}
+              />
+              <p className="font-mono text-sm leading-relaxed normal-case mt-1" style={{ color: 'var(--lcd-subtext)' }}>
+                The ring/silent switch always wins — sounds never interrupt your music.
+              </p>
+            </Section>
+
+            <Section title="STORED DATA">
+              <button
+                onClick={() => setConfirmingWipe(true)}
+                className="w-full py-4 rounded border-2 font-retro text-[0.65rem] tracking-widest transition-colors"
+                style={{ backgroundColor: 'var(--lcd-surface)', borderColor: 'rgba(239,68,68,0.55)', color: '#ef4444' }}
+              >
+                CLEAR SAVED DATA
+              </button>
+              <p className="font-mono text-sm leading-relaxed normal-case mt-2" style={{ color: 'var(--lcd-subtext)' }}>
+                Erases bookmarks, tastings and ratings, quiz progress, the daily
+                streak, name and photo, purchases, skin, screen and text settings.
+                The encyclopedia itself is untouched.
+              </p>
+            </Section>
+
+            <Section title="DEVELOPER">
+              <button
+                onClick={() => navigate('/settings/DEV')}
+                className="w-full flex items-center gap-3 px-3 py-3 rounded border-2 text-left transition-all active:translate-y-0.5"
+                style={{ backgroundColor: 'var(--lcd-surface)', borderColor: 'var(--lcd-surface-edge)' }}
+              >
+                <span style={{ color: 'var(--lcd-subtext)' }}><Bug size={20} /></span>
+                <span className="flex-1 min-w-0">
+                  <span className="block font-retro text-[0.6rem] tracking-widest" style={{ color: 'var(--lcd-text)' }}>DEV</span>
+                  <span className="block font-mono text-sm normal-case mt-1" style={{ color: 'var(--lcd-subtext)' }}>
+                    Diagnostics, the component gallery and the icon sheet.
+                  </span>
+                </span>
+                <ChevronRight size={16} style={{ color: 'var(--lcd-subtext)' }} />
+              </button>
             </Section>
           </>
         );
@@ -420,34 +580,27 @@ export const SettingsSectionPanel: React.FC<{
             <Section title="DATABASE">
               <div className="grid grid-cols-2 gap-2">
                 {categoryLines.map(line => (
-                  <div
-                    key={line.label}
-                    className="flex flex-col items-center py-4 rounded border-2"
-                    style={{ backgroundColor: 'var(--lcd-surface)', borderColor: 'var(--lcd-surface-edge)' }}
-                  >
-                    <span className="font-mono text-2xl font-bold" style={{ color: 'var(--lcd-text)' }}>
-                      {line.count}
-                    </span>
-                    <span
-                      className="font-retro text-[0.5rem] tracking-widest mt-1.5 text-center px-1"
-                      style={{ color: 'var(--lcd-subtext)' }}
-                    >
-                      {line.label}
-                    </span>
-                  </div>
+                  <StatTile key={line.label} label={line.label} count={line.count} />
                 ))}
               </div>
             </Section>
 
             <Section title="TOTAL ENTRIES">
-              <BigStat value={String(allEntries.length)} caption={`ACROSS ${categoryLines.length} TABLES`} />
+              <div
+                className="flex items-center gap-3 px-3 py-4 rounded border-2"
+                style={{ backgroundColor: 'var(--lcd-surface)', borderColor: 'var(--lcd-surface-edge)' }}
+              >
+                <span style={{ color: 'var(--lcd-accent)' }}><Layers size={26} /></span>
+                <span className="font-retro text-2xl" style={{ color: 'var(--lcd-text)' }}>{allEntries.length}</span>
+                <span className="flex-1" />
+                <span className="font-mono text-sm" style={{ color: 'var(--lcd-subtext)' }}>
+                  ACROSS {categoryLines.length} TABLES
+                </span>
+              </div>
             </Section>
 
-            <Section title="COVERAGE">
-              <StatRow label="CLIMATES" value={String(climates.size)} />
-              <StatRow label="RARITY TIERS" value={String(rarities.size)} />
-              <StatRow label="COUNTRIES OF ORIGIN" value={String(origins.size)} />
-              <StatRow label="APPELLATION SYSTEMS" value={String(systems.size)} />
+            <Section title="GROWTH">
+              <GrowthWave milestones={[0, 25, 186, 281, 342, allEntries.length]} />
               <p className="font-mono text-sm leading-relaxed normal-case mt-2" style={{ color: 'var(--lcd-subtext)' }}>
                 Entries shipped, from the first starter selection to the current
                 build.
@@ -479,8 +632,9 @@ export const SettingsSectionPanel: React.FC<{
 
             <Section title="BUNDLES">
               {TESTABLE_ENTITLEMENTS.map(e => (
-                <ToggleRow
+                <IconToggleRow
                   key={entitlementId(e)}
+                  icon={bundleSymbol(e.kind)}
                   title={entitlementTitle(e)}
                   detail={entitlementBlurb(e)}
                   on={isGranted(e)}
@@ -532,6 +686,33 @@ export const SettingsSectionPanel: React.FC<{
       >
         {body()}
       </div>
+
+      {/* CLEAR SAVED DATA asks first — the one control here that cannot be undone. */}
+      {confirmingWipe && (
+        <div className="absolute inset-0 z-30 bg-black/80 flex items-center justify-center p-6">
+          <div className="w-full max-w-xs bg-stone-900 border-2 border-red-700 rounded-lg p-5 flex flex-col gap-4 text-center">
+            <p className="font-retro text-xs tracking-widest text-red-400">CLEAR SAVED DATA?</p>
+            <p className="font-mono text-sm text-stone-300 normal-case">
+              This erases your bookmarks, tastings, ratings, quiz progress, streak,
+              name and photo, purchases and appearance settings. It cannot be undone.
+            </p>
+            <div className="flex gap-3">
+              <button
+                onClick={() => setConfirmingWipe(false)}
+                className="flex-1 font-retro text-[0.6rem] tracking-widest text-stone-300 border-2 border-stone-600 rounded py-3"
+              >
+                CANCEL
+              </button>
+              <button
+                onClick={() => { setConfirmingWipe(false); clearAllSavedData(); }}
+                className="flex-1 font-retro text-[0.6rem] tracking-widest text-white bg-red-700 border-2 border-red-900 rounded py-3"
+              >
+                CLEAR
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </DeviceLayout>
   );
 };
