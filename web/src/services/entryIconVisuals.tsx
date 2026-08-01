@@ -213,6 +213,24 @@ const COUNTRY_SHAPE_ICON_MAP: Record<string, string> = {
 
 const normalizeCountryKey = (origin: string) => normalizeLabel(origin).trim();
 
+// Full-colour ClassArt country/state outlines (v0.5.7 `art:outline-*`), keyed
+// by normalized place name. iOS draws these as the region/country icon; the web
+// prefers them over the shaped-flag mask (which only covered a handful).
+const OUTLINE_ART_KEYS = [
+	'france', 'germany', 'italy', 'greece', 'portugal', 'spain', 'hungary', 'austria',
+	'croatia', 'california', 'oregon', 'washington', 'new york', 'georgia', 'switzerland',
+	'romania', 'south africa', 'morocco', 'usa', 'canada', 'argentina', 'chile', 'uruguay',
+	'new zealand', 'australia', 'japan', 'china', 'india',
+];
+const OUTLINE_ART: Record<string, string> = Object.fromEntries(
+	OUTLINE_ART_KEYS.map(k => [k, `outline-${k.replace(/ /g, '-')}`]),
+);
+const outlineStemFor = (name?: string): string | undefined =>
+	name ? OUTLINE_ART[normalizeCountryKey(name)] : undefined;
+const outlineNode = (stem: string, size: number): React.ReactNode => (
+	<Icon icon={`art:${stem}`} width={Math.round(size * 1.7)} height={Math.round(size * 1.7)} />
+);
+
 const OFFLINE_ICONS = new Set((iconManifest as { unique: string[] }).unique);
 
 // Shaped flags (France, Italy, ...) mask a background image through an icon
@@ -362,11 +380,16 @@ export const resolveEntryIconVisual = (
 			}
 		}
 
+			// Prefer the drawn outline art — state outline for US regions, else
+			// the country's (matches EntryVisual.swift).
+			const outlineStem = outlineStemFor((entry.details as { state?: string }).state) ?? outlineStemFor(origin);
 			const countryShapeIcon = COUNTRY_SHAPE_ICON_MAP[normalizeCountryKey(origin)];
 			const useShapedFlag = !!countryShapeIcon && (!!flagImage || !!flagGradient);
 
 			let regionIconNode: React.ReactNode;
-			if (useShapedFlag) {
+			if (outlineStem) {
+				regionIconNode = outlineNode(outlineStem, size);
+			} else if (useShapedFlag) {
 				const background = flagImage ? `url(${flagImage})` : (flagGradient as string);
 				regionIconNode = renderShapedFlag(background, countryShapeIcon);
 			} else if (flagImage) {
@@ -388,6 +411,7 @@ export const resolveEntryIconVisual = (
 
 			return {
 				style: {
+					backgroundColor: outlineStem ? '#ffffff' : undefined,
 					boxShadow: climateOutline ? `0 0 0 2px ${climateOutline}` : undefined,
 				},
 				iconNode: regionIconNode,
@@ -398,6 +422,10 @@ export const resolveEntryIconVisual = (
 	if (entry.category === 'COUNTRY_GATE') {
 		const isUsState = entry.details.classification?.toUpperCase() === 'STATE';
 		const origin = isUsState ? entry.name : (entry.details.origin || entry.name);
+		const outlineStem = outlineStemFor(origin);
+		if (outlineStem) {
+			return { style: { backgroundColor: '#ffffff', overflow: 'hidden' }, iconNode: outlineNode(outlineStem, size), iconColor: '#ffffff' };
+		}
 		const flagImage = getFlagImage(origin, { preferUsState: isUsState });
 		const flagGradient = getFlagGradient(origin);
         return {

@@ -221,7 +221,7 @@ const EntryDetail: React.FC<EntryDetailProps> = ({ entry, allEntries, onBack, on
             }}
             className="w-full flex items-center justify-center gap-2 py-3 rounded border-2 border-stone-700 hover:border-green-500 transition-colors font-retro text-[0.6rem] tracking-widest text-green-500"
           >
-            {expanded ? 'SHOW FEWER' : `SHOW ALL (${items.length})`}
+            {expanded ? 'SHOW FEWER' : `EXPAND ALL (${items.length})`}
           </button>
         )}
       </>
@@ -1248,10 +1248,11 @@ const EntryDetail: React.FC<EntryDetailProps> = ({ entry, allEntries, onBack, on
           </div>
         )}
 
-        {/* Grape sections, in the order EntryDetailScreen.swift lists them:
-            characteristics, rarity, flavour profile, synonyms, regions. */}
-        {grapeCharacteristics}
+        {/* Grape sections, in the order EntryDetailScreen.swift lists them
+            (v0.5.6): rarity leads — it's the one-glance fact — then
+            characteristics, flavour profile, synonyms, regions. */}
         {grapeRarity}
+        {grapeCharacteristics}
         {grapeFlavorProfile}
         {grapeAlsoKnownAs}
         {grapeNotableRegions}

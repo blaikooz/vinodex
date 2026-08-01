@@ -1,5 +1,5 @@
 import React from 'react';
-import { Palette, BarChart3, Lock, Bug, Check, Gamepad2, LogOut, Flag } from 'lucide-react';
+import { Palette, BarChart3, Lock, Bug, Check, Wrench, LogOut, Flag } from 'lucide-react';
 import DeviceLayout from './DeviceLayout';
 import { WineEntry, isGrapeEntry, isRegionEntry } from '@/shared/types';
 import {
@@ -35,18 +35,20 @@ import {
 } from '../src/services/access';
 import { useAccess } from '../src/services/useAccess';
 
-export type SettingsSectionId = 'CUSTOMIZATION' | 'DATA' | 'ACCESS' | 'DEV';
+export type SettingsSectionId = 'CUSTOMIZE' | 'DATA' | 'ACCESS' | 'DEV';
 
 export const SETTINGS_SECTIONS: {
   id: SettingsSectionId;
   icon: React.ReactNode;
   tint: string;
   border: string;
+  /** DEV is developer plumbing, not a setting — reached via a button, not a tile. */
+  hidden?: boolean;
 }[] = [
-  { id: 'CUSTOMIZATION', icon: <Palette size={30} />, tint: 'text-red-400', border: 'border-red-800' },
+  { id: 'CUSTOMIZE', icon: <Palette size={30} />, tint: 'text-red-400', border: 'border-red-800' },
   { id: 'DATA', icon: <BarChart3 size={30} />, tint: 'text-blue-400', border: 'border-blue-800' },
   { id: 'ACCESS', icon: <Lock size={30} />, tint: 'text-yellow-400', border: 'border-yellow-700' },
-  { id: 'DEV', icon: <Bug size={30} />, tint: 'text-stone-400', border: 'border-stone-600' },
+  { id: 'DEV', icon: <Bug size={30} />, tint: 'text-stone-400', border: 'border-stone-600', hidden: true },
 ];
 
 /**
@@ -94,7 +96,7 @@ export const SettingsGrid: React.FC<{
           className="aspect-square flex flex-col items-center justify-center gap-3 rounded-xl border-2 border-indigo-700 transition-all active:translate-y-0.5"
           style={{ backgroundColor: 'var(--lcd-surface)' }}
         >
-          <span className="text-indigo-400"><Gamepad2 size={30} /></span>
+          <span className="text-yellow-400"><Wrench size={30} /></span>
           <span
             className="font-retro text-[0.55rem] sm:text-[0.65rem] tracking-widest text-center px-1"
             style={{ color: 'var(--lcd-text)' }}
@@ -103,7 +105,7 @@ export const SettingsGrid: React.FC<{
           </span>
         </button>
 
-        {SETTINGS_SECTIONS.map(s => (
+        {SETTINGS_SECTIONS.filter(s => !s.hidden).map(s => (
           <button
             key={s.id}
             onClick={() => onSection(s.id)}
@@ -135,6 +137,18 @@ export const SettingsGrid: React.FC<{
         <LogOut size={18} style={{ color: 'var(--lcd-subtext)' }} />
         <span className="font-retro text-[0.6rem] tracking-widest" style={{ color: 'var(--lcd-text)' }}>
           EXIT TO SPLASH
+        </span>
+      </button>
+
+      {/* Developer plumbing lives under settings, not as a peer tile. */}
+      <button
+        onClick={() => onSection('DEV')}
+        className="w-full mt-2 flex items-center justify-center gap-2 py-3 rounded-xl border-2 transition-all active:translate-y-0.5"
+        style={{ backgroundColor: 'var(--lcd-surface)', borderColor: 'var(--lcd-surface-edge)' }}
+      >
+        <Bug size={16} style={{ color: 'var(--lcd-subtext)' }} />
+        <span className="font-retro text-[0.55rem] tracking-widest" style={{ color: 'var(--lcd-subtext)' }}>
+          DEVELOPER
         </span>
       </button>
 
@@ -304,23 +318,10 @@ export const SettingsSectionPanel: React.FC<{
 
   const body = () => {
     switch (section) {
-      case 'CUSTOMIZATION':
+      case 'CUSTOMIZE':
         return (
           <>
-            {/* "CHASSIS SKIN", not "SHELL SKIN" — the rest of the app calls this
-                part of the device the chassis. */}
-            <Section title="CHASSIS SKIN">
-              {(Object.keys(CHASSIS_SKINS) as ChassisSkinId[]).map(id => (
-                <ChoiceRow
-                  key={id}
-                  label={CHASSIS_SKINS[id].displayName}
-                  swatch={CHASSIS_SKINS[id].body}
-                  selected={theme.skin === id}
-                  onClick={() => setSkin(id)}
-                />
-              ))}
-            </Section>
-
+            {/* Screen mode first, then skins — matching iOS's CUSTOMIZE order. */}
             <Section title="SCREEN MODE">
               {(Object.keys(LCD_MODES) as LcdModeId[]).map(id => (
                 <ChoiceRow
@@ -329,6 +330,20 @@ export const SettingsSectionPanel: React.FC<{
                   swatch={LCD_MODES[id].screen}
                   selected={theme.lcd === id}
                   onClick={() => setLcdMode(id)}
+                />
+              ))}
+            </Section>
+
+            {/* "CHASSIS SKINS", not "SHELL SKINS" — the rest of the app calls this
+                part of the device the chassis. */}
+            <Section title="CHASSIS SKINS">
+              {(Object.keys(CHASSIS_SKINS) as ChassisSkinId[]).map(id => (
+                <ChoiceRow
+                  key={id}
+                  label={CHASSIS_SKINS[id].displayName}
+                  swatch={CHASSIS_SKINS[id].body}
+                  selected={theme.skin === id}
+                  onClick={() => setSkin(id)}
                 />
               ))}
             </Section>
