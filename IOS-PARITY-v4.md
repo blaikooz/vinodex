@@ -18,6 +18,33 @@ Reference: `vinodex-ios` @ v0.6.3 (read-only).
 - CUSTOMIZE order: **SCREEN MODE before CHASSIS SKINS**; "CHASSIS SKINS" plural.
 - Grape detail: **RARITY leads before CHARACTERISTICS**; "SHOW ALL" → "EXPAND ALL".
 
+## Fixed in polish passes 2–5 (on `testing`)
+
+All four backlog passes are now implemented on `testing`:
+
+- **Pass 2 (settings):** CUSTOMIZE split from a new **SETTINGS** panel (text/UI
+  size, HAPTICS + SOUNDS as separate sections with the iOS copy, a **CLEAR SAVED
+  DATA** control with confirm, and the DEVELOPER entry). DATA gained per-category
+  glyph+tint stat tiles, a TOTAL ENTRIES layers glyph, and a **GROWTH** area
+  chart (the DataWave milestones) in place of COVERAGE. ACCESS bundle rows carry
+  crown/leaf/flag/palette/sun glyphs.
+- **Pass 3 (entry detail):** MY RATING is now a body section (five large stars +
+  RATE/EDIT + note); TYPE-class styles show NOTABLE GRAPES; style tiles run
+  COLOR→CLASS→ORIGIN; the region header is a full-width KEY GRAPE bar over a
+  CLIMATE/COUNTRY row; flavor header is two tiles; section-header icons corrected
+  (FLAVOR PROFILE drop, APPELLATIONS shield + constant title, ALSO KNOWN AS book).
+- **Pass 4 (class-art tiles):** colour / body / style-class / flavor-class /
+  subclass detail tiles render `art:` PNGs (defined in `classArt.tsx`, since the
+  generated manifest still held the pre-`art:` game-icons values); region
+  outlines carry the red `mapPosition` dot.
+- **Pass 5 (chassis chrome):** per-route marquee glyph; engraved VINODEX
+  nameplate above the LCD on every screen; xmark remove control; stars-only
+  unrated journal line; glyph-less quiz tier rows; left-aligned CHOOSE YOUR EXAM;
+  iOS clear-all copy.
+
+Deliberate deviation kept: the collection screen stays titled **COLLECTION**
+rather than iOS's **SAVED** — clearer given the web's three tabs (item 15).
+
 ---
 
 ## The backlog
