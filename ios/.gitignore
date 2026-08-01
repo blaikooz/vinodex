@@ -1,4 +1,0 @@
-.build/
-
-# xtool's build output (the packaged .app)
-xtool/
