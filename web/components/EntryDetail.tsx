@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useReducer, useRef, useState } from 'react';
-import { Tag, MapPin, Activity, Grape, Mountain, ChevronRight, List, Leaf, Flame, Shield, BookOpen, Bookmark, MapPinned, Wind, Star, Crown, PlusCircle, CheckCircle2 } from 'lucide-react';
+import { MapPin, Activity, Droplet, Grape, Mountain, ChevronRight, List, Leaf, Flame, Shield, BookOpen, Bookmark, MapPinned, Wind, Star, Crown, PlusCircle, CheckCircle2 } from 'lucide-react';
 import { Icon } from '../src/components/LocalIcon';
 import DeviceLayout from './DeviceLayout';
 import { EntryCategory, WineEntry, isCountryGateEntry, isFlavorEntry, isGrapeEntry, isRegionEntry, isStyleEntry } from '@/shared/types';
@@ -443,72 +443,79 @@ const EntryDetail: React.FC<EntryDetailProps> = ({ entry, allEntries, onBack, on
       const flagGradient = getFlagGradient(entry.details.origin);
       const flagImage = getFlagImage(entry.details.origin);
       
+      // iOS region header (0.6.x): KEY GRAPE rides alone on a full-width flat
+      // bar (grape names are the longest strings here and wrapped three
+      // abreast), CLIMATE + COUNTRY keep the two-tile row below.
       return (
-          <div className={getTileRowClass(3)}>
-              {/* Tile 1: Main Grape */}
-              <button 
+          <div className="px-1 mb-3">
+              {/* Full-width KEY GRAPE bar */}
+              <button
                 onClick={() => mainGrapeEntry && onSelectRelated(mainGrapeEntry)}
                 disabled={!mainGrapeEntry}
-                className={tileBase}
-                style={{ backgroundColor: 'transparent', borderColor: 'transparent', color: '#22c55e' }}
+                className="w-full flex items-center gap-3 px-2 py-2 mb-2 bg-transparent border-0 text-left group"
               >
-                   <span className={labelStyle}>KEY GRAPE</span>
                    <div
-                     className={"w-12 h-12 rounded-lg border border-stone-700 shadow-inner flex items-center justify-center mb-1"}
+                     className="w-9 h-9 rounded-md border border-stone-700 shadow-inner flex items-center justify-center shrink-0"
                      style={mainGrapeIconStyle}
                    >
-                     {/* Render the icon at 32px, centered */}
                      {mainGrapeEntry && resolveEntryIconVisual(mainGrapeEntry, {
-                       size: 32,
+                       size: 26,
                        resolver: entryVisualResolver,
                        includeRegionClimateOutline: true,
                      }).iconNode}
                    </div>
-                   <span className={chipStyle} style={{ backgroundColor: mainGrapeTypeColors.bg, borderColor: mainGrapeTypeColors.border, color: mainGrapeTypeColors.text }}>
-                     {formatUpper(mainGrape)}
-                   </span>
+                   <div className="flex flex-col min-w-0 flex-1">
+                     <span className="font-retro text-[9px] tracking-normal text-green-500 leading-none mb-1">KEY GRAPE</span>
+                     <span className="font-retro text-[13px] tracking-normal leading-tight truncate" style={{ color: mainGrapeTypeColors.text === '#000000' || !mainGrapeTypeColors.text ? mainGrapeTypeColors.border : mainGrapeTypeColors.text }}>
+                       {formatUpper(mainGrape)}
+                     </span>
+                   </div>
+                   {mainGrapeEntry && <ChevronRight size={14} className="text-stone-600 group-hover:text-green-500 shrink-0" />}
               </button>
 
-              {/* Tile 2: Climate */}
-              <div
-                className={`${tileBase} cursor-default`}
-                style={{ backgroundColor: 'transparent', borderColor: 'transparent', color: '#22c55e' }}
-              >
-                   <span className={labelStyle}>CLIMATE</span>
-                   <div className={iconRowStyle} style={{ color: climateStyle.border }}>
-                     {getClimateIcon(entry.climate, 48)}
-                   </div>
-                   <span className={chipStyle} style={{ backgroundColor: climateStyle.bg, borderColor: climateStyle.border, color: climateStyle.text }}>
-                     {formatUpper(climateMeta?.name || 'N/A')}
-                   </span>
-              </div>
+              {/* CLIMATE + COUNTRY row */}
+              <div className="grid grid-cols-2 gap-2">
+                  {/* Climate */}
+                  <div
+                    className={`${tileBase} cursor-default`}
+                    style={{ backgroundColor: 'transparent', borderColor: 'transparent', color: '#22c55e' }}
+                  >
+                       <span className={labelStyle}>CLIMATE</span>
+                       <div className={iconRowStyle} style={{ color: climateStyle.border }}>
+                         {getClimateIcon(entry.climate, 48)}
+                       </div>
+                       <span className={chipStyle} style={{ backgroundColor: climateStyle.bg, borderColor: climateStyle.border, color: climateStyle.text }}>
+                         {formatUpper(climateMeta?.name || 'N/A')}
+                       </span>
+                  </div>
 
-              {/* Tile 3: Country (right aligned via grid order) */}
-              <button 
-                onClick={() => entry.details.origin && onFilterByOrigin(entry.details.origin)} 
-                className={tileBase}
-                style={{ backgroundColor: 'transparent', borderColor: 'transparent', color: '#22c55e' }}
-              >
-                   <span className={labelStyle}>COUNTRY</span>
-                   <div className={iconRowStyle}>
-                     <div className="w-16 h-10 rounded border-2 border-white shadow-inner bg-stone-900 flex-shrink-0 overflow-hidden flex items-center justify-center">
-                       {flagImage ? (
-                         <img
-                           src={flagImage}
-                           alt={entry.details.origin}
-                           style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }}
-                           draggable={false}
-                         />
-                       ) : (
-                         <span className="w-full h-full block" style={{ background: flagGradient }} />
-                       )}
-                     </div>
-                   </div>
-                   <span className={chipStyle} style={{ backgroundColor: countryStyle.bg, borderColor: countryStyle.border, color: countryStyle.text }}>
-                     {formatUpper(entry.details.origin)}
-                   </span>
-              </button>
+                  {/* Country */}
+                  <button
+                    onClick={() => entry.details.origin && onFilterByOrigin(entry.details.origin)}
+                    className={tileBase}
+                    style={{ backgroundColor: 'transparent', borderColor: 'transparent', color: '#22c55e' }}
+                  >
+                       <span className={labelStyle}>COUNTRY</span>
+                       <div className={iconRowStyle}>
+                         <div className="w-16 h-10 rounded border-2 border-white shadow-inner bg-stone-900 flex-shrink-0 overflow-hidden flex items-center justify-center">
+                           {flagImage ? (
+                             <img
+                               src={flagImage}
+                               alt={entry.details.origin}
+                               style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }}
+                               draggable={false}
+                             />
+                           ) : (
+                             <span className="w-full h-full block" style={{ background: flagGradient }} />
+                           )}
+                         </div>
+                       </div>
+                       <span className={chipStyle} style={{ backgroundColor: countryStyle.bg, borderColor: countryStyle.border, color: countryStyle.text }}>
+                         {formatUpper(entry.details.origin)}
+                       </span>
+                  </button>
               </div>
+          </div>
           );
       } else if (isStyle) {
           const classColors = getStyleClassTileColors(styleClassType);
@@ -590,7 +597,8 @@ const EntryDetail: React.FC<EntryDetailProps> = ({ entry, allEntries, onBack, on
             </button>
           ) : null;
 
-          const tiles = [classTile, colorTile];
+          // iOS order: COLOR → CLASS → ORIGIN.
+          const tiles = [colorTile, classTile];
           if (originTile) tiles.push(originTile);
 
           return <div className={getTileRowClass(tiles.length)}>{tiles}</div>;
@@ -599,8 +607,6 @@ const EntryDetail: React.FC<EntryDetailProps> = ({ entry, allEntries, onBack, on
         const flavorColors = getFlavorClassTileColors(flavorClass);
         const subclass = entry.details.subclass || 'SUBCLASS';
         const subclassColors = getFlavorSubclassTileColors(entry.details.subclass);
-        const linkedGrapesCount = (entry.details.notableGrapes || []).length;
-        const linkedGrapesColors = { bg: '#14532d', border: '#22c55e', text: '#dcfce7' };
 
         const flavorClassIconNode = <Icon icon={flavorClassIconId(flavorClass)} width={32} height={32} />;
 
@@ -609,8 +615,9 @@ const EntryDetail: React.FC<EntryDetailProps> = ({ entry, allEntries, onBack, on
           ? <Icon icon={subclassArtId} width={32} height={32} />
           : buildIconNode(entry.icon || 'default', subclassColors.border, 32);
 
+        // iOS flavor header is two tiles: CLASS + SUBCLASS (no GRAPES count).
         return (
-          <div className={getTileRowClass(3)}>
+          <div className={getTileRowClass(2)}>
             <button
               className={tileBase}
               onClick={() => onFilterByNote(flavorClass, 'FLAVORS', 'TASTING')}
@@ -637,15 +644,6 @@ const EntryDetail: React.FC<EntryDetailProps> = ({ entry, allEntries, onBack, on
                 {subclass.replace(/_/g, ' ')}
               </span>
             </button>
-            <div className={`${tileBase} cursor-default`}>
-              <span className={labelStyle}>GRAPES</span>
-              <div className={iconRowStyle} style={{ color: linkedGrapesColors.border }}>
-                <Grape size={32} />
-              </div>
-              <span className={chipStyle} style={{ backgroundColor: linkedGrapesColors.bg, borderColor: linkedGrapesColors.border, color: linkedGrapesColors.text }}>
-                {linkedGrapesCount}
-              </span>
-            </div>
           </div>
         );
       }
@@ -658,7 +656,7 @@ const EntryDetail: React.FC<EntryDetailProps> = ({ entry, allEntries, onBack, on
   const grapeAlsoKnownAs = isGrapes ? (
             <div className="mb-6">
                 <div className="flex items-center gap-2 mb-3 dex-section-rule pb-1">
-                    <Tag size={18} className="text-green-500" />
+                    <BookOpen size={18} className="text-green-500" />
                     <span className="font-retro text-xs md:text-sm tracking-widest text-green-500">ALSO KNOWN AS</span>
                 </div>
                 {grapeAlternateNames.length > 0 ? (
@@ -778,9 +776,9 @@ const EntryDetail: React.FC<EntryDetailProps> = ({ entry, allEntries, onBack, on
   const regionAppellations = isRegion && entry.details.appellations && entry.details.appellations.length > 0 ? (
             <div className="mb-6">
                 <div className="flex items-center gap-2 mb-3 dex-section-rule pb-1">
-                    <MapPinned size={18} className="text-green-500" />
+                    <Shield size={18} className="text-green-500" />
                     <span className="font-retro text-xs md:text-sm tracking-widest text-green-500">
-                        {entry.name.includes('Beaujolais') ? 'CRUS OF BEAUJOLAIS' : 'APPELLATIONS'}
+                        APPELLATIONS
                     </span>
                 </div>
                 <div className="grid grid-cols-2 gap-2">
@@ -877,7 +875,7 @@ const EntryDetail: React.FC<EntryDetailProps> = ({ entry, allEntries, onBack, on
   const grapeFlavorProfile = isGrapes ? (
             <div className="mb-6">
                 <div className="flex items-center gap-2 mb-3 dex-section-rule pb-1">
-                    <Grape size={18} className="text-green-500" />
+                    <Droplet size={18} className="text-green-500" />
                     <span className="font-retro text-xs md:text-sm tracking-widest text-green-500">FLAVOR PROFILE</span>
                 </div>
                 {matchedFlavorNotes.length > 0 ? (
@@ -1043,28 +1041,6 @@ const EntryDetail: React.FC<EntryDetailProps> = ({ entry, allEntries, onBack, on
                   )}
                 </div>
 
-                {/* MY RATING readout — tastable entries you've tried. */}
-                {tastable && tried && (
-                  <button
-                    onClick={() => setShowRating(true)}
-                    className="mt-3 flex items-center gap-2 rounded-lg px-3 py-1.5 bg-black/30 border border-stone-700 hover:border-amber-600 transition-colors"
-                  >
-                    <span className="flex items-center gap-0.5">
-                      {Array.from({ length: 5 }).map((_, i) => (
-                        <Star
-                          key={i}
-                          size={13}
-                          className={i < (rating?.rating ?? 0) ? 'text-yellow-400' : 'text-stone-600'}
-                          fill={i < (rating?.rating ?? 0) ? '#facc15' : 'none'}
-                        />
-                      ))}
-                    </span>
-                    {rating?.note ? (
-                      <span className="font-mono text-xs text-stone-300 max-w-[10rem] truncate">{rating.note}</span>
-                    ) : null}
-                    <span className="font-retro text-[0.5rem] tracking-widest text-amber-300">{rating ? 'EDIT' : 'RATE'}</span>
-                  </button>
-                )}
              </div>
         </div>
 
@@ -1084,6 +1060,41 @@ const EntryDetail: React.FC<EntryDetailProps> = ({ entry, allEntries, onBack, on
                       {grapeCard?.info || entry.description}
                   </p>
               </div>
+          </div>
+        )}
+
+        {/* MY RATING — dedicated body section for tastable entries you've tried
+            (iOS EntryDetailScreen.myTasting): star header, five large stars,
+            RATE/EDIT capsule, note below. */}
+        {tastable && tried && (
+          <div className="mb-6">
+              <div className="flex items-center gap-2 mb-3 dex-section-rule pb-1">
+                  <Star size={18} className="text-green-500" fill="#22c55e" />
+                  <span className="font-retro text-xs md:text-sm tracking-widest text-green-500">MY RATING</span>
+              </div>
+              <div className="flex items-center gap-2">
+                  <span className="flex items-center gap-1.5 flex-1">
+                    {Array.from({ length: 5 }).map((_, i) => (
+                      <Star
+                        key={i}
+                        size={26}
+                        className={i < (rating?.rating ?? 0) ? 'text-yellow-400' : 'text-stone-600'}
+                        fill={i < (rating?.rating ?? 0) ? '#facc15' : 'none'}
+                      />
+                    ))}
+                  </span>
+                  <button
+                    onClick={() => setShowRating(true)}
+                    className="flex items-center gap-1.5 rounded-full px-4 py-2 bg-stone-900/70 border-2 border-amber-500 text-amber-300 hover:bg-stone-800 transition-colors active:translate-y-0.5"
+                    aria-label={rating ? 'Edit your rating' : 'Rate this entry'}
+                  >
+                    <PlusCircle size={14} />
+                    <span className="font-retro text-[0.6rem] tracking-widest">{rating ? 'EDIT' : 'RATE'}</span>
+                  </button>
+              </div>
+              {rating?.note ? (
+                <p className="mt-3 font-mono text-lg text-stone-300 break-words whitespace-normal">{rating.note}</p>
+              ) : null}
           </div>
         )}
 
@@ -1253,6 +1264,19 @@ const EntryDetail: React.FC<EntryDetailProps> = ({ entry, allEntries, onBack, on
 
         {/* Notable Grapes Section - For Styles (Style class) */}
         {isStyle && isStyleClassType && styleGrapes.length > 0 && (
+            <div className="mb-6">
+                <div className="flex items-center gap-2 mb-3 dex-section-rule pb-1">
+                    <Grape size={18} className="text-green-500" />
+                    <span className="font-retro text-xs md:text-sm tracking-widest text-green-500">NOTABLE GRAPES</span>
+                </div>
+                <div className="grid grid-cols-1 gap-2">
+                     {expandableList(styleGrapes, 6, 'stylegrapes')}
+                </div>
+            </div>
+        )}
+
+        {/* Notable Grapes Section - TYPE-class styles (iOS parity) */}
+        {isStyle && styleClassType === 'TYPE' && styleGrapes.length > 0 && (
             <div className="mb-6">
                 <div className="flex items-center gap-2 mb-3 dex-section-rule pb-1">
                     <Grape size={18} className="text-green-500" />
