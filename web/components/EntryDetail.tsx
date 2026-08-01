@@ -25,6 +25,7 @@ import { normalizeTypeClass, getStyleClassTileColors, getStyleColorTileColors, g
 import { getFlavorClassTileColors, getFlavorSubclassTileColors } from '../src/services/flavorDisplay';
 import { getClimateIcon } from '../src/services/climateDisplay';
 import { colorIconId, bodyIconId, styleClassIconId, flavorClassIconId, flavorSubclassIconId } from '../src/services/classArt';
+import { appellationName, hasAppellationName } from '../src/services/entryDisplay';
 import { isOn as isFlagOn, keyForDetail, toggleFlag } from '../src/services/screenState';
 import { useScreenAnchor } from '../src/services/useScreenAnchor';
 import { isBookmarked, toggleBookmark, isOnShelf, toggleShelf, getRating, setRating, makeRating } from '../src/services/bookmarks';
@@ -766,10 +767,42 @@ const EntryDetail: React.FC<EntryDetailProps> = ({ entry, allEntries, onBack, on
                     <Shield size={18} className="text-green-500" />
                     <span className="font-retro text-xs md:text-sm tracking-widest text-green-500">APPELLATION SYSTEM</span>
                 </div>
-                <div className="flex flex-wrap gap-2">
-                    <span className="px-4 py-2 rounded text-xl font-bold font-mono tracking-widest" style={{ backgroundColor: SYSTEM_CHIP_COLOR.bg, border: `1px solid ${SYSTEM_CHIP_COLOR.border}`, color: SYSTEM_CHIP_COLOR.text }}>
+                {/*
+                  The abbreviation in the chip, the spelled-out name beside it,
+                  the state at the end — matching `systemSection` in
+                  EntryDetailScreen.swift. The web printed the abbreviation
+                  alone, so "AOC" arrived with nothing to say what it stands
+                  for, and the only place the full name appeared was a country
+                  page two taps away.
+
+                  Straight from the Swift, on why the chip keeps the short form:
+                  the chip used to carry the full name, which made it five words
+                  wide and wrapped it to three lines — and it hid the
+                  abbreviation the bottle label actually prints, which is the
+                  thing worth recognising.
+                */}
+                <div className="flex flex-wrap items-start gap-x-3 gap-y-2">
+                    <span className="px-4 py-2 rounded text-xl font-bold font-mono tracking-widest shrink-0" style={{ backgroundColor: SYSTEM_CHIP_COLOR.bg, border: `1px solid ${SYSTEM_CHIP_COLOR.border}`, color: SYSTEM_CHIP_COLOR.text }}>
                       {extractTagAbbrev(entry.details.classification || '')}
                     </span>
+                    {(() => {
+                      const short = entry.details.classification || '';
+                      const country = (entry.details as { origin?: string }).origin || '';
+                      // Hidden rather than repeated when the system is unknown:
+                      // `appellationName` passes its input through, so printing
+                      // it unconditionally would render the chip's text twice.
+                      if (!hasAppellationName(short, country)) return null;
+                      return (
+                        <span className="flex-1 min-w-0 self-center font-mono text-lg text-stone-400 normal-case leading-snug">
+                          {appellationName(short, country)}
+                        </span>
+                      );
+                    })()}
+                    {(entry.details as { state?: string }).state && (
+                      <span className="self-center font-mono text-lg dex-subtext tracking-widest shrink-0">
+                        {((entry.details as { state?: string }).state || '').toUpperCase()}
+                      </span>
+                    )}
                 </div>
             </div>
   ) : null;
@@ -826,6 +859,12 @@ const EntryDetail: React.FC<EntryDetailProps> = ({ entry, allEntries, onBack, on
                     <Wind size={18} className="text-green-500" />
                     <span className="font-retro text-xs md:text-sm tracking-widest text-green-500">CLIMATE</span>
                 </div>
+                {/*
+                  Icon then name, as `climateSection` has it. The web showed a
+                  bare chip here and put the climate glyph only in the hero tile
+                  row, so the section that is actually titled CLIMATE was the
+                  one place without it.
+                */}
                 <div className="flex flex-wrap gap-2">
                     {(() => {
                       const sectionClimateColors = (entry.climate && CLIMATE_CLASS_MAP[entry.climate]?.colors) || CLIMATE_CHIP_COLOR;
@@ -833,7 +872,10 @@ const EntryDetail: React.FC<EntryDetailProps> = ({ entry, allEntries, onBack, on
                       // coloured row, the glyph tinted with the border colour.
                       return (
                         <span className="inline-flex items-center gap-3 px-4 py-2 rounded text-xl font-bold font-mono tracking-widest" style={{ backgroundColor: sectionClimateColors.bg, border: `1px solid ${sectionClimateColors.border}`, color: sectionClimateColors.text }}>
-                          <span className="inline-flex" style={{ color: sectionClimateColors.border }}>{getClimateIcon(entry.climate, 26)}</span>
+                          {/* Parity chip (e32a82e) with master's shrink-0 kept: the glyph must not squash when the climate name is long. */}
+                          <span className="shrink-0 inline-flex items-center" style={{ color: sectionClimateColors.border }}>
+                            {getClimateIcon(entry.climate, 26)}
+                          </span>
                           {((entry.climate && CLIMATE_CLASS_MAP[entry.climate]?.name) || 'Unknown Climate').toUpperCase()}
                         </span>
                       );
@@ -948,9 +990,21 @@ const EntryDetail: React.FC<EntryDetailProps> = ({ entry, allEntries, onBack, on
           className="w-full min-h-[6rem] dex-hero-rule mb-4 relative overflow-hidden flex items-center justify-center shrink-0 p-4"
           style={{ backgroundColor: 'var(--lcd-hero-wash)' }}
         >
-             <div className="absolute inset-0 grid grid-cols-8 grid-rows-4 opacity-20">
+             {/*
+               The grid over the hero wash. `--lcd-hero-grid` rather than a
+               fixed green-900 (#14532d), which is the shade iOS singled out as
+               reading heavy on the light hero — light mode lifts it toward the
+               paper. Every country, state and continent page renders through
+               this component, so this is the web's whole equivalent of the four
+               hero grids the Swift pass touched.
+             */}
+             <div className="absolute inset-0 grid grid-cols-8 grid-rows-4 opacity-20" aria-hidden="true">
                 {Array.from({ length: 32 }).map((_, i) => (
-                    <div key={i} className="border border-green-900/50"></div>
+                    <div
+                      key={i}
+                      className="border"
+                      style={{ borderColor: 'color-mix(in srgb, var(--lcd-hero-grid) 50%, transparent)' }}
+                    ></div>
                 ))}
              </div>
              <div className="text-center z-10 w-full flex flex-col items-center px-2">

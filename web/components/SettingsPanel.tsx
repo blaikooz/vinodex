@@ -37,6 +37,8 @@ import {
 import { useAccess } from '../src/services/useAccess';
 import { removeEverything } from '../src/services/bookmarks';
 import iconManifest from '../src/data/iconManifest.json';
+import { isAppUnlocked, lockApp } from '../src/services/appUnlock';
+import { useAppUnlock } from '../src/services/useAppUnlock';
 
 export type SettingsSectionId = 'CUSTOMIZE' | 'SETTINGS' | 'DATA' | 'ACCESS' | 'DEV';
 
@@ -247,31 +249,66 @@ const Section: React.FC<{ title: string; children: React.ReactNode }> = ({ title
 );
 
 /** A radio-style row: label on the left, tick when active. */
-const ChoiceRow: React.FC<{ label: string; selected: boolean; onClick: () => void; swatch?: string }> = ({
+const ChoiceRow: React.FC<{
+  label: string;
+  selected: boolean;
+  onClick: () => void;
+  swatch?: string;
+  /**
+   * A chassis swatch: the moulding with the LCD panel below it, as the iOS skin
+   * picker draws it — "body over panel, so the pair reads as the actual shell
+   * rather than one flat swatch". A single `swatch` colour could not say which
+   * of the five shells you were choosing once two of them were similar.
+   */
+  skinSwatch?: { body: string; panel: string; panelEdge: string };
+}> = ({
   label,
   selected,
   onClick,
   swatch,
+  skinSwatch,
 }) => (
+  /*
+    The selected row is filled with the accent and its label switches to
+    `--lcd-on-accent`, matching `SettingsSectionPanel` on iOS. The web used to
+    keep every row on `--lcd-surface` and mark the selection with a border and a
+    tick alone, which read as a much weaker "this one".
+
+    `onAccent` is the audit's M44 fix and the reason it is a token rather than
+    just `white`: dark mode's accent is mint, and white on it is about 1.8:1.
+    Black on mint is ~12:1; light mode's deep green takes white.
+  */
   <button
     onClick={onClick}
+    aria-pressed={selected}
     className="w-full flex items-center gap-3 px-3 py-3 rounded border-2 transition-all active:translate-y-0.5 mb-2"
     style={{
-      backgroundColor: 'var(--lcd-surface)',
+      backgroundColor: selected ? 'var(--lcd-accent)' : 'var(--lcd-surface)',
       borderColor: selected ? 'var(--lcd-accent)' : 'var(--lcd-surface-edge)',
+      color: selected ? 'var(--lcd-on-accent)' : 'var(--lcd-subtext)',
     }}
   >
-    {swatch && (
+    {skinSwatch ? (
       <span
-        className="w-6 h-6 rounded border border-black/30 shrink-0"
-        style={{ backgroundColor: swatch }}
+        className="w-11 h-[34px] rounded shrink-0 overflow-hidden flex flex-col justify-end border"
+        style={{ backgroundColor: skinSwatch.body, borderColor: skinSwatch.panelEdge }}
         aria-hidden="true"
-      />
+      >
+        <span className="h-3 w-full" style={{ backgroundColor: skinSwatch.panel }} />
+      </span>
+    ) : (
+      swatch && (
+        <span
+          className="w-6 h-6 rounded border border-black/30 shrink-0"
+          style={{ backgroundColor: swatch }}
+          aria-hidden="true"
+        />
+      )
     )}
-    <span className="font-retro text-[0.6rem] tracking-widest text-left flex-1" style={{ color: 'var(--lcd-text)' }}>
+    <span className="font-retro text-[0.6rem] tracking-widest text-left flex-1">
       {label}
     </span>
-    {selected && <Check size={18} style={{ color: 'var(--lcd-accent)' }} />}
+    {selected && <Check size={18} />}
   </button>
 );
 
@@ -435,6 +472,9 @@ export const SettingsSectionPanel: React.FC<{
   useAccess();
   const locked = starterOnly();
 
+  useAppUnlock();
+  const vinodexUnlocked = isAppUnlocked('vinodex');
+
   const countIn = (category: string) => allEntries.filter(e => e.category === category).length;
 
   // Category tiles, in the order the iOS DATABASE block lists them.
@@ -565,12 +605,31 @@ export const SettingsSectionPanel: React.FC<{
                 <ChevronRight size={16} style={{ color: 'var(--lcd-subtext)' }} />
               </button>
             </Section>
+
+            {/* "CHASSIS SKIN", not "SHELL SKIN" — the rest of the app calls this
+                part of the device the chassis. */}
+            <Section title="CHASSIS SKIN">
+              {(Object.keys(CHASSIS_SKINS) as ChassisSkinId[]).map(id => (
+                <ChoiceRow
+                  key={id}
+                  label={CHASSIS_SKINS[id].displayName}
+                  skinSwatch={{
+                    body: CHASSIS_SKINS[id].body,
+                    panel: CHASSIS_SKINS[id].panel,
+                    panelEdge: CHASSIS_SKINS[id].panelEdge,
+                  }}
+                  selected={theme.skin === id}
+                  onClick={() => setSkin(id)}
+                />
+              ))}
+            </Section>
           </>
         );
 
       case 'DATA':
         return (
           <>
+            {/* Glyph tiles rather than bare numbers — see STAT_GLYPHS. */}
             <Section title="DATABASE">
               <div className="grid grid-cols-2 gap-2">
                 {categoryLines.map(line => (
@@ -579,6 +638,7 @@ export const SettingsSectionPanel: React.FC<{
               </div>
             </Section>
 
+            {/* Glyph, count, then the table count pushed right — the iOS row. */}
             <Section title="TOTAL ENTRIES">
               <div
                 className="flex items-center gap-3 px-3 py-4 rounded border-2"
@@ -600,12 +660,38 @@ export const SettingsSectionPanel: React.FC<{
                 build.
               </p>
             </Section>
+
           </>
         );
 
       case 'ACCESS':
         return (
           <>
+            {/*
+              The website's app gate. It sat under DATA — reachable, but filed
+              with the database readout rather than with the other things that
+              decide what opens. ACCESS is the panel about being let in, so it
+              belongs here even though it is a different mechanism from the
+              paywall harness below: that models which bundles someone owns,
+              this models whether the site hands the app over at all. They never
+              consult each other — see `appUnlock`.
+            */}
+            <Section title="WEBSITE ACCESS">
+              <StatRow label="VINODEX" value={vinodexUnlocked ? 'UNLOCKED' : 'LOCKED'} />
+              {vinodexUnlocked && (
+                <button
+                  onClick={() => lockApp('vinodex')}
+                  className="w-full mt-2 py-3 rounded border-2 border-red-800 font-retro text-[0.6rem] tracking-widest text-red-400 hover:bg-red-950 transition-colors"
+                >
+                  RE-LOCK VINODEX
+                </button>
+              )}
+              <p className="font-mono text-sm leading-relaxed normal-case mt-2" style={{ color: 'var(--lcd-subtext)' }}>
+                The code the website asks for before it hands over the app.
+                Unlocking is remembered in this browser; re-locking asks again.
+              </p>
+            </Section>
+
             <Section title="FREE TIER">
               <IconToggleRow
                 icon={locked ? <Lock size={20} /> : <LockOpen size={20} />}

@@ -1,13 +1,14 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useLocation } from "react-router-dom";
-import { Search, Filter, ListChecks } from "lucide-react";
+// The union of what the merged body actually renders: the parity line's
+// Filter/ListChecks chrome plus the X still used by master's filter pill.
+import { Search, Filter, ListChecks, X } from "lucide-react";
 import EntryTile from "./EntryTile";
 import DeviceLayout from "./DeviceLayout";
-import { WineEntry, EntryCategory, ClimateClass, isGrapeEntry, isRegionEntry, isStyleEntry } from "@/shared/types";
+import { WineEntry, EntryCategory, ClimateClass } from "@/shared/types";
 import { CLIMATE_CLASS_MAP } from "@/shared/data/climateClasses";
-import { getGrapeBodyFilterValue, getGrapeColorLabel, getGrapeBodyLabel } from "../src/services/grapeDisplay";
 import { getAllEntries } from "../src/services/wineData";
-import { getColorType, normalizeLabel } from "@/shared/services/entryUtils";
+import { filterEntries } from "../src/services/entryFilter";
 import { keyForList, query as storedQuery, setQuery as setStoredQuery } from "../src/services/screenState";
 import { useScreenAnchor } from "../src/services/useScreenAnchor";
 
@@ -22,7 +23,6 @@ interface EncyclopediaListProps {
 }
 
 export default function EncyclopediaList({ category, filterMode, filterValue, initialSearchQuery, onSelect, onBack, onHome }: EncyclopediaListProps) {
-  const allowedUsStates = ['California', 'New York', 'Oregon', 'Virginia', 'Washington'];
   const entries = useMemo(() => getAllEntries(), []);
   const SEARCH_INPUT_START_OFFSET = 16;
   const [cursorOffset, setCursorOffset] = useState(SEARCH_INPUT_START_OFFSET);
@@ -93,165 +93,21 @@ export default function EncyclopediaList({ category, filterMode, filterValue, in
     return () => window.removeEventListener('resize', handleResize);
   }, [updateSearchCursorOffset]);
 
-  const normalizeTerm = (value: string) =>
-    normalizeLabel(value)
-      .replace(/[_\-/(),.;]+/g, ' ')
-      .replace(/\s+/g, ' ')
-      .trim();
-
-  const matchesWholeTerm = (candidate: string, term: string) => {
-    const normalizedCandidate = normalizeTerm(candidate);
-    const normalizedTerm = normalizeTerm(term);
-    if (!normalizedCandidate || !normalizedTerm) return false;
-    if (normalizedCandidate === normalizedTerm) return true;
-    return ` ${normalizedCandidate} `.includes(` ${normalizedTerm} `);
-  };
-
-  const matchesGrapeTypeFilter = (entry: WineEntry, filter: string) => {
-    if (!isGrapeEntry(entry)) return false;
-
-    const normalizedFilter = normalizeLabel(filter);
-    const legacyType = normalizeLabel(entry.grapeStyle || entry.grapeCard?.style || entry.wineType || '');
-    if (legacyType && legacyType === normalizedFilter) return true;
-
-    const grapeColor = normalizeLabel(getGrapeColorLabel(entry));
-    if (grapeColor === normalizedFilter) return true;
-
-    const grapeBodyFilter = normalizeLabel(
-      getGrapeBodyFilterValue(getGrapeBodyLabel(entry), getGrapeColorLabel(entry))
-    );
-    return grapeBodyFilter === normalizedFilter;
-  };
-
-  const detailString = (e: WineEntry, field: string): string | undefined => {
-    const v = (e.details as unknown as Record<string, unknown>)[field];
-    return typeof v === 'string' ? v : undefined;
-  };
-
-  const filteredEntries = useMemo(() => {
-    if (category === 'COUNTRY_GATE') {
-      const items = Array.isArray(filterValue) ? filterValue as string[] : [];
-      if (filterMode === 'STATE') {
-        return entries
-          .filter((entry) => entry.category === 'COUNTRY_GATE'
-            && entry.details.classification?.toUpperCase() === 'STATE'
-            && items.includes(entry.name))
-          .sort((a, b) => a.name.localeCompare(b.name));
-      }
-      const countrySystems: Record<string, string[]> = {
-        France: ['AOC', 'IGP'],
-        Italy: ['DOC', 'DOCG', 'IGT'],
-        Spain: ['DO', 'DOCa'],
-        Germany: ['QbA', 'GG'],
-        Portugal: ['DOC', 'VR'],
-        Hungary: ['PDO', 'PGI'],
-        Austria: ['DAC'],
-        Greece: ['PDO', 'PGI'],
-        USA: ['AVA'],
-        Canada: ['VQA'],
-        Argentina: ['DOC'],
-        Chile: ['DO'],
-        Uruguay: ['DO'],
-        Australia: ['GI'],
-        'New Zealand': ['GI'],
-        'South Africa': ['WO'],
-        China: ['GI'],
-        Japan: ['GI'],
-        India: ['GI'],
-        Georgia: ['PDO'],
-      };
-      const countryEntries: WineEntry[] = items.map((ct, idx) => ({
-        id: `CT-${idx}`,
-        name: ct,
-        description: `Regions within ${ct}`,
-        category: 'COUNTRY_GATE',
-        tags: countrySystems[ct] || ['SYSTEM'],
-        color: '#0ea5e9',
-        icon: 'flag',
-        details: { origin: ct }
-      }));
-      return countryEntries;
-    }
-
-    const allowedCategories = isMasterSearch
-      ? ['GRAPES', 'REGIONS', 'STYLES', 'FLAVORS', 'COUNTRY_GATE', 'CONTINENTS']
-      : isWorldSearch
-        ? ['REGIONS', 'COUNTRY_GATE', 'CONTINENTS']
-        : [effectiveCategory];
-    const result = entries.filter(e => {
-        // 1. Category Check
-        const matchesCategory = allowedCategories.includes(e.category)
-          && !(e.category === 'COUNTRY_GATE'
-            && e.details.classification?.toUpperCase() === 'STATE'
-            && !allowedUsStates.includes(e.name));
-
-        const detailsBag = e.details as { origin?: string; state?: string; classification?: string; keyRegions?: string[]; synonyms?: string[] };
-
-        // 2. Search Bar
-        const matchesSearch = !showTopSearchBar ||
-          e.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-          e.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
-          (detailsBag.origin || '').toLowerCase().includes(searchQuery.toLowerCase()) ||
-          (detailsBag.state || '').toLowerCase().includes(searchQuery.toLowerCase()) ||
-          (detailsBag.classification || '').toLowerCase().includes(searchQuery.toLowerCase()) ||
-          (detailsBag.keyRegions || []).some((region) => region.toLowerCase().includes(searchQuery.toLowerCase())) ||
-          (detailsBag.synonyms || []).some((synonym) => synonym.toLowerCase().includes(searchQuery.toLowerCase())) ||
-          e.tags.some((tag) => tag.toLowerCase().includes(searchQuery.toLowerCase()));
-
-        // 3. Active Filter Logic
-        let matchesFilter = true;
-        
-        const eOrigin = detailString(e, 'origin');
-        const eClassification = detailString(e, 'classification');
-        const eSoilType = detailString(e, 'soilType');
-        const eState = detailString(e, 'state');
-        const eGrape = isGrapeEntry(e) ? e : null;
-        const eStyle = isStyleEntry(e) ? e : null;
-        const eRegion = isRegionEntry(e) ? e : null;
-        const eTastingProfile = eGrape?.tastingProfile ?? eStyle?.tastingProfile;
-        const eRarity =
-          eGrape ? (eGrape.rarity || eGrape.grapeRarityTier?.toUpperCase() || eGrape.grapeCard?.rarityTier?.toUpperCase()) :
-          eStyle ? eStyle.rarity :
-          undefined;
-        const eClimate = eRegion?.climate;
-
-        if (activeFilterMode === 'REGION' && Array.isArray(activeFilterValue)) {
-             matchesFilter = (activeFilterValue as string[]).some(keyword =>
-                (!!eOrigin && eOrigin.toLowerCase().includes(keyword.toLowerCase())) ||
-                e.tags.some(t => t.toLowerCase().includes(keyword.toLowerCase())) ||
-                e.name.toLowerCase().includes(keyword.toLowerCase())
-             );
-        } else if (activeFilterMode === 'TYPE' && typeof activeFilterValue === 'string') {
-             const grapeStyleSource = isGrapeEntry(e) ? (e.grapeStyle || e.grapeCard?.style || e.wineType) : undefined;
-             const typeMatch = matchesGrapeTypeFilter(e, activeFilterValue)
-              || (!!grapeStyleSource && normalizeLabel(grapeStyleSource) === normalizeLabel(activeFilterValue));
-             const styleColorMatch = effectiveCategory === 'STYLES' && normalizeLabel(getColorType(e.name)) === normalizeLabel(activeFilterValue);
-             matchesFilter = typeMatch || styleColorMatch;
-        } else if (activeFilterMode === 'TASTING' && typeof activeFilterValue === 'string') {
-             matchesFilter = (!!eTastingProfile && eTastingProfile.some(n => n.note.toLowerCase() === activeFilterValue.toLowerCase()))
-              || (!!eClassification && eClassification.toLowerCase() === activeFilterValue.toLowerCase());
-        } else if (activeFilterMode === 'SOIL' && typeof activeFilterValue === 'string') {
-             matchesFilter = !!eSoilType && eSoilType.toLowerCase().includes(activeFilterValue.toLowerCase());
-        } else if (activeFilterMode === 'ORIGIN' && typeof activeFilterValue === 'string') {
-             matchesFilter = (!!eOrigin && matchesWholeTerm(eOrigin, activeFilterValue)) ||
-                    e.tags.some(t => matchesWholeTerm(t, activeFilterValue));
-        } else if (activeFilterMode === 'STATE' && typeof activeFilterValue === 'string') {
-             matchesFilter =
-               (eOrigin || '').toUpperCase() === 'USA' &&
-           eState === activeFilterValue;
-        } else if (activeFilterMode === 'SYSTEM' && typeof activeFilterValue === 'string') {
-             matchesFilter = !!eClassification && eClassification.toLowerCase() === activeFilterValue.toLowerCase();
-        } else if (activeFilterMode === 'RARITY' && typeof activeFilterValue === 'string') {
-             matchesFilter = eRarity === activeFilterValue;
-        } else if (activeFilterMode === 'CLIMATE' && typeof activeFilterValue === 'string') {
-             matchesFilter = !!eClimate && eClimate.toLowerCase() === activeFilterValue.toLowerCase();
-        }
-
-        return matchesCategory && matchesSearch && matchesFilter;
-    });
-
-    return result.sort((a, b) => a.name.localeCompare(b.name));
-  }, [category, effectiveCategory, showTopSearchBar, searchQuery, activeFilterMode, activeFilterValue, filterValue, entries]);
+  /**
+   * The predicate now lives in `entryFilter.ts`, matching how iOS keeps it in
+   * `EntryFilter.swift` rather than inside the view. It was ~120 lines of
+   * closure over eight component locals here, which is why the Swift suite that
+   * claims to cover it had no runnable counterpart on this side.
+   */
+  const filteredEntries = useMemo(
+    () => filterEntries(entries, {
+      category,
+      filterMode: activeFilterMode,
+      filterValue: activeFilterValue,
+      search: searchQuery,
+    }),
+    [category, searchQuery, activeFilterMode, activeFilterValue, entries],
+  );
 
   const getTitle = () => {
       if (category === 'MASTER_SEARCH') return 'MASTER SEARCH';
@@ -363,6 +219,28 @@ export default function EncyclopediaList({ category, filterMode, filterValue, in
                     style={{ left: `${cursorOffset}px` }}
                   ></div>
                 </div>
+                {/*
+                  Clear button, shown only while there is something to clear —
+                  iOS added one in the same pass (audit L34). Emptying the field
+                  by hand meant holding backspace through a query the store had
+                  deliberately kept alive across Back.
+
+                  44px square around the 18px glyph: the same minimum-target
+                  rule the audit applied to the destructive bookmark control.
+                */}
+                {searchQuery && (
+                  <button
+                    type="button"
+                    aria-label="Clear search"
+                    onClick={() => {
+                      setSearchQuery('');
+                      searchInputRef.current?.focus();
+                    }}
+                    className="w-11 h-11 -mr-2 shrink-0 flex items-center justify-center text-green-500 hover:text-green-300 transition-colors"
+                  >
+                    <X size={18} />
+                  </button>
+                )}
               </div>
             </div>
           )}

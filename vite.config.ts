@@ -16,8 +16,10 @@ const gitCommitCount = (() => {
 // `ios/`), so `root` points at `web/` while the toolchain config, node_modules
 // and the build output stay at the repo root. `fs.allow` has to name the repo
 // root explicitly: the app legitimately imports from outside `web/` — the
-// `@/shared/*` data and colour tables, and `package.json` for the version
-// string — and the dev server refuses to serve those otherwise.
+// `@/shared/*` data and colour tables, and `package.json` for the app *name*
+// on the back plate — and the dev server refuses to serve those otherwise.
+// (Not the version: that is a constant in `appVersion.ts`, and `pkg.version`
+// is read nowhere in the app.)
 export default defineConfig({
   root: path.resolve(__dirname, 'web'),
   publicDir: path.resolve(__dirname, 'web/public'),

@@ -3,10 +3,19 @@
 Goal: bring `vinodex-web` as close to `vinodex-ios` v0.4.1.7 as the platforms
 allow, and ship it on Vercel.
 
-> **Status — all blocks below are built and pushed** on
-> `vinodex-web@screen-state-port` (9 commits, unmerged). Nothing has been
-> verified in a browser: the gates run were `npm run typecheck`, `npm run build`
-> and every route resolving under the dev server. See "Still open" at the foot.
+That was the target when this document was written. The repos split on
+2026-07-29 and now version independently, so **v0.4.1.7 names the iOS build this
+app was matched against — it is not a number the web app claims.** The web is on
+its own line at v0.1.0; see "Two products, two numbers" at the foot.
+
+> **Status — all blocks below are built and merged.** `splash-split` turned out
+> to be wholly contained in `screen-state-port`, and `master` was an ancestor of
+> it, so combining the three was a fast-forward with no conflicts; `master` is
+> pushed at 18 commits ahead of where it stood. Blocks 9 and 10 below were added
+> after the merge; block 11 closes the last of the untested services; blocks
+> 12–13 replace the moon dial and start on the readout interiors; block 14
+> brings across the iOS audit branch; block 15 rebuilds the DATA panel;
+> block 16 is the screen-by-screen plan that follows. See "Still open".
 
 `vinodex-ios` is the reference and stays **read-only**. Every block below ports
 *from* Swift *to* React.
@@ -95,9 +104,13 @@ take them would make the field flush with the page instead of a recess in it.
   so an expanded list survives Back.
 - **Search queries survive Back**, completing the `SearchStateStore` port —
   scroll anchor, section flags and query are all now kept.
-- **One version number.** `appVersion.ts` mirrors `AppVersion.swift` at
-  0.4.1.7; the back plate said `v0.0.<commit count>` while the phone said
-  0.4.1.7. Commit count demoted to a build id in the DEV panel.
+- **A version number the app can state.** The back plate read
+  `v0.0.<commit count>`, which was honest about the git history and told a
+  reader nothing about the app. `appVersion.ts` became the one place to bump,
+  and the commit count was demoted to a build id in the DEV panel — telling two
+  deploys of the same version apart is the job it can actually do.
+  *(This block set the constant to mirror `AppVersion.swift` at 0.4.1.7. The
+  mirroring ended with the repo split — see "Two products, two numbers".)*
 
 ## Block 7 — Button-by-button and chrome pass ✅
 
@@ -143,10 +156,275 @@ stars ranked COMMON above UNCOMMON (`rarityRank` is common 1, uncommon 2,
 rare 3; the web read COMMON 2 / UNCOMMON 1), and only filled stars were drawn,
 so two and three stars were the same shape at different widths.
 
+## Block 9 — The website ✅
+
+Web-only: there is no Swift counterpart, and this block does not port anything.
+`/` already forked between the dex and a muted "coming soon" stub; the stub now
+leads somewhere.
+
+- `/website` is the dex menu's face with the categories swapped — OUR APPS, WHO
+  WE ARE, CONTACT US, DATA. Tile geometry, depress, sheen and grid are lifted
+  from `MainMenu` rather than reinvented, so the two menus read as one screen
+  with different labels. The centre slot holds the mark as a decorative disc:
+  nothing on a four-page site earns a control as prominent as master search, and
+  a circle that looked pressable and did nothing would be worse.
+- **DATA opens `/settings/DATA`**, the existing panel, rather than a second copy
+  of the readout.
+- `appUnlock.ts` gates Vinodex behind a code (`0000`), persisted like
+  `bookmarks` — a gate that reopened on every refresh reads as a bug. It is
+  deliberately *not* `access.ts`: that is the paywall harness and models bundles
+  someone owns, this models whether the site hands the app over at all. They
+  never consult each other. SETTINGS → DATA can re-lock.
+- Home inside the website means the website menu, not `/dex` — otherwise it
+  would push a visitor through a gate they have not passed.
+
+## Block 10 — A test runner ✅
+
+The "no test runner" item below is closed. Vitest under jsdom, configured by
+`vitest.config.ts` separately from `vite.config.ts` (which sets `root: web/` and
+mounts the PWA plugin — neither of which a unit test wants).
+
+jsdom rather than node because the stores are localStorage-backed, and the Swift
+originals run against a real `UserDefaults`; a stubbed store would not exercise
+the JSON round trip or the corrupt-value guards, which is where the bugs are.
+
+126 tests across 9 files. The service suites are ports of
+`ios/Tests/VinodexCoreTests/`, each file's header recording which Swift cases
+were adapted or dropped and why — `bookmarks` drops the `SavedItem` place cases
+(the web has COUNTRY_GATE entries, so the distinction is absent), `dailyPick`
+adapts the free-tier assertions (the web ships no tiers manifest), `grapeScan`
+derives the body chips from the data rather than a closed enum.
+
+The component tests are the first in the repo, and they found the bug that the
+next section had been claiming for weeks: `WHO WE\nARE` as a tile label put a
+literal newline in the button's accessible name. Wrapping is left to the browser
+now; the visual result is identical.
+
+## Block 11 — The last four Swift suites, and what they caught ✅
+
+`MoonCalendar`, `EntryFilter`, `Continent` and `Coverage` are ported. 219 tests
+across 13 files. Porting them found two places where the web had silently
+drifted from the reference — which is the entire argument for doing it.
+
+**`EntryFilter` had to be extracted before it could be tested.** iOS keeps the
+predicate in `VinodexCore/EntryFilter.swift` with its own suite; the web had it
+as a ~120-line `useMemo` inside `EncyclopediaList.tsx`, closing over eight
+component locals. `FilterTests.swift` opens by saying it "exercises the ported
+`EncyclopediaList.tsx` filter predicate" — and nothing on this side could run a
+line of it. It now lives in `src/services/entryFilter.ts`; the component keeps
+only the input state. Same extract-first move as block 8.
+
+**Bug 1 — search was not diacritic-insensitive.** The predicate compared
+`.toLowerCase()` on both sides, so "albarino" did not find Albariño and "rias"
+did not find Rías Baixas: you had to type the accent to reach an entry whose
+distinguishing feature is that it has one. `normalizeLabel` already folded
+diacritics and was used by every *filter* — it simply was never applied to the
+search path. iOS folds here and `FilterTests.diacritics` pins both names.
+
+**Bug 2 — the globe markers were on cities, not continents.** North America was
+pinned to (38, -122), which is San Francisco; Africa to (-33, 20), Cape Town;
+South America to Santiago. Markers hung off the landmass they label. This is not
+a new discovery — iOS fixed it a while ago and `WineDatabase.swift` names *this
+repo's* `RetroGlobeScreen.tsx` as where the bad values came from, but the fix was
+never brought back. The coordinates and their bounding boxes now live in
+`src/services/continents.ts`, ported from the Swift enum, and
+`continents.test.ts` pins every marker inside its own continent's box. The globe
+is UI, so nothing else here would ever have noticed.
+
+Two Swift cases could not be ported as written: `MoonCalendar.quote` lives in
+`MoonDialScreen` on the web rather than in the service, and `drinkingDays`
+asserts flower days that the web reading does not expose. Both are noted in the
+suite headers.
+
+## Block 12 — The moon dial, replaced ✅
+
+The web's dial was a draggable control that swept the lunar month, backed by a
+sidereal (Lahiri) longitude, an ecliptic-node window and hourly sampling. iOS
+threw all of that away and said why, about this file by name:
+
+> Deliberately a readout with no interaction. The web reference
+> (`MoonDialScreen.tsx`) drove a draggable dial through the lunar month, which
+> is a lot of machinery in front of a single fact — the only thing anyone wants
+> from it is whether tonight is a good night.
+
+`moonService.ts` is now a port of `MoonCalendar.swift`: mean ecliptic longitude,
+anchored at **local noon** so a day gets one type and the screen cannot flip
+from a leaf day to a fruit day over lunch. The screen is the four-tick ring,
+the DAY TYPE / ELEMENT / MOON IN readout, the tinted verdict panel and the
+rotating line, all from `MoonDialScreen.swift`.
+
+This changes what the app *says*: the sidereal offset is roughly 24°, close to a
+whole sign, so the two builds regularly disagreed about which sign the moon was
+in on the same evening. They now agree. Both Swift cases that had been recorded
+as unportable — `drinkingDays` and `quotes` — port directly, because the service
+carries the same `MoonDay` model and the same quote pools rather than a bare
+`isFruitDay`.
+
+## Block 13 — The entry readouts ✅
+
+The first pass at the "section bodies below the chrome" item. Order, titles and
+rules already matched; these are the interiors.
+
+- **Appellation systems are spelled out.** The region readout printed a bare
+  `AOC` chip. iOS prints the abbreviation *and* the full name beside it, plus
+  the state — and the web had no `appellationName` function at all, so two
+  `CoverageTests` cases (`docIsCountrySpecific`, `appellationNamesResolve`) had
+  nothing to assert against. `src/services/entryDisplay.ts` ports it, keyed by
+  the (system, country) pair because `DOC` means three different things. The
+  chip keeps the short form for the reason the Swift gives: it is what the
+  bottle label actually prints.
+- **Soil glyphs were falling through.** `soilDisplay.tsx` kept its own seven
+  keywords while `iconManifest.json` — a direct copy of iOS's generated
+  `icons.json` — had been shipping the full fifteen all along, unread. Six terms
+  in the dataset resolved to the default brown mountain: **Alluvial, Laterite,
+  Loess, basalt, red loam, shale**. That is exactly the fault
+  `CoverageTests.soilsResolve` exists for, down to the count in its comment
+  ("six terms were silently doing exactly that"). The helper now reads the
+  manifest, so keywords, order, glyphs and colours all come from the generator.
+- **The CLIMATE section shows its glyph**, as `climateSection` does. The web had
+  the icon in the hero tile row only, so the section actually titled CLIMATE was
+  the one place without it.
+- **Flavour taxonomy glyphs** are pinned 1:1 across classes and subclasses,
+  including SALTY being both. This one found nothing — the web already complied
+  — but the bug it guards is invisible, so it is worth holding.
+
+## Block 14 — The iOS audit pass, brought across ✅
+
+`vinodex-ios` ran an audit and remediation effort on an unmerged
+`audit-fixes` branch — pushed ~13 hours after `main`, and the newest work in
+that repo. `main` itself holds nothing the frozen `ios/` snapshot here does not
+already have, and `shared/` is byte-identical between the two repos, so the
+branch is the whole of what there was to take.
+
+Ported:
+
+- **M44 — `onAccent`.** New token: dark → black, light → white. Dark mode's
+  accent is mint, and white on it is about 1.8:1. The selected settings row now
+  fills with `--lcd-accent` and labels with `--lcd-on-accent`, which is also a
+  visual change: the web marked the selection with a border and a tick alone,
+  where iOS fills the row.
+- **L29 — `heroGrid`.** The entry hero drew its grid in a fixed `green-900`
+  (#14532d), the shade iOS singled out as reading heavy on the light hero. Now
+  a token, lifted toward the paper in light mode. Countries, states and
+  continents all render through `EntryDetail`, so this one place is the web's
+  equivalent of the four hero grids the Swift pass touched.
+- **L34 — search clear button.** Emptying the field meant holding backspace
+  through a query `screenState` had deliberately kept alive across Back.
+- **H10 — chassis labels.** The Saved control announced as "Saved"; it is now
+  "Saved entries", as on iOS. The orb is worse than iOS's case and was missed by
+  the original audit: it is a `<button>` with no accessible name at all on every
+  screen that gives it no flip handler, so it is now `aria-hidden` when inert.
+- **M19 — modal dialog.** The CLEAR ALL SAVED confirm had no `role="dialog"` or
+  `aria-modal`, so a screen reader could wander into the list behind the scrim.
+- **M25 — 44px hit target.** The destructive remove-bookmark button was ~28px
+  and sits a few pixels from the tile that opens the entry, so a near-miss
+  opened something instead of removing it. 44px target, same visual.
+
+Already satisfied here, and verified rather than assumed:
+
+- **M14 and M15** (secondary text and the filter banner using theme tokens) are
+  structural on the web: the `.lcd-themed` remap in `index.css` already sends
+  `text-stone-400` → `--lcd-subtext`, `bg-stone-800` → `--lcd-surface` and
+  `text-stone-200` → `--lcd-text`. The banner needed no edit.
+- **L30** (hero title shadow on `lcd.accent`) was already done.
+- **M13** (search field repainting on a live mode toggle) cannot occur here —
+  the field is styled by CSS variables, so it repaints by construction.
+- **M1, L4, L5, L6, L16** are Swift-internal: `tiers.json` decode handling (the
+  web ships no tiers manifest), dead Swift properties, stale Swift comments, and
+  `UIFont` probing.
+
+`theme.ts` gained a suite in the same pass — it is a port of `DexTheme.swift`,
+was on the untested list, and had just gained two tokens. 283 tests.
+
+One thing worth watching: the audit branch strips "Swift-unused" fields from the
+generated JSON. `icons.json` was checked key by key against `main` and is
+structurally identical — the 625-line diff is minification — so the web's
+`iconManifest.json` copy is still valid. A future strip could quietly remove a
+field this app reads; `soilDisplay` and `flavorIcon` now depend on that file.
+
+## Block 15 — The DATA panel ✅
+
+The three things `dataReadout` does that the web did not:
+
+- **DATABASE tiles carry a glyph and a tint per table**, from `statGlyph`. The
+  five categories reuse the main menu's own symbols and colours so a count is
+  recognisably the same thing as the tile that opens it; COUNTRIES is the odd
+  one out and gets a flag. The web drew a bare number over a caption.
+- **TOTAL ENTRIES** becomes the iOS row — stack glyph, count, and the table
+  count pushed right — rather than a centred block.
+- **GROWTH**, which the web had no equivalent of at all. `DataWave` is a port of
+  the Swift `Canvas` sweep across `waveMilestones` (`[0, 25, 186, total]`): the
+  counter and the curve render from one value, so the number climbing to the
+  total *is* the line being drawn, smoothstep-eased between milestones so it
+  arcs into each one instead of turning a corner. Swift drives it from a
+  `TimelineView` clock; the web equivalent is `requestAnimationFrame`, stopping
+  once the sweep is done rather than repainting forever, and honouring
+  `prefers-reduced-motion` by jumping to the settled frame.
+
+The wave's viewBox is measured rather than fixed. A fixed one needs
+`preserveAspectRatio="none"` to fill the panel, which stretches the x axis —
+harmless for the curve, but it turns the head dot into an ellipse at every width
+but one.
+
+COVERAGE stays below GROWTH. iOS has no equivalent panel for those four counts,
+but they are real data rather than decoration.
+
+Also in this pass: **RE-LOCK VINODEX moved from DATA to ACCESS**, where the other
+controls that decide what opens live; **CUSTOMIZE reordered** to screen mode,
+text size, then shell, as `customization` lists them (the web led with the
+cosmetic choice above the two that change legibility); and the **skin swatch
+draws body over panel**, so it reads as the actual shell rather than one flat
+colour.
+
+### Not found: skin-tinted buttons and orb
+
+Searched for and **not present in `vinodex-ios` at any point in its history**.
+`ChassisSkin` carries only `body`, `footerWash`, `panel`, `panelEdge` and
+`grill` — no control colours. The orb is `Dex.cyan300` in every commit that has
+ever touched `DeviceChassis.swift`, the status dots are a fixed red/yellow/green,
+and `ChassisButton` is stone for Back and Saved, amber for Home. The web already
+matches all of that. If a skin-tinted chassis exists, it is somewhere outside
+this repo's three branches; deferred rather than invented.
+
+## Block 16 — Screen-by-screen visual parity (planned)
+
+Blocks 5–13 brought the *data* and the *chrome* into line. What is left is each
+screen's interior read side by side with its Swift counterpart. Ordered by how
+much of the app they carry:
+
+1. **Grape readout** — `EntryDetailScreen.swift` `categorySections`, grape arm.
+   Stat bars, rarity, flavour profile, ALSO KNOWN AS, NOTABLE REGIONS. Stat bar
+   colours and the rarity crown already match; the chip clouds and linked-row
+   markup have not been transcribed.
+2. **Region readout** — the region arm. System and climate are done (block 13);
+   APPELLATIONS and NOTABLE GRAPES still show the same data through different
+   markup.
+3. **Style readout** — and with it the branching noted below, which is the one
+   place the web's structure genuinely diverges rather than merely differing in
+   markup.
+4. **Catalog / scan lists** — `CatalogScreen.swift` against `EncyclopediaList`.
+   The web's per-filter titles (STYLE SCAN, GEOLOGY SCAN, …) have no iOS
+   equivalent; decide whether they are a web affordance to keep or drift to
+   remove.
+5. **Scanner** — `ScannerScreen.swift` is 809 lines against the web's port, and
+   still uses a flat country list where iOS walks the globe.
+
+Each wants the same treatment block 8 used: extract the section bodies first so
+their structure is legible, then compare, then move.
+
 ## Still open
 
-- **Nothing has been looked at in a browser.** The burgundy shell, the light
-  screen, the cog, the expanders — all compile and none have been seen.
+- **Continent glyphs are paired, not unique.** iOS asserts six distinct glyphs
+  (`continentPresentation`); the web resolves three across the six —
+  Africa/Europe, Asia/Oceania and the two Americas each share one, because the
+  game-icons set genuinely pairs those landmasses. Colours *are* all distinct,
+  which is what `continents.test.ts` asserts instead. Closing this properly
+  means choosing six glyphs, which is a design call rather than a port.
+- **Most of it still has not been looked at in a browser.** The burgundy shell,
+  the light screen, the cog, the expanders — all compile and none have been
+  seen. The website screens are the exception: they are rendered and driven by
+  the component tests, so the unlock flow, the tile wiring and the lock badge's
+  subscription are exercised rather than assumed.
 - **The `.lcd-themed` remap is broad.** If an element inside the LCD wants a
   fixed `bg-stone-900`, it now follows the screen mode. The audit is done: the
   classes left outside the remap are saturated accents on buttons and chips,
@@ -157,14 +435,54 @@ so two and three stars were the same shape at different widths.
   then KEY REGIONS). The web has five overlapping conditionals that between
   them produce the same result. Same extract-then-simplify treatment as block 8
   would fix it; it was left inline because its *order* does not diverge.
-- **Section bodies below the chrome.** The stat rows, chip clouds and tile
-  grids inside each section are still a parallel implementation — they show the
-  same data through different markup. Order, titles, rules and rarity now
-  match; the interiors have not been transcribed.
+- **Section bodies below the chrome.** Partly closed by block 13 — the
+  appellation system, climate and soil interiors now match. The remaining chip
+  clouds, linked rows and tile grids are still a parallel implementation showing
+  the same data through different markup; block 16 is the plan for them.
 - **The scanner still uses a flat country list** where iOS walks the globe.
-- **No test runner on the web side.** `screenState`, `dailyPick`, `grapeScan`
-  and `bookmarks` are untested here; their Swift originals have unit tests.
-- **Nothing is merged.** Three branches sit on their PR links.
+- **Every Swift case now has a web counterpart**, including the four that were
+  previously recorded as unportable (`drinkingDays`, `quotes`,
+  `docIsCountrySpecific`, `appellationNamesResolve`) — each of which became
+  portable by fixing the thing that made it impossible to write. 300 tests
+  across 20 files. Still untested, and with no Swift original to inherit from:
+  `useScreenAnchor`, `wineData`, the `use*` store hooks, and the remaining
+  display helpers (`grapeDisplay`, `styleDisplay`, `flavorDisplay`,
+  `climateDisplay`, `iconRendering`, `entryIconVisuals`).
+- **Five components are tested** — the two website screens, the unlock keypad,
+  the moon dial and the growth wave. The dex screens still have no render
+  coverage at all.
+
+## Two products, two numbers
+
+`vinodex-web` and `vinodex-ios` shared one version string while they shared one
+repo. They split on 2026-07-29 and release on different clocks — a Vercel push
+is live in a minute, an App Store build waits on review — so a shared number
+has to be wrong on one platform for as long as the gap lasts, and the gap is
+the normal state rather than the exception.
+
+It had already broken. Before this change **this repo alone held three
+spellings** of "the" version: 0.4.1.7 in `appVersion.ts`, 0.4.1.5 in the frozen
+`ios/` copy of `AppVersion.swift`, and 0.4.2.1.2 on the live phone — plus
+`package.json` still on the Vite scaffold's 0.0.0. "One version number" failed
+inside its own repo before anyone noticed.
+
+- **iOS** is at 0.4.2.1.2 and owns `AppVersion.swift` in `vinodex-ios`. The copy
+  under `ios/` here is frozen and is not the live one.
+- **Web** restarts at **0.1.0** in `web/src/services/appVersion.ts`. Three-part
+  semver, so `package.json`, the `v0.1.0` git tag and the string engraved on the
+  back plate are one identical spelling. `appVersion.test.ts` pins that —
+  including a shape check that structurally rejects the five-part iOS format, so
+  a bump made out of habit fails rather than ships.
+
+Matching numbers were only ever readable while the feature sets matched, and
+they no longer do: no paywall and no `tiers.json` here, a flat country list
+where iOS walks the globe, no haptics, and a whole splash/website branch with no
+Swift counterpart. One number across that is the same silent lie the old
+`v0.0.<commit count>` back plate told, just better dressed.
+
+This does not loosen the parity effort — the Swift source is still the reference
+for design, and blocks 5–15 all stand. It only stops the two apps pretending to
+ship in lockstep when they demonstrably do not.
 
 ## Out of scope, deliberately
 

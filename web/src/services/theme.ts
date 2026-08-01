@@ -271,12 +271,24 @@ export interface LcdTheme {
   disabledText: string;
   /**
    * When set, the whole LCD is desaturated (grayscale) then multiplied by this
-   * tint — the phosphor look (amber/terminal/vintage/grünerboy). null = full
+   * tint - the phosphor look (amber/terminal/vintage/grunerboy). null = full
    * colour. Ports DeviceChassis' `.grayscale(1).colorMultiply(tint)`.
    */
   monochromeTint: string | null;
   /** Light-ground modes, for any styling that needs to know. */
   isLight: boolean;
+  /**
+   * Foreground for content sitting on an `accent` fill - a selected settings
+   * option, an active chip. Dark mode's accent is mint (#4ADE80); white text on
+   * it is about 1.8:1, so it takes black. From `LcdMode.onAccent` (audit M44).
+   */
+  onAccent: string;
+  /**
+   * Grid lines drawn over the hero wash. Dark mode's deep #14532d reads heavy on
+   * the light hero, so light mode lifts it toward the paper.
+   * From `LcdMode.heroGrid` (audit L29).
+   */
+  heroGrid: string;
 }
 
 export const LCD_MODES: Record<LcdModeId, LcdTheme> = {
@@ -296,6 +308,8 @@ export const LCD_MODES: Record<LcdModeId, LcdTheme> = {
     disabledText: '#57534e',
     monochromeTint: null,
     isLight: false,
+    onAccent: '#000000',
+    heroGrid: '#14532d',
   },
   LIGHT: {
     id: 'LIGHT',
@@ -316,56 +330,56 @@ export const LCD_MODES: Record<LcdModeId, LcdTheme> = {
     // enough to `text` to look like an ordinary enabled row.
     disabledText: '#A3A39B',
     monochromeTint: null,
-    isLight: true,
+    isLight: true, onAccent: '#FFFFFF', heroGrid: '#1B6B3A',
   },
   VINTAGE: {
     id: 'VINTAGE', displayName: 'VINTAGE',
     screen: '#E4E4DC', page: '#EDEDE4', text: '#101010', accent: '#1A1A16',
     bodyText: '#20201C', heroWash: 'rgba(0, 0, 0, 0.06)', surface: '#F6F6EF',
     surfaceEdge: '#84847A', subtext: '#42423C', well: '#FFFFFF', disabledText: '#96968C',
-    monochromeTint: '#C6CFB2', isLight: true,
+    monochromeTint: '#C6CFB2', isLight: true, onAccent: '#FFFFFF', heroGrid: '#3A3A34',
   },
   AMBER: {
     id: 'AMBER', displayName: 'AMBER',
     screen: '#232323', page: '#000000', text: '#FFFFFF', accent: '#4ADE80',
     bodyText: '#BBF7D0', heroWash: 'rgba(20, 83, 45, 0.1)', surface: '#1C1917',
     surfaceEdge: '#44403C', subtext: '#A8A29E', well: '#000000', disabledText: '#57534E',
-    monochromeTint: '#FFB300', isLight: false,
+    monochromeTint: '#FFB300', isLight: false, onAccent: '#000000', heroGrid: '#14532d',
   },
   WINE_OS: {
     id: 'WINE_OS', displayName: 'WINE.OS',
     screen: '#C7D3E6', page: '#D6DFEE', text: '#0E2258', accent: '#1D3E9E',
     bodyText: '#22335E', heroWash: 'rgba(29, 62, 158, 0.07)', surface: '#E9EEF6',
     surfaceEdge: '#8598B8', subtext: '#465578', well: '#FFFFFF', disabledText: '#9FACC6',
-    monochromeTint: null, isLight: true,
+    monochromeTint: null, isLight: true, onAccent: '#FFFFFF', heroGrid: '#1D3E9E',
   },
   TERMINAL: {
     id: 'TERMINAL', displayName: 'TERMINAL',
     screen: '#232323', page: '#000000', text: '#FFFFFF', accent: '#4ADE80',
     bodyText: '#BBF7D0', heroWash: 'rgba(20, 83, 45, 0.1)', surface: '#1C1917',
     surfaceEdge: '#44403C', subtext: '#A8A29E', well: '#000000', disabledText: '#57534E',
-    monochromeTint: '#4DFF4D', isLight: false,
+    monochromeTint: '#4DFF4D', isLight: false, onAccent: '#000000', heroGrid: '#14532d',
   },
   BLUE_SCREEN: {
     id: 'BLUE_SCREEN', displayName: 'VINOFD',
     screen: '#1021B4', page: '#0E1CA8', text: '#A6DBFF', accent: '#7DF9FF',
     bodyText: '#BFE4FF', heroWash: 'rgba(255, 255, 255, 0.06)', surface: '#1F31CE',
     surfaceEdge: '#5D74E8', subtext: '#8FB0F0', well: '#0A1690', disabledText: '#6272D4',
-    monochromeTint: null, isLight: false,
+    monochromeTint: null, isLight: false, onAccent: '#0A1690', heroGrid: '#4A5FE0',
   },
   STAR_TREK: {
     id: 'STAR_TREK', displayName: 'L-WINES',
     screen: '#0B0910', page: '#000000', text: '#FFA94D', accent: '#C983E8',
     bodyText: '#F2CD9A', heroWash: 'rgba(201, 131, 232, 0.08)', surface: '#191022',
     surfaceEdge: '#5C3E78', subtext: '#C2915C', well: '#000000', disabledText: '#6D5A49',
-    monochromeTint: null, isLight: false,
+    monochromeTint: null, isLight: false, onAccent: '#000000', heroGrid: '#7A4E9E',
   },
   GRUENER_BOY: {
     id: 'GRUENER_BOY', displayName: 'GRÜNERBOY',
     screen: '#E6EBCF', page: '#DDE3C2', text: '#141A0C', accent: '#2F3A1C',
     bodyText: '#202817', heroWash: 'rgba(0, 0, 0, 0.06)', surface: '#EFF2DE',
     surfaceEdge: '#7A8258', subtext: '#455030', well: '#F4F6E8', disabledText: '#939B78',
-    monochromeTint: '#9BBC0F', isLight: true,
+    monochromeTint: '#9BBC0F', isLight: true, onAccent: '#FFFFFF', heroGrid: '#3A4224',
   },
 };
 
@@ -484,6 +498,8 @@ export function applyTheme(): void {
   root.style.setProperty('--lcd-subtext', l.subtext);
   root.style.setProperty('--lcd-well', l.well);
   root.style.setProperty('--lcd-disabled-text', l.disabledText);
+  root.style.setProperty('--lcd-on-accent', l.onAccent);
+  root.style.setProperty('--lcd-hero-grid', l.heroGrid);
 
   root.style.setProperty('--text-scale', String(TEXT_SCALES[scale].factor));
   root.style.setProperty('--ui-scale', String(UI_SCALES[uiScale].factor));
@@ -508,3 +524,4 @@ export function subscribeToTheme(onChange: () => void): () => void {
 export function themeRevision(): number {
   return revision;
 }
+

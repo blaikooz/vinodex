@@ -4,6 +4,7 @@ import { Search } from 'lucide-react';
 import DeviceLayout from './DeviceLayout';
 import worldlink from '../src/assets/images/updatedglobemap.jpg';
 import { CONTINENTS } from '@/shared/data/continents';
+import { CONTINENT_COORDINATES } from '../src/services/continents';
 
 interface RetroGlobeScreenProps {
   onBack: () => void;
@@ -58,12 +59,21 @@ const RetroGlobeScreen: React.FC<RetroGlobeScreenProps> = ({ onBack, onHome, onS
   const [isDragging, setIsDragging] = useState(false);
   const [, setLongitudeDeg] = useState(0);
   const [regionMarkers, setRegionMarkers] = useState<RegionMarker[]>([
-    { id: 'north-america', continentKey: 'NORTH_AMERICA', color: CONTINENT_COLORS.NORTH_AMERICA || '#722F37', label: 'NORTH\nAMERICA', lat: 37, lng: -108, x: 0, y: 0, anchorX: 0, anchorY: 0, offsetX: 0, offsetY: 0, visible: true },
-    { id: 'south-america', continentKey: 'SOUTH_AMERICA', color: CONTINENT_COLORS.SOUTH_AMERICA || '#73343A', label: 'SOUTH\nAMERICA', lat: -23, lng: -68, x: 0, y: 0, anchorX: 0, anchorY: 0, offsetX: 0, offsetY: 0, visible: true },
-    { id: 'europe', continentKey: 'EUROPE', color: CONTINENT_COLORS.EUROPE || '#9B2335', label: 'EUROPE', lat: 50, lng: 15, x: 0, y: 0, anchorX: 0, anchorY: 0, offsetX: 0, offsetY: 0, visible: true },
-    { id: 'africa', continentKey: 'AFRICA', color: CONTINENT_COLORS.AFRICA || '#C48B8B', label: 'AFRICA', lat: -6, lng: 12, x: 0, y: 0, anchorX: 0, anchorY: 0, offsetX: 0, offsetY: 0, visible: true },
-    { id: 'asia', continentKey: 'ASIA', color: CONTINENT_COLORS.ASIA || '#C9A227', label: 'ASIA', lat: 37, lng: 100, x: 0, y: 0, anchorX: 0, anchorY: 0, offsetX: 0, offsetY: 0, visible: true },
-    { id: 'oceania', continentKey: 'OCEANIA', color: CONTINENT_COLORS.OCEANIA || '#D4A5A5', label: 'OCEANIA', lat: -25, lng: 135, x: 0, y: 0, anchorX: 0, anchorY: 0, offsetX: 0, offsetY: 0, visible: true },
+    // Coordinates come from `continents.ts`, not from literals here. They used
+    // to be wine-city positions - North America on San Francisco, Africa on
+    // Cape Town - so each marker hung off the landmass it labels. iOS caught
+    // that and fixed it; this is the same table, and `continents.test.ts` pins
+    // every pin inside its own continent's bounding box.
+    //
+    // Colours stay on `CONTINENT_COLORS` (derived from the CONTINENTS entries
+    // above) rather than master's `MARKER_COLORS`, which does not exist on this
+    // branch - same data-driven idea, already wired here.
+    { id: 'north-america', continentKey: 'NORTH_AMERICA', color: CONTINENT_COLORS.NORTH_AMERICA || '#722F37', label: 'NORTH\nAMERICA', ...CONTINENT_COORDINATES.NORTH_AMERICA, x: 0, y: 0, anchorX: 0, anchorY: 0, offsetX: 0, offsetY: 0, visible: true },
+    { id: 'south-america', continentKey: 'SOUTH_AMERICA', color: CONTINENT_COLORS.SOUTH_AMERICA || '#73343A', label: 'SOUTH\nAMERICA', ...CONTINENT_COORDINATES.SOUTH_AMERICA, x: 0, y: 0, anchorX: 0, anchorY: 0, offsetX: 0, offsetY: 0, visible: true },
+    { id: 'europe', continentKey: 'EUROPE', color: CONTINENT_COLORS.EUROPE || '#9B2335', label: 'EUROPE', ...CONTINENT_COORDINATES.EUROPE, x: 0, y: 0, anchorX: 0, anchorY: 0, offsetX: 0, offsetY: 0, visible: true },
+    { id: 'africa', continentKey: 'AFRICA', color: CONTINENT_COLORS.AFRICA || '#C48B8B', label: 'AFRICA', ...CONTINENT_COORDINATES.AFRICA, x: 0, y: 0, anchorX: 0, anchorY: 0, offsetX: 0, offsetY: 0, visible: true },
+    { id: 'asia', continentKey: 'ASIA', color: CONTINENT_COLORS.ASIA || '#C9A227', label: 'ASIA', ...CONTINENT_COORDINATES.ASIA, x: 0, y: 0, anchorX: 0, anchorY: 0, offsetX: 0, offsetY: 0, visible: true },
+    { id: 'oceania', continentKey: 'OCEANIA', color: CONTINENT_COLORS.OCEANIA || '#D4A5A5', label: 'OCEANIA', ...CONTINENT_COORDINATES.OCEANIA, x: 0, y: 0, anchorX: 0, anchorY: 0, offsetX: 0, offsetY: 0, visible: true },
   ]);
   const viewportRef = useRef<HTMLDivElement | null>(null);
   const containerRef = useRef<HTMLDivElement | null>(null);

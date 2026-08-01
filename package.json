@@ -1,20 +1,20 @@
 {
   "name": "vinodex",
   "private": true,
-  "version": "0.0.0",
+  "version": "0.1.0",
   "type": "module",
   "scripts": {
     "dev": "vite",
     "build": "vite build",
     "typecheck": "tsc --noEmit",
+    "test": "vitest run",
+    "test:watch": "vitest",
     "preview": "vite preview",
     "export:wine:excel": "ts-node --esm scripts/exportWineEntriesToExcel.ts",
     "build:wine:json": "ts-node --esm scripts/convertExcelToJson.ts",
     "build:encyclopedia": "ts-node --esm scripts/cleanEncyclopediaText.ts",
     "build:encyclopedia:reference": "ts-node --esm scripts/buildEncyclopediaReference.ts",
-    "check:refs": "esbuild scripts/find-missing-refs.ts --bundle --platform=node --format=esm --log-level=error | node --input-type=module",
-    "test": "vitest run",
-    "test:watch": "vitest"
+    "check:refs": "esbuild scripts/find-missing-refs.ts --bundle --platform=node --format=esm --log-level=error | node --input-type=module"
   },
   "dependencies": {
     "@iconify/react": "^6.0.2",
@@ -26,6 +26,9 @@
   },
   "devDependencies": {
     "@tailwindcss/postcss": "^4.1.17",
+    "@testing-library/dom": "^10.4.1",
+    "@testing-library/react": "^16.3.2",
+    "@testing-library/user-event": "^14.6.1",
     "@types/node": "^22.14.0",
     "@types/react": "^19.2.14",
     "@types/react-dom": "^19.2.3",

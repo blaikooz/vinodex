@@ -3,7 +3,9 @@
 ## Overview
 Vinodex is a retro-styled wine encyclopedia. **This repo is the web app** — a React/Vite PWA, installable, with a map-driven exploration interface. It is being pivoted toward a landing page for the iOS app.
 
-**The iOS app lives in [`blaikooz/vinodex-ios`](https://github.com/blaikooz/vinodex-ios) and is not built from here.** `ios/`, `shared/`, `pixelflags/` and the two iOS scripts in `scripts/` are **frozen leftovers** of the old arrangement, kept only because `web/src/services/` still imports `shared/`. Do not edit them and do not regenerate iOS data here — an iOS change is made in `vinodex-ios`.
+**The iOS app lives in [`blaikooz/vinodex-ios`](https://github.com/blaikooz/vinodex-ios) and is not built from here.** The two iOS scripts in `scripts/` are **frozen leftovers** — do not edit them and do not regenerate iOS data here; an iOS change is made in `vinodex-ios`.
+
+**`shared/` is mirrored, not frozen.** Its master is `HGapps\shared`, pushed into both repos by `sync-shared.ps1`. The web app genuinely depends on it — `web/src/services/` imports it in 7 files and `web/data/flagImages.ts` imports `shared/pixelflags/`. Edit the **master**: a change made to this copy is silently overwritten on the next sync.
 
 ## Key Conventions
 - **React 19 + TypeScript**: All web UI is built with React function components and TypeScript types.
@@ -11,7 +13,7 @@ Vinodex is a retro-styled wine encyclopedia. **This repo is the web app** — a 
 - **Tailwind CSS v4**: Styling is handled via Tailwind utility classes. No CSS-in-JS or SCSS.
 - **Data**: All runtime wine data is sourced from `shared/constants.ts` and the `shared/data/` directory. Do not load from `web/public/wine-entries.json` at runtime.
 - **The `@/` alias points at the repo root.** Cross-tree imports use it — `@/shared/types`, `@/shared/data/grapes`, `@/shared/services/chipColors`. Imports *within* `web/` stay relative.
-- **`shared/` here is frozen.** The live copy is `vinodex-ios/shared/`. This one feeds the web app only; editing it does not reach iOS. It must still stay dependency-free while the web app reads it.
+- **`shared/` here is a mirror.** The master is `HGapps\shared`; `sync-shared.ps1` pushes it into both repos, so an edit made here is lost on the next sync and never reaches iOS. It must stay dependency-free while the web app reads it.
 - **Icons**: SVG icons are in `web/public/icons/`. Use Lucide React for UI icons, and custom SVGs for wine/flavor visuals.
 - **Component Structure**: UI screens and tiles are in `web/components/`. Rendering helpers are in `web/src/services/`.
 
@@ -29,12 +31,13 @@ Vinodex is a retro-styled wine encyclopedia. **This repo is the web app** — a 
 - `web/data/` — Web-only data (flag image imports, the encyclopedia corpus)
 - `web/public/` — Static assets and generated JSON
 - `scripts/` — encyclopedia tooling (live), plus two frozen iOS generators
-- `shared/`, `ios/`, `pixelflags/` — **frozen**; live copies are in `vinodex-ios`
+- `shared/`, `shared/pixelflags/` — **mirrored** from `HGapps\shared`; edit the master, not these
 
 ## Pitfalls & Tips
 - **Do not edit `web/public/wine-entries.json` directly.**
 - **Always update `shared/constants.ts` and `shared/data/` for new entries.**
-- **Do not edit the frozen paths** (`ios/`, `shared/`, `pixelflags/`, `scripts/generate-ios-data.ts`, `scripts/rasterize-icons.sh`). Nothing copies between this repo and `vinodex-ios` in either direction, so an edit here silently diverges from the app.
+- **Do not edit the frozen scripts** (`scripts/generate-ios-data.ts`, `scripts/rasterize-icons.sh`) — the live copies are in `vinodex-ios/scripts/`.
+- **Do not edit `shared/` here** — including `shared/pixelflags/`. It is a mirror of `HGapps\shared`; `sync-shared.ps1` overwrites it, so an edit here is lost rather than shared.
 - **`blaikooz/vinodex-ios` takes direct commits and pull requests.** The old warning that it was a generated mirror is obsolete — the publish script that overwrote it has been deleted.
 - **Use only Tailwind for styling.**
 - **SVG icons:** Add new icons to `web/public/icons/` and reference them in UI components.

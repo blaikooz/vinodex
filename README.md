@@ -1,4 +1,4 @@
-<div align="center">
+﻿<div align="center">
 
 <img src="web/public/vinodex-logo.png" alt="Vinodex" width="132" />
 
@@ -14,19 +14,19 @@ wrapped in a plastic shell you can re-skin five different ways.
 `React 19` · `TypeScript` · `Vite` · `Tailwind v4` · `PWA`
 
 <p>
-<img src="pixelflags/Europe/france/france.png" alt="France" height="26" />
-<img src="pixelflags/Europe/italy/italy.png" alt="Italy" height="26" />
-<img src="pixelflags/Europe/spain/spain.png" alt="Spain" height="26" />
-<img src="pixelflags/Europe/portugal/portugal.png" alt="Portugal" height="26" />
-<img src="pixelflags/Europe/germany/germany.png" alt="Germany" height="26" />
-<img src="pixelflags/Europe/austria/austria.png" alt="Austria" height="26" />
-<img src="pixelflags/Europe/greece/greece.png" alt="Greece" height="26" />
-<img src="pixelflags/North%20America/united_states/united_states.png" alt="United States" height="26" />
-<img src="pixelflags/South%20America/argentina/argentina.png" alt="Argentina" height="26" />
-<img src="pixelflags/South%20America/chile/chile.png" alt="Chile" height="26" />
-<img src="pixelflags/Oceania/australia/australia.png" alt="Australia" height="26" />
-<img src="pixelflags/Oceania/new_zealand/new_zealand.png" alt="New Zealand" height="26" />
-<img src="pixelflags/Africa/south_africa/south_africa.png" alt="South Africa" height="26" />
+<img src="shared/pixelflags/Europe/france/france.png" alt="France" height="26" />
+<img src="shared/pixelflags/Europe/italy/italy.png" alt="Italy" height="26" />
+<img src="shared/pixelflags/Europe/spain/spain.png" alt="Spain" height="26" />
+<img src="shared/pixelflags/Europe/portugal/portugal.png" alt="Portugal" height="26" />
+<img src="shared/pixelflags/Europe/germany/germany.png" alt="Germany" height="26" />
+<img src="shared/pixelflags/Europe/austria/austria.png" alt="Austria" height="26" />
+<img src="shared/pixelflags/Europe/greece/greece.png" alt="Greece" height="26" />
+<img src="shared/pixelflags/North%20America/united_states/united_states.png" alt="United States" height="26" />
+<img src="shared/pixelflags/South%20America/argentina/argentina.png" alt="Argentina" height="26" />
+<img src="shared/pixelflags/South%20America/chile/chile.png" alt="Chile" height="26" />
+<img src="shared/pixelflags/Oceania/australia/australia.png" alt="Australia" height="26" />
+<img src="shared/pixelflags/Oceania/new_zealand/new_zealand.png" alt="New Zealand" height="26" />
+<img src="shared/pixelflags/Africa/south_africa/south_africa.png" alt="South Africa" height="26" />
 </p>
 
 *Hand-drawn pixel flags, one per wine-producing country and state in the atlas.*
@@ -46,9 +46,15 @@ wrapped in a plastic shell you can re-skin five different ways.
 | **Moon dial** | The biodynamic day — fruit, root, leaf or flower — for anyone who plans a tasting around it. |
 | **Saved** | Bookmark anything. Stored as ids, so a data update never leaves you looking at stale text. |
 | **Five chassis skins** | Vinodex Classic, Côte de Nuits, Blanc de Blancs, Burgundy Velour, Electric Riesling. Plus a light screen mode and two text sizes. |
+| **The website** | `/` forks into the dex and a four-page site wearing the same chassis: OUR APPS, WHO WE ARE, CONTACT US, and the DATA readout. Vinodex is handed over from the app shelf behind a code. |
 
-Everything is unlocked. There is no account, no paywall and no tracking; your
+Every entry is unlocked. There is no account, no paywall and no tracking; your
 saved entries and your chosen skin live in your own browser's storage.
+
+The one gate is the code the website's app shelf asks for before it opens
+Vinodex, and it is a doorman rather than a lock — the code lives in the client
+bundle, and `/dex` is still reachable directly from the splash. It exists so the
+app is handed over rather than stumbled into.
 
 ## The iOS app is the sibling, not the source
 
@@ -70,19 +76,21 @@ when the two disagree.
 > script, the `swift` remote, the `swift-main` branch and the `publish:swift*`
 > npm scripts are all deleted.
 >
-> | Frozen | Live copy |
-> |---|---|
-> | `ios/` | the whole of `vinodex-ios` |
-> | `shared/` | `vinodex-ios/shared/` |
-> | `pixelflags/` | `vinodex-ios/pixelflags/` |
-> | `scripts/generate-ios-data.ts`, `scripts/rasterize-icons.sh` | `vinodex-ios/scripts/` |
+> | Path | Status | Master |
+> |---|---|---|
+> | `shared/` | mirrored — do not edit here | `HGapps\shared`, via `sync-shared.ps1` |
+> | `shared/pixelflags/` | live, and mirrored | `HGapps\shared\pixelflags` |
+> | `scripts/generate-ios-data.ts`, `scripts/rasterize-icons.sh` | frozen | `vinodex-ios/scripts/` |
 >
-> They are still here because the web app imports `shared/` (7 files under
-> `web/src/services/`), and it still will: `/` is a splash that forks to the dex
-> and a coming-soon website page, so the encyclopedia stays rather than being
-> replaced by a landing page. The `generate:ios` / `icons:ios` scripts are gone
-> so nothing here can regenerate the frozen copies — **an iOS data change is
-> made in `vinodex-ios`.**
+> `shared/` is here because the web app imports it — 7 files under
+> `web/src/services/`, plus `web/data/flagImages.ts` for the flags — and it
+> still will: `/` is a splash that forks to the dex and a coming-soon website
+> page, so the encyclopedia stays rather than being replaced by a landing page.
+> It is **mirrored, not frozen**: `sync-shared.ps1` overwrites this copy from
+> the master, so an edit made here is lost on the next sync. The `generate:ios`
+> / `icons:ios` scripts are gone, so **an iOS data change is made in
+> `vinodex-ios`.** `ios/` — the frozen 419-file copy of the Swift package — was
+> removed in the 0.6.5 cleanup.
 
 ## Running it
 
@@ -95,11 +103,19 @@ npm run dev        # Vite dev server, port 3000
 
 ```bash
 npm run typecheck  # tsc --noEmit
+npm test           # vitest run
 npm run build      # production build into dist/
 npm run preview    # serve that build
 ```
 
-There is no test runner in this repo. `typecheck` and `build` are the gates.
+`typecheck`, `test` and `build` are the gates.
+
+Tests are Vitest under jsdom, configured by [`vitest.config.ts`](vitest.config.ts)
+and colocated with what they cover (`*.test.ts` beside the service, `*.test.tsx`
+beside the component). The service suites are ports of the XCTest suites in
+`vinodex-ios/Tests/VinodexCoreTests/`, and each file's header records which
+Swift cases were adapted or dropped and why. `npm run test:watch` for the
+watcher.
 
 ## Deploying
 
@@ -125,9 +141,8 @@ vinodex-web/
     data/            Web-only data (flag imports, encyclopedia)
     public/          Static assets
 
-  shared/            FROZEN — live copy in vinodex-ios
-  ios/               FROZEN — the SwiftUI app now lives in vinodex-ios
-  pixelflags/        FROZEN — live copy in vinodex-ios
+  shared/            MIRRORED from HGapps\shared — edit the master, not this
+    pixelflags/      Pixel-art flags, imported by web/data/flagImages.ts
   scripts/           Encyclopedia tooling (live) + two frozen iOS generators
 ```
 

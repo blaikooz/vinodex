@@ -232,12 +232,21 @@ const BookmarksScreen: React.FC<BookmarksScreenProps> = ({ allEntries, onSelect,
                 return (
                   <div key={entry.id} className="relative">
                     <EntryTile entry={entry} onPress={onSelect} index={index} />
+                    {/*
+                      44px hit target around the ~28px visual, matching the
+                      audit's M25 fix on iOS. The destructive control was the
+                      smallest tap target in the app, and it sits a few pixels
+                      from the tile that opens the entry — so a near-miss opened
+                      something instead of removing it.
+                    */}
                     <button
                       onClick={() => setPendingRemove(entry)}
                       aria-label={`Remove ${entry.name}`}
-                      className="absolute top-1 right-1 p-1.5 rounded bg-stone-950/80 border border-stone-700 text-stone-400 hover:text-red-400 hover:border-red-700 transition-colors"
+                      className="absolute -top-1.5 -right-1.5 w-11 h-11 flex items-center justify-center group"
                     >
-                      <XCircle size={16} />
+                      <span className="p-1.5 rounded bg-stone-950/80 border border-stone-700 text-stone-400 group-hover:text-red-400 group-hover:border-red-700 transition-colors">
+                        <XCircle size={16} />
+                      </span>
                     </button>
                     {shelf === 'tried' && (
                       <button
@@ -273,11 +282,23 @@ const BookmarksScreen: React.FC<BookmarksScreenProps> = ({ allEntries, onSelect,
         {/* ---- Clear-all confirm ---- */}
         {confirmingClear && (
           <div className="absolute inset-0 z-30 bg-black/80 flex items-center justify-center p-6">
-            <div className="w-full max-w-xs bg-stone-900 border-2 border-red-800 rounded-lg p-5 flex flex-col gap-4">
-              <p className="font-retro text-xs tracking-widest text-red-400 text-center">CLEAR ALL {SHELF_TITLE[shelf]}?</p>
-              <p className="font-mono text-sm text-stone-300 text-center normal-case">
+            {/*
+              Marked as a modal dialog so a screen reader keeps focus inside it
+              rather than wandering into the list behind the scrim - the audit's
+              M19 fix, which iOS made with accessibilityElement(.contain) plus
+              the isModal trait. Copy stays shelf-aware (parity Phase B).
+            */}
+            <div
+              role="dialog"
+              aria-modal="true"
+              aria-labelledby="clear-saved-title"
+              aria-describedby="clear-saved-detail"
+              className="w-full max-w-xs bg-stone-900 border-2 border-red-800 rounded-lg p-5 flex flex-col gap-4"
+            >
+              <p id="clear-saved-title" className="font-retro text-xs tracking-widest text-red-400 text-center">CLEAR ALL {SHELF_TITLE[shelf]}?</p>
+              <p id="clear-saved-detail" className="font-mono text-sm text-stone-300 text-center normal-case">
                 {shelf === 'tried'
-                  ? `${items.length} tasting${items.length === 1 ? '' : 's'} will be removed — ratings and notes go with them.`
+                  ? `${items.length} tasting${items.length === 1 ? '' : 's'} will be removed - ratings and notes go with them.`
                   : `${items.length} ${items.length === 1 ? 'item' : 'items'} will be removed. This cannot be undone.`}
               </p>
               <div className="flex gap-3">

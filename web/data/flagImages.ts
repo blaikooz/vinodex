@@ -1,29 +1,29 @@
-import argentinaFlag from '@/pixelflags/South America/argentina/argentina.png';
-import australiaFlag from '@/pixelflags/Oceania/australia/australia.png';
-import austriaFlag from '@/pixelflags/Europe/austria/austria.png';
-import brazilFlag from '@/pixelflags/South America/brazil/brazil.png';
-import canadaFlag from '@/pixelflags/North America/canada/canada.png';
-import chileFlag from '@/pixelflags/South America/chile/chile.png';
-import chinaFlag from '@/pixelflags/Asia/china/china.png';
-import croatiaFlag from '@/pixelflags/Europe/croatia/croatia.png';
-import franceFlag from '@/pixelflags/Europe/france/france.png';
-import georgiaFlag from '@/pixelflags/Europe/georgia_country/georgia_country_flag.png';
-import germanyFlag from '@/pixelflags/Europe/germany/germany.png';
-import greeceFlag from '@/pixelflags/Europe/greece/greece.png';
-import hungaryFlag from '@/pixelflags/Europe/hungary/hungary.png';
-import indiaFlag from '@/pixelflags/Asia/india/india.png';
-import italyFlag from '@/pixelflags/Europe/italy/italy.png';
-import japanFlag from '@/pixelflags/Asia/japan/japan.png';
-import newZealandFlag from '@/pixelflags/Oceania/new_zealand/new_zealand.png';
-import portugalFlag from '@/pixelflags/Europe/portugal/portugal.png';
-import moroccoFlag from '@/pixelflags/Africa/morocco/morocco.png';
-import southAfricaFlag from '@/pixelflags/Africa/south_africa/south_africa.png';
-import spainFlag from '@/pixelflags/Europe/spain/spain.png';
-import switzerlandFlag from '@/pixelflags/Europe/switzerland/switzerland.png';
-import unitedStatesFlag from '@/pixelflags/North America/united_states/united_states.png';
-import romaniaFlag from '@/pixelflags/Europe/romania/romania.png';
-import uruguayFlag from '@/pixelflags/South America/uruguay/uruguay.png';
-import variousFlag from '@/pixelflags/Other/Geographic-Historical/various.png';
+import argentinaFlag from '@/shared/pixelflags/South America/argentina/argentina.png';
+import australiaFlag from '@/shared/pixelflags/Oceania/australia/australia.png';
+import austriaFlag from '@/shared/pixelflags/Europe/austria/austria.png';
+import brazilFlag from '@/shared/pixelflags/South America/brazil/brazil.png';
+import canadaFlag from '@/shared/pixelflags/North America/canada/canada.png';
+import chileFlag from '@/shared/pixelflags/South America/chile/chile.png';
+import chinaFlag from '@/shared/pixelflags/Asia/china/china.png';
+import croatiaFlag from '@/shared/pixelflags/Europe/croatia/croatia.png';
+import franceFlag from '@/shared/pixelflags/Europe/france/france.png';
+import georgiaFlag from '@/shared/pixelflags/Europe/georgia_country/georgia_country_flag.png';
+import germanyFlag from '@/shared/pixelflags/Europe/germany/germany.png';
+import greeceFlag from '@/shared/pixelflags/Europe/greece/greece.png';
+import hungaryFlag from '@/shared/pixelflags/Europe/hungary/hungary.png';
+import indiaFlag from '@/shared/pixelflags/Asia/india/india.png';
+import italyFlag from '@/shared/pixelflags/Europe/italy/italy.png';
+import japanFlag from '@/shared/pixelflags/Asia/japan/japan.png';
+import newZealandFlag from '@/shared/pixelflags/Oceania/new_zealand/new_zealand.png';
+import portugalFlag from '@/shared/pixelflags/Europe/portugal/portugal.png';
+import moroccoFlag from '@/shared/pixelflags/Africa/morocco/morocco.png';
+import southAfricaFlag from '@/shared/pixelflags/Africa/south_africa/south_africa.png';
+import spainFlag from '@/shared/pixelflags/Europe/spain/spain.png';
+import switzerlandFlag from '@/shared/pixelflags/Europe/switzerland/switzerland.png';
+import unitedStatesFlag from '@/shared/pixelflags/North America/united_states/united_states.png';
+import romaniaFlag from '@/shared/pixelflags/Europe/romania/romania.png';
+import uruguayFlag from '@/shared/pixelflags/South America/uruguay/uruguay.png';
+import variousFlag from '@/shared/pixelflags/Other/Geographic-Historical/various.png';
 
 interface FlagImageEntry {
   keys: string[];
@@ -41,7 +41,16 @@ const normalizeFlagKey = (value: string) =>
     .replace(/\s+/g, ' ')
     .trim();
 
-const US_STATE_FLAG_MODULES = import.meta.glob('../pixelflags/North America/united_states/*/*.{png,jpg,jpeg,webp}', {
+// Uses the `@/` alias (repo root), like the 26 static imports above.
+//
+// This pattern pointed at `../pixelflags/…` — i.e. `web/pixelflags/`, a
+// directory that has never existed — so it matched **zero** modules and every
+// US state flag silently fell back to no image. A glob that matches nothing is
+// not an error in Vite, just an empty object, which is how it sat broken
+// unnoticed. Verified fixed: the 56 state folders now resolve (they are ~280 B
+// each, so Vite inlines them as base64 rather than emitting files — check the
+// bundle, not the asset list). (0.6.5, batch 4 phase 1.)
+const US_STATE_FLAG_MODULES = import.meta.glob('@/shared/pixelflags/North America/united_states/*/*.{png,jpg,jpeg,webp}', {
   eager: true,
   import: 'default',
 }) as Record<string, string>;
