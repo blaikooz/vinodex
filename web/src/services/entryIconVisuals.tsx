@@ -36,6 +36,12 @@ export interface ResolveEntryIconVisualOptions {
 	size?: number;
 	resolver?: EntryVisualResolver;
 	includeRegionClimateOutline?: boolean;
+	/**
+	 * COUNTRY_GATE entries render as a plain rectangular flag in list rows, but
+	 * the detail hero shows the drawn country/state outline instead. Callers on
+	 * the detail screen set this; list tiles leave it false.
+	 */
+	countryOutlineHero?: boolean;
 }
 
 export interface EntryIconVisual {
@@ -232,17 +238,42 @@ const outlineNode = (
 	size: number,
 	mapPosition?: { x: number; y: number },
 ): React.ReactNode => {
-	const dim = Math.round(size * 1.7);
-	const art = <Icon icon={`art:${stem}`} width={dim} height={dim} />;
-	if (!mapPosition) return art;
-	// The region's red location dot (iOS `EntryVisual.dottedOutline`). iOS snaps
-	// the authored 0–1 hint to land via OutlineDotPlacer; the web places it at
-	// the same fraction of the outline box — the hints are already land-snapped
-	// fractions of the outline PNG (see regions.ts), so raw placement tracks.
+	// ~0.78 of the well (iOS `EntryVisual.iconScale`), so a flag well shows as a
+	// ring around the shape rather than being fully covered. The image keeps its
+	// natural aspect (max-box + auto), letterboxed inside the box.
+	const box = Math.round(size * 1.33);
+	const img = (
+		<img
+			src={`/art/class/${stem}.png`}
+			alt=""
+			draggable={false}
+			style={{
+				maxWidth: box,
+				maxHeight: box,
+				width: 'auto',
+				height: 'auto',
+				display: 'block',
+				imageRendering: 'pixelated',
+			}}
+		/>
+	);
+	if (!mapPosition) {
+		// Centre the fitted image in a box-sized square so list/hero wells stay
+		// consistent whether or not a dot is drawn.
+		return (
+			<span style={{ display: 'inline-flex', width: box, height: box, alignItems: 'center', justifyContent: 'center' }}>
+				{img}
+			</span>
+		);
+	}
+	// The red location dot (iOS `dottedOutline`). The wrapper shrink-wraps the
+	// fitted image (inline-block, line-height 0), so the authored 0–1 hint —
+	// a fraction of the outline PNG, snapped to land (see regions.ts) — maps to
+	// the image itself, not a letterboxed square.
 	const dotSize = Math.max(4, Math.round(size * 0.19));
 	return (
-		<span style={{ position: 'relative', width: dim, height: dim, display: 'inline-block' }}>
-			{art}
+		<span style={{ position: 'relative', display: 'inline-block', lineHeight: 0 }}>
+			{img}
 			<span
 				style={{
 					position: 'absolute',
@@ -373,6 +404,7 @@ export const resolveEntryIconVisual = (
 	const size = options.size ?? 20;
 	const entries = options.resolver?.entries || [];
 	const includeRegionClimateOutline = options.includeRegionClimateOutline ?? true;
+	const countryOutlineHero = options.countryOutlineHero ?? false;
 
 	if (!entry) {
 		return {
@@ -419,9 +451,22 @@ export const resolveEntryIconVisual = (
 			const useShapedFlag = !!countryShapeIcon && (!!flagImage || !!flagGradient);
 
 			let regionIconNode: React.ReactNode;
+			// iOS `regionVisual`: the well is the country flag, with the drawn
+			// outline art (transparent around the country silhouette) sitting on
+			// top — so the shape reads in its own colours while the flag shows
+			// through the transparent margins. The region's `mapPosition` places
+			// the red location dot on the outline.
+			let wellStyle: React.CSSProperties = {};
 			if (outlineStem) {
 				const mapPosition = (entry.details as { mapPosition?: { x: number; y: number } }).mapPosition;
 				regionIconNode = outlineNode(outlineStem, size, mapPosition);
+				if (flagImage) {
+					wellStyle = { backgroundImage: `url(${flagImage})`, backgroundSize: 'cover', backgroundPosition: 'center' };
+				} else if (flagGradient) {
+					wellStyle = { background: flagGradient as string };
+				} else {
+					wellStyle = { backgroundColor: '#ffffff' };
+				}
 			} else if (useShapedFlag) {
 				const background = flagImage ? `url(${flagImage})` : (flagGradient as string);
 				regionIconNode = renderShapedFlag(background, countryShapeIcon);
@@ -444,7 +489,7 @@ export const resolveEntryIconVisual = (
 
 			return {
 				style: {
-					backgroundColor: outlineStem ? '#ffffff' : undefined,
+					...wellStyle,
 					boxShadow: climateOutline ? `0 0 0 2px ${climateOutline}` : undefined,
 				},
 				iconNode: regionIconNode,
@@ -456,8 +501,11 @@ export const resolveEntryIconVisual = (
 		const isUsState = entry.details.classification?.toUpperCase() === 'STATE';
 		const origin = isUsState ? entry.name : (entry.details.origin || entry.name);
 		const outlineStem = outlineStemFor(origin);
-		if (outlineStem) {
-			return { style: { backgroundColor: '#ffffff', overflow: 'hidden' }, iconNode: outlineNode(outlineStem, size), iconColor: '#ffffff' };
+		// Only the detail hero draws the outline; list rows stay a flat
+		// rectangular flag (per the country list treatment).
+		if (outlineStem && countryOutlineHero) {
+			const mapPosition = (entry.details as { mapPosition?: { x: number; y: number } }).mapPosition;
+			return { style: { backgroundColor: '#ffffff', overflow: 'hidden' }, iconNode: outlineNode(outlineStem, size, mapPosition), iconColor: '#ffffff' };
 		}
 		const flagImage = getFlagImage(origin, { preferUsState: isUsState });
 		const flagGradient = getFlagGradient(origin);

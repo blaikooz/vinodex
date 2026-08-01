@@ -35,8 +35,8 @@ const SHELF_TAB: Record<Shelf, string> = { saved: 'SAVED', wantToTry: 'WANT', tr
 const SHELF_TITLE: Record<Shelf, string> = { saved: 'SAVED', wantToTry: 'WANT TO TRY', tried: 'TRIED' };
 const EMPTY: Record<Shelf, { glyph: React.ReactNode; head: string; hint: string }> = {
   saved: { glyph: <Bookmark size={44} className="text-green-700 mb-3" />, head: 'NOTHING SAVED', hint: 'Tap SAVE on any entry to keep it here.' },
-  wantToTry: { glyph: <PlusCircle size={44} className="text-sky-700 mb-3" />, head: 'NOTHING ON THE WISHLIST', hint: 'Tap WANT on a grape or style you’re curious about.' },
-  tried: { glyph: <CheckCircle2 size={44} className="text-amber-700 mb-3" />, head: 'NOTHING TRIED YET', hint: 'Tap TRIED on a grape or style you’ve drunk — then rate it.' },
+  wantToTry: { glyph: <PlusCircle size={44} className="text-green-700 mb-3" />, head: 'NOTHING ON THE WISHLIST', hint: 'Tap WANT on a grape or style you’re curious about.' },
+  tried: { glyph: <CheckCircle2 size={44} className="text-green-700 mb-3" />, head: 'NOTHING TRIED YET', hint: 'Tap TRIED on a grape or style you’ve drunk — then rate it.' },
 };
 
 /**

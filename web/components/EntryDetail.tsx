@@ -827,8 +827,11 @@ const EntryDetail: React.FC<EntryDetailProps> = ({ entry, allEntries, onBack, on
                 <div className="flex flex-wrap gap-2">
                     {(() => {
                       const sectionClimateColors = (entry.climate && CLIMATE_CLASS_MAP[entry.climate]?.colors) || CLIMATE_CHIP_COLOR;
+                      // iOS wraps the climate icon + name together in the chip-
+                      // coloured row, the glyph tinted with the border colour.
                       return (
-                        <span className="px-4 py-2 rounded text-xl font-bold font-mono tracking-widest" style={{ backgroundColor: sectionClimateColors.bg, border: `1px solid ${sectionClimateColors.border}`, color: sectionClimateColors.text }}>
+                        <span className="inline-flex items-center gap-3 px-4 py-2 rounded text-xl font-bold font-mono tracking-widest" style={{ backgroundColor: sectionClimateColors.bg, border: `1px solid ${sectionClimateColors.border}`, color: sectionClimateColors.text }}>
+                          <span className="inline-flex" style={{ color: sectionClimateColors.border }}>{getClimateIcon(entry.climate, 26)}</span>
                           {(entry.climate && CLIMATE_CLASS_MAP[entry.climate]?.name) || 'Unknown Climate'}
                         </span>
                       );
@@ -957,6 +960,7 @@ const EntryDetail: React.FC<EntryDetailProps> = ({ entry, allEntries, onBack, on
                     size: ICON_SIZE_HEADER,
                     resolver: entryVisualResolver,
                     includeRegionClimateOutline: true,
+                    countryOutlineHero: true,
                   });
                   // Hero: same width as before, height matches flag (h-8)
                   // Make hero icon bigger and perfectly square
@@ -993,15 +997,21 @@ const EntryDetail: React.FC<EntryDetailProps> = ({ entry, allEntries, onBack, on
                   entries (grapes, styles). Marking TRIED opens the rating
                   prompt; the store also pulls it off WANT (coupling).
                 */}
+                {/* All three shelves wear the theme accent, as iOS does
+                    (`shelfCapsule` fills with `lcd.accent` regardless of shelf);
+                    the label + glyph, not colour, tell them apart. */}
+                {(() => {
+                  const shelfStyle = (on: boolean): React.CSSProperties => on
+                    ? { backgroundColor: 'var(--lcd-accent)', borderColor: 'var(--lcd-accent)', color: 'var(--lcd-page)' }
+                    : { backgroundColor: 'var(--lcd-well)', borderColor: 'var(--lcd-accent)', color: 'var(--lcd-accent)' };
+                  const shelfClass = 'flex items-center gap-1.5 rounded-full px-4 py-2 border-2 transition-all active:translate-y-0.5';
+                  return (
                 <div className="flex flex-wrap items-center justify-center gap-2">
                   <button
                     onClick={() => toggleBookmark(entry.id)}
                     aria-pressed={saved}
-                    className={`flex items-center gap-1.5 rounded-full px-4 py-2 border-2 transition-all active:translate-y-0.5 ${
-                      saved
-                        ? 'bg-green-600 border-green-400 text-white'
-                        : 'bg-stone-900/70 border-green-700 text-green-400 hover:bg-stone-800'
-                    }`}
+                    className={shelfClass}
+                    style={shelfStyle(saved)}
                   >
                     <Bookmark size={15} fill={saved ? 'currentColor' : 'none'} />
                     <span className="font-retro text-[0.55rem] tracking-widest">{saved ? 'SAVED' : 'SAVE'}</span>
@@ -1011,11 +1021,8 @@ const EntryDetail: React.FC<EntryDetailProps> = ({ entry, allEntries, onBack, on
                     <button
                       onClick={() => toggleShelf('wantToTry', entry.id)}
                       aria-pressed={want}
-                      className={`flex items-center gap-1.5 rounded-full px-4 py-2 border-2 transition-all active:translate-y-0.5 ${
-                        want
-                          ? 'bg-sky-600 border-sky-400 text-white'
-                          : 'bg-stone-900/70 border-sky-700 text-sky-400 hover:bg-stone-800'
-                      }`}
+                      className={shelfClass}
+                      style={shelfStyle(want)}
                     >
                       <PlusCircle size={15} fill={want ? 'currentColor' : 'none'} />
                       <span className="font-retro text-[0.55rem] tracking-widest">{want ? 'WANTED' : 'WANT'}</span>
@@ -1029,17 +1036,16 @@ const EntryDetail: React.FC<EntryDetailProps> = ({ entry, allEntries, onBack, on
                         if (nowTried) setShowRating(true);
                       }}
                       aria-pressed={tried}
-                      className={`flex items-center gap-1.5 rounded-full px-4 py-2 border-2 transition-all active:translate-y-0.5 ${
-                        tried
-                          ? 'bg-amber-600 border-amber-400 text-white'
-                          : 'bg-stone-900/70 border-amber-700 text-amber-400 hover:bg-stone-800'
-                      }`}
+                      className={shelfClass}
+                      style={shelfStyle(tried)}
                     >
                       <CheckCircle2 size={15} fill={tried ? 'currentColor' : 'none'} />
                       <span className="font-retro text-[0.55rem] tracking-widest">TRIED</span>
                     </button>
                   )}
                 </div>
+                  );
+                })()}
 
              </div>
         </div>
