@@ -59,6 +59,76 @@ export const SETTINGS_SECTIONS: {
  * screenful on iOS and the two anyone actually reaches for were below the
  * developer-facing ones. Each tile opens its own panel.
  */
+// Filled tile faces per section, tuned for pale vs dark grounds — ported from
+// SettingsPanel.swift's tileColors (v0.5.6: each tile unique again).
+const TILE_FACE: Record<string, { dark: [string, string, string]; light: [string, string, string] }> = {
+  TUTORIAL: { dark: ['#22C55E', '#15803D', '#FFFFFF'], light: ['#15803D', '#0B4A24', '#FFFFFF'] },
+  TOOLS: { dark: ['#FACC15', '#CA8A04', '#78350F'], light: ['#B45309', '#7A3606', '#FFFFFF'] },
+  CUSTOMIZE: { dark: ['#EF4444', '#991B1B', '#FFFFFF'], light: ['#B91C1C', '#7A1010', '#FFFFFF'] },
+  DATA: { dark: ['#2AB5FF', '#136A99', '#FFFFFF'], light: ['#1D6FA8', '#11486E', '#FFFFFF'] },
+  ACCESS: { dark: ['#A855F7', '#6B21A8', '#FFFFFF'], light: ['#7E22CE', '#4C1D95', '#FFFFFF'] },
+};
+
+/** A settings grid tile — a filled colour face with a 6px bottom extrusion, like the main menu. */
+const FeatureTile: React.FC<{ title: string; icon: React.ReactNode; onClick: () => void; isLight: boolean }> = ({ title, icon, onClick, isLight }) => {
+  const [face, shadow, ink] = (TILE_FACE[title] ?? TILE_FACE.DATA!)[isLight ? 'light' : 'dark'];
+  return (
+    <button
+      onClick={onClick}
+      className="aspect-square flex flex-col items-center justify-center gap-3 rounded-xl transition-all active:translate-y-1 active:border-b-0"
+      style={{ backgroundColor: face, borderBottom: `6px solid ${shadow}`, color: ink }}
+    >
+      <span style={{ color: ink }}>{icon}</span>
+      <span className="font-retro text-[0.55rem] sm:text-[0.65rem] tracking-widest text-center px-1" style={{ color: ink }}>{title}</span>
+    </button>
+  );
+};
+
+/** A mini-chassis preview: body over a dark base, status dots, a panel strip with a marquee bar. */
+const SkinPreviewTile: React.FC<{ id: ChassisSkinId; selected: boolean; onClick: () => void }> = ({ id, selected, onClick }) => {
+  const s = CHASSIS_SKINS[id];
+  return (
+    <button
+      onClick={onClick}
+      className="flex flex-col items-center gap-2 p-2 rounded-lg transition-all active:scale-95"
+      style={{ backgroundColor: selected ? 'var(--lcd-accent)' : 'var(--lcd-surface)' }}
+    >
+      <span className="w-full h-12 rounded-md relative overflow-hidden block" style={{ backgroundColor: '#1B1D21', border: `1px solid ${s.panelEdge}` }}>
+        <span className="absolute inset-0" style={{ backgroundColor: s.body, backgroundImage: s.bodyPattern ? `url(/chassis/${s.bodyPattern}.png)` : undefined, backgroundSize: '40px' }} />
+        <span className="absolute top-1 left-1 w-2 h-2 rounded-full" style={{ backgroundColor: s.grill }} />
+        <span className="absolute top-1 right-1 w-2 h-2 rounded-full" style={{ backgroundColor: s.onBody }} />
+        <span className="absolute bottom-0 inset-x-0 h-3.5 flex items-center justify-center" style={{ backgroundColor: s.panel }}>
+          <span className="w-5 h-0.5 rounded-full" style={{ backgroundColor: s.onBody }} />
+        </span>
+        {selected && <Check size={12} className="absolute bottom-0.5 right-0.5" style={{ color: s.onBody }} />}
+      </span>
+      <span className="font-retro text-[0.45rem] leading-tight text-center h-6 flex items-center justify-center" style={{ color: selected ? 'var(--lcd-on-accent, #fff)' : 'var(--lcd-subtext)' }}>{s.displayName}</span>
+    </button>
+  );
+};
+
+/** A mini-LCD preview: the mode's screen with a glyph + two text bars, monochrome pass and all. */
+const ModePreviewTile: React.FC<{ id: LcdModeId; selected: boolean; onClick: () => void }> = ({ id, selected, onClick }) => {
+  const m = LCD_MODES[id];
+  return (
+    <button
+      onClick={onClick}
+      className="flex flex-col items-center gap-2 p-2 rounded-lg transition-all active:scale-95"
+      style={{ backgroundColor: selected ? 'var(--lcd-accent)' : 'var(--lcd-surface)' }}
+    >
+      <span className="w-full h-12 rounded-md relative overflow-hidden block" style={{ backgroundColor: m.screen, border: `1px solid ${m.surfaceEdge}`, isolation: 'isolate' }}>
+        <span className="absolute inset-0 flex flex-col items-center justify-center gap-1" style={{ filter: m.monochromeTint ? 'grayscale(1)' : undefined }}>
+          <span className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: m.accent }} />
+          <span className="w-8 h-[3px] rounded" style={{ backgroundColor: m.text, opacity: 0.85 }} />
+          <span className="w-6 h-[3px] rounded" style={{ backgroundColor: m.subtext, opacity: 0.8 }} />
+        </span>
+        {m.monochromeTint && <span className="absolute inset-0" style={{ backgroundColor: m.monochromeTint, mixBlendMode: 'multiply' }} />}
+      </span>
+      <span className="font-retro text-[0.45rem] text-center" style={{ color: selected ? 'var(--lcd-on-accent, #fff)' : 'var(--lcd-subtext)' }}>{m.displayName}</span>
+    </button>
+  );
+};
+
 export const SettingsGrid: React.FC<{
   onSection: (id: SettingsSectionId) => void;
   onMinigames: () => void;
@@ -68,60 +138,22 @@ export const SettingsGrid: React.FC<{
   onHome: () => void;
 }> = ({ onSection, onMinigames, onWalkthrough, onExitToSplash, onBack, onHome }) => {
   const [offeringTour, setOfferingTour] = React.useState(false);
+  const theme = useTheme();
+  const isLight = LCD_MODES[theme.lcd].isLight;
   return (
   <DeviceLayout title="SYSTEM" subtitle="" showBack={true} onBack={onBack} onHome={onHome} centerHeaderText={true}>
     <div
       className="flex-1 min-h-0 overflow-y-auto custom-scrollbar p-3"
       style={{ backgroundColor: 'var(--lcd-page)' }}
     >
+      {/* Filled colour faces in iOS order: TUTORIAL, TOOLS, then CUSTOMIZE /
+          DATA / ACCESS. DEV is a button below, not a peer tile. */}
       <div className="grid grid-cols-2 gap-3">
-        {/* TUTORIAL first — it matters most to someone who just opened the app;
-            they must not have to hunt for it. Confirms before starting. */}
-        <button
-          onClick={() => setOfferingTour(true)}
-          className="aspect-square flex flex-col items-center justify-center gap-3 rounded-xl border-2 border-green-700 transition-all active:translate-y-0.5"
-          style={{ backgroundColor: 'var(--lcd-surface)' }}
-        >
-          <span className="text-green-400"><Flag size={30} /></span>
-          <span className="font-retro text-[0.55rem] sm:text-[0.65rem] tracking-widest text-center px-1" style={{ color: 'var(--lcd-text)' }}>
-            TUTORIAL
-          </span>
-        </button>
-        {/*
-          Minigames is the only tile here anyone opens for fun — the other four
-          are configuration and diagnostics.
-        */}
-        <button
-          onClick={onMinigames}
-          className="aspect-square flex flex-col items-center justify-center gap-3 rounded-xl border-2 border-indigo-700 transition-all active:translate-y-0.5"
-          style={{ backgroundColor: 'var(--lcd-surface)' }}
-        >
-          <span className="text-yellow-400"><Wrench size={30} /></span>
-          <span
-            className="font-retro text-[0.55rem] sm:text-[0.65rem] tracking-widest text-center px-1"
-            style={{ color: 'var(--lcd-text)' }}
-          >
-            TOOLS
-          </span>
-        </button>
-
+        <FeatureTile title="TUTORIAL" icon={<Flag size={30} />} onClick={() => setOfferingTour(true)} isLight={isLight} />
+        <FeatureTile title="TOOLS" icon={<Wrench size={30} />} onClick={onMinigames} isLight={isLight} />
         {SETTINGS_SECTIONS.filter(s => !s.hidden).map(s => (
-          <button
-            key={s.id}
-            onClick={() => onSection(s.id)}
-            className={`aspect-square flex flex-col items-center justify-center gap-3 rounded-xl border-2 ${s.border} transition-all active:translate-y-0.5`}
-            style={{ backgroundColor: 'var(--lcd-surface)' }}
-          >
-            <span className={s.tint}>{s.icon}</span>
-            <span
-              className="font-retro text-[0.55rem] sm:text-[0.65rem] tracking-widest text-center px-1"
-              style={{ color: 'var(--lcd-text)' }}
-            >
-              {s.id}
-            </span>
-          </button>
+          <FeatureTile key={s.id} title={s.id} icon={s.icon} onClick={() => onSection(s.id)} isLight={isLight} />
         ))}
-
       </div>
 
       {/*
@@ -321,31 +353,26 @@ export const SettingsSectionPanel: React.FC<{
       case 'CUSTOMIZE':
         return (
           <>
-            {/* Screen mode first, then skins — matching iOS's CUSTOMIZE order. */}
+            {/* Screen mode first, then skins — matching iOS's CUSTOMIZE order.
+                Each is a 3-column grid of preview tiles: a mini-LCD in the
+                mode's own colours (monochrome pass and all) and a mini-chassis
+                in the skin's shell. */}
             <Section title="SCREEN MODE">
-              {(Object.keys(LCD_MODES) as LcdModeId[]).map(id => (
-                <ChoiceRow
-                  key={id}
-                  label={LCD_MODES[id].displayName}
-                  swatch={LCD_MODES[id].screen}
-                  selected={theme.lcd === id}
-                  onClick={() => setLcdMode(id)}
-                />
-              ))}
+              <div className="grid grid-cols-3 gap-2">
+                {(Object.keys(LCD_MODES) as LcdModeId[]).map(id => (
+                  <ModePreviewTile key={id} id={id} selected={theme.lcd === id} onClick={() => setLcdMode(id)} />
+                ))}
+              </div>
             </Section>
 
             {/* "CHASSIS SKINS", not "SHELL SKINS" — the rest of the app calls this
                 part of the device the chassis. */}
             <Section title="CHASSIS SKINS">
-              {(Object.keys(CHASSIS_SKINS) as ChassisSkinId[]).map(id => (
-                <ChoiceRow
-                  key={id}
-                  label={CHASSIS_SKINS[id].displayName}
-                  swatch={CHASSIS_SKINS[id].body}
-                  selected={theme.skin === id}
-                  onClick={() => setSkin(id)}
-                />
-              ))}
+              <div className="grid grid-cols-3 gap-2">
+                {(Object.keys(CHASSIS_SKINS) as ChassisSkinId[]).map(id => (
+                  <SkinPreviewTile key={id} id={id} selected={theme.skin === id} onClick={() => setSkin(id)} />
+                ))}
+              </div>
             </Section>
 
             <Section title="TEXT SIZE">
