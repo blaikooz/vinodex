@@ -1,7 +1,44 @@
 
 import React, { useCallback, useEffect, useRef, useState } from 'react';
-import { Home, CircleUser, Settings } from 'lucide-react';
+import { Home, CircleUser, Settings, Wine, Bookmark, Leaf, Map as MapIcon, Sparkles, Search, ScanLine, Globe, GraduationCap, Calendar, BookOpen, SlidersHorizontal, Wrench, Moon } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+
+/**
+ * The marquee's per-route glyph, stamped between the banner's repetitions —
+ * iOS `DexRoute.marqueeSymbol` / `MarqueeBanner.symbol`. The web has only the
+ * screen `title` for context, so the fixed-title screens map to their iOS
+ * glyph and everything else (entry readouts, ad-hoc titles) falls back to the
+ * wineglass, the app's own mark.
+ */
+const marqueeGlyph = (title: string, size: number): React.ReactNode => {
+  const t = title.toUpperCase();
+  const props = { size, className: 'text-green-500 shrink-0', 'aria-hidden': true } as const;
+  switch (t) {
+    case 'VINODEX': return <Wine {...props} />;
+    case 'SYSTEM': return <Settings {...props} />;
+    case 'SAVED':
+    case 'COLLECTION': return <Bookmark {...props} />;
+    case 'GRAPES': return <Leaf {...props} />;
+    case 'REGIONS':
+    case 'COUNTRIES': return <MapIcon {...props} />;
+    case 'STYLES': return <Wine {...props} />;
+    case 'FLAVORS': return <Sparkles {...props} />;
+    case 'CONTINENTS':
+    case 'GLOBE': return <Globe {...props} />;
+    case 'SEARCH': return <Search {...props} />;
+    case 'SCANNER': return <ScanLine {...props} />;
+    case 'TOOLS':
+    case 'MINIGAMES': return <Wrench {...props} />;
+    case 'FILTER': return <SlidersHorizontal {...props} />;
+    case 'WSET QUIZ':
+    case 'QUIZ': return <GraduationCap {...props} />;
+    case 'DAILY':
+    case 'DAILY CHALLENGE': return <Calendar {...props} />;
+    case 'PASSPORT': return <BookOpen {...props} />;
+    case 'MOON DIAL': return <Moon {...props} />;
+    default: return <Wine {...props} />;
+  }
+};
 
 interface DeviceLayoutProps {
   children: React.ReactNode;
@@ -88,20 +125,22 @@ const DeviceLayout: React.FC<DeviceLayoutProps> = ({
   const defaultFooterDisplay = (
     <div className="w-full max-w-[16.5rem] min-w-0 rounded-[1.1rem] bg-black px-[0.35rem] py-[0.3rem] border border-white/75 shadow-[inset_0_1px_0_rgba(255,255,255,0.85),0_3px_0_rgba(120,120,120,0.95)]">
       <div className="flex items-center min-h-[4.1rem] overflow-hidden bg-black rounded-[0.9rem] px-1 shadow-[inset_0_0_18px_rgba(34,197,94,0.16)]">
-        <div className="terminal-marquee whitespace-nowrap">
+        <div className="terminal-marquee whitespace-nowrap flex items-center">
           <span
-            className={`inline-block font-retro ${footerTitleSize} italic tracking-[-0.08em] transform -skew-x-12 leading-none text-green-500 pr-12`}
+            className={`inline-block font-retro ${footerTitleSize} italic tracking-[-0.08em] transform -skew-x-12 leading-none text-green-500 pr-6`}
             style={{ textShadow: '1px 1px 0px rgba(8, 32, 16, 0.65)' }}
           >
             {footerTitle}
           </span>
+          <span className="pr-6 flex items-center">{marqueeGlyph(title, 22)}</span>
           <span
             aria-hidden="true"
-            className={`inline-block font-retro ${footerTitleSize} italic tracking-[-0.08em] transform -skew-x-12 leading-none text-green-500 pr-12`}
+            className={`inline-block font-retro ${footerTitleSize} italic tracking-[-0.08em] transform -skew-x-12 leading-none text-green-500 pr-6`}
             style={{ textShadow: '1px 1px 0px rgba(8, 32, 16, 0.65)' }}
           >
             {footerTitle}
           </span>
+          <span aria-hidden="true" className="pr-6 flex items-center">{marqueeGlyph(title, 22)}</span>
         </div>
       </div>
     </div>
@@ -227,6 +266,34 @@ const DeviceLayout: React.FC<DeviceLayoutProps> = ({
                 />
               </button>
             )}
+          </div>
+        )}
+
+        {/* Front nameplate — an engraved brushed-metal "VINODEX" plate on a
+            chassis bump above the LCD, on every screen (iOS `titleBump`). The
+            splash already carries the skew wordmark in the island, so it is
+            suppressed there to avoid naming the product twice. */}
+        {!hideHeader && !showWordmark && (
+          <div className="shrink-0 flex justify-center -mt-1 mb-1" aria-hidden="true">
+            <div
+              className="rounded-[4px] px-5 py-1 border"
+              style={{
+                background: 'linear-gradient(135deg, #cdcfd2 0%, #9ea1a5 55%, #b8babd 100%)',
+                borderColor: '#5f6368',
+                boxShadow: '0 1px 2px rgba(0,0,0,0.25)',
+              }}
+            >
+              <span
+                className="font-retro text-[0.7rem] md:text-[0.8rem] leading-none block"
+                style={{
+                  color: '#3a3d42',
+                  letterSpacing: '0.35em',
+                  textShadow: '0 1px 0 rgba(255,255,255,0.5), 0 -1px 0 rgba(0,0,0,0.45)',
+                }}
+              >
+                VINODEX
+              </span>
+            </div>
           </div>
         )}
 

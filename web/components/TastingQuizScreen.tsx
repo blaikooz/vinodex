@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useState } from 'react';
-import { CheckCircle2, XCircle, Lock, Flame, ChevronRight, BookOpen, GraduationCap } from 'lucide-react';
+import { CheckCircle2, XCircle, Lock, Flame, ChevronRight, BookOpen } from 'lucide-react';
 import DeviceLayout from './DeviceLayout';
 import EntryTile from './EntryTile';
 import { WineEntry } from '@/shared/types';
@@ -223,7 +223,8 @@ const TastingQuizScreen: React.FC<TastingQuizScreenProps> = ({ mode, allEntries,
   return (
     <DeviceLayout title="WINE EXAM" showBack onBack={onBack} onHome={onHome} centerHeaderText>
       <div className="h-full overflow-y-auto custom-scrollbar p-4 flex flex-col gap-3" style={{ backgroundColor: 'var(--lcd-page)' }}>
-        <div className="font-retro text-xs tracking-widest text-green-400 text-center mb-1">CHOOSE YOUR EXAM</div>
+        {/* Left-aligned over a hairline rule, matching iOS. */}
+        <div className="font-retro text-xs tracking-widest text-green-400 text-left pb-1 mb-1 border-b-2" style={{ borderColor: 'var(--lcd-accent)' }}>CHOOSE YOUR EXAM</div>
         {QUIZ_TIERS.map(tier => {
           const unlocked = isTierUnlocked(tier);
           return (
@@ -234,7 +235,7 @@ const TastingQuizScreen: React.FC<TastingQuizScreenProps> = ({ mode, allEntries,
                 unlocked ? 'bg-stone-900/70 border-green-700 hover:border-green-400' : 'bg-stone-900/40 border-stone-800 opacity-60'
               }`}
             >
-              {tier === 'SOMMELIER' ? <GraduationCap size={22} className={unlocked ? 'text-purple-400' : 'text-stone-600'} /> : <span className="w-[22px]" />}
+              {/* No leading tier glyph — iOS tier rows carry none. */}
               <div className="flex-1 text-left">
                 <div className="font-retro text-sm tracking-widest text-stone-100">{TIER_LABEL[tier]}</div>
                 <div className="font-mono text-xs text-stone-500 mt-0.5 normal-case">{TIER_BLURB[tier]}</div>

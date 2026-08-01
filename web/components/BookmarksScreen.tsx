@@ -1,5 +1,5 @@
 import React, { useMemo, useRef, useState } from 'react';
-import { Bookmark, Trash2, PlusCircle, CheckCircle2, Camera, Pencil, Check, Star, BookMarked, UserRound, Flame, ChevronRight } from 'lucide-react';
+import { Bookmark, XCircle, PlusCircle, CheckCircle2, Camera, Pencil, Check, Star, BookMarked, UserRound, Flame, ChevronRight } from 'lucide-react';
 import DeviceLayout from './DeviceLayout';
 import EntryTile from './EntryTile';
 import RatingPrompt from './RatingPrompt';
@@ -237,7 +237,7 @@ const BookmarksScreen: React.FC<BookmarksScreenProps> = ({ allEntries, onSelect,
                       aria-label={`Remove ${entry.name}`}
                       className="absolute top-1 right-1 p-1.5 rounded bg-stone-950/80 border border-stone-700 text-stone-400 hover:text-red-400 hover:border-red-700 transition-colors"
                     >
-                      <Trash2 size={16} />
+                      <XCircle size={16} />
                     </button>
                     {shelf === 'tried' && (
                       <button
@@ -254,10 +254,11 @@ const BookmarksScreen: React.FC<BookmarksScreenProps> = ({ allEntries, onSelect,
                             />
                           ))}
                         </span>
+                        {/* Stars only when unrated — iOS shows no placeholder text. */}
                         {rating?.note ? (
                           <span className="font-mono text-[0.7rem] text-stone-300 truncate flex-1 text-left">{rating.note}</span>
                         ) : (
-                          <span className="font-mono text-[0.7rem] text-stone-600 flex-1 text-left normal-case">tap to rate</span>
+                          <span className="flex-1" />
                         )}
                         <Pencil size={12} className="text-amber-400 shrink-0" />
                       </button>
@@ -275,7 +276,9 @@ const BookmarksScreen: React.FC<BookmarksScreenProps> = ({ allEntries, onSelect,
             <div className="w-full max-w-xs bg-stone-900 border-2 border-red-800 rounded-lg p-5 flex flex-col gap-4">
               <p className="font-retro text-xs tracking-widest text-red-400 text-center">CLEAR ALL {SHELF_TITLE[shelf]}?</p>
               <p className="font-mono text-sm text-stone-300 text-center normal-case">
-                {items.length} {items.length === 1 ? 'item' : 'items'} will be removed{shelf === 'tried' ? ', ratings and notes too' : ''}. This cannot be undone.
+                {shelf === 'tried'
+                  ? `${items.length} tasting${items.length === 1 ? '' : 's'} will be removed — ratings and notes go with them.`
+                  : `${items.length} ${items.length === 1 ? 'item' : 'items'} will be removed. This cannot be undone.`}
               </p>
               <div className="flex gap-3">
                 <button
