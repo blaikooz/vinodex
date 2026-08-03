@@ -261,7 +261,7 @@ const App: React.FC = () => {
     const { id } = useParams<{ id: string }>();
     const project = getProject(id);
     if (!project) return <Navigate to="/website/apps" replace />;
-    return <ProjectSplash project={project} onBack={handleBack} />;
+    return <ProjectSplash project={project} onBack={handleBack} onUnlock={() => navigate('/website/unlock')} />;
   };
 
   return (
@@ -301,7 +301,6 @@ const App: React.FC = () => {
           element={
             <OurAppsList
               onBack={handleBack}
-              onSelectVinodex={() => navigate('/website/unlock')}
               onSelectProject={id => navigate(`/website/project/${id}`)}
             />
           }

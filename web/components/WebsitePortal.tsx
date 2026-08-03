@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { LayoutGrid, Users, Mail, Database, Delete, ChevronRight, Lock, Newspaper, ArrowUpRight } from 'lucide-react';
+import { LayoutGrid, Users, Mail, Database, Delete, ChevronRight, Lock, ArrowUpRight } from 'lucide-react';
 import DeviceLayout from './DeviceLayout';
 
 /**
@@ -22,11 +22,27 @@ export interface Project {
   id: string;
   name: string;
   blurb: string;
+  /** External destination for CHECK IT OUT. Unused for `locked` projects, which
+   *  hand off to the in-app unlock keypad instead. */
   href: string;
   description: string;
+  /** Bundled square logo shown in the list row and on the splash. */
+  logo: string;
+  /** Vinodex: gated behind the access-code keypad rather than opening a URL. */
+  locked?: boolean;
 }
 
 export const PROJECTS: Project[] = [
+  {
+    id: 'vinodex',
+    name: 'VINODEX',
+    blurb: 'Retro wine encyclopedia',
+    href: '/website/unlock',
+    description:
+      'Vinodex is a retro-handheld encyclopedia of wine — hundreds of grapes, regions, styles and flavours to scan, save, and quiz yourself on, all on a device you can pick up and explore. Enter the access code to step inside.',
+    logo: '/vinodex-logo.png',
+    locked: true,
+  },
   {
     id: 'focuspond',
     name: 'FOCUSPOND',
@@ -34,6 +50,7 @@ export const PROJECTS: Project[] = [
     href: 'https://focuspond.substack.com',
     description:
       'FocusPond curates legitimate paid market research — focus groups and product-testing opportunities — so you can earn with your opinion, paired with motivational content to keep you focused on your financial goals.',
+    logo: '/projects/focuspond.png',
   },
   {
     id: 'varied-mix',
@@ -42,6 +59,7 @@ export const PROJECTS: Project[] = [
     href: 'https://variedmix.substack.com',
     description:
       'varied/mix is a music blog of themed playlists celebrating diverse artists and genres, with live radio broadcasts, extended mixes, and hours of curated music to explore.',
+    logo: '/projects/varied-mix.png',
   },
 ];
 
@@ -98,10 +116,23 @@ const tileBase =
   'flex-1 rounded-xl shadow-lg active:translate-y-1 active:border-b-0 transition-all flex flex-col items-center justify-center group relative overflow-hidden';
 
 export const PortalHome: React.FC<PortalHomeProps> = ({ onBack, onOpenApps, onWhoWeAre, onContactUs, onData }) => (
-  <DeviceLayout title="VINODEX" subtitle="" showBack onBack={onBack} showSystemButtons={false}>
+  <DeviceLayout title="HORIZON/GODOT" subtitle="" showBack onBack={onBack} showSystemButtons={false}>
     <div className="flex-1 min-h-0 w-full flex flex-col items-center bg-dex-screen relative overflow-hidden">
       <RetroGrid />
-      <div className="relative w-full h-full z-10 flex flex-col p-6 gap-4 justify-between">
+      <div className="relative w-full h-full z-10 flex flex-col p-6 gap-4">
+
+        {/* Studio title. */}
+        <div className="text-center shrink-0">
+          <h1
+            className="font-retro text-xl sm:text-3xl tracking-widest text-green-300 leading-none"
+            style={{ textShadow: '2px 2px 0 rgba(8,32,16,0.6)' }}
+          >
+            HORIZON/GODOT
+          </h1>
+          <p className="font-mono text-[0.55rem] sm:text-xs tracking-[0.3em] text-stone-400 mt-1.5">
+            CREATING ACROSS MULTITUDES
+          </p>
+        </div>
 
         <div className="flex gap-4 w-full flex-1 min-h-0">
           <button
@@ -154,49 +185,34 @@ export const PortalHome: React.FC<PortalHomeProps> = ({ onBack, onOpenApps, onWh
 
 interface OurAppsListProps {
   onBack: () => void;
-  onSelectVinodex: () => void;
   onSelectProject: (id: string) => void;
 }
 
-export const OurAppsList: React.FC<OurAppsListProps> = ({ onBack, onSelectVinodex, onSelectProject }) => (
+export const OurAppsList: React.FC<OurAppsListProps> = ({ onBack, onSelectProject }) => (
   <DeviceLayout title="OUR WORK" subtitle="" showBack onBack={onBack} showSystemButtons={false} centerHeaderText>
     <div className="flex-1 min-h-0 w-full flex flex-col bg-dex-screen relative overflow-hidden">
       <RetroGrid />
       <div className="relative z-10 flex-1 overflow-y-auto p-4 flex flex-col gap-3">
 
-        <button
-          onClick={onSelectVinodex}
-          className="w-full flex items-center gap-4 p-4 rounded-xl bg-stone-900/80 border-2 border-green-600 active:translate-y-0.5 transition-all group hover:border-green-400"
-        >
-          <div className="w-14 h-14 shrink-0 rounded-[18%] bg-dex-red flex items-center justify-center overflow-hidden">
-            <img src="/vinodex-logo.png" alt="Vinodex" className="w-full h-full object-cover rounded-[18%]" />
-          </div>
-          <div className="flex-1 min-w-0 text-left">
-            <div className="font-retro text-sm text-green-300 tracking-widest">VINODEX</div>
-            <div className="font-mono text-xs text-stone-400 mt-1">Retro wine encyclopedia</div>
-          </div>
-          <span className="flex items-center gap-1 shrink-0">
-            <Lock size={14} className="text-yellow-400" />
-            <ChevronRight size={20} className="text-green-400 group-hover:translate-x-1 transition-transform" />
-          </span>
-        </button>
-
-        {/* The studio's projects — each opens an in-app splash first, which then
-            hands off to Substack. */}
+        {/* Every project — the locked Vinodex app plus the studio's Substacks —
+            opens its own in-app splash first (CHECK IT OUT hands off from there). */}
         {PROJECTS.map(p => (
           <button
             key={p.id}
             onClick={() => onSelectProject(p.id)}
-            className="w-full flex items-center gap-4 p-4 rounded-xl bg-stone-900/80 border-2 border-stone-700 active:translate-y-0.5 transition-all group hover:border-green-500"
+            className={`w-full flex items-center gap-4 p-4 rounded-xl bg-stone-900/80 border-2 active:translate-y-0.5 transition-all group ${p.locked ? 'border-green-600 hover:border-green-400' : 'border-stone-700 hover:border-green-500'}`}
           >
-            <div className="w-14 h-14 shrink-0 rounded-[18%] bg-stone-800 border border-stone-600 flex items-center justify-center">
-              <Newspaper size={26} className="text-green-400" />
+            <div className="w-14 h-14 shrink-0 rounded-[18%] bg-white flex items-center justify-center overflow-hidden">
+              <img src={p.logo} alt={p.name} className="w-full h-full object-cover" />
             </div>
             <div className="flex-1 min-w-0 text-left">
               <div className="font-retro text-sm text-green-300 tracking-widest">{p.name}</div>
               <div className="font-mono text-xs text-stone-400 mt-1">{p.blurb}</div>
             </div>
-            <ChevronRight size={20} className="text-green-400 shrink-0 group-hover:translate-x-1 transition-transform" />
+            <span className="flex items-center gap-1 shrink-0">
+              {p.locked && <Lock size={14} className="text-yellow-400" />}
+              <ChevronRight size={20} className="text-green-400 group-hover:translate-x-1 transition-transform" />
+            </span>
           </button>
         ))}
 
@@ -213,16 +229,21 @@ export const OurAppsList: React.FC<OurAppsListProps> = ({ onBack, onSelectVinode
 interface ProjectSplashProps {
   project: Project;
   onBack: () => void;
+  /** Locked projects (Vinodex) route CHECK IT OUT to the unlock keypad. */
+  onUnlock: () => void;
 }
 
-export const ProjectSplash: React.FC<ProjectSplashProps> = ({ project, onBack }) => (
+const checkOutClass =
+  'inline-flex items-center gap-2 px-6 py-4 rounded-xl bg-green-500 border-b-4 border-green-700 active:translate-y-0.5 active:border-b-0 transition-all font-retro text-sm tracking-widest text-white hover:bg-green-400 shadow-lg';
+
+export const ProjectSplash: React.FC<ProjectSplashProps> = ({ project, onBack, onUnlock }) => (
   <DeviceLayout title={project.name} subtitle="" showBack onBack={onBack} showSystemButtons={false} centerHeaderText>
     <div className="flex-1 min-h-0 w-full flex flex-col bg-dex-screen relative overflow-hidden">
       <RetroGrid />
       <div className="relative z-10 flex-1 overflow-y-auto p-6 flex flex-col items-center justify-center gap-6 text-center">
 
-        <div className="w-16 h-16 shrink-0 rounded-[18%] bg-stone-800 border border-stone-600 flex items-center justify-center">
-          <Newspaper size={30} className="text-green-400" />
+        <div className="w-24 h-24 shrink-0 rounded-[18%] bg-white flex items-center justify-center overflow-hidden shadow-lg">
+          <img src={project.logo} alt={project.name} className="w-full h-full object-cover" />
         </div>
 
         <div className="space-y-2">
@@ -234,15 +255,18 @@ export const ProjectSplash: React.FC<ProjectSplashProps> = ({ project, onBack })
           {project.description}
         </p>
 
-        <a
-          href={project.href}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="inline-flex items-center gap-2 px-6 py-4 rounded-xl bg-green-500 border-b-4 border-green-700 active:translate-y-0.5 active:border-b-0 transition-all font-retro text-sm tracking-widest text-white hover:bg-green-400 shadow-lg"
-        >
-          CHECK IT OUT
-          <ArrowUpRight size={18} className="shrink-0" />
-        </a>
+        {project.locked ? (
+          // Vinodex: CHECK IT OUT opens the access-code keypad, not a URL.
+          <button onClick={onUnlock} className={checkOutClass}>
+            CHECK IT OUT
+            <Lock size={16} className="shrink-0" />
+          </button>
+        ) : (
+          <a href={project.href} target="_blank" rel="noopener noreferrer" className={checkOutClass}>
+            CHECK IT OUT
+            <ArrowUpRight size={18} className="shrink-0" />
+          </a>
+        )}
 
       </div>
     </div>
