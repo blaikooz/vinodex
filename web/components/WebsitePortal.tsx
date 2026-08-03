@@ -1,6 +1,17 @@
 import React, { useState } from 'react';
-import { LayoutGrid, Users, Mail, Database, Construction, Delete, ChevronRight, Lock } from 'lucide-react';
+import { LayoutGrid, Users, Mail, Database, Delete, ChevronRight, Lock, Newspaper, ArrowUpRight } from 'lucide-react';
 import DeviceLayout from './DeviceLayout';
+
+/**
+ * The studio's other projects, shown under OUR WORK beneath Vinodex. These are
+ * writing projects on Substack, so each row is an external link rather than an
+ * in-app route. TODO(Harrison): confirm the two Substack URLs and give each a
+ * real one-line description.
+ */
+const PROJECTS: { name: string; blurb: string; href: string }[] = [
+  { name: 'FOCUSPOND', blurb: 'Read on Substack', href: 'https://focuspond.substack.com' },
+  { name: 'VARIED/MIX', blurb: 'Read on Substack', href: 'https://variedmix.substack.com' },
+];
 
 /**
  * The company portal — the WEBSITE fork off the splash, as opposed to the DEX
@@ -13,8 +24,8 @@ import DeviceLayout from './DeviceLayout';
  * Back instead.
  *
  * Structure:
- *   /website              PortalHome  — OUR APPS / WHO WE ARE / CONTACT US / DATA
- *   /website/apps         OurAppsList — Vinodex (→ unlock) + "more apps soon"
+ *   /website              PortalHome  — OUR WORK / WHO WE ARE / CONTACT US / DATA
+ *   /website/apps         OurAppsList — Vinodex (→ unlock) + Substack projects
  *   /website/unlock       UnlockVinodex — code entry (0000 for now) → the dex
  *   /website/who-we-are   WhoWeAre
  *   /website/contact      ContactUs
@@ -63,7 +74,7 @@ export const PortalHome: React.FC<PortalHomeProps> = ({ onBack, onOpenApps, onWh
           >
             <div className="absolute inset-0 bg-gradient-to-br from-white/10 to-transparent pointer-events-none" />
             <LayoutGrid size={44} className="text-white mb-2 group-hover:scale-110 transition-transform drop-shadow-md sm:w-14 sm:h-14" />
-            <span className="font-retro text-xs sm:text-lg text-white tracking-widest drop-shadow-md">OUR APPS</span>
+            <span className="font-retro text-xs sm:text-lg text-white tracking-widest drop-shadow-md">OUR WORK</span>
           </button>
 
           <button
@@ -102,7 +113,7 @@ export const PortalHome: React.FC<PortalHomeProps> = ({ onBack, onOpenApps, onWh
 );
 
 // ---------------------------------------------------------------------------
-// OUR APPS — the app catalogue. Vinodex is live; the rest is a teaser.
+// OUR WORK — Vinodex (the app, behind the unlock) plus the studio's Substacks.
 // ---------------------------------------------------------------------------
 
 interface OurAppsListProps {
@@ -111,7 +122,7 @@ interface OurAppsListProps {
 }
 
 export const OurAppsList: React.FC<OurAppsListProps> = ({ onBack, onSelectVinodex }) => (
-  <DeviceLayout title="OUR APPS" subtitle="" showBack onBack={onBack} showSystemButtons={false} centerHeaderText>
+  <DeviceLayout title="OUR WORK" subtitle="" showBack onBack={onBack} showSystemButtons={false} centerHeaderText>
     <div className="flex-1 min-h-0 w-full flex flex-col bg-dex-screen relative overflow-hidden">
       <RetroGrid />
       <div className="relative z-10 flex-1 overflow-y-auto p-4 flex flex-col gap-3">
@@ -133,19 +144,25 @@ export const OurAppsList: React.FC<OurAppsListProps> = ({ onBack, onSelectVinode
           </span>
         </button>
 
-        {/* Inert teaser row, same "not built yet" treatment as the splash. */}
-        <div
-          aria-disabled="true"
-          className="w-full flex items-center gap-4 p-4 rounded-xl bg-stone-700/40 border-2 border-stone-700/70 opacity-60 cursor-not-allowed"
-        >
-          <div className="w-14 h-14 shrink-0 rounded-[18%] bg-stone-600/60 flex items-center justify-center">
-            <Construction size={28} className="text-stone-300" />
-          </div>
-          <div className="flex-1 min-w-0 text-left">
-            <div className="font-retro text-sm text-stone-200 tracking-widest">MORE APPS</div>
-            <div className="font-retro text-[0.6rem] text-amber-300/90 tracking-widest mt-1">COMING SOON</div>
-          </div>
-        </div>
+        {/* The studio's writing projects — external links out to Substack. */}
+        {PROJECTS.map(p => (
+          <a
+            key={p.name}
+            href={p.href}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="w-full flex items-center gap-4 p-4 rounded-xl bg-stone-900/80 border-2 border-stone-700 active:translate-y-0.5 transition-all group hover:border-green-500"
+          >
+            <div className="w-14 h-14 shrink-0 rounded-[18%] bg-stone-800 border border-stone-600 flex items-center justify-center">
+              <Newspaper size={26} className="text-green-400" />
+            </div>
+            <div className="flex-1 min-w-0 text-left">
+              <div className="font-retro text-sm text-green-300 tracking-widest">{p.name}</div>
+              <div className="font-mono text-xs text-stone-400 mt-1">{p.blurb}</div>
+            </div>
+            <ArrowUpRight size={20} className="text-green-400 shrink-0 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform" />
+          </a>
+        ))}
 
       </div>
     </div>
@@ -280,26 +297,27 @@ const InfoPage: React.FC<{ title: string; onBack: () => void; children: React.Re
 
 export const WhoWeAre: React.FC<{ onBack: () => void }> = ({ onBack }) => (
   <InfoPage title="WHO WE ARE" onBack={onBack}>
-    <p className="font-retro text-green-300 text-xs tracking-widest">/* PLACEHOLDER COPY */</p>
+    <p className="font-retro text-green-300 text-sm tracking-widest">CREATING ACROSS MULTITUDES.</p>
     <p>
-      We build small, characterful apps for people who love wine — starting with
-      Vinodex, a retro-handheld encyclopedia of grapes, regions, styles and
-      flavors.
+      Horizon/Godot is a two-person studio in New York. We're creators and
+      developers, and we build the projects we want to use every day.
     </p>
     <p>
-      Our aim is simple: make wine knowledge feel like play. No jargon walls, no
-      endless scrolling — just a friendly device you can pick up and explore.
+      Vinodex came out of years in wine service and retail, where every reference
+      tool was the same — dry, clunky, no fun to learn from. We wanted one that
+      rewarded curiosity instead of testing patience, so we made it. The aim is
+      simple: make wine knowledge feel like play.
     </p>
-    <p className="text-stone-400">
-      Replace this with your real story, mission, and team.
+    <p>
+      Wine is one of many things we make. See what else we're building under OUR
+      WORK.
     </p>
   </InfoPage>
 );
 
 export const ContactUs: React.FC<{ onBack: () => void }> = ({ onBack }) => (
   <InfoPage title="CONTACT US" onBack={onBack}>
-    <p className="font-retro text-green-300 text-xs tracking-widest">/* PLACEHOLDER COPY */</p>
-    <p>Questions, ideas, or just want to say hello?</p>
+    <p>Questions, ideas, feedback on Vinodex, or a project you think we'd like — we read everything.</p>
     <div className="space-y-2">
       <div className="flex items-center gap-3">
         <Mail size={16} className="text-green-400 shrink-0" />
@@ -308,8 +326,5 @@ export const ContactUs: React.FC<{ onBack: () => void }> = ({ onBack }) => (
         </a>
       </div>
     </div>
-    <p className="text-stone-400">
-      Replace this with your real email, social links, and support details.
-    </p>
   </InfoPage>
 );
