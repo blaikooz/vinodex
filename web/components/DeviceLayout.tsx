@@ -84,7 +84,10 @@ const DeviceLayout: React.FC<DeviceLayoutProps> = ({
   backFace,
   onTitleTap,
   showSystemButtons = true,
-  showWordmark = false,
+  // The top wordmark is retired (iOS v0.6.9): the device's one wordmark is now
+  // moulded into the bottom strip of the screen housing, so the splash gets it
+  // there like every other screen. Prop kept for call-site compatibility.
+  showWordmark: _showWordmark = false,
 }) => {
   const navigate = useNavigate();
 
@@ -148,7 +151,9 @@ const DeviceLayout: React.FC<DeviceLayoutProps> = ({
   // The header title sizing that used to live here went with the wordmark —
   // the island carries no text now, only the orb, the lights and the cog.
 
-  const footerHeight = '6.5rem';
+  // Taller than the old single-row band: the footer now stacks two controls in
+  // each side well (iOS v0.6.9 button band), so it reserves room for a pair.
+  const footerHeight = '8.5rem';
   const footerBottomPad = 'max(0.5rem, env(safe-area-inset-bottom))';
 
   return (
@@ -193,27 +198,28 @@ const DeviceLayout: React.FC<DeviceLayoutProps> = ({
             <div className="flex h-full flex-col">
         
         {/*
-          The island strip. No wordmark: iOS replaced the pixel-V logo with a
-          settings cog, because a logo looks like branding and so reads as
-          decoration — nobody expects it to be tappable. A cog states what it
-          does. Orb and status lights sit left, cog pinned right above Home.
+          The notch-level island strip (iOS v0.6.9 `islandFlank`): the orb sits
+          in the left corner, the three skin-tinted status lamps in the right
+          corner. The top branding is gone — the settings cog moved into the
+          footer button band, and the VINODEX wordmark moved to the bottom strip
+          of the screen housing (see `bottomVents`), so one device carries one
+          wordmark and it names the product on every screen.
         */}
         {!hideHeader && (
-          <div className="shrink-0 flex items-center px-4 pr-5 py-2.5 justify-between">
-            <div className="flex flex-row items-center gap-3">
-              {/*
-                Hold the orb to flip the device. A hidden gesture on a
-                decorative-looking part is a poor primary affordance, but this
-                one is a deliberate easter egg — the orb depresses under the
-                finger so the feedback arrives before the flip does. One second:
-                long enough not to fire on a tap, short enough that someone who
-                knows the gesture does not assume it has broken.
-              */}
+          <div className="shrink-0 flex items-start justify-between px-5 pt-2.5 pb-1">
+            {/*
+              Hold the orb to flip the device — a deliberate easter egg. The orb
+              depresses under the finger so the feedback arrives before the flip.
+              Its bead and glow are the skin's own (iOS `skin.orb` / `.orbGlow`).
+            */}
+            <div className="relative shrink-0">
+              <span
+                aria-hidden="true"
+                className="absolute left-1/2 top-1/2 w-16 h-16 md:w-20 md:h-20 rounded-full pointer-events-none"
+                style={{ backgroundColor: 'var(--chassis-orb-glow)', filter: 'blur(9px)', animation: 'chassis-throb 5.3s ease-in-out infinite' }}
+              />
               <button
                 type="button"
-                /* Labelled even when inert, and hidden from the tree when it is:
-                   a nameless button is the exact fault H10 covers, and this one
-                   is decorative on every screen that gives it no flip handler. */
                 aria-label={onTitleTap ? 'Hold to flip device' : undefined}
                 aria-hidden={onTitleTap ? undefined : true}
                 onPointerDown={onTitleTap ? beginOrbHold : undefined}
@@ -221,82 +227,29 @@ const DeviceLayout: React.FC<DeviceLayoutProps> = ({
                 onPointerLeave={onTitleTap ? cancelOrbHold : undefined}
                 onPointerCancel={onTitleTap ? cancelOrbHold : undefined}
                 disabled={!onTitleTap}
-                /* Same diameter as the footer controls and the cog: on iOS
-                   every button on the chassis is one size (`footerControl`). */
-                className={`w-16 h-16 md:w-20 md:h-20 rounded-full bg-cyan-300 border-[3px] border-white relative overflow-hidden shrink-0 shadow-[0_4px_8px_rgba(0,0,0,0.5)] lcd-pulse p-0 transition-transform duration-100 ${
-                  orbHeld ? 'scale-90 brightness-75' : ''
+                className={`relative w-11 h-11 md:w-14 md:h-14 rounded-full border-[3px] border-white shadow-[0_4px_8px_rgba(0,0,0,0.5)] p-0 transition-transform duration-100 ${
+                  orbHeld ? 'scale-[0.88] brightness-75' : ''
                 } ${onTitleTap ? 'cursor-pointer' : 'cursor-default'}`}
+                style={{ backgroundColor: 'var(--chassis-orb)' }}
               >
-                <span className="absolute top-1 left-1/2 -translate-x-1/2 w-3 h-3 bg-white rounded-full opacity-80 blur-[1px]"></span>
+                <span className="absolute top-1 left-1/2 -translate-x-1/2 w-2.5 h-2.5 bg-white rounded-full opacity-80 blur-[1px]"></span>
               </button>
-
-              <div className="flex flex-row gap-2 items-center" aria-hidden="true">
-                {/* 17% of the control size, sized off the orb so the pair stays
-                    proportional — `let dot = max(control * 0.17, 8)`. */}
-                <div className="w-3 h-3 md:w-3.5 md:h-3.5 rounded-full bg-red-600 border border-red-800 dot-pulse-red"></div>
-                <div className="w-3 h-3 md:w-3.5 md:h-3.5 rounded-full bg-yellow-400 border border-yellow-600 dot-pulse-yellow"></div>
-                <div className="w-3 h-3 md:w-3.5 md:h-3.5 rounded-full bg-green-500 border border-green-700 dot-pulse-green"></div>
-              </div>
             </div>
 
-            {showWordmark && (
-              <h1
-                className="font-retro text-[2.1rem] md:text-[2.9rem] italic tracking-tighter transform -skew-x-12 whitespace-nowrap leading-tight drop-shadow-md"
-                style={{
-                  color: 'var(--chassis-on-body)',
-                  textShadow: '2px 2px 0px var(--chassis-on-body-shadow)',
-                }}
-              >
-                VINODEX
-              </h1>
-            )}
-
-            {showSystemButtons && (
-              // Brushed silver, same diameter family as the footer controls, so
-              // every button on the chassis reads as one set.
-              <button
-                onClick={() => navigate('/settings')}
-                aria-label="Settings"
-                className="w-16 h-16 md:w-20 md:h-20 rounded-full flex items-center justify-center shrink-0 border-[3px] active:scale-90 transition-transform shadow-[0_2px_4px_rgba(0,0,0,0.45)]"
-                style={{
-                  background: 'linear-gradient(to bottom, #44403c, #1c1917)',
-                  borderColor: '#a8a29e',
-                }}
-              >
-                {/* 52% of the button, as `settingsButton(size:)` does. */}
-                <Settings
-                  className="w-[52%] h-[52%]"
-                  style={{ color: '#e8ebee', filter: 'drop-shadow(0 1px 0 rgba(0,0,0,0.5))' }}
-                />
-              </button>
-            )}
-          </div>
-        )}
-
-        {/* Front nameplate — an engraved brushed-metal "VINODEX" plate on a
-            chassis bump above the LCD, on every screen (iOS `titleBump`). The
-            splash already carries the skew wordmark in the island, so it is
-            suppressed there to avoid naming the product twice. */}
-        {!hideHeader && !showWordmark && (
-          <div className="shrink-0 flex justify-center -mt-1 mb-1" aria-hidden="true">
-            <div
-              className="rounded-[4px] px-5 py-1 border"
-              style={{
-                background: 'linear-gradient(135deg, #cdcfd2 0%, #9ea1a5 55%, #b8babd 100%)',
-                borderColor: '#5f6368',
-                boxShadow: '0 1px 2px rgba(0,0,0,0.25)',
-              }}
-            >
-              <span
-                className="font-retro text-[0.7rem] md:text-[0.8rem] leading-none block"
-                style={{
-                  color: '#3a3d42',
-                  letterSpacing: '0.35em',
-                  textShadow: '0 1px 0 rgba(255,255,255,0.5), 0 -1px 0 rgba(0,0,0,0.45)',
-                }}
-              >
-                VINODEX
-              </span>
+            {/* The three skin-tinted lamps, trailing-aligned in the right corner. */}
+            <div className="flex flex-row gap-2 items-center pt-1.5" aria-hidden="true">
+              {[1, 2, 3].map((n, i) => (
+                <span
+                  key={n}
+                  className="relative w-2.5 h-2.5 md:w-3 md:h-3 rounded-full border"
+                  style={{ backgroundColor: `var(--chassis-lamp${n})`, borderColor: `var(--chassis-lamp${n}-edge)` }}
+                >
+                  <span
+                    className="absolute left-1/2 top-1/2 w-3.5 h-3.5 md:w-4 md:h-4 rounded-full pointer-events-none"
+                    style={{ backgroundColor: `var(--chassis-lamp${n})`, filter: 'blur(4px)', animation: `chassis-throb ${[6.1, 7.4, 4.8][i]}s ease-in-out infinite` }}
+                  />
+                </span>
+              ))}
             </div>
           </div>
         )}
@@ -348,13 +301,31 @@ const DeviceLayout: React.FC<DeviceLayoutProps> = ({
 
           </div>
 
-          {/* Bottom vents / grill */}
-          <div className="shrink-0 relative flex items-center justify-end px-4 h-6">
-            <div className="absolute left-1/2 -translate-x-1/2 w-2 h-2 rounded-full bg-red-500 border border-red-800 shadow-[0_0_6px_rgba(239,68,68,0.8)]"></div>
-            <div className="flex flex-col gap-0.5 opacity-50">
-              <div className="w-16 h-0.5 rounded-full" style={{ backgroundColor: 'var(--chassis-grill)' }}></div>
-              <div className="w-16 h-0.5 rounded-full" style={{ backgroundColor: 'var(--chassis-grill)' }}></div>
-              <div className="w-16 h-0.5 rounded-full" style={{ backgroundColor: 'var(--chassis-grill)' }}></div>
+          {/* Bottom strip (iOS v0.6.7+ `bottomVents`): the lone red lamp, the
+              stretched VINODEX wordmark — the device's one wordmark, moulded
+              into the strip in the grille's own colour — and the grille slats. */}
+          <div className="shrink-0 relative flex items-center gap-3 px-4 h-7">
+            <span className="w-2.5 h-2.5 rounded-full bg-red-500 border border-red-800 shadow-[0_0_6px_rgba(239,68,68,0.8)] shrink-0"></span>
+            <div className="flex-1 min-w-0 flex justify-center overflow-hidden">
+              <span
+                aria-hidden="true"
+                className="font-retro leading-none select-none whitespace-nowrap"
+                style={{
+                  color: 'var(--chassis-grill)',
+                  opacity: 0.85,
+                  fontSize: 'clamp(0.65rem, 3vw, 1rem)',
+                  letterSpacing: '0.12em',
+                  transform: 'scaleX(1.3)',
+                  display: 'inline-block',
+                }}
+              >
+                VINODEX
+              </span>
+            </div>
+            <div className="flex flex-col gap-0.5 opacity-50 shrink-0">
+              {[0, 1, 2, 3].map(i => (
+                <div key={i} className="w-14 h-0.5 rounded-full" style={{ backgroundColor: 'var(--chassis-grill)' }}></div>
+              ))}
             </div>
           </div>
 
@@ -362,71 +333,89 @@ const DeviceLayout: React.FC<DeviceLayoutProps> = ({
         </div>
         </div>
 
-        {/* Footer controls. `zoom` scales the whole control furniture (buttons +
-            marquee) with the UI-size axis, independent of LCD text scale. */}
+        {/* Footer — the button band (iOS v0.6.9): two vertical bundles in milled
+            capsule wells — Back over Saved on the left, Home over Settings on the
+            right — flanking the marquee panel and its two indicator lamps. `zoom`
+            scales the whole furniture with the UI-size axis. */}
         <footer
-          className="absolute inset-x-0 bottom-0 px-3 pt-1 grid grid-cols-[auto_1fr_auto] items-center gap-2"
+          className="absolute inset-x-0 bottom-0 px-2 pt-1 flex items-start justify-between gap-2"
           style={{
             backgroundColor: 'var(--chassis-footer)',
             paddingBottom: 'max(0.5rem, env(safe-area-inset-bottom))',
             zoom: 'var(--ui-scale, 1)' as unknown as number,
           }}
         >
-          {/*
-            Back where there is somewhere to go; otherwise the slot earns its
-            keep as the way into saved entries, rather than sitting there as a
-            greyed-out stub. Straight from iOS `ChassisButton.Kind`.
-          */}
-          <div className="flex justify-start">
-            {(backEnabled || showSystemButtons) && (
+          {/* Left well: Back (top) over Saved (bottom). */}
+          <div
+            className="flex flex-col items-center gap-1.5 rounded-full p-1.5 -translate-y-1 shrink-0"
+            style={{ backgroundColor: 'rgba(0,0,0,0.2)', boxShadow: 'inset 0 2px 4px rgba(0,0,0,0.35), inset 0 -1px 0 rgba(255,255,255,0.14)' }}
+          >
+            <button
+              type="button"
+              onClick={backEnabled ? onBack : undefined}
+              disabled={!backEnabled}
+              aria-label="Back"
+              className={`relative w-12 h-12 md:w-14 md:h-14 rounded-full bg-gradient-to-b from-stone-700 to-stone-950 border-[3px] border-stone-400 shadow-[inset_0_3px_6px_rgba(255,255,255,0.15),0_6px_10px_rgba(0,0,0,0.5)] transition-transform focus:outline-none active:scale-[0.95] ${backEnabled ? 'hover:scale-[1.02]' : 'opacity-35 cursor-default'}`}
+            >
+              <span className="absolute inset-0 flex items-center justify-center pointer-events-none">
+                <svg viewBox="0 0 24 24" className="w-8 h-8 text-white" fill="none" stroke="currentColor" strokeWidth={4} strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M15 5L7 12l8 7" />
+                </svg>
+              </span>
+            </button>
+            {showSystemButtons && (
               <button
                 type="button"
-                onClick={backEnabled ? onBack : () => navigate('/saved')}
-                /* "Saved entries", not "Saved": the slot shows a person glyph
-                   when Back has nowhere to go, and the shorter label left a
-                   screen reader with no idea what it opened. (audit H10) */
-                aria-label={backEnabled ? 'Back' : 'Saved entries'}
-                className="relative -translate-y-1 w-16 h-16 md:w-20 md:h-20 rounded-full bg-gradient-to-b from-stone-700 to-stone-950 border-[3px] border-stone-400 shadow-[inset_0_3px_6px_rgba(255,255,255,0.15),0_8px_12px_rgba(0,0,0,0.6)] transition-transform focus:outline-none hover:scale-[1.02] active:translate-x-[1px] active:scale-[0.98]"
+                onClick={() => navigate('/saved')}
+                aria-label="Saved entries"
+                className="relative w-12 h-12 md:w-14 md:h-14 rounded-full bg-gradient-to-b from-stone-700 to-stone-950 border-[3px] border-stone-400 shadow-[inset_0_3px_6px_rgba(255,255,255,0.15),0_6px_10px_rgba(0,0,0,0.5)] transition-transform active:scale-[0.95] hover:scale-[1.02]"
               >
-                <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-                  {backEnabled ? (
-                    <svg viewBox="0 0 24 24" className="w-10 h-10 text-white" fill="none" stroke="currentColor" strokeWidth={4} strokeLinecap="round" strokeLinejoin="round">
-                      <path d="M15 5L7 12l8 7" />
-                    </svg>
-                  ) : (
-                    /* Back has nowhere to go, so the slot earns its keep as the
-                       way into saved entries — iOS ChassisButton.Kind.bookmarks.
-                       Suppressed on the splash, which has no app behind it. */
-                    <CircleUser className="w-9 h-9 text-white" strokeWidth={2} />
-                  )}
-                </div>
+                <span className="absolute inset-0 flex items-center justify-center pointer-events-none">
+                  <CircleUser className="w-7 h-7 text-white" strokeWidth={2} />
+                </span>
               </button>
             )}
           </div>
 
-          <div className="flex justify-center items-center px-1 self-center -translate-y-0.5 min-w-0">
+          {/* Centre: two indicator lamps over the marquee, matched to its width. */}
+          <div className="flex-1 min-w-0 flex flex-col items-center gap-1 -translate-y-0.5">
+            <div className="w-full max-w-[16.5rem] flex gap-1.5 px-0.5" aria-hidden="true">
+              <span className="flex-1 h-1.5 rounded-full bg-red-500 border border-red-800"></span>
+              <span className="flex-1 h-1.5 rounded-full border" style={{ backgroundColor: '#2AB5FF', borderColor: '#0B6FA8' }}></span>
+            </div>
             {footerCenter ? (
-              <div className="flex items-center justify-center w-full">
-                {footerCenter}
-              </div>
+              <div className="flex items-center justify-center w-full">{footerCenter}</div>
             ) : (
-              <div className="flex items-center justify-center w-full">
-                {defaultFooterDisplay}
-              </div>
+              defaultFooterDisplay
             )}
           </div>
 
-          <div className="flex justify-end">
-            {onHome && (
+          {/* Right well: Home (top) over Settings (bottom). */}
+          <div
+            className="flex flex-col items-center gap-1.5 rounded-full p-1.5 -translate-y-1 shrink-0"
+            style={{ backgroundColor: 'rgba(0,0,0,0.2)', boxShadow: 'inset 0 2px 4px rgba(0,0,0,0.35), inset 0 -1px 0 rgba(255,255,255,0.14)' }}
+          >
+            <button
+              type="button"
+              onClick={onHome ? () => onHome() : undefined}
+              disabled={!onHome}
+              aria-label="Home"
+              className={`relative w-12 h-12 md:w-14 md:h-14 rounded-full bg-gradient-to-b from-amber-200 to-amber-500 border-[3px] border-amber-700 shadow-[inset_0_3px_5px_rgba(255,255,255,0.55),0_6px_10px_rgba(0,0,0,0.45)] overflow-hidden transition-transform active:scale-[0.95] ${onHome ? '' : 'opacity-35 cursor-default'}`}
+            >
+              <span className="absolute inset-0 bg-gradient-to-br from-white/35 via-transparent to-black/25 pointer-events-none"></span>
+              <span className="absolute inset-[2px] rounded-full bg-gradient-to-b from-amber-100 to-amber-400 border border-amber-500 flex items-center justify-center shadow-inner">
+                <Home size={28} className="text-amber-900" />
+              </span>
+            </button>
+            {showSystemButtons && (
               <button
-                onClick={onHome}
-                className="relative -translate-y-1 w-16 h-16 md:w-20 md:h-20 rounded-full bg-gradient-to-b from-amber-200 to-amber-500 border-[3px] border-amber-700 shadow-[inset_0_3px_5px_rgba(255,255,255,0.55),0_8px_12px_rgba(0,0,0,0.45)] active:scale-[0.98] active:shadow-[inset_0_4px_7px_rgba(0,0,0,0.45)] overflow-hidden transition-transform"
-                aria-label="Home"
+                type="button"
+                onClick={() => navigate('/settings')}
+                aria-label="Settings"
+                className="relative w-12 h-12 md:w-14 md:h-14 rounded-full flex items-center justify-center border-[3px] transition-transform active:scale-[0.95] hover:scale-[1.02] shadow-[0_6px_10px_rgba(0,0,0,0.45)]"
+                style={{ background: 'linear-gradient(to bottom, #44403c, #1c1917)', borderColor: '#a8a29e' }}
               >
-                <div className="absolute inset-0 bg-gradient-to-br from-white/35 via-transparent to-black/25 pointer-events-none"></div>
-                <div className="absolute inset-[2px] rounded-full bg-gradient-to-b from-amber-100 to-amber-400 border border-amber-500 flex items-center justify-center shadow-inner">
-                  <Home size={36} className="text-amber-900 font-bold" />
-                </div>
+                <Settings className="w-[50%] h-[50%]" style={{ color: '#e8ebee', filter: 'drop-shadow(0 1px 0 rgba(0,0,0,0.5))' }} />
               </button>
             )}
           </div>

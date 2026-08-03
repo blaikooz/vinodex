@@ -4,14 +4,50 @@ import DeviceLayout from './DeviceLayout';
 
 /**
  * The studio's other projects, shown under OUR WORK beneath Vinodex. These are
- * writing projects on Substack, so each row is an external link rather than an
- * in-app route. TODO(Harrison): confirm the two Substack URLs and give each a
- * real one-line description.
+ * Substack projects. Tapping a row now opens an in-app splash (/website/project/:id)
+ * that explains the project before handing off to Substack via CHECK IT OUT —
+ * rather than jumping straight out to the external site.
+ *
+ * This array is the single source of truth for each project's id, list blurb,
+ * external URL, and the longer splash description.
+ *
+ * The `description` copy is paraphrased from each publication's own Substack
+ * tagline/about, fetched 2026-08-03:
+ *   FOCUSPOND  — https://focuspond.substack.com
+ *   VARIED/MIX — https://variedmix.substack.com
+ * Both URLs resolved and matched the projects, but they remain best-guess
+ * pending Harrison's confirmation. TODO(Harrison): confirm the two Substack URLs.
  */
-const PROJECTS: { name: string; blurb: string; href: string }[] = [
-  { name: 'FOCUSPOND', blurb: 'Read on Substack', href: 'https://focuspond.substack.com' },
-  { name: 'VARIED/MIX', blurb: 'Read on Substack', href: 'https://variedmix.substack.com' },
+export interface Project {
+  id: string;
+  name: string;
+  blurb: string;
+  href: string;
+  description: string;
+}
+
+export const PROJECTS: Project[] = [
+  {
+    id: 'focuspond',
+    name: 'FOCUSPOND',
+    blurb: 'Paid focus groups & product tests',
+    href: 'https://focuspond.substack.com',
+    description:
+      'FocusPond curates legitimate paid market research — focus groups and product-testing opportunities — so you can earn with your opinion, paired with motivational content to keep you focused on your financial goals.',
+  },
+  {
+    id: 'varied-mix',
+    name: 'VARIED/MIX',
+    blurb: 'A music blog & radio, genre to genre',
+    href: 'https://variedmix.substack.com',
+    description:
+      'varied/mix is a music blog of themed playlists celebrating diverse artists and genres, with live radio broadcasts, extended mixes, and hours of curated music to explore.',
+  },
 ];
+
+/** Look up a project by its route id. Returns undefined for unknown ids. */
+export const getProject = (id: string | undefined): Project | undefined =>
+  PROJECTS.find(p => p.id === id);
 
 /**
  * The company portal — the WEBSITE fork off the splash, as opposed to the DEX
@@ -119,9 +155,10 @@ export const PortalHome: React.FC<PortalHomeProps> = ({ onBack, onOpenApps, onWh
 interface OurAppsListProps {
   onBack: () => void;
   onSelectVinodex: () => void;
+  onSelectProject: (id: string) => void;
 }
 
-export const OurAppsList: React.FC<OurAppsListProps> = ({ onBack, onSelectVinodex }) => (
+export const OurAppsList: React.FC<OurAppsListProps> = ({ onBack, onSelectVinodex, onSelectProject }) => (
   <DeviceLayout title="OUR WORK" subtitle="" showBack onBack={onBack} showSystemButtons={false} centerHeaderText>
     <div className="flex-1 min-h-0 w-full flex flex-col bg-dex-screen relative overflow-hidden">
       <RetroGrid />
@@ -144,13 +181,12 @@ export const OurAppsList: React.FC<OurAppsListProps> = ({ onBack, onSelectVinode
           </span>
         </button>
 
-        {/* The studio's writing projects — external links out to Substack. */}
+        {/* The studio's projects — each opens an in-app splash first, which then
+            hands off to Substack. */}
         {PROJECTS.map(p => (
-          <a
-            key={p.name}
-            href={p.href}
-            target="_blank"
-            rel="noopener noreferrer"
+          <button
+            key={p.id}
+            onClick={() => onSelectProject(p.id)}
             className="w-full flex items-center gap-4 p-4 rounded-xl bg-stone-900/80 border-2 border-stone-700 active:translate-y-0.5 transition-all group hover:border-green-500"
           >
             <div className="w-14 h-14 shrink-0 rounded-[18%] bg-stone-800 border border-stone-600 flex items-center justify-center">
@@ -160,9 +196,53 @@ export const OurAppsList: React.FC<OurAppsListProps> = ({ onBack, onSelectVinode
               <div className="font-retro text-sm text-green-300 tracking-widest">{p.name}</div>
               <div className="font-mono text-xs text-stone-400 mt-1">{p.blurb}</div>
             </div>
-            <ArrowUpRight size={20} className="text-green-400 shrink-0 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform" />
-          </a>
+            <ChevronRight size={20} className="text-green-400 shrink-0 group-hover:translate-x-1 transition-transform" />
+          </button>
         ))}
+
+      </div>
+    </div>
+  </DeviceLayout>
+);
+
+// ---------------------------------------------------------------------------
+// Project splash — an in-app intro for a Substack project. Explains the project
+// in the portal's retro chrome, then hands off to Substack via CHECK IT OUT.
+// ---------------------------------------------------------------------------
+
+interface ProjectSplashProps {
+  project: Project;
+  onBack: () => void;
+}
+
+export const ProjectSplash: React.FC<ProjectSplashProps> = ({ project, onBack }) => (
+  <DeviceLayout title={project.name} subtitle="" showBack onBack={onBack} showSystemButtons={false} centerHeaderText>
+    <div className="flex-1 min-h-0 w-full flex flex-col bg-dex-screen relative overflow-hidden">
+      <RetroGrid />
+      <div className="relative z-10 flex-1 overflow-y-auto p-6 flex flex-col items-center justify-center gap-6 text-center">
+
+        <div className="w-16 h-16 shrink-0 rounded-[18%] bg-stone-800 border border-stone-600 flex items-center justify-center">
+          <Newspaper size={30} className="text-green-400" />
+        </div>
+
+        <div className="space-y-2">
+          <h2 className="font-retro text-lg text-green-300 tracking-widest">{project.name}</h2>
+          <p className="font-retro text-[0.6rem] tracking-widest text-stone-400 uppercase">{project.blurb}</p>
+        </div>
+
+        <p className="font-mono text-sm text-green-200 leading-relaxed max-w-prose">
+          {project.description}
+        </p>
+
+        <a
+          href={project.href}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="inline-flex items-center gap-2 px-6 py-4 rounded-xl bg-green-500 border-b-4 border-green-700 active:translate-y-0.5 active:border-b-0 transition-all font-retro text-sm tracking-widest text-white hover:bg-green-400 shadow-lg"
+        >
+          CHECK IT OUT
+          <ArrowUpRight size={18} className="shrink-0" />
+        </a>
 
       </div>
     </div>

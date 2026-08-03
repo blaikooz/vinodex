@@ -153,6 +153,16 @@ body {
 .dot-pulse-green {
   animation: dot-pulse-green 4.8s ease-in-out infinite;
 }
+
+/* Per-skin lamp/orb glow: a blurred colour disc behind the bead, breathing.
+   The colour is the element's own backgroundColor so one keyframe serves every
+   skin (iOS `PulseGlow`). Duration is set inline per lamp for the staggered
+   trio (5.3 / 6.1 / 7.4 / 4.8s). */
+@keyframes chassis-throb {
+  0%, 100% { opacity: 0.28; transform: translate(-50%, -50%) scale(0.9); }
+  50%      { opacity: 0.8;  transform: translate(-50%, -50%) scale(1.18); }
+}
+
 /* Slide in animation */
 @keyframes slide-in-from-top {
   from {

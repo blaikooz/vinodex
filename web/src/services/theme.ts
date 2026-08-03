@@ -469,6 +469,32 @@ export function nextSkin(): void {
  * drop-in for `bg-stone-900` — which makes theming a find-and-replace rather
  * than a rewrite of twelve components.
  */
+/**
+ * Per-skin orb bead, its glow halo, and the three status lamps — ported from
+ * iOS `ChassisSkin.orb` / `.orbGlow` / `.statusLights` (v0.6.x). Kept as a side
+ * table rather than folded into every `ChassisSkin` literal: it is chassis
+ * lighting, read only by `DeviceLayout`, and one table is far less error-prone
+ * to keep in step with iOS than three fields across fifteen objects.
+ */
+type Lamp = [fill: string, edge: string];
+const SKIN_LIGHTS: Record<ChassisSkinId, { orb: string; orbGlow: string; lamps: [Lamp, Lamp, Lamp] }> = {
+  CLASSIC:     { orb: '#67e8f9', orbGlow: '#2AB5FF', lamps: [['#dc2626', '#991b1b'], ['#facc15', '#ca8a04'], ['#22c55e', '#15803d']] },
+  MIDNIGHT:    { orb: '#d8b4fe', orbGlow: '#a855f7', lamps: [['#d8b4fe', '#7c3aed'], ['#a855f7', '#6b21a8'], ['#7c3aed', '#4c1d95']] },
+  ORIGINAL:    { orb: '#ffd76e', orbGlow: '#f0b429', lamps: [['#ffd76e', '#f0b429'], ['#e8e0cc', '#9a9a93'], ['#d4a017', '#8a6820']] },
+  BURGUNDY:    { orb: '#7c3aed', orbGlow: '#5b21b6', lamps: [['#f9a8d4', '#be185d'], ['#c084fc', '#7c3aed'], ['#7c3aed', '#4c1d95']] },
+  RIESLING:    { orb: '#ef4444', orbGlow: '#b91c1c', lamps: [['#ef4444', '#b91c1c'], ['#facc15', '#ca8a04'], ['#4b5563', '#1f2937']] },
+  VINHO_VERDE: { orb: '#9BBC0F', orbGlow: '#8BAC0F', lamps: [['#9BBC0F', '#6a8a0a'], ['#8BAC0F', '#5a740a'], ['#306230', '#0F380F']] },
+  GLOUGLOU:    { orb: '#FB923C', orbGlow: '#EA580C', lamps: [['#FDBA74', '#EA580C'], ['#FB923C', '#C2410C'], ['#F97316', '#9A3412']] },
+  SMART_GRAPE: { orb: '#FF9F0A', orbGlow: '#C97800', lamps: [['#FF9F0A', '#C97800'], ['#FFD60A', '#B8860B'], ['#8E8E93', '#48484A']] },
+  CHAMPAGNE:   { orb: '#F5D97E', orbGlow: '#D4A017', lamps: [['#F5D97E', '#D4A017'], ['#E3BC5F', '#8A6820'], ['#FDF6E3', '#C8B87A']] },
+  CHRISTMAS:   { orb: '#FF4D4D', orbGlow: '#A61E1E', lamps: [['#FF4D4D', '#8F1414'], ['#FF4D4D', '#8F1414'], ['#FF4D4D', '#8F1414']] },
+  NOUVEAU:     { orb: '#A855F7', orbGlow: '#7C3AED', lamps: [['#E9D5FF', '#A855F7'], ['#C084FC', '#7C3AED'], ['#A855F7', '#6B21A8']] },
+  OAKED:       { orb: '#B06A32', orbGlow: '#7A4218', lamps: [['#E8C15A', '#B5892E'], ['#D9AE55', '#8A6820'], ['#B5892E', '#7A5A14']] },
+  NOCTURNE:    { orb: '#7CFC9A', orbGlow: '#3EE06C', lamps: [['#B9FFAB', '#57D63E'], ['#8DF06A', '#2E8A20'], ['#57D63E', '#1E6A14']] },
+  STEEL:       { orb: '#E8F1FF', orbGlow: '#9FB8D8', lamps: [['#E8F1FF', '#9FB8D8'], ['#C7CBD1', '#6B7078'], ['#9FD4FF', '#5FA8E8']] },
+  BLUSH:       { orb: '#FF7FA8', orbGlow: '#E1447E', lamps: [['#FFE0E6', '#E11D48'], ['#F9A8D4', '#DB2777'], ['#D6296B', '#7A0B36']] },
+};
+
 export function applyTheme(): void {
   if (typeof document === 'undefined') return;
   const { skin, lcd, scale, uiScale } = readTheme();
@@ -486,6 +512,15 @@ export function applyTheme(): void {
   root.style.setProperty('--chassis-pattern', s.bodyPattern ? `url(/chassis/${s.bodyPattern}.png)` : 'none');
   root.style.setProperty('--chassis-rim-glow', s.rimGlow ?? 'transparent');
   root.dataset.translucent = s.translucent ? 'on' : 'off';
+
+  // Orb + status lamps (iOS v0.6.x per-skin lighting).
+  const lights = SKIN_LIGHTS[skin];
+  root.style.setProperty('--chassis-orb', lights.orb);
+  root.style.setProperty('--chassis-orb-glow', lights.orbGlow);
+  lights.lamps.forEach((lamp, i) => {
+    root.style.setProperty(`--chassis-lamp${i + 1}`, lamp[0]);
+    root.style.setProperty(`--chassis-lamp${i + 1}-edge`, lamp[1]);
+  });
 
   root.style.setProperty('--lcd-screen', l.screen);
   root.style.setProperty('--lcd-page', l.page);

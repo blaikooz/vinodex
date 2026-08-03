@@ -11,7 +11,7 @@ import {
 } from 'react-router-dom';
 import MainMenu from './components/MainMenu';
 import SplashScreen from './components/SplashScreen';
-import { PortalHome, OurAppsList, UnlockVinodex, WhoWeAre, ContactUs } from './components/WebsitePortal';
+import { PortalHome, OurAppsList, ProjectSplash, UnlockVinodex, WhoWeAre, ContactUs, getProject } from './components/WebsitePortal';
 import EncyclopediaList from './components/EncyclopediaList';
 import EntryDetail from './components/EntryDetail';
 import RegionMapScreen from './components/RegionMapScreen';
@@ -255,6 +255,15 @@ const App: React.FC = () => {
     );
   };
 
+  // The in-app splash for a Substack project. An unknown id is a stale link, so
+  // it falls back to the OUR WORK list rather than the top-level splash.
+  const ProjectRoute: React.FC = () => {
+    const { id } = useParams<{ id: string }>();
+    const project = getProject(id);
+    if (!project) return <Navigate to="/website/apps" replace />;
+    return <ProjectSplash project={project} onBack={handleBack} />;
+  };
+
   return (
     <div className="antialiased text-gray-900 bg-gray-900 min-h-screen overflow-hidden">
       <Routes>
@@ -289,8 +298,15 @@ const App: React.FC = () => {
         />
         <Route
           path="/website/apps"
-          element={<OurAppsList onBack={handleBack} onSelectVinodex={() => navigate('/website/unlock')} />}
+          element={
+            <OurAppsList
+              onBack={handleBack}
+              onSelectVinodex={() => navigate('/website/unlock')}
+              onSelectProject={id => navigate(`/website/project/${id}`)}
+            />
+          }
         />
+        <Route path="/website/project/:id" element={<ProjectRoute />} />
         <Route
           path="/website/unlock"
           element={<UnlockVinodex onBack={handleBack} onUnlocked={() => navigate('/dex')} />}
