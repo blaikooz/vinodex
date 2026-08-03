@@ -106,6 +106,7 @@ export const UNLOCK_CODE = '0000';
 
 interface PortalHomeProps {
   onBack: () => void;
+  onHome: () => void;
   onOpenApps: () => void;
   onWhoWeAre: () => void;
   onContactUs: () => void;
@@ -115,8 +116,8 @@ interface PortalHomeProps {
 const tileBase =
   'flex-1 rounded-xl shadow-lg active:translate-y-1 active:border-b-0 transition-all flex flex-col items-center justify-center group relative overflow-hidden';
 
-export const PortalHome: React.FC<PortalHomeProps> = ({ onBack, onOpenApps, onWhoWeAre, onContactUs, onData }) => (
-  <DeviceLayout title="HORIZON/GODOT" subtitle="" showBack onBack={onBack} showSystemButtons={false}>
+export const PortalHome: React.FC<PortalHomeProps> = ({ onBack, onHome, onOpenApps, onWhoWeAre, onContactUs, onData }) => (
+  <DeviceLayout title="HORIZON/GODOT" subtitle="" showBack onBack={onBack} onHome={onHome} showSystemButtons={false}>
     <div className="flex-1 min-h-0 w-full flex flex-col items-center bg-dex-screen relative overflow-hidden">
       <RetroGrid />
       <div className="relative w-full h-full z-10 flex flex-col p-6 gap-4">
@@ -185,11 +186,12 @@ export const PortalHome: React.FC<PortalHomeProps> = ({ onBack, onOpenApps, onWh
 
 interface OurAppsListProps {
   onBack: () => void;
+  onHome: () => void;
   onSelectProject: (id: string) => void;
 }
 
-export const OurAppsList: React.FC<OurAppsListProps> = ({ onBack, onSelectProject }) => (
-  <DeviceLayout title="OUR WORK" subtitle="" showBack onBack={onBack} showSystemButtons={false} centerHeaderText>
+export const OurAppsList: React.FC<OurAppsListProps> = ({ onBack, onHome, onSelectProject }) => (
+  <DeviceLayout title="OUR WORK" subtitle="" showBack onBack={onBack} onHome={onHome} showSystemButtons={false} centerHeaderText>
     <div className="flex-1 min-h-0 w-full flex flex-col bg-dex-screen relative overflow-hidden">
       <RetroGrid />
       <div className="relative z-10 flex-1 overflow-y-auto p-4 flex flex-col gap-3">
@@ -229,6 +231,7 @@ export const OurAppsList: React.FC<OurAppsListProps> = ({ onBack, onSelectProjec
 interface ProjectSplashProps {
   project: Project;
   onBack: () => void;
+  onHome: () => void;
   /** Locked projects (Vinodex) route CHECK IT OUT to the unlock keypad. */
   onUnlock: () => void;
 }
@@ -236,8 +239,8 @@ interface ProjectSplashProps {
 const checkOutClass =
   'inline-flex items-center gap-2 px-6 py-4 rounded-xl bg-green-500 border-b-4 border-green-700 active:translate-y-0.5 active:border-b-0 transition-all font-retro text-sm tracking-widest text-white hover:bg-green-400 shadow-lg';
 
-export const ProjectSplash: React.FC<ProjectSplashProps> = ({ project, onBack, onUnlock }) => (
-  <DeviceLayout title={project.name} subtitle="" showBack onBack={onBack} showSystemButtons={false} centerHeaderText>
+export const ProjectSplash: React.FC<ProjectSplashProps> = ({ project, onBack, onHome, onUnlock }) => (
+  <DeviceLayout title={project.name} subtitle="" showBack onBack={onBack} onHome={onHome} showSystemButtons={false} centerHeaderText>
     <div className="flex-1 min-h-0 w-full flex flex-col bg-dex-screen relative overflow-hidden">
       <RetroGrid />
       <div className="relative z-10 flex-1 overflow-y-auto p-6 flex flex-col items-center justify-center gap-6 text-center">
@@ -279,10 +282,11 @@ export const ProjectSplash: React.FC<ProjectSplashProps> = ({ project, onBack, o
 
 interface UnlockVinodexProps {
   onBack: () => void;
+  onHome: () => void;
   onUnlocked: () => void;
 }
 
-export const UnlockVinodex: React.FC<UnlockVinodexProps> = ({ onBack, onUnlocked }) => {
+export const UnlockVinodex: React.FC<UnlockVinodexProps> = ({ onBack, onHome, onUnlocked }) => {
   const [code, setCode] = useState('');
   const [error, setError] = useState(false);
 
@@ -314,7 +318,7 @@ export const UnlockVinodex: React.FC<UnlockVinodexProps> = ({ onBack, onUnlocked
   const keys = ['1', '2', '3', '4', '5', '6', '7', '8', '9'];
 
   return (
-    <DeviceLayout title="UNLOCK VINODEX" subtitle="" showBack onBack={onBack} showSystemButtons={false} centerHeaderText>
+    <DeviceLayout title="UNLOCK VINODEX" subtitle="" showBack onBack={onBack} onHome={onHome} showSystemButtons={false} centerHeaderText>
       <div className="flex-1 min-h-0 w-full flex flex-col items-center bg-dex-screen relative overflow-hidden">
         <RetroGrid />
         <div className="relative z-10 flex-1 w-full flex flex-col items-center justify-center gap-6 p-6">
@@ -388,8 +392,8 @@ export const UnlockVinodex: React.FC<UnlockVinodexProps> = ({ onBack, onUnlocked
 // Simple content pages. Copy is placeholder — edit freely.
 // ---------------------------------------------------------------------------
 
-const InfoPage: React.FC<{ title: string; onBack: () => void; children: React.ReactNode }> = ({ title, onBack, children }) => (
-  <DeviceLayout title={title} subtitle="" showBack onBack={onBack} showSystemButtons={false} centerHeaderText>
+const InfoPage: React.FC<{ title: string; onBack: () => void; onHome: () => void; children: React.ReactNode }> = ({ title, onBack, onHome, children }) => (
+  <DeviceLayout title={title} subtitle="" showBack onBack={onBack} onHome={onHome} showSystemButtons={false} centerHeaderText>
     <div className="flex-1 min-h-0 w-full flex flex-col bg-dex-screen relative overflow-hidden">
       <RetroGrid />
       <div className="relative z-10 flex-1 overflow-y-auto p-6 font-mono text-sm text-green-200 leading-relaxed space-y-4">
@@ -399,8 +403,8 @@ const InfoPage: React.FC<{ title: string; onBack: () => void; children: React.Re
   </DeviceLayout>
 );
 
-export const WhoWeAre: React.FC<{ onBack: () => void }> = ({ onBack }) => (
-  <InfoPage title="WHO WE ARE" onBack={onBack}>
+export const WhoWeAre: React.FC<{ onBack: () => void; onHome: () => void }> = ({ onBack, onHome }) => (
+  <InfoPage title="WHO WE ARE" onBack={onBack} onHome={onHome}>
     <p className="font-retro text-green-300 text-sm tracking-widest">CREATING ACROSS MULTITUDES.</p>
     <p>
       Horizon/Godot is a two-person studio in New York. We're creators and
@@ -419,16 +423,36 @@ export const WhoWeAre: React.FC<{ onBack: () => void }> = ({ onBack }) => (
   </InfoPage>
 );
 
-export const ContactUs: React.FC<{ onBack: () => void }> = ({ onBack }) => (
-  <InfoPage title="CONTACT US" onBack={onBack}>
-    <p>Questions, ideas, feedback on Vinodex, or a project you think we'd like — we read everything.</p>
-    <div className="space-y-2">
-      <div className="flex items-center gap-3">
-        <Mail size={16} className="text-green-400 shrink-0" />
-        <a href="mailto:hello@vinodex.app" className="underline decoration-green-600 hover:text-green-100">
+export const ContactUs: React.FC<{ onBack: () => void; onHome: () => void }> = ({ onBack, onHome }) => (
+  <DeviceLayout title="CONTACT US" subtitle="" showBack onBack={onBack} onHome={onHome} showSystemButtons={false} centerHeaderText>
+    <div className="flex-1 min-h-0 w-full flex flex-col bg-dex-screen relative overflow-hidden">
+      <RetroGrid />
+      <div className="relative z-10 flex-1 overflow-y-auto p-8 flex flex-col items-center justify-center gap-8 text-center">
+
+        <div className="flex flex-col items-center gap-4">
+          <Mail size={56} className="text-green-400" />
+          <h2
+            className="font-retro text-3xl sm:text-4xl tracking-widest text-green-300 leading-none"
+            style={{ textShadow: '2px 2px 0 rgba(8,32,16,0.6)' }}
+          >
+            GET IN TOUCH
+          </h2>
+        </div>
+
+        <p className="font-mono text-lg sm:text-xl text-green-200 leading-relaxed max-w-prose normal-case">
+          Questions, ideas, feedback on Vinodex, or a project you think we'd like —
+          we read everything.
+        </p>
+
+        <a
+          href="mailto:hello@vinodex.app"
+          className="inline-flex items-center gap-3 px-7 py-5 rounded-2xl bg-green-500 border-b-4 border-green-700 active:translate-y-0.5 active:border-b-0 transition-all font-retro text-lg sm:text-xl tracking-widest text-white hover:bg-green-400 shadow-lg break-all"
+        >
+          <Mail size={24} className="shrink-0" />
           hello@vinodex.app
         </a>
+
       </div>
     </div>
-  </InfoPage>
+  </DeviceLayout>
 );

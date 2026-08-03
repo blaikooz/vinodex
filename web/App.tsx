@@ -261,7 +261,7 @@ const App: React.FC = () => {
     const { id } = useParams<{ id: string }>();
     const project = getProject(id);
     if (!project) return <Navigate to="/website/apps" replace />;
-    return <ProjectSplash project={project} onBack={handleBack} onUnlock={() => navigate('/website/unlock')} />;
+    return <ProjectSplash project={project} onBack={handleBack} onHome={() => navigate('/website')} onUnlock={() => navigate('/website/unlock')} />;
   };
 
   return (
@@ -289,6 +289,7 @@ const App: React.FC = () => {
           element={
             <PortalHome
               onBack={handleBack}
+              onHome={() => navigate('/website')}
               onOpenApps={() => navigate('/website/apps')}
               onWhoWeAre={() => navigate('/website/who-we-are')}
               onContactUs={() => navigate('/website/contact')}
@@ -301,6 +302,7 @@ const App: React.FC = () => {
           element={
             <OurAppsList
               onBack={handleBack}
+              onHome={() => navigate('/website')}
               onSelectProject={id => navigate(`/website/project/${id}`)}
             />
           }
@@ -308,10 +310,10 @@ const App: React.FC = () => {
         <Route path="/website/project/:id" element={<ProjectRoute />} />
         <Route
           path="/website/unlock"
-          element={<UnlockVinodex onBack={handleBack} onUnlocked={() => navigate('/dex')} />}
+          element={<UnlockVinodex onBack={handleBack} onHome={() => navigate('/website')} onUnlocked={() => navigate('/dex')} />}
         />
-        <Route path="/website/who-we-are" element={<WhoWeAre onBack={handleBack} />} />
-        <Route path="/website/contact" element={<ContactUs onBack={handleBack} />} />
+        <Route path="/website/who-we-are" element={<WhoWeAre onBack={handleBack} onHome={() => navigate('/website')} />} />
+        <Route path="/website/contact" element={<ContactUs onBack={handleBack} onHome={() => navigate('/website')} />} />
 
         <Route
           path="/dex"
