@@ -1,4 +1,4 @@
-﻿<div align="center">
+<div align="center">
 
 <img src="web/public/vinodex-logo.png" alt="Vinodex" width="132" />
 
