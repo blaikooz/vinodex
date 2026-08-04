@@ -56,7 +56,15 @@ export function appellationName(classification: string, country: string): string
     case 'DOQ': return "Denominació d'Origen Qualificada";
     case 'DOCG': return 'Denominazione di Origine Controllata e Garantita';
     case 'DOCA': return 'Denominación de Origen Calificada';
-    case 'DO': return 'Denominación de Origen';
+    // Brazil (parity fix, 0.7.4). Both of these landed in iOS 0.7.3c with the
+    // Brazilian regions and were never mirrored here: `IP` failed the
+    // "every region has a spelled-out system" test outright, while Brazil's
+    // `DO` failed silently, printing Serra Gaúcha's system in Spanish. `DO` is
+    // now split by country the way `DOC` below already was.
+    case 'IP': return 'Indicação de Procedência';
+    case 'DO':
+      if (place === 'brazil') return 'Denominação de Origem';
+      return 'Denominación de Origen';
 
     // The genuinely ambiguous one: same abbreviation, three languages.
     case 'DOC':

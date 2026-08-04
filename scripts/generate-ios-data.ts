@@ -460,6 +460,9 @@ const FLAG_PATHS: Record<string, string> = {
   USA: 'North America/united_states/united_states.png',
   Canada: 'North America/canada/canada.png',
   Argentina: 'South America/argentina/argentina.png',
+  // Brazil (0.7.3c). The pixel flag has been sitting in shared/pixelflags since
+  // the flag drop; this line is all that was missing.
+  Brazil: 'South America/brazil/brazil.png',
   Chile: 'South America/chile/chile.png',
   Uruguay: 'South America/uruguay/uruguay.png',
   'New Zealand': 'Oceania/new_zealand/new_zealand.png',

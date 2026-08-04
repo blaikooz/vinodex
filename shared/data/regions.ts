@@ -120,6 +120,22 @@ const REGION_CLIMATES: Record<string, { climate: ClimateClass; description?: str
   R114: { climate: 'continental' },
   R115: { climate: 'warm' },
   R116: { climate: 'maritime', description: 'Atlantic air funnels up the canyons of the Sil and Miño.' },
+  // Brazil (0.7.3c). Serra Gaúcha is humid subtropical rather than maritime in
+  // the strict sense, and this was the judgement call of the batch. Its annual
+  // thermal amplitude is 9.9C — smaller than Canelones', which this file already
+  // calls maritime — and 'warm' promises "riper, fuller-bodied wines", which is
+  // the opposite of what the Serra is known for. 'continental' is the one reading
+  // that is simply wrong.
+  R117: { climate: 'maritime', description: 'Humid subtropical hills where rain falls in every month of the year.' },
+  R118: { climate: 'warm', description: 'Brazil\'s driest, sunniest vineyards, with cold nights at harvest.' },
+  // v0.7.4 grape overhaul: six regions added so the new varieties have a real
+  // home to point at rather than the nearest famous neighbour.
+  R119: { climate: 'maritime', description: 'Atlantic air pushed inland up the Miño, warmer than the coast.' },
+  R120: { climate: 'mediterranean', description: 'Island heat with a sea breeze on every side.' },
+  R121: { climate: 'maritime', description: 'Mid-Atlantic islands: wind, salt and no real summer heat.' },
+  R122: { climate: 'maritime', description: 'Atlantic weather funnelled between the ocean and the Pyrenees.' },
+  R123: { climate: 'warm', description: 'Inland Central Coast heat, cut by fog through the Salinas gap.' },
+  R124: { climate: 'maritime', description: 'Chile\'s wettest vineyards, cooled by Pacific air well south of Santiago.' },
 };
 
 const REGION_BASE: RegionEntry[] = [
@@ -240,6 +256,22 @@ const REGION_BASE: RegionEntry[] = [
   { id: "R114", name: "Navarra", description: "Pilgrim country on the road to Santiago, long Spain's rosado capital and now an open workshop where Garnacha old-timers share terraces with international grapes. Forever in Rioja's shadow, rarely in its price bracket.", category: "REGIONS", color: C.rose, icon: "leaf", tags: ["Spain", "Rosado"], details: { mapPosition: { x: 0.58, y: 0.17 }, origin: "Spain", notableGrapes: ["Grenache", "Tempranillo"], classification: "DO" } },
   { id: "R115", name: "La Mancha", description: "Don Quixote's plateau, the largest vine planting on earth — a sea of Airén stretching past every horizon south of Madrid. Long the continent's brandy tank, now quietly Europe's biggest source of honest cheap wine.", category: "REGIONS", color: C.golden, icon: "sun", tags: ["Spain", "Vast"], details: { mapPosition: { x: 0.5, y: 0.52 }, origin: "Spain", notableGrapes: ["Airén", "Tempranillo"], classification: "DO", soilType: "Limestone, clay" } },
   { id: "R116", name: "Ribeira Sacra", description: "The 'sacred riverbank': Roman terraces stacked up canyon walls so steep the harvest comes down by boat and pulley. Mencía grown here tastes of slate, river fog and the nerve of whoever picked it.", category: "REGIONS", color: C.merlot, icon: "mountain", tags: ["Spain", "Heroic"], details: { mapPosition: { x: 0.17, y: 0.14 }, origin: "Spain", notableGrapes: ["Mencía", "Treixadura"], classification: "DO", soilType: "Slate, granite" } },
+  // Brazil (0.7.3c). Two regions rather than one so the country page is not
+  // a single row, and both in Rio Grande do Sul because that is where the
+  // wine is. No mapPosition on either: there is no outline-brazil.png, so a
+  // hint would be inert — same as Valle de Guadalupe.
+  { id: "R117", name: "Serra Gaúcha", description: "Brazil’s fine-wine heartland, planted by Veneto immigrants from 1875 on basalt hills where rain falls in every month of the year. The humidity is why it turned to sparkling wine, now the country’s strongest suit.", category: "REGIONS", color: C.champagne, icon: "sparkles", tags: ["Brazil", "Espumante"], details: { mapPosition: { x: 0.57, y: 0.87 }, origin: "Brazil", notableGrapes: ["Merlot", "Chardonnay", "Pinot Noir"], classification: "DO", appellations: ["Vale dos Vinhedos", "Pinto Bandeira", "Altos de Pinto Bandeira", "Altos Montes", "Monte Belo", "Farroupilha"], soilType: "Basalt, clay" } },
+  { id: "R118", name: "Campanha Gaúcha", description: "The warm, dry grasslands on the Uruguayan border, where sandy soils and low pre-harvest rain give Brazil its ripest still reds. Flat, mechanisable and cheap to plant — the Serra’s opposite in every way.", category: "REGIONS", color: C.deepBordeaux, icon: "sun", tags: ["Brazil", "Cabernet"], details: { mapPosition: { x: 0.49, y: 0.92 }, origin: "Brazil", notableGrapes: ["Cabernet Sauvignon", "Tannat", "Chardonnay"], classification: "IP", soilType: "Sand, clay" } },
+  // v0.7.4: the grape overhaul needed origins that did not exist. Galicia is
+  // deliberately NOT a region here - the catalog already carries four of its
+  // DOs (Rias Baixas, Ribeira Sacra, Valdeorras, and now Ribeiro), so a
+  // parent entry would double-count the same vineyards.
+  { id: "R119", name: "Ribeiro", description: "Galicia’s oldest wine country and one of the first denominations Spain ever drew, in the sheltered valleys where the Avia and Arnoia meet the Miño. Cistercian monks replanted it after Rome; today Treixadura-led field blends and a handful of nearly-lost reds carry it.", category: "REGIONS", color: C.champagne, icon: "droplet", tags: ["Spain", "Galicia"], details: { mapPosition: { x: 0.15, y: 0.14 }, origin: "Spain", notableGrapes: ["Treixadura", "Caíño Tinto", "Brancellao"], classification: "DO", soilType: "Granite, sandy loam" } },
+  { id: "R120", name: "Mallorca", description: "Balearic vineyards tucked behind the tourist coast, where Manto Negro and the pale, high-acid Callet were very nearly lost to phylloxera and almond groves. Two small denominations and a stubborn island identity brought them back.", category: "REGIONS", color: C.rose, icon: "sun", tags: ["Spain", "Island"], details: { mapPosition: { x: 0.87, y: 0.44 }, origin: "Spain", notableGrapes: ["Callet", "Monastrell"], classification: "DO", appellations: ["Binissalem-Mallorca", "Pla i Llevant"], soilType: "Limestone, clay" } },
+  { id: "R121", name: "Azores", description: "Vines grown in currais — waist-high lava-stone corrals that break the Atlantic wind — across Pico, Graciosa and Terceira. A UNESCO landscape making saline whites from varieties that grow nowhere else on earth.", category: "REGIONS", color: C.champagne, icon: "mountain", tags: ["Portugal", "Volcanic"], details: { origin: "Portugal", notableGrapes: ["Arinto dos Açores", "Verdelho"], classification: "DOC", appellations: ["Pico", "Biscoitos", "Graciosa"], soilType: "Volcanic basalt" } },
+  { id: "R122", name: "South West France", description: "The arc of country between Bordeaux and the Pyrenees, holding more indigenous varieties than anywhere else in France — Tannat at Madiran, Négrette at Fronton, Fer Servadou at Marcillac, Abouriou on the Garonne. Never fashionable, and so never replanted to Cabernet.", category: "REGIONS", color: C.deepBordeaux, icon: "shield", tags: ["France", "Indigenous"], details: { mapPosition: { x: 0.35, y: 0.75 }, origin: "France", synonyms: ["Sud-Ouest"], notableGrapes: ["Tannat", "Négrette", "Abouriou"], classification: "AOC", appellations: ["Madiran", "Fronton", "Côtes du Marmandais", "Marcillac", "Jurançon", "Irouléguy"], soilType: "Clay, limestone" } },
+  { id: "R123", name: "San Benito", description: "A limestone pocket of the Central Coast sitting directly on the San Andreas fault, where the Cienega Valley’s pre-Prohibition plantings kept varieties nobody else bothered to save. Ungrafted vines on ground that moves.", category: "REGIONS", color: C.rubyRed, icon: "mountain", tags: ["USA", "Old Vines"], details: { mapPosition: { x: 0.33, y: 0.55 }, origin: "USA", state: "California", notableGrapes: ["Cabernet Pfeffer", "Zinfandel"], classification: "AVA", appellations: ["Cienega Valley", "Lime Kiln Valley", "Paicines"], soilType: "Limestone, granite" } },
+  { id: "R124", name: "Itata Valley", description: "Chile’s oldest vineyard land, planted from 1551 and then left alone for four centuries — dry-farmed bush País and century-old Cinsault on granite, worked by smallholders rather than estates. The country’s rediscovery of itself is happening here.", category: "REGIONS", color: C.merlot, icon: "leaf", tags: ["Chile", "Old Vines"], details: { mapPosition: { x: 0.55, y: 0.45 }, origin: "Chile", notableGrapes: ["País", "Cinsault"], classification: "DO", soilType: "Granite, sandy loam" } },
 ];
 
 export const REGIONS: RegionEntry[] = REGION_BASE.map((region) => {

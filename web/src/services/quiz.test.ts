@@ -282,31 +282,37 @@ describe('quiz progress ladder', () => {
 
 // Determinism guard: pins the generated paper for fixed seeds so a refactor
 // can't silently drift the daily challenge away from what shipped.
+//
+// Re-pinned 0.7.4. These are a *refactor* guard, not a data guard: the picker
+// draws from the whole catalog, so growing it legitimately deals a different
+// paper. Both seeds now deal several of the 0.7.4 entries (G148, G156, G161,
+// G166, R117-R122), which is the tell that the change is the catalog rather
+// than the algorithm. Regenerate deliberately, never by pasting a failure.
 describe('quiz determinism golden', () => {
   const GOLDEN: Record<string, ({ k: string; a: string; o: string[] } | null)[]> = {
     '777': [
-      { k: 'grapes', a: 'G114', o: ['G106', 'G114', 'G125', 'G143'] },
-      { k: 'region', a: 'R035', o: ['R035', 'R073', 'R090', 'R107'] },
-      { k: 'style', a: 'S029', o: ['S030', 'S017', 'S005', 'S029'] },
-      { k: 'grapes', a: 'G007', o: ['G086', 'G103', 'G007', 'G120'] },
-      { k: 'region', a: 'R048', o: ['R024', 'R048', 'R041', 'R059'] },
-      { k: 'style', a: 'S004', o: ['S004', 'S024', 'S011', 'S028'] },
-      { k: 'grapes', a: 'G086', o: ['G103', 'G122', 'G139', 'G086'] },
-      { k: 'region', a: 'R001', o: ['R079', 'R100', 'R001', 'R002'] },
-      { k: 'style', a: 'S032', o: ['S012', 'S032', 'S029', 'S017'] },
-      { k: 'grapes', a: 'G072', o: ['G072', 'G122', 'G140', 'G011'] },
+      { k: 'grapes', a: 'G106', o: ['G148', 'G106', 'G166', 'G013'] },
+      { k: 'region', a: 'R035', o: ['R035', 'R088', 'R105', 'R122'] },
+      { k: 'style', a: 'S030', o: ['S026', 'S013', 'S032', 'S030'] },
+      { k: 'grapes', a: 'G083', o: ['G047', 'G064', 'G083', 'G085'] },
+      { k: 'region', a: 'R100', o: ['R027', 'R100', 'R044', 'R061'] },
+      { k: 'style', a: 'S009', o: ['S009', 'S025', 'S015', 'S003'] },
+      { k: 'grapes', a: 'G007', o: ['G080', 'G097', 'G114', 'G007'] },
+      { k: 'region', a: 'R110', o: ['R067', 'R085', 'R110', 'R103'] },
+      { k: 'style', a: 'S030', o: ['S020', 'S030', 'S007', 'S024'] },
+      { k: 'grapes', a: 'G008', o: ['G008', 'G023', 'G042', 'G063'] },
     ],
     '-13': [
       { k: 'style', a: 'S004', o: ['S019', 'S006', 'S023', 'S004'] },
-      { k: 'grapes', a: 'G023', o: ['G044', 'G062', 'G023', 'G079'] },
-      { k: 'region', a: 'R015', o: ['R039', 'R015', 'R058', 'R075'] },
-      { k: 'style', a: 'S010', o: ['S010', 'S025', 'S012', 'S030'] },
-      { k: 'grapes', a: 'G129', o: ['G131', 'G001', 'G018', 'G129'] },
-      { k: 'region', a: 'R060', o: ['R023', 'R040', 'R060', 'R057'] },
-      { k: 'style', a: 'S015', o: ['S012', 'S015', 'S030', 'S017'] },
-      { k: 'grapes', a: 'G019', o: ['G019', 'G042', 'G060', 'G078'] },
-      { k: 'region', a: 'R033', o: ['R091', 'R108', 'R009', 'R033'] },
-      { k: 'style', a: 'S027', o: ['S030', 'S018', 'S027', 'S006'] },
+      { k: 'grapes', a: 'G012', o: ['G091', 'G108', 'G012', 'G125'] },
+      { k: 'region', a: 'R023', o: ['R083', 'R023', 'R100', 'R117'] },
+      { k: 'style', a: 'S015', o: ['S015', 'S016', 'S002', 'S020'] },
+      { k: 'grapes', a: 'G117', o: ['G118', 'G138', 'G156', 'G117'] },
+      { k: 'region', a: 'R049', o: ['R101', 'R118', 'R049', 'R011'] },
+      { k: 'style', a: 'S024', o: ['S012', 'S024', 'S030', 'S016'] },
+      { k: 'grapes', a: 'G017', o: ['G017', 'G161', 'G006', 'G024'] },
+      { k: 'region', a: 'R022', o: ['R119', 'R012', 'R030', 'R022'] },
+      { k: 'style', a: 'S011', o: ['S006', 'S025', 'S011', 'S012'] },
     ],
   };
 

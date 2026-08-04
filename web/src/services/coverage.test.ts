@@ -47,21 +47,25 @@ describe('dataset coverage', () => {
    * shared/ data, so these now agree with iOS exactly.
    */
   it('matches the iOS per-category counts', () => {
-    expect(countIn('GRAPES')).toBe(146);
-    expect(countIn('REGIONS')).toBe(116);
+    // Re-pinned 0.7.4, catching up two iOS batches at once: 0.7.3c added Brazil
+    // (+2 regions, which web never re-pinned) and 0.7.4's grape overhaul added
+    // 25 grapes and 6 regions. Flavours stay at 106 — every new tasting note
+    // was drawn from the existing vocabulary on purpose.
+    expect(countIn('GRAPES')).toBe(171);
+    expect(countIn('REGIONS')).toBe(124);
     expect(countIn('STYLES')).toBe(31);
     expect(countIn('CONTINENTS')).toBe(6);
     expect(countIn('FLAVORS')).toBe(106);
   });
 
   /**
-   * The five categories iOS counts must still total its 405 — the number the
+   * The five categories iOS counts must still total its 438 — the number the
    * DATA panel shows on both platforms.
    */
-  it('totals the same 405 entries iOS reports', () => {
+  it('totals the same 438 entries iOS reports', () => {
     const shared =
       countIn('GRAPES') + countIn('REGIONS') + countIn('STYLES') + countIn('FLAVORS') + countIn('CONTINENTS');
-    expect(shared).toBe(405);
+    expect(shared).toBe(438);
   });
 
   it('accounts for every entry in a known category', () => {
@@ -70,11 +74,11 @@ describe('dataset coverage', () => {
     expect(unaccounted.map(e => `${e.id}:${e.category}`)).toEqual([]);
   });
 
-  it('draws regions from the twenty-five countries iOS counts', () => {
+  it('draws regions from the twenty-six countries iOS counts', () => {
     const origins = new Set(
       all.filter(isRegionEntry).map(e => e.details.origin).filter((o): o is string => !!o),
     );
-    expect(origins.size).toBe(25);
+    expect(origins.size).toBe(26);
   });
 
   /** All four rarity tiers must be represented, or a UI state goes untested. */
