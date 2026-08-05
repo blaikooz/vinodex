@@ -1,10 +1,18 @@
-# Known issues & environment runbook
+# Repo status — what is live here, and what moved out
 
-Operational knowledge for the **web** app. The iOS runbook — which was most of
-this file — moved out with the app it describes.
+Operational knowledge for the **web** app: which paths this repo owns, which are
+mirrored in from elsewhere, and where the things that used to be here went.
+
+> **Renamed in v0.7.8.** This file was `KNOWN-ISSUES.md` until v0.7.8. So is the
+> one in [`vinodex-ios`](https://github.com/blaikooz/vinodex-ios/blob/main/KNOWN-ISSUES.md),
+> and the two were entirely different documents — that one is the iOS device
+> runbook, this one is a repo-status note. Same filename holding different
+> content is a trap for anyone told to "check KNOWN-ISSUES", so this one took a
+> name that says what it is. `git log --follow -- REPO-STATUS.md` has the
+> history across the rename.
 
 - [iOS deployment and build gotchas](#ios-deployment-wsl-and-build-gotchas--moved) — moved to `vinodex-ios`
-- [Repo layout](#repo-layout) — what is live here and what is frozen
+- [Repo layout](#repo-layout) — what is live here and what is mirrored
 
 ---
 
@@ -19,7 +27,8 @@ false readings, and the data-regeneration workflow.
 It was duplicated here because this repo used to build and publish the iOS app.
 It no longer does, and a runbook kept next to code it cannot affect is worse than
 no runbook — it drifts and nobody notices. The full text stays in this repo's git
-history if you need it (`git log -- KNOWN-ISSUES.md`).
+history if you need it (`git log --follow -- REPO-STATUS.md`, which crosses the
+v0.7.8 rename from `KNOWN-ISSUES.md`).
 
 ---
 
@@ -35,7 +44,7 @@ and owns itself completely.
 | `scripts/{cleanEncyclopediaText,buildEncyclopediaReference}.ts` | live |
 | `shared/` | **mirrored** — master is `HGapps\shared`, pushed here by `sync-shared.ps1`. Edit the master, never this copy |
 | `shared/pixelflags/` | **live and mirrored** — `web/data/flagImages.ts` imports these; master is `HGapps\shared\pixelflags` |
-| `scripts/{generate-ios-data.ts,rasterize-icons.sh}` | **frozen** — live copies in `vinodex-ios/scripts/` |
+| ~~`scripts/{generate-ios-data.ts,rasterize-icons.sh}`~~ | **deleted v0.7.8** — they were frozen forks ~50 KB behind `vinodex-ios/scripts/`, invoked by nothing here |
 
 `shared/` stays because `web/src/services/` imports it in 7 files and
 `web/data/flagImages.ts` imports the flags. It is **not** frozen: a

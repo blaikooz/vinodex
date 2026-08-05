@@ -30,13 +30,13 @@ Vinodex is a retro-styled wine encyclopedia. **This repo is the web app** — a 
 - `web/src/services/` — Web-only rendering helpers
 - `web/data/` — Web-only data (flag image imports, the encyclopedia corpus)
 - `web/public/` — Static assets and generated JSON
-- `scripts/` — encyclopedia tooling (live), plus two frozen iOS generators
+- `scripts/` — encyclopedia tooling and the catalog ref checker; all live
 - `shared/`, `shared/pixelflags/` — **mirrored** from `HGapps\shared`; edit the master, not these
 
 ## Pitfalls & Tips
 - **Do not edit `web/public/wine-entries.json` directly.**
 - **Always update `shared/constants.ts` and `shared/data/` for new entries.**
-- **Do not edit the frozen scripts** (`scripts/generate-ios-data.ts`, `scripts/rasterize-icons.sh`) — the live copies are in `vinodex-ios/scripts/`.
+- **iOS data and icon generation is not done here.** `generate-ios-data.ts` and `rasterize-icons.sh` were frozen forks of the `vinodex-ios` originals and were deleted in v0.7.8; the live copies are `vinodex-ios/scripts/`.
 - **Do not edit `shared/` here** — including `shared/pixelflags/`. It is a mirror of `HGapps\shared`; `sync-shared.ps1` overwrites it, so an edit here is lost rather than shared.
 - **`blaikooz/vinodex-ios` takes direct commits and pull requests.** The old warning that it was a generated mirror is obsolete — the publish script that overwrote it has been deleted.
 - **Use only Tailwind for styling.**
@@ -51,7 +51,7 @@ Vinodex is a retro-styled wine encyclopedia. **This repo is the web app** — a 
 
 ## See Also
 - [README.md](../README.md) for setup and structure
-- [KNOWN-ISSUES.md](../KNOWN-ISSUES.md) for what is live here and what is frozen
+- [REPO-STATUS.md](../REPO-STATUS.md) for what is live here and what is mirrored (was `KNOWN-ISSUES.md` until v0.7.8)
 - [`vinodex-ios`](https://github.com/blaikooz/vinodex-ios) for the iOS app and its build/deploy runbook
 - [web/public/icons/README.md](../web/public/icons/README.md) for icon usage
 

@@ -80,7 +80,7 @@ when the two disagree.
 > |---|---|---|
 > | `shared/` | mirrored — do not edit here | `HGapps\shared`, via `sync-shared.ps1` |
 > | `shared/pixelflags/` | live, and mirrored | `HGapps\shared\pixelflags` |
-> | `scripts/generate-ios-data.ts`, `scripts/rasterize-icons.sh` | frozen | `vinodex-ios/scripts/` |
+> | ~~`scripts/generate-ios-data.ts`, `scripts/rasterize-icons.sh`~~ | **deleted v0.7.8** | `vinodex-ios/scripts/` |
 >
 > `shared/` is here because the web app imports it — 7 files under
 > `web/src/services/`, plus `web/data/flagImages.ts` for the flags — and it
@@ -90,7 +90,8 @@ when the two disagree.
 > the master, so an edit made here is lost on the next sync. The `generate:ios`
 > / `icons:ios` scripts are gone, so **an iOS data change is made in
 > `vinodex-ios`.** `ios/` — the frozen 419-file copy of the Swift package — was
-> removed in the 0.6.5 cleanup.
+> removed in the 0.6.5 cleanup, and the last two frozen scripts followed in
+> v0.7.8: nothing here generates for iOS any more.
 
 ## Running it
 
