@@ -39,25 +39,53 @@ import type { FirmwareRelease } from '../types';
  * each batch a name, which is the file's entire job.
  */
 const CURRENT: FirmwareRelease = {
-  version: "0.7.7",
-  date: "2026-08-04",
-  // A whole batch on one screen, and it is the first screen -- so the headline
-  // is what the screen now calls itself rather than what changed about it.
-  headline: "VINODEX BIOS",
+  version: "0.7.8",
+  date: "2026-08-05",
+  // Sections B-D landed after A, and they are the bigger story: the device can
+  // now put something of yours in front of someone else. A's headline was BACK
+  // IN THE SCREEN -- its four items are still listed below, under the new one.
+  headline: "SHOW SOMEBODY",
   notes: [
-    "The startup screen is rebuilt, edge to edge: a proper BIOS boot instead of a panel of text.",
-    "The V and the wordmark sit at the centre, framed by a terminal border with corner brackets and side rails.",
-    "Scanlines and a faint glow behind the logo, like a CRT warming up.",
-    "The checks still run first. They resolve, and the screen settles rather than cutting away.",
-    "It then waits on PRESS ANY BUTTON TO CONTINUE. Any touch carries on, and so does it, after a few seconds.",
-    "The corner reads your real battery level.",
-    "The version in the top corner is the firmware's, so this screen always says what you are actually running.",
+    "Every encyclopedia entry has a share button. It exports the entry as a pixel-art card, framed in your device.",
+    "Your passport shares too: rank, completion, the counts and your streak, on a card in your own shell and screen colours.",
+    "Earned stamps are shareable one at a time. Tap any stamp you have to send just that one.",
+    "Finish the daily challenge and you get a result to post: a row of tiles, your score and your streak.",
+    "The tiles say how you did and never what the answers were, so sharing yours cannot spoil anyone else's paper.",
+    "Copy it or send it straight on. Both, because pasting into a thread and picking an app are different jobs.",
+    "New in Settings > Device: DAILY REMINDER. Off until you turn it on, and it only asks permission at that moment.",
+    "It sends at most two a day -- today's paper is live, and a streak about to break -- and neither one arrives if you have already played.",
+    "Turn notifications off for Vinodex in iOS Settings and the switch says so instead of pretending it is on.",
+    "The BIOS boots inside the display again, with the device around it instead of covering it.",
+    "Its drawn border, rails and corner brackets are gone. The chassis does the framing now.",
+    "The version, the copyright, the scanlines and the glow all stay. The two top lines stack, so neither is squeezed.",
+    "Any touch anywhere still carries on, and nothing on the device can be pressed by accident while it starts up.",
+    "The sticker on the back is a sticker again: die-cut, glossy, one corner lifting. It stopped being a seventh postage stamp.",
+    "The six passport stamps are the collection. The sticker is decoration, and it cannot be picked up or moved.",
+    "Choosing a shell or a screen in Customise now overrides parts you fitted in the Workshop, so the one you picked is what you see.",
+    "Builds you saved are untouched. Fit one again from the Workshop whenever you like.",
+    "The orb is a longer pill again, closer to the shape of the notch above it.",
     "438 entries, unchanged: 171 grapes, 124 regions, 31 styles, 106 flavours, 26 countries.",
-  ],
-};
+  ],};
 
 /** Everything before `CURRENT`, newest first. */
 const PREVIOUS: FirmwareRelease[] = [
+  {
+    version: "0.7.7",
+    date: "2026-08-04",
+    // A whole batch on one screen, and it is the first screen -- so the headline
+    // is what the screen now calls itself rather than what changed about it.
+    headline: "VINODEX BIOS",
+    notes: [
+      "The startup screen is rebuilt, edge to edge: a proper BIOS boot instead of a panel of text.",
+      "The V and the wordmark sit at the centre, framed by a terminal border with corner brackets and side rails.",
+      "Scanlines and a faint glow behind the logo, like a CRT warming up.",
+      "The checks still run first. They resolve, and the screen settles rather than cutting away.",
+      "It then waits on PRESS ANY BUTTON TO CONTINUE. Any touch carries on, and so does it, after a few seconds.",
+      "The corner reads your real battery level.",
+      "The version in the top corner is the firmware's, so this screen always says what you are actually running.",
+      "438 entries, unchanged: 171 grapes, 124 regions, 31 styles, 106 flavours, 26 countries.",
+    ],
+  },
   {
     version: "0.7.6",
     date: "2026-08-04",
