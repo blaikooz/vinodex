@@ -84,8 +84,12 @@ describe('<MoonDialScreen />', () => {
       .filter(b => !b.hasAttribute('disabled'))
       .map(b => (b.getAttribute('aria-label') ?? b.textContent ?? '').trim());
 
-    // Back, Home and the settings cog. No Saved: the chassis gives that slot
-    // to Back when there is somewhere to go back to, which there is here.
-    expect(named.sort()).toEqual(['Back', 'Home', 'Settings'].sort());
+    // The full chassis control set and nothing else. Since the v0.6.9 chrome
+    // port (DeviceLayout.tsx:357-414) Back and Saved are separate buttons in
+    // the left well rather than one slot that swaps label, so all four are
+    // present whenever there is somewhere to go back to.
+    expect(named.sort()).toEqual(
+      ['Back', 'Saved entries', 'Home', 'Settings'].sort(),
+    );
   });
 });
