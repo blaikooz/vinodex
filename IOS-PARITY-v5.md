@@ -11,6 +11,13 @@ Everything here is presentation or a small control; none of it touches the
 data model or the test suite. Items are grouped by screen. Do them in any order;
 each is independent.
 
+> **Sealed sweep record.** This is the findings table for one pass, not a
+> successor to `IOS-PARITY.md`. The canonical standing document is
+> **`IOS-PARITY.md`**; its "Deliberate deviations (kept, not bugs)" section
+> carries this file's §"Deliberate deviations" forward. Items below are
+> immutable — only the Status block may be edited. The next sweep is
+> `IOS-PARITY-v6.md`.
+
 ---
 
 ## Status — executed on `testing`

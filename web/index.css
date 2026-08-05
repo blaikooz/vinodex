@@ -219,7 +219,7 @@ body {
    In DARK mode every variable resolves to the same hex the utility already
    carried, so this is a no-op until the mode is switched.
 
-   IOS-PARITY-PLAN.md flagged this remap as unaudited beyond the original
+   IOS-PARITY.md flagged this remap as unaudited beyond the original
    seven components. A pass across RetroGlobeScreen, MinigamesScreen,
    BookmarksScreen, SettingsPanel and MoonDialScreen found border-green-600,
    text-green-700 and text-green-600 in plain use (an empty state's icon and

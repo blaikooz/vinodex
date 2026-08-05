@@ -1,5 +1,10 @@
 # Web ↔ iOS parity plan — v4 (polish backlog)
 
+> **Sealed sweep record.** One pass's backlog, not a successor to
+> `IOS-PARITY.md`, which is canonical. Items below are immutable; only the
+> "Fixed in..." status blocks may be edited. Superseded in sequence by
+> `IOS-PARITY-v5.md`.
+
 _Updates `IOS-PARITY-v3.md`. Phases A–H closed the feature/visual/test gap;
 `testing` is at broad parity with iOS v0.6.3. This document is the **small
 things** — the label/icon/order/copy discrepancies a careful eye catches on a

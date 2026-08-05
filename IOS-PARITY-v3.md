@@ -1,5 +1,14 @@
 # Web ↔ iOS parity plan — v3 (post A–D)
 
+> **Sealed sweep record.** Phases E–I for one pass, not a successor to
+> `IOS-PARITY.md`, which is canonical. Items below are immutable. Its §8
+> "Explicitly not planned" is carried forward into `IOS-PARITY.md`'s
+> "Deliberate deviations" section. Superseded in sequence by
+> `IOS-PARITY-v4.md`.
+>
+> Note the stale figure at §8: "iOS is static at v0.6.3" and the 221/375 entry
+> counts were true when written. The catalog is now 438 and shared cleanly.
+
 _Updates `IOS-PARITY-v2.md`. That plan mapped the whole v0.4.1.7 → v0.6.3
 gap and split it into five phases. **Phases A–D are built, verified and
 merged onto `testing`.** iOS is unchanged at v0.6.3 (no new drift), so this

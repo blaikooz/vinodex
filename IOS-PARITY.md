@@ -1,5 +1,36 @@
 # Web ↔ iOS parity plan
 
+> ## The parity document set — read this first
+>
+> **This file is canonical.** It is the standing register: the block plan, the
+> live "Still open" list, the deliberate-deviation list, and the versioning
+> policy. It is the only parity document any source file cites by name
+> (`UnlockScreen.test.tsx`, `continents.test.ts`, `screenState.test.ts`,
+> `theme.test.ts`, `web/index.css`), and those citations point at content that
+> lives here and nowhere else.
+>
+> `IOS-PARITY-v3.md`, `-v4.md` and `-v5.md` are **sealed per-pass sweep
+> records**, not successors. Each opens by saying it "follows" the previous,
+> which reads like a supersession chain — it is not. Each one is the findings
+> table for one execution pass against one iOS build, complete with the Status
+> block saying what landed. They are kept for exactly that: so a finding that
+> was already raised, graded and declined is not rediscovered a fourth time.
+> **Never edit a sealed sweep's items; edit its Status block only.**
+>
+> - `-v3` — phases E–I (art layer, chrome, behaviour, hardening, release)
+> - `-v4` — the polish backlog, passes 2–5
+> - `-v5` — the page-by-page sweep, 63 graded items
+>
+> The next sweep is `IOS-PARITY-v6.md`, following v5's shape. Anything a sweep
+> leaves permanently open or permanently declined gets promoted **into this
+> file** when the sweep closes, so this file alone is enough to know the
+> standing position.
+>
+> **Currency:** the block plan below was written against iOS v0.4.1.7 and the
+> sweeps ran through v0.6.x. `vinodex-ios` is now far past that (v0.7.7 on its
+> `testing` line). See "The gap as of v0.7.7" near the foot before treating any
+> "remaining gap" table here as current.
+
 Goal: bring `vinodex-web` as close to `vinodex-ios` v0.4.1.7 as the platforms
 allow, and ship it on Vercel.
 
@@ -491,3 +522,87 @@ ship in lockstep when they demonstrably do not.
 - **Haptics.** No web equivalent worth faking.
 - **The 3D flip to the back panel** already exists on web and is unchanged.
 - **Scanner's globe step.** Still a flat country list; see the previous port.
+
+## Deliberate deviations (kept, not bugs)
+
+Consolidated here from the sealed sweeps so the standing list is in one place.
+**Check this list before filing a parity finding.** Re-raising a settled
+deviation is the most expensive mistake a parity pass can make, and each of
+these has already been raised, graded and kept at least once.
+
+Promoted from `IOS-PARITY-v5.md` §"Deliberate deviations":
+
+- Collection titled **COLLECTION**, not iOS's SAVED (clearer with three tabs).
+- **Moon dial** is a full interactive dial on web; iOS reduced it to a static
+  readout. Two intentional designs.
+- **Region map** (2D world picker) is web-only; iOS selects continents only via
+  the 3D globe.
+- Scanner **country step** uses a flat list rather than routing through the
+  globe.
+- **Splash** screen and the whole `/website...` portal are web-only, with no
+  Swift counterpart.
+- Several explanatory helper paragraphs on ACCESS are web-only additions.
+- No free-tier row gating (v5#20), no mode/skin tile gating (v5#58) — the web
+  tier is un-gated, per "Access tiers" above.
+- Avatar size/badge left as-is (v5#25) — no trivial filled placeholder glyph.
+- TUTORIAL keeps lucide's `Flag` (v5#56) — **lucide has no checkered flag.** A
+  missing glyph is recorded, not approximated.
+- Web-wide **mono, normal-case** convention beats iOS's uppercase (v5#32). This
+  was judged the better web idiom, not a miss.
+
+Promoted from `IOS-PARITY-v3.md` §8 "Explicitly not planned":
+
+- **A paywall** — as above.
+- **The iOS build/decode hardening** (minified JSON, schema self-check,
+  field-stripping). The web imports the TS directly and needs none of it. The
+  one useful piece, `find-missing-refs`, is ported as `npm run check:refs`.
+
+Carried open from v5 as *skipped*, not deviations — still portable if wanted:
+
+- **v5#10** APPELLATION full spelled-out name — needs iOS's
+  `EntryDisplay.appellationName` lookup table ported; the web region data has
+  no such field.
+- **v5#7** DATA LOAD ERROR state — no load-error signal exists on the web to
+  branch on, because the catalog is a static import rather than a fetch.
+
+## The gap as of iOS v0.7.7
+
+Recorded 2026-08-05 so the block plan above is not mistaken for current. This
+is a **shape**, not a port plan; no sweep has been run against v0.7.x yet.
+
+`vinodex-ios` `testing` is at `e6a8d1c` (v0.7.6 + v0.7.7), 61 files in
+`Sources/VinodexUI`. The web has 33 components, of which four (`SplashScreen`,
+`WebsitePortal`, `WebsiteMenu`, `OurAppsScreen`/`WhoWeAreScreen`/
+`ContactScreen`) are the web-only portal and have no Swift counterpart at all.
+
+**The catalog is in sync.** The `shared/` mirror carries all 438 entries and
+`coverage.test.ts` pins them (171 grapes / 124 regions / 31 styles / 6
+continents / 106 flavors). Data parity is not the problem.
+
+**The UI is a release and a half behind, and whole systems are missing.** These
+iOS screens have no web counterpart in any form:
+
+| iOS | Web | Data already synced? |
+|---|---|---|
+| `WineExamScreen` (407 questions) | `TastingQuizScreen` generates its own | **Yes** — `shared/data/exam.ts`, 283 KB, **zero web importers** |
+| `FirmwareHistoryScreen` | none | **Yes** — `FIRMWARE_RELEASES` re-exported by `constants.ts`, **zero web importers** |
+| `GrapeLineageScreen` | none | Yes — pedigree authored on the grape cards |
+| `DeviceWorkshopScreen` | none | n/a |
+| `PackCartridge` / `ExpansionPackMembers` | none | n/a |
+| `LabelReaderView` / `OCRService` | none | n/a |
+| `CheatConsoleScreen` | none | n/a |
+| `Screensaver` / `IdleMonitor` | none | n/a |
+| `StampUnlockedPrompt` | back-plate stamps exist; the unlock prompt does not | n/a |
+| `BootScreen` (v0.7.7 BIOS redesign) | none | n/a |
+| `MarqueeLampChooser`, `SkinEmblem`, `SkinSticker`, `CosmeticEntitlements` | none | n/a |
+| `DiagnosticsReport`, `InternalsView` | none | n/a |
+| the Shop + its purchase-provider seam | none | n/a |
+
+**Data arriving ahead of UI is the normal shape of this gap** — `exam.ts` and
+`firmware.ts` both landed in the mirror through routine syncs and nothing on
+the web reads either. That is where a v6 sweep starts.
+
+Two of these are product decisions before they are ports: the Shop's purchase
+provider collides head-on with "Access tiers / entitlements" above (the web is
+deliberately free and un-gated), and `LabelReaderView`/`OCRService` would need
+a web OCR dependency the repo does not have. The rest are ordinary ports.
