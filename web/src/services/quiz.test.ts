@@ -288,31 +288,39 @@ describe('quiz progress ladder', () => {
 // paper. Both seeds now deal several of the 0.7.4 entries (G148, G156, G161,
 // G166, R117-R122), which is the tell that the change is the catalog rather
 // than the algorithm. Regenerate deliberately, never by pasting a failure.
+//
+// Re-pinned again when `shared/` synced forward to iOS 0.8.8 (catalog 438 ->
+// 446: grapes 171 -> 177, styles 31 -> 33, regions to 124). Same reasoning,
+// and the same kind of tell: seed -13 now opens on S033 and seed 777 deals
+// R124 in its options -- a style and a region that did not exist when the
+// previous pins were taken, so the picker cannot have drawn them under the
+// old catalog. Derived by running `quizQuestion` over the current catalog,
+// not by copying the assertion diff.
 describe('quiz determinism golden', () => {
   const GOLDEN: Record<string, ({ k: string; a: string; o: string[] } | null)[]> = {
     '777': [
-      { k: 'grapes', a: 'G106', o: ['G148', 'G106', 'G166', 'G013'] },
-      { k: 'region', a: 'R035', o: ['R035', 'R088', 'R105', 'R122'] },
-      { k: 'style', a: 'S030', o: ['S026', 'S013', 'S032', 'S030'] },
-      { k: 'grapes', a: 'G083', o: ['G047', 'G064', 'G083', 'G085'] },
-      { k: 'region', a: 'R100', o: ['R027', 'R100', 'R044', 'R061'] },
-      { k: 'style', a: 'S009', o: ['S009', 'S025', 'S015', 'S003'] },
-      { k: 'grapes', a: 'G007', o: ['G080', 'G097', 'G114', 'G007'] },
-      { k: 'region', a: 'R110', o: ['R067', 'R085', 'R110', 'R103'] },
-      { k: 'style', a: 'S030', o: ['S020', 'S030', 'S007', 'S024'] },
-      { k: 'grapes', a: 'G008', o: ['G008', 'G023', 'G042', 'G063'] },
+      { k: 'grapes', a: 'G007', o: ['G086', 'G007', 'G103', 'G120'] },
+      { k: 'region', a: 'R047', o: ['R047', 'R035', 'R053', 'R071'] },
+      { k: 'style', a: 'S004', o: ['S009', 'S026', 'S011', 'S004'] },
+      { k: 'grapes', a: 'G080', o: ['G164', 'G003', 'G080', 'G022'] },
+      { k: 'region', a: 'R115', o: ['R105', 'R115', 'R123', 'R016'] },
+      { k: 'style', a: 'S030', o: ['S030', 'S021', 'S006', 'S023'] },
+      { k: 'grapes', a: 'G022', o: ['G135', 'G153', 'G170', 'G022'] },
+      { k: 'region', a: 'R107', o: ['R124', 'R017', 'R107', 'R034'] },
+      { k: 'style', a: 'S027', o: ['S002', 'S027', 'S019', 'S004'] },
+      { k: 'grapes', a: 'G010', o: ['G010', 'G058', 'G075', 'G092'] },
     ],
     '-13': [
-      { k: 'style', a: 'S004', o: ['S019', 'S006', 'S023', 'S004'] },
-      { k: 'grapes', a: 'G012', o: ['G091', 'G108', 'G012', 'G125'] },
-      { k: 'region', a: 'R023', o: ['R083', 'R023', 'R100', 'R117'] },
-      { k: 'style', a: 'S015', o: ['S015', 'S016', 'S002', 'S020'] },
-      { k: 'grapes', a: 'G117', o: ['G118', 'G138', 'G156', 'G117'] },
-      { k: 'region', a: 'R049', o: ['R101', 'R118', 'R049', 'R011'] },
-      { k: 'style', a: 'S024', o: ['S012', 'S024', 'S030', 'S016'] },
-      { k: 'grapes', a: 'G017', o: ['G017', 'G161', 'G006', 'G024'] },
-      { k: 'region', a: 'R022', o: ['R119', 'R012', 'R030', 'R022'] },
-      { k: 'style', a: 'S011', o: ['S006', 'S025', 'S011', 'S012'] },
+      { k: 'style', a: 'S033', o: ['S020', 'S005', 'S022', 'S033'] },
+      { k: 'grapes', a: 'G113', o: ['G078', 'G096', 'G113', 'G114'] },
+      { k: 'region', a: 'R119', o: ['R082', 'R119', 'R099', 'R116'] },
+      { k: 'style', a: 'S005', o: ['S005', 'S001', 'S019', 'S003'] },
+      { k: 'grapes', a: 'G094', o: ['G162', 'G001', 'G019', 'G094'] },
+      { k: 'region', a: 'R072', o: ['R101', 'R118', 'R072', 'R011'] },
+      { k: 'style', a: 'S025', o: ['S011', 'S025', 'S029', 'S014'] },
+      { k: 'grapes', a: 'G157', o: ['G157', 'G018', 'G036', 'G057'] },
+      { k: 'region', a: 'R058', o: ['R119', 'R012', 'R029', 'R058'] },
+      { k: 'style', a: 'S026', o: ['S028', 'S012', 'S026', 'S030'] },
     ],
   };
 

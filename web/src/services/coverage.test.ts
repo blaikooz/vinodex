@@ -51,21 +51,24 @@ describe('dataset coverage', () => {
     // (+2 regions, which web never re-pinned) and 0.7.4's grape overhaul added
     // 25 grapes and 6 regions. Flavours stay at 106 — every new tasting note
     // was drawn from the existing vocabulary on purpose.
-    expect(countIn('GRAPES')).toBe(171);
+    // Re-pinned again for iOS 0.7.9 (G): sommbot's P1/P2 batch, +6 grapes
+    // (Sercial, Boal, Malvasia de Sao Jorge, Gouais Blanc, Plavac Mali, Manto
+    // Negro) and +2 styles (Madeira, Cava). Regions and flavours unchanged.
+    expect(countIn('GRAPES')).toBe(177);
     expect(countIn('REGIONS')).toBe(124);
-    expect(countIn('STYLES')).toBe(31);
+    expect(countIn('STYLES')).toBe(33);
     expect(countIn('CONTINENTS')).toBe(6);
     expect(countIn('FLAVORS')).toBe(106);
   });
 
   /**
-   * The five categories iOS counts must still total its 438 — the number the
+   * The five categories iOS counts must still total its 446 — the number the
    * DATA panel shows on both platforms.
    */
-  it('totals the same 438 entries iOS reports', () => {
+  it('totals the same 446 entries iOS reports', () => {
     const shared =
       countIn('GRAPES') + countIn('REGIONS') + countIn('STYLES') + countIn('FLAVORS') + countIn('CONTINENTS');
-    expect(shared).toBe(438);
+    expect(shared).toBe(446);
   });
 
   it('accounts for every entry in a known category', () => {
