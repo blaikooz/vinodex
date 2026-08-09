@@ -52,6 +52,20 @@ images instead of the shared logo card.
 - _Note: item 12 (collection "three registers") was a mis-scope — the "registers"
   in the changelog are art layers, not collection sort. The web already ships the
   three shelves; no sort control exists on iOS `main` to port._
+- **Item 20 (authored maps) — DONE (dots) + gap found.** Diffed all 121 iOS region
+  dots vs web: 9 had drifted after iOS's v0.8.4 authored-map switch — synced to the
+  iOS source, now 0 diffs. **Newly-surfaced gap:** 7 regions exist on iOS but not on
+  web (R117 Serra Gaúcha, R118 Campanha Gaúcha, R119 Ribeiro, R120 Mallorca, R122
+  South West France, R123 San Benito, R124 Itata Valley) — a whole-entry catalogue
+  import, larger than a dot fix. **Tracked as item 23 below.**
+
+## New gaps found this session
+
+23. **Seven regions missing from the web catalogue** — iOS `main` carries R117–R124
+    (Serra Gaúcha, Campanha Gaúcha, Ribeiro, Mallorca, South West France, San
+    Benito, Itata Valley) with full detail; web stops at R116. Import the entries
+    (name, description, grapes, classification, climate, map dot) from iOS
+    `entries.json`. **M, ★★.**
 - _Note: `main` moved skins into the Device Workshop's derived-palette system
   (item 16), so "new skins" (item 5) is now part of that larger item, not a data
   copy._
