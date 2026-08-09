@@ -31,16 +31,24 @@ images instead of the shared logo card.
 - **Item 18 (grape data truth) — VERIFIED already correct.** Diffed all 146
   grapes: web `grapeCards` characteristics match iOS `grapeCharacteristics`
   exactly (0/730 field diffs). No import needed.
+- **Item 2 (BIOS boot) — DONE.** `VinodexBoot.tsx`: the POST (MEMORY / DATABASE
+  N ENTRIES / FIRMWARE) resolving into the identity splash (chrome wordmark,
+  DISCOVER · COLLECT · TASTE, SYSTEM CHECK…OK, © HORIZON/GODOT, prompt), content
+  ported verbatim from Core. Once per session, tap-to-skip, auto-advances, and
+  skipped on deep-link arrivals so shared-link visitors play instantly.
 - **Item 8 (master search) — already wired** on web (see finding below).
+- _Note: `main` moved skins into the Device Workshop's derived-palette system
+  (item 16), so "new skins" (item 5) is now part of that larger item, not a data
+  copy._
 
 ## A. Chassis & device chrome
 
 1. **Dial menu (v0.8.4) — DONE.** The four category tiles become a moulded
    four-way pad set into a dark housing, scooped toward a central search hub.
    Web `MainMenu.tsx`.
-2. **BIOS / boot POST (v0.7.3a, v0.7.7, v0.7.8 §A)** — a power-on self-test / BIOS
-   boot sequence on the LCD before the menu, redesigned to render *in* the screen.
-   New web boot component gating first paint. **M, ★★.**
+2. **BIOS / boot POST (v0.7.3a, v0.7.7, v0.7.8 §A) — DONE.** `VinodexBoot.tsx`,
+   content ported verbatim from Core (`BootSequence` / `Bios`). Full-viewport
+   power-on; once per session; funnel-safe.
 3. **Footer-cap / cog / home-lip fixes (v0.8.5, v0.8.6, v0.8.91)** — the button
    band caps, the cog's teeth, and the home cap's lip were re-cut (the lip "was
    never a shadow"). Polish on the band the web just ported. **S, ★★.**

@@ -1,5 +1,5 @@
 
-import React, { Suspense, lazy, useEffect, useMemo } from 'react';
+import React, { Suspense, lazy, useEffect, useMemo, useState } from 'react';
 import {
   Routes,
   Route,
@@ -17,6 +17,7 @@ import EntryDetail from './components/EntryDetail';
 import RegionMapScreen from './components/RegionMapScreen';
 import DeviceLayout from './components/DeviceLayout';
 import InstallBanner from './components/InstallBanner';
+import VinodexBoot from './components/VinodexBoot';
 import { WineEntry, EntryCategory } from '@/shared/types';
 import { getAllEntries } from './src/services/wineData';
 import { clear as clearScreenState } from './src/services/screenState';
@@ -77,6 +78,23 @@ const App: React.FC = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const allEntries = useMemo(() => getAllEntries(), []);
+
+  // The BIOS boot: once per browser session, and skipped on a deep-link arrival
+  // (/detail, /website) so a shared-link visitor plays instantly. Any tap or the
+  // auto-advance clears it.
+  const [booting, setBooting] = useState(() => {
+    try {
+      const p = window.location.pathname;
+      const fresh = !window.sessionStorage.getItem('booted');
+      return fresh && !p.startsWith('/detail/') && !p.startsWith('/website');
+    } catch {
+      return false;
+    }
+  });
+  const finishBoot = () => {
+    try { window.sessionStorage.setItem('booted', '1'); } catch { /* ignore */ }
+    setBooting(false);
+  };
 
   // One global listener each rides a tap sound (opt-in) and a haptic
   // (default on) onto every button click.
@@ -267,6 +285,7 @@ const App: React.FC = () => {
 
   return (
     <div className="antialiased text-gray-900 bg-gray-900 min-h-screen overflow-hidden">
+      {booting && <VinodexBoot entries={allEntries.length} onDone={finishBoot} />}
       <InstallBanner />
       <Routes>
         {/*
