@@ -1,5 +1,5 @@
 import { WineEntry } from '@/shared/types';
-import { normalizeLabel } from '@/shared/services/entryUtils';
+import { normalizeLabel, getStyleClassType, getStyleColorType } from '@/shared/services/entryUtils';
 import { shelfIds } from './bookmarks';
 
 /**
@@ -12,25 +12,40 @@ import { shelfIds } from './bookmarks';
  * state and persists it through the screen-state store for Back survival.
  */
 
-export type ChipFacet = 'category' | 'color' | 'body' | 'rarity' | 'climate' | 'country' | 'shelf';
-export const CHIP_FACETS: ChipFacet[] = ['category', 'color', 'body', 'rarity', 'climate', 'country', 'shelf'];
+export type ChipFacet =
+  | 'category' | 'color' | 'body' | 'grapeStyle' | 'rarity' | 'climate' | 'country'
+  | 'styleClass' | 'styleColor' | 'flavorClass' | 'flavorSubclass' | 'shelf';
+export const CHIP_FACETS: ChipFacet[] = [
+  'category', 'color', 'body', 'grapeStyle', 'rarity', 'climate', 'country',
+  'styleClass', 'styleColor', 'flavorClass', 'flavorSubclass', 'shelf',
+];
 
 export const FACET_TITLE: Record<ChipFacet, string> = {
   category: 'TYPE',
   color: 'COLOUR',
   body: 'BODY',
+  grapeStyle: 'STYLE',
   rarity: 'RARITY',
   climate: 'CLIMATE',
   country: 'COUNTRY',
+  styleClass: 'STYLE CLASS',
+  styleColor: 'IN THE GLASS',
+  flavorClass: 'TASTE',
+  flavorSubclass: 'FLAVOUR FAMILY',
   shelf: 'SHELF',
 };
 export const FACET_NOTE: Record<ChipFacet, string> = {
   category: 'Which tables to search.',
   color: 'Grapes only — everything else drops out.',
   body: 'Grapes only.',
+  grapeStyle: 'Grapes only — the kind of wine the grape makes.',
   rarity: 'Grapes and styles carry a rarity.',
   climate: 'Regions only.',
   country: 'Anything with an origin — flavors drop out.',
+  styleClass: 'Styles only — how the style is defined.',
+  styleColor: 'Styles only — the colour in the glass.',
+  flavorClass: 'Flavours only — the basic taste.',
+  flavorSubclass: 'Flavours only — the flavour family.',
   shelf: 'Your own three shelves — filters on what you have collected.',
 };
 
@@ -107,6 +122,8 @@ function satisfies(entry: WineEntry, facet: ChipFacet, chosen: string[], snap: S
       const b = label(String(e.grapeBodyClass ?? ''));
       return chosen.some(v => label(v) === b);
     }
+    case 'grapeStyle':
+      return entry.category === 'GRAPES' && chosen.includes(String(e.grapeStyle ?? ''));
     case 'rarity':
       return e.rarity != null && chosen.includes(String(e.rarity));
     case 'climate':
@@ -117,6 +134,14 @@ function satisfies(entry: WineEntry, facet: ChipFacet, chosen: string[], snap: S
       const ok = label(o);
       return chosen.some(v => label(v) === ok);
     }
+    case 'styleClass':
+      return entry.category === 'STYLES' && chosen.includes(getStyleClassType(entry.name, e.details?.classification));
+    case 'styleColor':
+      return entry.category === 'STYLES' && chosen.includes(getStyleColorType(entry.name));
+    case 'flavorClass':
+      return entry.category === 'FLAVORS' && chosen.includes(String(e.details?.classification ?? ''));
+    case 'flavorSubclass':
+      return entry.category === 'FLAVORS' && chosen.includes(String(e.details?.subclass ?? ''));
     case 'shelf':
       return chosen.some(s => snap[s as keyof ShelfSnapshot]?.has(entry.id) ?? false);
   }
@@ -145,6 +170,25 @@ export function countWithChip(filter: ChipFilter, o: ChipOption, all: WineEntry[
 // --- option lists (derived from the dataset) --------------------------------
 const RARITY_ORDER = ['COMMON', 'UNCOMMON', 'RARE', 'NOBLE', 'GODFORSAKEN'];
 const CATEGORY_ORDER = ['GRAPES', 'REGIONS', 'STYLES', 'FLAVORS', 'CONTINENTS'];
+const GRAPE_STYLE_ORDER = [
+  'Light-Body Red', 'Medium-Body Red', 'Full-Body Red', 'Sparkling Red',
+  'Light-Body White', 'Medium-Body White', 'Full-Body White', 'Aromatic White', 'Sweet White',
+];
+const STYLE_CLASS_ORDER = ['ORIGIN', 'METHOD', 'TYPE', 'BLEND', 'STYLE'];
+const STYLE_COLOR_ORDER = ['RED', 'WHITE', 'ROSE', 'ORANGE', 'DUAL'];
+const FLAVOR_CLASS_ORDER = ['SWEET', 'SOUR', 'SALTY', 'BITTER', 'UMAMI'];
+
+/** Distinct values a projection yields over the dataset, kept in a fixed order (extras appended, alpha). */
+function orderedPresent(all: WineEntry[], project: (e: any) => string | undefined, order: string[]): string[] {
+  const present = new Set<string>();
+  for (const e of all) {
+    const v = project(e);
+    if (v) present.add(v);
+  }
+  const ranked = order.filter(v => present.has(v));
+  const rest = Array.from(present).filter(v => !order.includes(v)).sort();
+  return [...ranked, ...rest];
+}
 
 export function searchableCountries(all: WineEntry[]): string[] {
   const seen = new Map<string, string>();
@@ -194,6 +238,21 @@ export function facetOptions(facet: ChipFacet, all: WineEntry[]): ChipOption[] {
     }
     case 'country':
       return searchableCountries(all).map(c => opt(c, c.toUpperCase()));
+    case 'grapeStyle':
+      return orderedPresent(all, e => (e.category === 'GRAPES' ? String(e.grapeStyle ?? '') : ''), GRAPE_STYLE_ORDER)
+        .map(v => opt(v, v.toUpperCase()));
+    case 'styleClass':
+      return orderedPresent(all, e => (e.category === 'STYLES' ? getStyleClassType(e.name, e.details?.classification) : ''), STYLE_CLASS_ORDER)
+        .map(v => opt(v, v));
+    case 'styleColor':
+      return orderedPresent(all, e => (e.category === 'STYLES' ? getStyleColorType(e.name) : ''), STYLE_COLOR_ORDER)
+        .map(v => opt(v, v));
+    case 'flavorClass':
+      return orderedPresent(all, e => (e.category === 'FLAVORS' ? String(e.details?.classification ?? '') : ''), FLAVOR_CLASS_ORDER)
+        .map(v => opt(v, v));
+    case 'flavorSubclass':
+      return orderedPresent(all, e => (e.category === 'FLAVORS' ? String(e.details?.subclass ?? '') : ''), [])
+        .map(v => opt(v, v.replace(/_/g, ' ')));
     case 'shelf':
       return [opt('saved', 'SAVED'), opt('wantToTry', 'WANTED'), opt('tried', 'TRIED')];
   }
