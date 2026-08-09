@@ -395,14 +395,15 @@ const StatTile: React.FC<{ label: string; count: number }> = ({ label, count }) 
 };
 
 /** The DATA panel's GROWTH area chart — a left-to-right sweep over the running
- *  cumulative entry total, mirroring iOS `DataWave`. Milestones are the running
- *  totals as each table is added. */
+ *  cumulative entry total with a counter running up alongside it, mirroring iOS
+ *  `DataWave`. Milestones are the running totals as each table is added. */
 const GrowthWave: React.FC<{ milestones: number[] }> = ({ milestones }) => {
   const w = 300;
   const h = 88;
   const pad = 4;
   const max = Math.max(1, ...milestones);
   const n = milestones.length;
+  const total = milestones[n - 1] ?? 0;
   const pts = milestones.map((v, i) => {
     const x = n <= 1 ? w : pad + (i / (n - 1)) * (w - pad * 2);
     const y = h - pad - (v / max) * (h - pad * 2);
@@ -412,15 +413,52 @@ const GrowthWave: React.FC<{ milestones: number[] }> = ({ milestones }) => {
   const first = pts[0]!;
   const last = pts[n - 1]!;
   const area = `${line} L${last[0].toFixed(1)},${h - pad} L${first[0].toFixed(1)},${h - pad} Z`;
+
+  // Sweep the line (0→1) and run the counter up over ~1.5s on mount; jump to the
+  // end for reduced-motion. `pathLength="1"` normalises the dash units.
+  const [t, setT] = React.useState(0);
+  React.useEffect(() => {
+    if (typeof window === 'undefined') { setT(1); return; }
+    if (window.matchMedia?.('(prefers-reduced-motion: reduce)').matches) { setT(1); return; }
+    let raf = 0;
+    let start = 0;
+    const dur = 1500;
+    const step = (ts: number) => {
+      if (!start) start = ts;
+      const p = Math.min(1, (ts - start) / dur);
+      setT(1 - Math.pow(1 - p, 3)); // easeOutCubic
+      if (p < 1) raf = window.requestAnimationFrame(step);
+    };
+    raf = window.requestAnimationFrame(step);
+    return () => window.cancelAnimationFrame(raf);
+  }, []);
+
   return (
-    <svg viewBox={`0 0 ${w} ${h}`} className="w-full rounded border-2" preserveAspectRatio="none"
-      style={{ backgroundColor: 'var(--lcd-surface)', borderColor: 'var(--lcd-surface-edge)', height: 96 }}>
-      <path d={area} fill="var(--lcd-accent)" fillOpacity={0.22} />
-      <path d={line} fill="none" stroke="var(--lcd-accent)" strokeWidth={2.5} strokeLinejoin="round" strokeLinecap="round" />
-      {pts.map(([x, y], i) => (
-        <circle key={i} cx={x} cy={y} r={2.6} fill="var(--lcd-accent)" />
-      ))}
-    </svg>
+    <div className="relative w-full">
+      <svg viewBox={`0 0 ${w} ${h}`} className="w-full rounded border-2" preserveAspectRatio="none"
+        style={{ backgroundColor: 'var(--lcd-surface)', borderColor: 'var(--lcd-surface-edge)', height: 96 }}>
+        <path d={area} fill="var(--lcd-accent)" style={{ fillOpacity: 0.22 * t }} />
+        <path
+          d={line}
+          fill="none"
+          stroke="var(--lcd-accent)"
+          strokeWidth={2.5}
+          strokeLinejoin="round"
+          strokeLinecap="round"
+          pathLength={1}
+          style={{ strokeDasharray: 1, strokeDashoffset: 1 - t }}
+        />
+        {pts.map(([x, y], i) => (
+          <circle key={i} cx={x} cy={y} r={2.6} fill="var(--lcd-accent)" style={{ opacity: t >= (n <= 1 ? 1 : i / (n - 1)) ? 1 : 0 }} />
+        ))}
+      </svg>
+      <span
+        className="absolute top-1.5 left-2 font-retro text-lg leading-none pointer-events-none"
+        style={{ color: 'var(--lcd-accent)' }}
+      >
+        {Math.round(total * t)}
+      </span>
+    </div>
   );
 };
 

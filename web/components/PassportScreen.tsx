@@ -68,15 +68,56 @@ const ProgressRow: React.FC<{ label: string; done: number; total: number; fill: 
   );
 };
 
+// The taster's rank, ported from iOS `PassportTier` — earned by tried count.
+const RANK_LADDER: { name: string; threshold: number; blurb: string }[] = [
+  { name: 'APPRENTICE', threshold: 5, blurb: 'Five entries tried. You have started, which is the part most people skip.' },
+  { name: 'MASTER', threshold: 25, blurb: 'Twenty-five. The ladder proper begins here.' },
+  { name: 'GRANDMASTER', threshold: 100, blurb: 'A hundred. You are no longer guessing.' },
+  { name: 'LEGENDARY', threshold: 250, blurb: 'Two hundred and fifty. Most of the book.' },
+  { name: 'WINE MONK', threshold: 400, blurb: 'Four hundred. There is very little left to pour.' },
+];
+
 const PassportScreen: React.FC<PassportScreenProps> = ({ allEntries, onBack, onHome }) => {
+  const triedIds = shelfIds('tried');
   const passport = useMemo(
-    () => computePassport(shelfIds('tried'), allEntries, bestStreak(), highestUnlocked()),
+    () => computePassport(triedIds, allEntries, bestStreak(), highestUnlocked()),
     [allEntries],
   );
+
+  const tried = triedIds.length;
+  // Current rung = highest threshold reached; next = the rung above it.
+  const currentIdx = RANK_LADDER.reduce((acc, t, i) => (tried >= t.threshold ? i : acc), -1);
+  const current = currentIdx >= 0 ? RANK_LADDER[currentIdx]! : null;
+  const next = currentIdx + 1 < RANK_LADDER.length ? RANK_LADDER[currentIdx + 1]! : null;
+  const floor = current?.threshold ?? 0;
+  const pct = next ? Math.min(100, Math.max(tried > floor ? 6 : 0, Math.round(((tried - floor) / (next.threshold - floor)) * 100))) : 100;
 
   return (
     <DeviceLayout title="PASSPORT" subtitle="" showBack onBack={onBack} onHome={onHome} centerHeaderText>
       <div className="h-full overflow-y-auto custom-scrollbar p-4" style={{ backgroundColor: 'var(--lcd-page)' }}>
+
+        <Section title="RANK">
+          <div className="rounded-xl bg-stone-900/70 border-2 border-yellow-800/60 p-4">
+            <div className="flex items-center gap-3">
+              <Crown size={30} className={current ? 'text-yellow-400' : 'text-stone-600'} />
+              <div className="flex flex-col min-w-0">
+                <span className="font-retro text-lg tracking-widest text-yellow-300 leading-none">
+                  {current ? current.name : 'UNRANKED'}
+                </span>
+                <span className="font-mono text-xs text-stone-400 mt-1">{tried} {tried === 1 ? 'ENTRY' : 'ENTRIES'} TRIED</span>
+              </div>
+            </div>
+            <div className="mt-3 h-2 rounded-full bg-stone-800 overflow-hidden">
+              <div className="h-full rounded-full transition-all" style={{ width: `${pct}%`, backgroundColor: '#eab308' }} />
+            </div>
+            <div className="mt-1.5 font-mono text-[0.7rem] text-stone-400 normal-case">
+              {next ? `${next.threshold - tried} to ${next.name}` : 'Top rank reached — the whole cellar.'}
+            </div>
+            {current && (
+              <p className="mt-2 font-mono text-xs text-stone-300 normal-case leading-relaxed">{current.blurb}</p>
+            )}
+          </div>
+        </Section>
 
         <Section title="TASTINGS">
           <div className="grid grid-cols-2 gap-3">
