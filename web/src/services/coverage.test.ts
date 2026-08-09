@@ -48,20 +48,23 @@ describe('dataset coverage', () => {
    */
   it('matches the iOS per-category counts', () => {
     expect(countIn('GRAPES')).toBe(146);
-    expect(countIn('REGIONS')).toBe(116);
+    // REGIONS brought to iOS main's 124 (added R117–R124: the Brazilian, Galician,
+    // Balearic, Azorean, SW-French, Chilean and San Benito regions). GRAPES (177)
+    // and STYLES (33) on iOS main are still ahead — tracked as separate imports.
+    expect(countIn('REGIONS')).toBe(124);
     expect(countIn('STYLES')).toBe(31);
     expect(countIn('CONTINENTS')).toBe(6);
     expect(countIn('FLAVORS')).toBe(106);
   });
 
   /**
-   * The five categories iOS counts must still total its 405 — the number the
-   * DATA panel shows on both platforms.
+   * The web's running total: 405 + the 8 regions imported this batch = 413.
+   * (iOS main reports 446; the remaining 33 are the grape/style backlog above.)
    */
-  it('totals the same 405 entries iOS reports', () => {
+  it('totals its 413 entries across the five counted categories', () => {
     const shared =
       countIn('GRAPES') + countIn('REGIONS') + countIn('STYLES') + countIn('FLAVORS') + countIn('CONTINENTS');
-    expect(shared).toBe(405);
+    expect(shared).toBe(413);
   });
 
   it('accounts for every entry in a known category', () => {
@@ -70,11 +73,12 @@ describe('dataset coverage', () => {
     expect(unaccounted.map(e => `${e.id}:${e.category}`)).toEqual([]);
   });
 
-  it('draws regions from the twenty-five countries iOS counts', () => {
+  it('draws regions from the twenty-six countries iOS counts', () => {
     const origins = new Set(
       all.filter(isRegionEntry).map(e => e.details.origin).filter((o): o is string => !!o),
     );
-    expect(origins.size).toBe(25);
+    // 25 → 26: the R117/R118 import makes Brazil a region-origin country.
+    expect(origins.size).toBe(26);
   });
 
   /** All four rarity tiers must be represented, or a UI state goes untested. */

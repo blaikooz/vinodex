@@ -56,7 +56,11 @@ export function appellationName(classification: string, country: string): string
     case 'DOQ': return "Denominació d'Origen Qualificada";
     case 'DOCG': return 'Denominazione di Origine Controllata e Garantita';
     case 'DOCA': return 'Denominación de Origen Calificada';
-    case 'DO': return 'Denominación de Origen';
+    case 'IP': return 'Indicação de Procedência';
+    case 'DO':
+      // Brazil spells it in Portuguese; the Spanish-speaking world in Spanish.
+      if (place === 'brazil') return 'Denominação de Origem';
+      return 'Denominación de Origen';
 
     // The genuinely ambiguous one: same abbreviation, three languages.
     case 'DOC':

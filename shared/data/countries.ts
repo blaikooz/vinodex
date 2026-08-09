@@ -977,6 +977,21 @@ export const COUNTRIES: CountryGateEntry[] = [
     }
   },
   {
+    id: 'C029',
+    name: 'Brazil',
+    description: 'Brazil makes far more wine than its reputation suggests, split between two opposite worlds. The humid basalt hills of Serra Gaúcha, settled by Veneto immigrants from 1875, turned to sparkling wine because the rain never really stops — espumante is now the country’s strongest suit. On the dry Uruguayan border, the flat grasslands of Campanha Gaúcha ripen structured Cabernet and Tannat instead. Almost everything is grown in Rio Grande do Sul, in the far south.',
+    category: 'COUNTRY_GATE',
+    color: '#15803d',
+    icon: 'flag',
+    tags: ['DO', 'COUNTRY'],
+    details: {
+      origin: 'Brazil',
+      classification: 'COUNTRY',
+      keyRegions: ['Serra Gaúcha', 'Campanha Gaúcha'],
+      notableGrapes: ['Merlot', 'Cabernet Sauvignon', 'Chardonnay']
+    }
+  },
+  {
     id: 'C015',
     name: 'Uruguay',
     description: 'Uruguay bet on Tannat, a thick-skinned and ferociously tannic Basque grape, and it suits the humid Atlantic-cooled clay of Canelones better than it ever suited south-west France. The wines are dark and savoury, and increasingly softened by shorter maceration or a little Merlot. The scale is small and domestic: family bodegas rather than corporate estates.',
