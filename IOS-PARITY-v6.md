@@ -61,11 +61,14 @@ images instead of the shared logo card.
 
 ## New gaps found this session
 
-23. **Seven regions missing from the web catalogue** — iOS `main` carries R117–R124
-    (Serra Gaúcha, Campanha Gaúcha, Ribeiro, Mallorca, South West France, San
-    Benito, Itata Valley) with full detail; web stops at R116. Import the entries
-    (name, description, grapes, classification, climate, map dot) from iOS
-    `entries.json`. **M, ★★.**
+23. **~~Eight regions missing from the web catalogue~~ — DONE.** Imported R117–R124
+    (Serra Gaúcha, Campanha Gaúcha, Ribeiro, Mallorca, Azores, South West France,
+    San Benito, Itata Valley) with full detail; REGIONS is now at iOS main's 124.
+    Added a Brazil country gate and the IP / Brazil-DO appellation names; regen'd
+    the quiz golden. Web total 405 → 413.
+24. **Grape + style backlog** — iOS `main` has GRAPES 177 (web 146, +31) and STYLES
+    33 (web 31, +2). The largest remaining catalogue gap; a multi-session import
+    (each grape carries characteristics, lineage, tasting profile). **L, ★★.**
 - _Note: `main` moved skins into the Device Workshop's derived-palette system
   (item 16), so "new skins" (item 5) is now part of that larger item, not a data
   copy._
