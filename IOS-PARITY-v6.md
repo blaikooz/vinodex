@@ -48,9 +48,10 @@ images instead of the shared logo card.
 
 ## B. Features & screens
 
-8. **Master search (v0.7.1)** — global search across the whole catalogue. Verify
-   what the web's centre-dial magnifier does today; upgrade to full master search
-   if it's only a category filter. **M, ★★★.**
+8. **Master search (v0.7.1)** — global search across the whole catalogue.
+   _Finding: the web already wires a master search (`handleManualSearch` in
+   App.tsx)._ So this is a **verify + close the gaps** task (facets, sectioning,
+   recents) rather than a build-from-zero. **S–M, ★★.**
 9. **Quiz clue economy (v0.8.8)** — the Wine Exam gains a "every clue has a price"
    mechanic (spend to reveal hints). Plus Wine Exam changes (v0.7.5). Web
    `TastingQuizScreen`. **M, ★★.**
@@ -76,9 +77,13 @@ images instead of the shared logo card.
 
 ## C. Catalogue & data
 
-18. **Tannin bar truth + grape overhaul (v0.7.4)** — "+25 grapes, +6 regions"
-    (counts already synced) and "the tannin bar tells the truth" — verify the web
-    stat bars use the corrected tannin values from shared data. **S, ★★★.**
+18. **Tannin bar truth + grape overhaul (v0.7.4)** — counts already synced
+    (146/116). But _finding: the data shapes have diverged_ — iOS grapes now carry
+    explicit numeric `grapeCharacteristics` bars (body/acid/tannin/aromatics/
+    colour), while the web derives its bars from string labels in
+    `shared/data/grapes.ts` (`tannin: "High"`). So "tells the truth" means
+    **importing iOS's numeric characteristics** into the shared web data and
+    reading bars from it, not re-deriving. **M, ★★★.**
 19. **Grape lineage (v0.7.5, v0.8.2)** — parentage / cross data with "21 drawn
     parts." Lives outside `entries.json` (a lineage resource) — locate it in
     shared, then add a LINEAGE section + link graph to grape detail. **M, ★★.**
