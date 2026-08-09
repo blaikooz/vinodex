@@ -16,6 +16,7 @@ import EncyclopediaList from './components/EncyclopediaList';
 import EntryDetail from './components/EntryDetail';
 import RegionMapScreen from './components/RegionMapScreen';
 import DeviceLayout from './components/DeviceLayout';
+import InstallBanner from './components/InstallBanner';
 import { WineEntry, EntryCategory } from '@/shared/types';
 import { getAllEntries } from './src/services/wineData';
 import { clear as clearScreenState } from './src/services/screenState';
@@ -266,6 +267,7 @@ const App: React.FC = () => {
 
   return (
     <div className="antialiased text-gray-900 bg-gray-900 min-h-screen overflow-hidden">
+      <InstallBanner />
       <Routes>
         {/*
           "/" is the splash: a fresh visit forks between the dex and the

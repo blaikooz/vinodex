@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useReducer, useRef, useState } from 'react';
-import { MapPin, Activity, Droplet, Grape, Mountain, ChevronRight, ChevronUp, ChevronDown, List, Leaf, Flame, Shield, BookOpen, Bookmark, MapPinned, Wind, Star, Crown, PlusCircle, CheckCircle2 } from 'lucide-react';
+import { MapPin, Activity, Droplet, Grape, Mountain, ChevronRight, ChevronUp, ChevronDown, List, Leaf, Flame, Shield, BookOpen, Bookmark, MapPinned, Wind, Star, Crown, PlusCircle, CheckCircle2, Share2 } from 'lucide-react';
 import { Icon } from '../src/components/LocalIcon';
 import DeviceLayout from './DeviceLayout';
 import { EntryCategory, WineEntry, isCountryGateEntry, isFlavorEntry, isGrapeEntry, isRegionEntry, isStyleEntry } from '@/shared/types';
@@ -25,6 +25,7 @@ import { normalizeTypeClass, getStyleClassTileColors, getStyleColorTileColors, g
 import { getFlavorClassTileColors, getFlavorSubclassTileColors } from '../src/services/flavorDisplay';
 import { getClimateIcon } from '../src/services/climateDisplay';
 import { colorIconId, bodyIconId, styleClassIconId, flavorClassIconId, flavorSubclassIconId } from '../src/services/classArt';
+import { shareEntry } from '../src/services/shareLink';
 import { appellationName, hasAppellationName } from '../src/services/entryDisplay';
 import { isOn as isFlagOn, keyForDetail, toggleFlag } from '../src/services/screenState';
 import { useScreenAnchor } from '../src/services/useScreenAnchor';
@@ -70,6 +71,7 @@ const EntryDetail: React.FC<EntryDetailProps> = ({ entry, allEntries, onBack, on
   const tried = isOnShelf('tried', entry.id);
   const rating = getRating(entry.id);
   const [showRating, setShowRating] = useState(false);
+  const [shareMsg, setShareMsg] = useState<string | null>(null);
 
   // Record this open in the recently-viewed trail. Keyed on entry.id, not [],
   // because following a cross-link swaps the entry without remounting the
@@ -1099,6 +1101,25 @@ const EntryDetail: React.FC<EntryDetailProps> = ({ entry, allEntries, onBack, on
                 </div>
                   );
                 })()}
+
+                {/* Share — the web is the top of the funnel, so every entry is a
+                    link you can send. Native share sheet on mobile, copy fallback. */}
+                <div className="mt-3 flex items-center justify-center gap-2">
+                  <button
+                    onClick={async () => {
+                      const r = await shareEntry(entry.id, entry.name);
+                      if (r === 'shared') return;
+                      setShareMsg(r === 'copied' ? 'LINK COPIED' : 'COULD NOT SHARE');
+                      window.setTimeout(() => setShareMsg(null), 1800);
+                    }}
+                    className="flex items-center gap-1.5 rounded-full px-4 py-2 border-2 transition-all active:translate-y-0.5"
+                    style={{ backgroundColor: 'var(--lcd-well)', borderColor: 'var(--lcd-accent)', color: 'var(--lcd-accent)' }}
+                    aria-label={`Share ${entry.name}`}
+                  >
+                    <Share2 size={15} />
+                    <span className="font-retro text-[0.55rem] tracking-widest">{shareMsg ?? 'SHARE'}</span>
+                  </button>
+                </div>
 
              </div>
         </div>
