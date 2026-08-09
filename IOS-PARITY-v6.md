@@ -37,6 +37,13 @@ images instead of the shared logo card.
   ported verbatim from Core. Once per session, tap-to-skip, auto-advances, and
   skipped on deep-link arrivals so shared-link visitors play instantly.
 - **Item 8 (master search) — already wired** on web (see finding below).
+- **Item 11 (passport tiers) — DONE.** `PassportScreen.tsx` gains a RANK card
+  (APPRENTICE 5 / MASTER 25 / GRANDMASTER 100 / LEGENDARY 250 / WINE MONK 400,
+  ported from iOS `PassportTier`) with Crown, tried count, progress bar and a
+  "N to NEXT" caption.
+- **Item 13 (growth) — partial.** The DATA→GROWTH wave now animates (line sweep +
+  running counter, respects reduced-motion). The full iOS "trio of readouts" is
+  still a single wave — remaining as ★ polish.
 - _Note: `main` moved skins into the Device Workshop's derived-palette system
   (item 16), so "new skins" (item 5) is now part of that larger item, not a data
   copy._
