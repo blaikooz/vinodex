@@ -1,5 +1,6 @@
 import { WineEntry } from '@/shared/types';
 import { normalizeLabel } from '@/shared/services/entryUtils';
+import { shelfIds } from './bookmarks';
 
 /**
  * The faceted database filter, ported from
@@ -11,8 +12,8 @@ import { normalizeLabel } from '@/shared/services/entryUtils';
  * state and persists it through the screen-state store for Back survival.
  */
 
-export type ChipFacet = 'category' | 'color' | 'body' | 'rarity' | 'climate' | 'country';
-export const CHIP_FACETS: ChipFacet[] = ['category', 'color', 'body', 'rarity', 'climate', 'country'];
+export type ChipFacet = 'category' | 'color' | 'body' | 'rarity' | 'climate' | 'country' | 'shelf';
+export const CHIP_FACETS: ChipFacet[] = ['category', 'color', 'body', 'rarity', 'climate', 'country', 'shelf'];
 
 export const FACET_TITLE: Record<ChipFacet, string> = {
   category: 'TYPE',
@@ -21,6 +22,7 @@ export const FACET_TITLE: Record<ChipFacet, string> = {
   rarity: 'RARITY',
   climate: 'CLIMATE',
   country: 'COUNTRY',
+  shelf: 'SHELF',
 };
 export const FACET_NOTE: Record<ChipFacet, string> = {
   category: 'Which tables to search.',
@@ -29,7 +31,28 @@ export const FACET_NOTE: Record<ChipFacet, string> = {
   rarity: 'Grapes and styles carry a rarity.',
   climate: 'Regions only.',
   country: 'Anything with an origin — flavors drop out.',
+  shelf: 'Your own three shelves — filters on what you have collected.',
 };
+
+/**
+ * Shelf membership is the one facet that is not a property of the catalogue —
+ * it is a fact about the player, held in the bookmark store. iOS threads the
+ * membership into `matches` as a parameter (0.8.91, B1); the web mirrors that
+ * with a snapshot so a match sweep reads the shelves once, not once per entry.
+ */
+export interface ShelfSnapshot {
+  saved: Set<string>;
+  wantToTry: Set<string>;
+  tried: Set<string>;
+}
+export function shelfSnapshot(): ShelfSnapshot {
+  return {
+    saved: new Set(shelfIds('saved')),
+    wantToTry: new Set(shelfIds('wantToTry')),
+    tried: new Set(shelfIds('tried')),
+  };
+}
+const EMPTY_SNAPSHOT: ShelfSnapshot = { saved: new Set(), wantToTry: new Set(), tried: new Set() };
 
 /** The synthetic category chip that surfaces country pages (never matches an entry). */
 export const COUNTRIES_VALUE = 'COUNTRIES';
@@ -72,7 +95,7 @@ export function includesCountries(filter: ChipFilter): boolean {
 }
 
 // --- matching ---------------------------------------------------------------
-function satisfies(entry: WineEntry, facet: ChipFacet, chosen: string[]): boolean {
+function satisfies(entry: WineEntry, facet: ChipFacet, chosen: string[], snap: ShelfSnapshot): boolean {
   const e = entry as any;
   switch (facet) {
     case 'category':
@@ -94,27 +117,29 @@ function satisfies(entry: WineEntry, facet: ChipFacet, chosen: string[]): boolea
       const ok = label(o);
       return chosen.some(v => label(v) === ok);
     }
+    case 'shelf':
+      return chosen.some(s => snap[s as keyof ShelfSnapshot]?.has(entry.id) ?? false);
   }
 }
 
-export function matches(filter: ChipFilter, entry: WineEntry): boolean {
+export function matches(filter: ChipFilter, entry: WineEntry, snap: ShelfSnapshot = EMPTY_SNAPSHOT): boolean {
   for (const facet of CHIP_FACETS) {
     const chosen = filter[facet];
     if (!chosen || chosen.length === 0) continue;
-    if (!satisfies(entry, facet, chosen)) return false;
+    if (!satisfies(entry, facet, chosen, snap)) return false;
   }
   return true;
 }
 
 /** Entries matching the filter, sorted by name (case-insensitive). */
-export function matchingEntries(filter: ChipFilter, all: WineEntry[]): WineEntry[] {
-  return all.filter(e => matches(filter, e)).sort((a, b) => a.name.toLowerCase().localeCompare(b.name.toLowerCase()));
+export function matchingEntries(filter: ChipFilter, all: WineEntry[], snap: ShelfSnapshot = shelfSnapshot()): WineEntry[] {
+  return all.filter(e => matches(filter, e, snap)).sort((a, b) => a.name.toLowerCase().localeCompare(b.name.toLowerCase()));
 }
 
 /** The result count the filter WOULD produce if this chip were toggled. */
-export function countWithChip(filter: ChipFilter, o: ChipOption, all: WineEntry[]): number {
+export function countWithChip(filter: ChipFilter, o: ChipOption, all: WineEntry[], snap: ShelfSnapshot = shelfSnapshot()): number {
   const toggled = toggleOption(filter, o);
-  return all.reduce((n, e) => n + (matches(toggled, e) ? 1 : 0), 0);
+  return all.reduce((n, e) => n + (matches(toggled, e, snap) ? 1 : 0), 0);
 }
 
 // --- option lists (derived from the dataset) --------------------------------
@@ -169,5 +194,7 @@ export function facetOptions(facet: ChipFacet, all: WineEntry[]): ChipOption[] {
     }
     case 'country':
       return searchableCountries(all).map(c => opt(c, c.toUpperCase()));
+    case 'shelf':
+      return [opt('saved', 'SAVED'), opt('wantToTry', 'WANTED'), opt('tried', 'TRIED')];
   }
 }
