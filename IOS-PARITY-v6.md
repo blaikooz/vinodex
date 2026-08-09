@@ -44,6 +44,14 @@ images instead of the shared logo card.
 - **Item 13 (growth) — partial.** The DATA→GROWTH wave now animates (line sweep +
   running counter, respects reduced-motion). The full iOS "trio of readouts" is
   still a single wave — remaining as ★ polish.
+- **Item 10 (chip facets) — DONE.** The web filter grew from 6 facets to the full
+  iOS 12: added STYLE (grapeStyle), STYLE CLASS, IN THE GLASS (styleColor), TASTE
+  (flavorClass), FLAVOUR FAMILY (flavorSubclass) and the player-state SHELF facet
+  (SAVED/WANTED/TRIED, 0.8.91 B1). Shelf membership threads through matching as a
+  snapshot, mirroring iOS's `matches` parameter. 11 tests pass.
+- _Note: item 12 (collection "three registers") was a mis-scope — the "registers"
+  in the changelog are art layers, not collection sort. The web already ships the
+  three shelves; no sort control exists on iOS `main` to port._
 - _Note: `main` moved skins into the Device Workshop's derived-palette system
   (item 16), so "new skins" (item 5) is now part of that larger item, not a data
   copy._
