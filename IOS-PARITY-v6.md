@@ -23,11 +23,21 @@ images instead of the shared logo card.
 
 ---
 
+## Progress (this session)
+
+- **Item 1 (dial menu) — DONE.** `MainMenu.tsx` rebuilt as the moulded four-way
+  pad: dark housing, four quadrant tiles rounded outside and concavely scooped
+  inside (radial-gradient mask), amber search hub concentric in the centre.
+- **Item 18 (grape data truth) — VERIFIED already correct.** Diffed all 146
+  grapes: web `grapeCards` characteristics match iOS `grapeCharacteristics`
+  exactly (0/730 field diffs). No import needed.
+- **Item 8 (master search) — already wired** on web (see finding below).
+
 ## A. Chassis & device chrome
 
-1. **Dial menu (v0.8.4)** — the main menu becomes a rotary **dial** instead of the
-   four-tile grid; the categories sit on a wheel you turn. Signature look of the
-   current build. Web `MainMenu.tsx`. **M–L, ★★★.**
+1. **Dial menu (v0.8.4) — DONE.** The four category tiles become a moulded
+   four-way pad set into a dark housing, scooped toward a central search hub.
+   Web `MainMenu.tsx`.
 2. **BIOS / boot POST (v0.7.3a, v0.7.7, v0.7.8 §A)** — a power-on self-test / BIOS
    boot sequence on the LCD before the menu, redesigned to render *in* the screen.
    New web boot component gating first paint. **M, ★★.**
