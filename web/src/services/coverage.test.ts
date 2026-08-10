@@ -47,26 +47,24 @@ describe('dataset coverage', () => {
    * shared/ data, so these now agree with iOS exactly.
    */
   it('matches the iOS per-category counts', () => {
-    expect(countIn('GRAPES')).toBe(146);
-    // REGIONS brought to iOS main's 124 (added R117–R124: the Brazilian, Galician,
-    // Balearic, Azorean, SW-French, Chilean and San Benito regions). GRAPES (177)
-    // and STYLES (33) on iOS main are still ahead — tracked as separate imports.
+    // Full catalogue parity with iOS main (v0.8.94): every counted category now
+    // matches to the entry — GRAPES 146→177 (the +31 indigenous/rare import),
+    // REGIONS 124, STYLES 33, FLAVORS 106, CONTINENTS 6.
+    expect(countIn('GRAPES')).toBe(177);
     expect(countIn('REGIONS')).toBe(124);
-    // STYLES brought to iOS main's 33 (added S033 Madeira, S034 Cava). GRAPES (177
-    // on iOS main) is the last category behind — tracked as a separate import.
     expect(countIn('STYLES')).toBe(33);
     expect(countIn('CONTINENTS')).toBe(6);
     expect(countIn('FLAVORS')).toBe(106);
   });
 
   /**
-   * The web's running total: 405 + 8 regions + 2 styles imported = 415.
-   * (iOS main reports 446; the remaining 31 are the grape backlog above.)
+   * The web now totals iOS main's 446 across the five counted categories —
+   * complete catalogue parity.
    */
-  it('totals its 415 entries across the five counted categories', () => {
+  it('totals iOS main\'s 446 entries across the five counted categories', () => {
     const shared =
       countIn('GRAPES') + countIn('REGIONS') + countIn('STYLES') + countIn('FLAVORS') + countIn('CONTINENTS');
-    expect(shared).toBe(415);
+    expect(shared).toBe(446);
   });
 
   it('accounts for every entry in a known category', () => {
