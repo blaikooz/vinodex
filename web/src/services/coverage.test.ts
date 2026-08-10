@@ -52,19 +52,21 @@ describe('dataset coverage', () => {
     // Balearic, Azorean, SW-French, Chilean and San Benito regions). GRAPES (177)
     // and STYLES (33) on iOS main are still ahead — tracked as separate imports.
     expect(countIn('REGIONS')).toBe(124);
-    expect(countIn('STYLES')).toBe(31);
+    // STYLES brought to iOS main's 33 (added S033 Madeira, S034 Cava). GRAPES (177
+    // on iOS main) is the last category behind — tracked as a separate import.
+    expect(countIn('STYLES')).toBe(33);
     expect(countIn('CONTINENTS')).toBe(6);
     expect(countIn('FLAVORS')).toBe(106);
   });
 
   /**
-   * The web's running total: 405 + the 8 regions imported this batch = 413.
-   * (iOS main reports 446; the remaining 33 are the grape/style backlog above.)
+   * The web's running total: 405 + 8 regions + 2 styles imported = 415.
+   * (iOS main reports 446; the remaining 31 are the grape backlog above.)
    */
-  it('totals its 413 entries across the five counted categories', () => {
+  it('totals its 415 entries across the five counted categories', () => {
     const shared =
       countIn('GRAPES') + countIn('REGIONS') + countIn('STYLES') + countIn('FLAVORS') + countIn('CONTINENTS');
-    expect(shared).toBe(413);
+    expect(shared).toBe(415);
   });
 
   it('accounts for every entry in a known category', () => {
