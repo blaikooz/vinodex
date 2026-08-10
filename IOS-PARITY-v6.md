@@ -66,22 +66,28 @@ images instead of the shared logo card.
     San Benito, Itata Valley) with full detail; REGIONS is now at iOS main's 124.
     Added a Brazil country gate and the IP / Brazil-DO appellation names; regen'd
     the quiz golden. Web total 405 → 413.
-24. **~~Style backlog~~ (styles DONE) + grape backlog** — STYLES imported to iOS
-    main's 33 (S033 Madeira, S034 Cava). **Remaining:** GRAPES 177 on iOS main vs
-    web 146 (+31) — now the *only* category behind. A multi-session import (each
-    grape carries characteristics, lineage, tasting profile, rarity). **L, ★★.**
+24. **~~Catalogue backlog~~ — DONE. Full parity.** STYLES imported (S033 Madeira,
+    S034 Cava) and GRAPES imported (G148–G178, the +31 indigenous/rare varieties).
+    Every counted category now matches iOS main to the entry.
 
-### Catalogue parity scoreboard (after this session)
+### Catalogue parity scoreboard — ✅ COMPLETE
 
 | Category | web | iOS main | status |
 |---|---|---|---|
-| GRAPES | 146 | 177 | +31 to go (item 24) |
+| GRAPES | 177 | 177 | ✅ parity |
 | REGIONS | 124 | 124 | ✅ parity |
 | STYLES | 33 | 33 | ✅ parity |
 | FLAVORS | 106 | 106 | ✅ parity |
 | CONTINENTS | 6 | 6 | ✅ parity |
 
-Web total 415 / iOS main 446 — the 31-grape gap is the whole remainder.
+Web total **446** = iOS main 446. The catalogue (area C of this roadmap) is fully
+ported. Remaining gaps are all chrome/feature items (Shop, Workshop, Label Scan,
+lineage graph, quiz clue economy) — no catalogue data work left.
+
+_Caveat on grape bars: the web derives characteristic bars from text labels
+(item 18), so tannin matches iOS on 26/31 of the new grapes (acid 31/31, body
+30/31). Closing that last 5 means importing iOS's numeric `grapeCharacteristics`
+directly — the item 18 refactor — rather than more data entry._
 - _Note: `main` moved skins into the Device Workshop's derived-palette system
   (item 16), so "new skins" (item 5) is now part of that larger item, not a data
   copy._
