@@ -66,9 +66,22 @@ images instead of the shared logo card.
     San Benito, Itata Valley) with full detail; REGIONS is now at iOS main's 124.
     Added a Brazil country gate and the IP / Brazil-DO appellation names; regen'd
     the quiz golden. Web total 405 → 413.
-24. **Grape + style backlog** — iOS `main` has GRAPES 177 (web 146, +31) and STYLES
-    33 (web 31, +2). The largest remaining catalogue gap; a multi-session import
-    (each grape carries characteristics, lineage, tasting profile). **L, ★★.**
+24. **~~Style backlog~~ (styles DONE) + grape backlog** — STYLES imported to iOS
+    main's 33 (S033 Madeira, S034 Cava). **Remaining:** GRAPES 177 on iOS main vs
+    web 146 (+31) — now the *only* category behind. A multi-session import (each
+    grape carries characteristics, lineage, tasting profile, rarity). **L, ★★.**
+
+### Catalogue parity scoreboard (after this session)
+
+| Category | web | iOS main | status |
+|---|---|---|---|
+| GRAPES | 146 | 177 | +31 to go (item 24) |
+| REGIONS | 124 | 124 | ✅ parity |
+| STYLES | 33 | 33 | ✅ parity |
+| FLAVORS | 106 | 106 | ✅ parity |
+| CONTINENTS | 6 | 6 | ✅ parity |
+
+Web total 415 / iOS main 446 — the 31-grape gap is the whole remainder.
 - _Note: `main` moved skins into the Device Workshop's derived-palette system
   (item 16), so "new skins" (item 5) is now part of that larger item, not a data
   copy._
