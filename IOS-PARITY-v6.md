@@ -49,13 +49,29 @@ dangling.
   the review note); **#39** (accessible names); **#40** (ScreenLoading
   consolidated, landed first); **#41** (safe dep batch, own commit, gates
   before/after); **#42/#43** (cadence + holds recorded, nothing bumped).
-- **Deferred to the next pass (cleared but not reached):** #16 (grape
-  lineage), #17+#21 (passport depth + stamps — **must include the rank tiers**,
-  see the bundle note below), #19-geometry, #20-script, #22 (final section
-  layout check — SUPPORT/CHEAT CODES/TUTORIAL/STORED DATA rows landed with
-  their systems; WORKSHOP and DAILY REMINDER rows await rulings), #23
-  (coachmarks), #26-dialogue (Prof Vino), #30 (demo mode), #32 (profiles —
-  builds on the landed #31 serializer), #33 (screensaver), #34 (diagnostics).
+- **Done in the second execution pass (2026-08-18, continued):** #16 (the
+  lineage index, `/lineage/:entryId`, the entry-page door — 10 ported cases,
+  with the off-catalog-ancestor property moved onto a fixture because Gouais
+  Blanc earned an entry); #17+#21 (rank ladder at the bundle's exact
+  thresholds verified against `Passport.swift:91-97`, announce ledgers on the
+  iOS storage keys, RANK card, StampUnlockedPrompt queue wired at the TRIED
+  pill — the passport's insight-panel lines remain the open tail of #21);
+  #20-script (the marquee state machine whole; DeviceLayout retires the
+  hardcoded 0.6.9 cheers loop); #22 (SETTINGS section order); #30 (demo
+  tour); #32 (profiles); #33 (screensaver + the one 60 s idle threshold);
+  #34 (DEV health delta); plus cleanbot's batch-1 fixes (M1-M3, L1-L2, I1
+  answered).
+- **Deferred to the next pass:** **#23 + #26-dialogue as one unit** — the
+  dialogue bank is keyed by `FirstTimeTrigger` (`VinoDialogue.line(for:)`),
+  so the coachmark/trigger engine and the professor's lines are one system:
+  17 triggers, a 605-line authored bank, `Coachmark.swift` (537 lines),
+  `ProfVinoScreen`, and per-screen wiring. Sized like the exam port; wants
+  its own pass, not a tail. **#19-geometry** — the five shared skins verify
+  unchanged at the token level (`ChassisSkins.swift:384-388` still names the
+  same five colours the web tables carry); the 0.8.9x mass is 17 new skins +
+  the cap colour model + the moulded skirt, whose own approval names the
+  screenshot gate in both screen modes, and no headless browser exists in
+  this repo's deps to run it. Blind chassis edits were declined.
 - **Reassigned external:** #24 (BIOS boot) — the pending bundle carries a
   `VinodexBoot` implementation; do not build a second one.
 - **Blocked pending user rulings (untouched):** #2–#7, #12, #14,
