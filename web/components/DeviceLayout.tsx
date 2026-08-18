@@ -1,7 +1,16 @@
 
-import React, { useCallback, useEffect, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useRef, useState, useSyncExternalStore } from 'react';
 import { Home, CircleUser, Settings, Wine, Bookmark, Leaf, Map as MapIcon, Sparkles, Search, ScanLine, Globe, GraduationCap, Calendar, BookOpen, SlidersHorizontal, Wrench, Moon } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import {
+  applyActivity,
+  applyLeftMainScreen,
+  applyTimedOut,
+  currentScript,
+  scriptTextAfter,
+  stageTimeout,
+  subscribeToMarquee,
+} from '../src/services/marqueeScript';
 
 /**
  * The marquee's per-route glyph, stamped between the banner's repetitions —
@@ -118,9 +127,59 @@ const DeviceLayout: React.FC<DeviceLayoutProps> = ({
   // The wordmark is gone from the island (a cog took its place), so the only
   // place the app still names itself is the footer marquee.
   const isMainScreen = title === 'VINODEX';
-  const footerTitle = isMainScreen
-    ? 'CHEERS! - SANTE! - SALUTE! - PROST! - KANPAI!'
-    : title;
+
+  // The marquee script (v6#20): the forever-loop of toasts this panel used to
+  // carry is exactly what iOS 0.7.1 retired — the device greets once, settles
+  // into naming the screen, and only toasts when ignored. The script runs on
+  // the main screen only; every other screen's panel is its own title.
+  const script = useSyncExternalStore(subscribeToMarquee, currentScript, currentScript);
+  const [cheersElapsed, setCheersElapsed] = useState(0);
+  useEffect(() => {
+    if (!isMainScreen) return;
+    let timer: ReturnType<typeof setTimeout> | null = null;
+    let rotate: ReturnType<typeof setInterval> | null = null;
+
+    const arm = () => {
+      if (timer) clearTimeout(timer);
+      if (rotate) {
+        clearInterval(rotate);
+        rotate = null;
+      }
+      setCheersElapsed(0);
+      const pending = stageTimeout(currentScript().stage);
+      if (pending) {
+        timer = setTimeout(() => {
+          applyTimedOut();
+          arm();
+        }, pending.after * 1000);
+      } else {
+        // CHEERS!: the word is a pure function of how long this idle period
+        // has run — nothing accumulates, so a dropped frame cannot strand it.
+        const periodStart = Date.now();
+        rotate = setInterval(() => setCheersElapsed((Date.now() - periodStart) / 1000), 1000);
+      }
+    };
+
+    // Activity restarts whichever dwell the resting stage is waiting out,
+    // even when the stage itself does not move.
+    const activity = () => {
+      applyActivity();
+      arm();
+    };
+    window.addEventListener('pointerdown', activity, true);
+    window.addEventListener('keydown', activity, true);
+    arm();
+    return () => {
+      if (timer) clearTimeout(timer);
+      if (rotate) clearInterval(rotate);
+      window.removeEventListener('pointerdown', activity, true);
+      window.removeEventListener('keydown', activity, true);
+      // Leaving the main screen consumes the greeting and parks at MENU.
+      applyLeftMainScreen();
+    };
+  }, [isMainScreen]);
+
+  const footerTitle = isMainScreen ? scriptTextAfter(script, cheersElapsed) : title;
   const backEnabled = showBack && !!onBack;
   const footerTitleSize = footerTitle === 'VINODEX'
     ? 'text-[2rem] md:text-[2.3rem]'
