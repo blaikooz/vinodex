@@ -188,11 +188,4 @@ export default tseslint.config(
     ],
     rules: { 'react-hooks/static-components': 'warn' },
   },
-  {
-    // A11y — `role="status"` sits on the `<button>` itself, so the control
-    // stops announcing as a button and the dismiss action is not
-    // discoverable. Owner: the a11y commit (U7's batch).
-    files: ['web/components/VinoBubble.tsx'],
-    rules: { 'jsx-a11y/no-interactive-element-to-noninteractive-role': 'warn' },
-  },
 );
