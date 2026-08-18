@@ -1,5 +1,5 @@
 import React from 'react';
-import { Palette, BarChart3, Lock, LockOpen, Bug, Check, Wrench, LogOut, Flag, SlidersHorizontal, Crown, Leaf, Sun, Moon, Grid3x3, Globe, Wine, Map as MapIcon, Layers, Vibrate, Volume2, ChevronRight, MemoryStick, Download, Upload } from 'lucide-react';
+import { Palette, BarChart3, Lock, LockOpen, Bug, Check, Wrench, LogOut, Flag, SlidersHorizontal, Crown, Leaf, Sun, Moon, Grid3x3, Globe, Wine, Map as MapIcon, Layers, Vibrate, Volume2, ChevronRight, MemoryStick, Download, Upload, Mail, KeyRound } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import DeviceLayout from './DeviceLayout';
 import { WineEntry } from '@/shared/types';
@@ -572,6 +572,42 @@ export const SettingsSectionPanel: React.FC<{
               <p className="font-mono text-sm leading-relaxed normal-case mt-1" style={{ color: 'var(--lcd-subtext)' }}>
                 The ring/silent switch always wins — sounds never interrupt your music.
               </p>
+            </Section>
+
+            {/* SUPPORT above CHEAT CODES, as on iOS (0.8.91 F1): the door for
+                "who do I tell" belongs above the console for the initiated. */}
+            <Section title="SUPPORT">
+              <button
+                onClick={() => navigate('/support')}
+                className="w-full flex items-center gap-3 px-3 py-3 rounded border-2 text-left transition-all active:translate-y-0.5"
+                style={{ backgroundColor: 'var(--lcd-surface)', borderColor: 'var(--lcd-surface-edge)' }}
+              >
+                <span style={{ color: 'var(--lcd-subtext)' }}><Mail size={20} /></span>
+                <span className="flex-1 min-w-0">
+                  <span className="block font-retro text-[0.6rem] tracking-widest" style={{ color: 'var(--lcd-text)' }}>SUPPORT</span>
+                  <span className="block font-mono text-sm normal-case mt-1" style={{ color: 'var(--lcd-subtext)' }}>
+                    Something broken, or something it should do? Write in.
+                  </span>
+                </span>
+                <ChevronRight size={16} style={{ color: 'var(--lcd-subtext)' }} />
+              </button>
+            </Section>
+
+            <Section title="CHEAT CODES">
+              <button
+                onClick={() => navigate('/cheats')}
+                className="w-full flex items-center gap-3 px-3 py-3 rounded border-2 text-left transition-all active:translate-y-0.5"
+                style={{ backgroundColor: 'var(--lcd-surface)', borderColor: 'var(--lcd-surface-edge)' }}
+              >
+                <span style={{ color: 'var(--lcd-subtext)' }}><KeyRound size={20} /></span>
+                <span className="flex-1 min-w-0">
+                  <span className="block font-retro text-[0.6rem] tracking-widest" style={{ color: 'var(--lcd-text)' }}>CHEAT CODES</span>
+                  <span className="block font-mono text-sm normal-case mt-1" style={{ color: 'var(--lcd-subtext)' }}>
+                    Found, not listed. Type one and see.
+                  </span>
+                </span>
+                <ChevronRight size={16} style={{ color: 'var(--lcd-subtext)' }} />
+              </button>
             </Section>
 
             {/* The guided tour's door, moved here from its old grid tile —

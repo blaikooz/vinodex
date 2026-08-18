@@ -33,6 +33,8 @@ const TastingQuizScreen = lazy(() => import('./components/TastingQuizScreen'));
 const WineExamScreen = lazy(() => import('./components/WineExamScreen'));
 const FirmwareHistoryScreen = lazy(() => import('./components/FirmwareHistoryScreen'));
 const RecommendationsScreen = lazy(() => import('./components/RecommendationsScreen'));
+const SupportScreen = lazy(() => import('./components/SupportScreen'));
+const CheatConsoleScreen = lazy(() => import('./components/CheatConsoleScreen'));
 const PassportScreen = lazy(() => import('./components/PassportScreen'));
 const WalkthroughScreen = lazy(() => import('./components/WalkthroughScreen'));
 const BookmarksScreen = lazy(() => import('./components/BookmarksScreen'));
@@ -506,6 +508,22 @@ const App: React.FC = () => {
           element={
             <Suspense fallback={<ScreenLoading label="LOADING PICKS..." onBack={handleBack} onHome={handleHome} />}>
               <RecommendationsScreen allEntries={allEntries} onSelect={handleSelectEntry} onBack={handleBack} onHome={handleHome} />
+            </Suspense>
+          }
+        />
+        <Route
+          path="/support"
+          element={
+            <Suspense fallback={<ScreenLoading label="LOADING SUPPORT..." onBack={handleBack} onHome={handleHome} />}>
+              <SupportScreen onBack={handleBack} onHome={handleHome} />
+            </Suspense>
+          }
+        />
+        <Route
+          path="/cheats"
+          element={
+            <Suspense fallback={<ScreenLoading label="LOADING CONSOLE..." onBack={handleBack} onHome={handleHome} />}>
+              <CheatConsoleScreen onBack={handleBack} onHome={handleHome} />
             </Suspense>
           }
         />
