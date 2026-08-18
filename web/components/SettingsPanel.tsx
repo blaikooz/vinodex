@@ -1,5 +1,5 @@
 import React from 'react';
-import { Palette, BarChart3, Lock, LockOpen, Bug, Check, Wrench, LogOut, Flag, SlidersHorizontal, Crown, Leaf, Sun, Moon, Grid3x3, Globe, Wine, Map as MapIcon, Layers, Vibrate, Volume2, ChevronRight, MemoryStick, Download, Upload, Mail, KeyRound } from 'lucide-react';
+import { Palette, BarChart3, Lock, LockOpen, Bug, Check, Wrench, LogOut, Flag, SlidersHorizontal, Crown, Leaf, Sun, Moon, Grid3x3, Globe, Wine, Map as MapIcon, Layers, Vibrate, Volume2, ChevronRight, MemoryStick, Download, Upload, Mail, KeyRound, UserRound, Sparkle } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import DeviceLayout from './DeviceLayout';
 import { WineEntry } from '@/shared/types';
@@ -47,6 +47,13 @@ import {
   exportArchive,
   suggestedFilename,
 } from '../src/services/savedDataArchive';
+import {
+  FRESH_PROFILE_NAME,
+  allSlots,
+  loadProfile,
+  profiles,
+  saveProfile,
+} from '../src/services/userProfiles';
 
 export type SettingsSectionId = 'CUSTOMIZE' | 'SETTINGS' | 'DATA' | 'ACCESS' | 'DEV';
 
@@ -468,6 +475,9 @@ export const SettingsSectionPanel: React.FC<{
   const [offeringTour, setOfferingTour] = React.useState(false);
   const [pendingRestore, setPendingRestore] = React.useState<SavedDataArchive | null>(null);
   const [restoreError, setRestoreError] = React.useState<string | null>(null);
+  /** A profile action waiting on its confirm. Every case is destructive. */
+  const [pendingProfile, setPendingProfile] = React.useState<{ mode: 'save' | 'load'; slot: number | 'fresh' } | null>(null);
+  const [profileList, setProfileList] = React.useState(() => profiles());
 
   useAccess();
   const locked = starterOnly();
@@ -572,6 +582,62 @@ export const SettingsSectionPanel: React.FC<{
               <p className="font-mono text-sm leading-relaxed normal-case mt-1" style={{ color: 'var(--lcd-subtext)' }}>
                 The ring/silent switch always wins — sounds never interrupt your music.
               </p>
+            </Section>
+
+            {/* Named snapshots of the whole saved state (iOS 0.8.92 item 5,
+                v6#32). FRESH is a virtual row, not a slot — loading it is a
+                fresh install, every time. */}
+            <Section title="PROFILES">
+              <div className="flex flex-col gap-2">
+                {allSlots().map(slot => {
+                  const p = profileList.find(x => x.slot === slot) ?? null;
+                  return (
+                    <div
+                      key={slot}
+                      className="flex items-center gap-3 px-3 py-2.5 rounded border-2"
+                      style={{ backgroundColor: 'var(--lcd-surface)', borderColor: 'var(--lcd-surface-edge)' }}
+                    >
+                      <span style={{ color: 'var(--lcd-subtext)' }}><UserRound size={18} /></span>
+                      <span className="flex-1 min-w-0">
+                        <span className="block font-retro text-[0.6rem] tracking-widest truncate" style={{ color: p ? 'var(--lcd-text)' : 'var(--lcd-subtext)' }}>
+                          {p ? p.name : `SLOT ${slot}`}
+                        </span>
+                        <span className="block font-mono text-xs normal-case mt-0.5" style={{ color: 'var(--lcd-subtext)' }}>
+                          {p ? (p.savedAt ? new Date(p.savedAt).toLocaleDateString() : 'seeded — loads fresh') : 'empty'}
+                        </span>
+                      </span>
+                      <button
+                        onClick={() => setPendingProfile({ mode: 'save', slot })}
+                        className="font-retro text-[0.55rem] tracking-widest px-2.5 py-2 rounded border-2"
+                        style={{ borderColor: 'var(--lcd-surface-edge)', color: 'var(--lcd-text)' }}
+                      >
+                        SAVE
+                      </button>
+                      {p && (
+                        <button
+                          onClick={() => setPendingProfile({ mode: 'load', slot })}
+                          className="font-retro text-[0.55rem] tracking-widest px-2.5 py-2 rounded border-2 border-yellow-700 text-yellow-400"
+                        >
+                          LOAD
+                        </button>
+                      )}
+                    </div>
+                  );
+                })}
+                <button
+                  onClick={() => setPendingProfile({ mode: 'load', slot: 'fresh' })}
+                  className="w-full flex items-center gap-3 px-3 py-2.5 rounded border-2 text-left"
+                  style={{ backgroundColor: 'var(--lcd-surface)', borderColor: 'var(--lcd-surface-edge)' }}
+                >
+                  <span style={{ color: 'var(--lcd-subtext)' }}><Sparkle size={18} /></span>
+                  <span className="flex-1 min-w-0">
+                    <span className="block font-retro text-[0.6rem] tracking-widest" style={{ color: 'var(--lcd-text)' }}>{FRESH_PROFILE_NAME}</span>
+                    <span className="block font-mono text-xs normal-case mt-0.5" style={{ color: 'var(--lcd-subtext)' }}>
+                      A fresh install, every time. For walking the first run.
+                    </span>
+                  </span>
+                </button>
+              </div>
             </Section>
 
             {/* SUPPORT above CHEAT CODES, as on iOS (0.8.91 F1): the door for
@@ -908,6 +974,50 @@ export const SettingsSectionPanel: React.FC<{
       </div>
 
       {/* CLEAR SAVED DATA asks first — the one control here that cannot be undone. */}
+      {pendingProfile && (
+        <div className="absolute inset-0 z-30 bg-black/80 flex items-center justify-center p-6" role="dialog" aria-modal="true" aria-label={pendingProfile.mode === 'save' ? 'Save profile' : 'Load profile'}>
+          <div className="w-full max-w-xs bg-stone-900 border-2 border-yellow-700 rounded-lg p-5 flex flex-col gap-4 text-center">
+            <p className="font-retro text-xs tracking-widest text-yellow-300">
+              {pendingProfile.mode === 'save'
+                ? `SAVE INTO ${pendingProfile.slot === 'fresh' ? '' : `SLOT ${pendingProfile.slot}`}?`
+                : `LOAD ${pendingProfile.slot === 'fresh' ? FRESH_PROFILE_NAME : profileList.find(p => p.slot === pendingProfile.slot)?.name ?? `SLOT ${pendingProfile.slot}`}?`}
+            </p>
+            <p className="font-mono text-sm text-stone-300 normal-case">
+              {pendingProfile.mode === 'save'
+                ? 'Captures everything on this device into the slot, replacing whatever the slot held.'
+                : pendingProfile.slot === 'fresh'
+                  ? 'A fresh install — everything on this device is cleared. Save into a slot first if you want it back.'
+                  : 'Replaces everything on this device with the snapshot. Save into a slot first if you want the current state back.'}
+            </p>
+            <div className="flex gap-3">
+              <button
+                onClick={() => setPendingProfile(null)}
+                className="flex-1 font-retro text-[0.6rem] tracking-widest text-stone-300 border-2 border-stone-600 rounded py-3"
+              >
+                CANCEL
+              </button>
+              <button
+                onClick={() => {
+                  const action = pendingProfile;
+                  setPendingProfile(null);
+                  if (action.mode === 'save' && action.slot !== 'fresh') {
+                    saveProfile(action.slot);
+                    setProfileList(profiles());
+                  } else if (action.mode === 'load') {
+                    loadProfile(action.slot);
+                    // Relaunch into the loaded state, so every store re-reads.
+                    window.location.reload();
+                  }
+                }}
+                className="flex-1 font-retro text-[0.6rem] tracking-widest text-black bg-yellow-400 border-2 border-yellow-600 rounded py-3"
+              >
+                {pendingProfile.mode === 'save' ? 'SAVE' : 'LOAD'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       {pendingRestore && (
         <div className="absolute inset-0 z-30 bg-black/80 flex items-center justify-center p-6">
           <div className="w-full max-w-xs bg-stone-900 border-2 border-yellow-700 rounded-lg p-5 flex flex-col gap-4 text-center">
