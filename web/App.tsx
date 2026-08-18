@@ -47,7 +47,6 @@ import ScreensaverOverlay from './components/ScreensaverOverlay';
 const RetroGlobeScreen = lazy(() => import('./components/RetroGlobeScreen'));
 const MoonDialScreen = lazy(() => import('./components/MoonDialScreen'));
 const MinigamesScreen = lazy(() => import('./components/MinigamesScreen'));
-const DailyGrapeScreen = lazy(() => import('./components/DailyGrapeScreen'));
 const ScannerScreen = lazy(() => import('./components/ScannerScreen'));
 const ChipFilterScreen = lazy(() => import('./components/ChipFilterScreen'));
 const TastingQuizScreen = lazy(() => import('./components/TastingQuizScreen'));
@@ -531,7 +530,6 @@ const App: React.FC = () => {
                 onProfVino={() => navigate('/prof-vino')}
                 onQuiz={() => navigate('/quiz')}
                 onDailyChallenge={() => navigate('/daily-challenge')}
-                onDailyGrape={() => navigate('/daily')}
                 onMoonDial={() => navigate('/moon-dial')}
                 onBack={handleBack}
                 onHome={handleHome}
@@ -591,19 +589,6 @@ const App: React.FC = () => {
           element={
             <Suspense fallback={<ScreenLoading label="LOADING TUTORIAL..." onBack={handleBack} onHome={handleHome} />}>
               <WalkthroughScreen onBack={handleBack} onHome={handleHome} />
-            </Suspense>
-          }
-        />
-        <Route
-          path="/daily"
-          element={
-            <Suspense fallback={<ScreenLoading label="LOADING REVEAL..." onBack={handleBack} onHome={handleHome} />}>
-              <DailyGrapeScreen
-                allEntries={allEntries}
-                onOpen={handleSelectEntry}
-                onBack={handleBack}
-                onHome={handleHome}
-              />
             </Suspense>
           }
         />

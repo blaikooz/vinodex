@@ -1,5 +1,5 @@
 import React from 'react';
-import { Sparkles, MoonStar, BadgeCheck, Flame, EyeOff, Camera, Hourglass, GraduationCap } from 'lucide-react';
+import { MoonStar, BadgeCheck, Flame, EyeOff, Camera, Hourglass, GraduationCap } from 'lucide-react';
 import DeviceLayout from './DeviceLayout';
 
 interface MinigamesScreenProps {
@@ -7,7 +7,6 @@ interface MinigamesScreenProps {
   onProfVino: () => void;
   onQuiz: () => void;
   onDailyChallenge: () => void;
-  onDailyGrape: () => void;
   onMoonDial: () => void;
   onBack: () => void;
   onHome: () => void;
@@ -19,10 +18,10 @@ interface MinigamesScreenProps {
  * than hand-written — iOS learned that lesson twice (0.7.2 LR1, 0.8.8 D2):
  * prose and a grid of literals cannot be compared, so the prose goes wrong.
  *
- * WHAT'S THAT…? holds the slot iOS gave PROF. VINO in 0.8.93 — the game's
- * deletion is an open ruling (v6#6) and the professor an open port (v6#26).
+ * Ruling v6#6 deleted WHAT'S THAT…? to match iOS 0.8.93; the professor
+ * holds its slot, and the shelf is the fixed six.
  */
-export type ToolId = 'scanner' | 'labelReader' | 'wineExam' | 'dailyChallenge' | 'dailyGrape' | 'profVino' | 'moonDial';
+export type ToolId = 'scanner' | 'labelReader' | 'wineExam' | 'dailyChallenge' | 'profVino' | 'moonDial';
 
 interface ToolEntry {
   id: ToolId;
@@ -43,12 +42,9 @@ export const TOOL_ROSTER: ToolEntry[] = [
   { id: 'labelReader', title: 'LABEL SCAN', face: '#3B82F6', shadow: '#1D4ED8', ink: '#FFFFFF', comingSoon: true },
   { id: 'wineExam', title: 'WINE EXAM', face: '#A855F7', shadow: '#6B21A8', ink: '#FFFFFF' },
   { id: 'dailyChallenge', title: 'DAILY CHALLENGE', face: '#EF4444', shadow: '#991B1B', ink: '#FFFFFF' },
-  // WHAT'S THAT…? — held pending v6#6; yellow face takes a dark ink. On iOS
-  // the professor took exactly this slot (0.8.93), so ruling v6#6's delete
-  // resolves the shelf back to the fixed six.
-  { id: 'dailyGrape', title: "WHAT'S THAT…?", face: '#FACC15', shadow: '#CA8A04', ink: '#78350F' },
-  // PROF. VINO (v6#26) — iOS's amber face; the seventh tile is the interim
-  // cost of the open ruling above.
+  // PROF. VINO holds WHAT'S THAT…?'s old slot, exactly as iOS 0.8.93 gave
+  // it to him — ruling v6#6 deleted the game outright, and the shelf is the
+  // fixed six again.
   { id: 'profVino', title: 'PROF. VINO', face: '#EAB308', shadow: '#A16207', ink: '#FFFFFF' },
   { id: 'moonDial', title: 'MOON DIAL', face: '#0891B2', shadow: '#155E75', ink: '#FFFFFF' },
 ];
@@ -129,7 +125,6 @@ const MinigamesScreen: React.FC<MinigamesScreenProps> = ({
   onProfVino,
   onQuiz,
   onDailyChallenge,
-  onDailyGrape,
   onMoonDial,
   onBack,
   onHome,
@@ -147,7 +142,6 @@ const MinigamesScreen: React.FC<MinigamesScreenProps> = ({
               labelReader: <Camera size={32} />,
               wineExam: <BadgeCheck size={32} />,
               dailyChallenge: <Flame size={32} />,
-              dailyGrape: <Sparkles size={32} />,
               profVino: <GraduationCap size={32} />,
               moonDial: <MoonStar size={32} />,
             }[tool.id];
@@ -156,7 +150,6 @@ const MinigamesScreen: React.FC<MinigamesScreenProps> = ({
               labelReader: () => {},
               wineExam: onQuiz,
               dailyChallenge: onDailyChallenge,
-              dailyGrape: onDailyGrape,
               profVino: onProfVino,
               moonDial: onMoonDial,
             }[tool.id];
