@@ -673,7 +673,7 @@ either platform, and the restore writes the shelf directly, so a stale log
 would otherwise outlive its install. L1 catalog buckets memoized per array
 behind a WeakMap (mirroring `lineageIndexFor`) with `push` instead of a
 spread. L2 `add()` takes a thunk, so a depth-rejected line is never
-computed. L3 name tie-break через `localeCompare('en')` rather than UTF-16
+computed. L3 name tie-break through `localeCompare('en')` rather than UTF-16
 code units. L5 ladder lower bounds at 14 and 39. I1 the surviving
 `revealCursor` comment now says what is true — nothing increments it, and
 that matches iOS (`RevealCursor.advance()` has had no call site since
