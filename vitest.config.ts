@@ -43,6 +43,11 @@ export default defineConfig({
   },
   test: {
     environment: 'jsdom',
+    // The three browser APIs jsdom does not implement and this app calls
+    // on mount — see web/test-setup.ts for why each stub is shaped as it
+    // is. Hoisted out of the individual suites so rendering a whole screen
+    // is a one-line thing to do.
+    setupFiles: ['./web/test-setup.ts'],
     include: ['web/**/*.test.ts', 'web/**/*.test.tsx'],
     // Each file gets a fresh jsdom, so one suite's localStorage cannot leak
     // into the next — the isolation the Swift suites get from a per-test

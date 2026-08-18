@@ -172,11 +172,11 @@ export default tseslint.config(
     // found this independently on its first run, which is the argument for
     // the linter in one line.
     //
-    // MoonDialScreen and UnlockScreen carry the same shape at smaller scale
-    // and are not part of W1; they are listed so the rule is on for every
-    // *other* file from day one.
+    // FIXED for App.tsx — the five are at module scope and
+    // `web/App.routes.test.tsx` pins it. MoonDialScreen and UnlockScreen
+    // carry the same shape at smaller scale, were never part of W1, and stay
+    // listed so the rule is on for every other file.
     files: [
-      'web/App.tsx',
       'web/components/MoonDialScreen.tsx',
       'web/components/UnlockScreen.tsx',
     ],

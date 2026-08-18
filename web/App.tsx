@@ -102,6 +102,175 @@ const ScreenLoading: React.FC<{ label: string; subtitle?: string; onBack: () => 
   </DeviceLayout>
 );
 
+
+/*
+ * ---------------------------------------------------------------------------
+ * The five route components (W1)
+ * ---------------------------------------------------------------------------
+ *
+ * **These live at module scope, and that is load-bearing.** All five were
+ * declared inside `App`'s render body. A component declared there is a new
+ * function identity on every render, and React compares element types by
+ * identity — so a new identity is a *different component*, and React unmounts
+ * the old subtree and mounts a fresh one. The markup is identical either way,
+ * which is why five gates and a render smoke suite never saw it.
+ *
+ * What made it a bug rather than waste: `App` subscribes to the professor's
+ * queue, so any line he speaks re-renders `App`. `EntryDetail`'s TRIED handler
+ * fires `firstTried` (and `firstStamp` when a badge is earned) and then calls
+ * `setCelebrations(queue)` in the same click. React batches those, so the
+ * render the professor causes is the render that threw `EntryDetail` away —
+ * taking the celebration queue with it. The first passport stamp a player ever
+ * earns is the loudest case, and it is the one nobody could reproduce.
+ *
+ * They take as props exactly the handlers they used to close over. Passing a
+ * fresh arrow on each render is fine and is not the same defect: a changed
+ * *prop* re-renders a component, a changed *type* replaces it.
+ *
+ * `web/App.routes.test.tsx` pins the property directly, and
+ * `react-hooks/static-components` — which found this on the linter's first run
+ * — keeps every future route component honest.
+ */
+
+interface RouteChrome {
+  onBack: () => void;
+  onHome: () => void;
+}
+
+/** `/list/:category`. An unknown category is a stale in-app link, so it falls
+ *  back to the dex menu rather than the splash — see the catch-all route for
+ *  the difference. */
+const ListRoute: React.FC<RouteChrome & { onSelect: (entry: WineEntry) => void }> = ({
+  onSelect,
+  onBack,
+  onHome,
+}) => {
+  const { category } = useParams<{ category: string }>();
+  const [searchParams] = useSearchParams();
+  if (!category || !KNOWN_CATEGORIES.has(category as EntryCategory)) {
+    return <Navigate to="/dex" replace />;
+  }
+  const mode = (searchParams.get('filterMode') as FilterMode) ?? null;
+  const values = searchParams.getAll('filterValue');
+  const firstValue = values[0];
+  const filterValue: string | string[] | null =
+    values.length === 0 || firstValue === undefined ? null : values.length === 1 ? firstValue : values;
+  return (
+    <EncyclopediaList
+      category={category as EntryCategory}
+      filterMode={mode}
+      filterValue={filterValue}
+      initialSearchQuery={searchParams.get('q') ?? ''}
+      onSelect={onSelect}
+      onBack={onBack}
+      onHome={onHome}
+    />
+  );
+};
+
+/** `/settings/:section`. */
+const SettingsSectionRoute: React.FC<RouteChrome & { allEntries: WineEntry[] }> = ({
+  allEntries,
+  onBack,
+  onHome,
+}) => {
+  const { section } = useParams<{ section: string }>();
+  const known = SETTINGS_SECTIONS.some(s => s.id === section);
+  if (!known) return <Navigate to="/settings" replace />;
+  return (
+    <Suspense fallback={<ScreenLoading label="LOADING..." onBack={onBack} onHome={onHome} />}>
+      <SettingsSectionPanel
+        section={section as SettingsSectionId}
+        allEntries={allEntries}
+        onBack={onBack}
+        onHome={onHome}
+      />
+    </Suspense>
+  );
+};
+
+/** `/lineage/:entryId` — grapes only; anything else is a stale link. */
+const LineageRoute: React.FC<RouteChrome & {
+  allEntries: WineEntry[];
+  onFocus: (entry: WineEntry) => void;
+  onOpenEntry: (entry: WineEntry) => void;
+}> = ({ allEntries, onFocus, onOpenEntry, onBack, onHome }) => {
+  const { entryId } = useParams<{ entryId: string }>();
+  const entry = allEntries.find(e => e.id === entryId);
+  if (!entry || entry.category !== 'GRAPES') return <Navigate to="/dex" replace />;
+  return (
+    <Suspense fallback={<ScreenLoading label="LOADING LINEAGE..." onBack={onBack} onHome={onHome} />}>
+      <GrapeLineageScreen
+        entry={entry}
+        allEntries={allEntries}
+        onFocus={onFocus}
+        onOpenEntry={onOpenEntry}
+        onBack={onBack}
+        onHome={onHome}
+      />
+    </Suspense>
+  );
+};
+
+/** `/detail/:entryId` — the entry readout. */
+const DetailRoute: React.FC<RouteChrome & {
+  allEntries: WineEntry[];
+  onSelectRelated: (entry: WineEntry) => void;
+  onFilterByType: (type: string, targetCategory?: EntryCategory) => void;
+  onFilterByNote: (note: string, targetCategory?: EntryCategory) => void;
+  onFilterBySoil: (soil: string) => void;
+  onFilterByOrigin: (origin: string) => void;
+  onViewStates: () => void;
+  onLineage: (entry: WineEntry) => void;
+}> = ({
+  allEntries,
+  onSelectRelated,
+  onFilterByType,
+  onFilterByNote,
+  onFilterBySoil,
+  onFilterByOrigin,
+  onViewStates,
+  onLineage,
+  onBack,
+  onHome,
+}) => {
+  const { entryId } = useParams<{ entryId: string }>();
+  // `allEntries` is in the deps now that it is a prop rather than a closure
+  // capture. It is `getAllEntries()`, which is module-cached and therefore
+  // referentially stable, so this costs nothing and stops the memo lying.
+  const entry = useMemo(
+    () => allEntries.find(e => e.id === entryId),
+    [allEntries, entryId],
+  );
+  if (!entry) return <Navigate to="/dex" replace />;
+  return (
+    <EntryDetail
+      entry={entry}
+      allEntries={allEntries}
+      onBack={onBack}
+      onHome={onHome}
+      onSelectRelated={onSelectRelated}
+      onFilterByType={onFilterByType}
+      onFilterByNote={onFilterByNote}
+      onFilterBySoil={onFilterBySoil}
+      onFilterByOrigin={onFilterByOrigin}
+      onViewStates={onViewStates}
+      onLineage={onLineage}
+    />
+  );
+};
+
+/** `/website/project/:id` — the in-app splash for a Substack project. An
+ *  unknown id is a stale link, so it falls back to the OUR WORK list rather
+ *  than the top-level splash. */
+const ProjectRoute: React.FC<RouteChrome & { onUnlock: () => void }> = ({ onBack, onHome, onUnlock }) => {
+  const { id } = useParams<{ id: string }>();
+  const project = getProject(id);
+  if (!project) return <Navigate to="/website/apps" replace />;
+  return <ProjectSplash project={project} onBack={onBack} onHome={onHome} onUnlock={onUnlock} />;
+};
+
+
 const App: React.FC = () => {
   const navigate = useNavigate();
   const location = useLocation();
@@ -364,98 +533,10 @@ const App: React.FC = () => {
     navigate(buildListUrl('COUNTRY_GATE', 'STATE', USA_STATES));
   };
 
-  const ListRoute: React.FC = () => {
-    const { category } = useParams<{ category: string }>();
-    const [searchParams] = useSearchParams();
-    // An unknown category is a stale in-app link, so it falls back to the dex
-    // menu rather than the splash — see the catch-all route for the difference.
-    if (!category || !KNOWN_CATEGORIES.has(category as EntryCategory)) {
-      return <Navigate to="/dex" replace />;
-    }
-    const mode = (searchParams.get('filterMode') as FilterMode) ?? null;
-    const values = searchParams.getAll('filterValue');
-    const firstValue = values[0];
-    const filterValue: string | string[] | null =
-      values.length === 0 || firstValue === undefined ? null : values.length === 1 ? firstValue : values;
-    return (
-      <EncyclopediaList
-        category={category as EntryCategory}
-        filterMode={mode}
-        filterValue={filterValue}
-        initialSearchQuery={searchParams.get('q') ?? ''}
-        onSelect={handleSelectEntry}
-        onBack={handleBack}
-        onHome={handleHome}
-      />
-    );
-  };
-
-  const SettingsSectionRoute: React.FC = () => {
-    const { section } = useParams<{ section: string }>();
-    const known = SETTINGS_SECTIONS.some(s => s.id === section);
-    if (!known) return <Navigate to="/settings" replace />;
-    return (
-      <Suspense fallback={<ScreenLoading label="LOADING..." onBack={handleBack} onHome={handleHome} />}>
-        <SettingsSectionPanel
-          section={section as SettingsSectionId}
-          allEntries={allEntries}
-          onBack={handleBack}
-          onHome={handleHome}
-        />
-      </Suspense>
-    );
-  };
-
-  const LineageRoute: React.FC = () => {
-    const { entryId } = useParams<{ entryId: string }>();
-    const entry = allEntries.find(e => e.id === entryId);
-    if (!entry || entry.category !== 'GRAPES') return <Navigate to="/dex" replace />;
-    return (
-      <Suspense fallback={<ScreenLoading label="LOADING LINEAGE..." onBack={handleBack} onHome={handleHome} />}>
-        <GrapeLineageScreen
-          entry={entry}
-          allEntries={allEntries}
-          onFocus={e => navigate(`/lineage/${e.id}`)}
-          onOpenEntry={e => navigate(`/detail/${e.id}`)}
-          onBack={handleBack}
-          onHome={handleHome}
-        />
-      </Suspense>
-    );
-  };
-
-  const DetailRoute: React.FC = () => {
-    const { entryId } = useParams<{ entryId: string }>();
-    const entry = useMemo(
-      () => allEntries.find(e => e.id === entryId),
-      [entryId],
-    );
-    if (!entry) return <Navigate to="/dex" replace />;
-    return (
-      <EntryDetail
-        entry={entry}
-        allEntries={allEntries}
-        onBack={handleBack}
-        onHome={handleHome}
-        onSelectRelated={handleSelectEntry}
-        onFilterByType={handleFilterByType}
-        onFilterByNote={handleFilterByNote}
-        onFilterBySoil={handleFilterBySoil}
-        onFilterByOrigin={handleFilterByOrigin}
-        onViewStates={handleViewStates}
-        onLineage={e => navigate(`/lineage/${e.id}`)}
-      />
-    );
-  };
-
-  // The in-app splash for a Substack project. An unknown id is a stale link, so
-  // it falls back to the OUR WORK list rather than the top-level splash.
-  const ProjectRoute: React.FC = () => {
-    const { id } = useParams<{ id: string }>();
-    const project = getProject(id);
-    if (!project) return <Navigate to="/website/apps" replace />;
-    return <ProjectSplash project={project} onBack={handleBack} onHome={() => navigate('/website')} onUnlock={() => navigate('/website/unlock')} />;
-  };
+  // The five route components used to be declared here, inside the render
+  // body. They are at module scope now (W1) — see the note above
+  // `ListRoute`. Nothing else moved; each takes as props exactly the
+  // handlers it used to close over.
 
   return (
     <div
@@ -517,7 +598,16 @@ const App: React.FC = () => {
             />
           }
         />
-        <Route path="/website/project/:id" element={<ProjectRoute />} />
+        <Route
+          path="/website/project/:id"
+          element={
+            <ProjectRoute
+              onBack={handleBack}
+              onHome={() => navigate('/website')}
+              onUnlock={() => navigate('/website/unlock')}
+            />
+          }
+        />
         <Route
           path="/website/unlock"
           element={<UnlockVinodex onBack={handleBack} onHome={() => navigate('/website')} onUnlocked={() => navigate('/dex')} />}
@@ -720,7 +810,18 @@ const App: React.FC = () => {
             </Suspense>
           }
         />
-        <Route path="/lineage/:entryId" element={<LineageRoute />} />
+        <Route
+          path="/lineage/:entryId"
+          element={
+            <LineageRoute
+              allEntries={allEntries}
+              onFocus={e => navigate(`/lineage/${e.id}`)}
+              onOpenEntry={e => navigate(`/detail/${e.id}`)}
+              onBack={handleBack}
+              onHome={handleHome}
+            />
+          }
+        />
         <Route
           path="/prof-vino"
           element={
@@ -729,9 +830,33 @@ const App: React.FC = () => {
             </Suspense>
           }
         />
-        <Route path="/settings/:section" element={<SettingsSectionRoute />} />
-        <Route path="/list/:category" element={<ListRoute />} />
-        <Route path="/detail/:entryId" element={<DetailRoute />} />
+        <Route
+          path="/settings/:section"
+          element={
+            <SettingsSectionRoute allEntries={allEntries} onBack={handleBack} onHome={handleHome} />
+          }
+        />
+        <Route
+          path="/list/:category"
+          element={<ListRoute onSelect={handleSelectEntry} onBack={handleBack} onHome={handleHome} />}
+        />
+        <Route
+          path="/detail/:entryId"
+          element={
+            <DetailRoute
+              allEntries={allEntries}
+              onBack={handleBack}
+              onHome={handleHome}
+              onSelectRelated={handleSelectEntry}
+              onFilterByType={handleFilterByType}
+              onFilterByNote={handleFilterByNote}
+              onFilterBySoil={handleFilterBySoil}
+              onFilterByOrigin={handleFilterByOrigin}
+              onViewStates={handleViewStates}
+              onLineage={e => navigate(`/lineage/${e.id}`)}
+            />
+          }
+        />
         {/* A URL that matches nothing is an outside arrival, so it lands on the
             splash — unlike the in-app fallbacks above, which go to "/dex". */}
         <Route path="*" element={<Navigate to="/" replace />} />
