@@ -94,7 +94,8 @@ describe('the trigger store', () => {
     expect(fireOnce('firstFlavorViewed')).toBe(null);
     expect(hasFired('firstFlavorViewed')).toBe(false);
     expect(fireOnce('firstScan')).toBe(null);
-    expect(fireOnce('firstInsight')).toBe(null);
+    // firstInsight went live with the v6#21 tail — its site is InsightSection.
+    expect(fireOnce('firstInsight')).toBeTruthy();
   });
 
   it('silence is a filter, not a consumption — a mute, not a wipe', () => {

@@ -5,12 +5,12 @@
  * ruling and render as chrome glyphs meanwhile).
  *
  * The copy is sommbot's reviewed set, byte-for-byte from the Swift bank.
- * **Two web-side deferrals on top of iOS's one** (`firstFlavorViewed`,
- * authored): `firstScan` waits for the label reader (v6#27) and
- * `firstInsight` for the insight panel (the open tail of v6#21) — their call
- * sites do not exist here yet, and iOS's own rule is that a deferred line
- * ships with its key reserved, is checked like a live one, and turning it on
- * is deleting one string.
+ * **One web-side deferral on top of iOS's one** (`firstFlavorViewed`,
+ * authored): `firstScan` waits for the label reader (v6#27) — its call site
+ * does not exist here yet, and iOS's own rule is that a deferred line ships
+ * with its key reserved, is checked like a live one, and turning it on is
+ * deleting one string. (`firstInsight` was deferred the same way until the
+ * v6#21 tail closed and `InsightSection` became its event site.)
  *
  * ASCII throughout: the bubble draws in the retro faces with partial Latin-1
  * coverage, and a curly apostrophe renders as a blank box.
@@ -230,11 +230,10 @@ export const VINO_LINES: VinoLine[] = [
   },
   {
     trigger: 'firstInsight',
-    // INSIGHT in the shipped panel's own casing.
+    // INSIGHT in the shipped panel's own casing. Live since the v6#21 tail
+    // closed — the panel exists and `InsightSection` is the event site.
     line: 'INSIGHT unlocked, {name}. The more you mark TRIED, the more of this I can show you.',
     expression: 'goodjob',
-    // Web-side deferral: the insight panel is the open tail of v6#21.
-    deferredUntil: 'the INSIGHT panel (open tail of v6#21) - it does not exist here yet',
   },
   {
     trigger: 'firstGodforsaken',

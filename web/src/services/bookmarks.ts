@@ -43,6 +43,10 @@ const SHELF_KEY: Record<Shelf, string> = {
   tried: 'triedEntryIDs',
 };
 const RATINGS_KEY = 'triedRatings';
+/** Entry id → the day it joined the tried shelf. iOS `Bookmarks.triedDaysKey`
+ *  raw value — a rating's `day` records when it was *scored*, which after a
+ *  late rating is the wrong history; this records the event itself. */
+const TRIED_DAYS_KEY = 'triedEntryDays';
 
 /** Bumped on every change so React views can re-read; see `useBookmarks`. */
 let revision = 0;
@@ -143,7 +147,10 @@ export function toggleShelf(shelf: Shelf, id: string): boolean {
   if (index >= 0) {
     ids.splice(index, 1);
     writeIds(key, ids);
-    if (shelf === 'tried') clearRatingInternal(id);
+    if (shelf === 'tried') {
+      clearRatingInternal(id);
+      removeTriedDay(id);
+    }
     emit();
     return false;
   }
@@ -157,6 +164,11 @@ export function toggleShelf(shelf: Shelf, id: string): boolean {
       want.splice(wi, 1);
       writeIds(wantKey, want);
     }
+    // Dated here rather than at the tap site (iOS Bookmarks.swift, same
+    // reasoning): this is "the one place membership changes", so a future
+    // second way to mark something tried gets dated for free. The INSIGHT
+    // panel's "Tried N days ago" line reads this (v6#21 tail).
+    recordTriedDay(id);
   }
   emit();
   return true;
@@ -169,14 +181,20 @@ export function removeFromShelf(shelf: Shelf, id: string): void {
   if (index < 0) return;
   ids.splice(index, 1);
   writeIds(key, ids);
-  if (shelf === 'tried') clearRatingInternal(id);
+  if (shelf === 'tried') {
+    clearRatingInternal(id);
+    removeTriedDay(id);
+  }
   emit();
 }
 
 export function clearShelf(shelf: Shelf): void {
   if (readIds(SHELF_KEY[shelf]).length === 0 && !(shelf === 'tried' && hasAnyRating())) return;
   writeIds(SHELF_KEY[shelf], []);
-  if (shelf === 'tried') writeRatings({});
+  if (shelf === 'tried') {
+    writeRatings({});
+    writeTriedDays({});
+  }
   emit();
 }
 
@@ -194,7 +212,51 @@ export function removeEverything(): void {
   writeIds(SHELF_KEY.wantToTry, []);
   writeIds(SHELF_KEY.tried, []);
   writeRatings({});
+  writeTriedDays({});
   emit();
+}
+
+// ---------------------------------------------------------------------------
+// Tried days
+// ---------------------------------------------------------------------------
+
+/** Entry id → the `dayIndex` it joined the tried shelf. */
+export function triedDayLog(): Record<string, number> {
+  try {
+    const raw = window.localStorage.getItem(TRIED_DAYS_KEY);
+    if (!raw) return {};
+    const parsed: unknown = JSON.parse(raw);
+    if (!parsed || typeof parsed !== 'object' || Array.isArray(parsed)) return {};
+    const out: Record<string, number> = {};
+    for (const [id, day] of Object.entries(parsed as Record<string, unknown>)) {
+      if (typeof day === 'number' && Number.isFinite(day)) out[id] = Math.trunc(day);
+    }
+    return out;
+  } catch {
+    return {};
+  }
+}
+
+function writeTriedDays(map: Record<string, number>): void {
+  try {
+    if (Object.keys(map).length === 0) window.localStorage.removeItem(TRIED_DAYS_KEY);
+    else window.localStorage.setItem(TRIED_DAYS_KEY, JSON.stringify(map));
+  } catch {
+    /* ignore */
+  }
+}
+
+function recordTriedDay(id: string): void {
+  const map = triedDayLog();
+  map[id] = dayIndex();
+  writeTriedDays(map);
+}
+
+function removeTriedDay(id: string): void {
+  const map = triedDayLog();
+  if (!(id in map)) return;
+  delete map[id];
+  writeTriedDays(map);
 }
 
 // ---------------------------------------------------------------------------

@@ -37,6 +37,7 @@ import StampUnlockedPrompt, { Celebration } from './StampUnlockedPrompt';
 import { GrapeLineageIndex, edgeCount } from '../src/services/grapeLineage';
 import { fireVino, setSuspended } from '../src/services/vinoPresenter';
 import { reportCoachmark } from '../src/services/coachmarks';
+import InsightSection from './InsightSection';
 import { computePassport } from '../src/services/passport';
 import { announceBadges, announceTier, seedIfNeeded } from '../src/services/passportProgress';
 import { shelfIds } from '../src/services/bookmarks';
@@ -1188,6 +1189,11 @@ const EntryDetail: React.FC<EntryDetailProps> = ({ entry, allEntries, onBack, on
               </div>
           </div>
         )}
+
+        {/* INSIGHT — what the tried set says about this entry (v6#21 tail).
+            iOS draws it after INFO and before MY TASTING; extracted per the
+            god-file rule. */}
+        <InsightSection entry={entry} allEntries={allEntries} />
 
         {/* MY RATING — dedicated body section for tastable entries you've tried
             (iOS EntryDetailScreen.myTasting): star header, five large stars,
