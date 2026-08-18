@@ -59,12 +59,13 @@ const KNOWN_CATEGORIES: ReadonlySet<EntryCategory> = new Set<EntryCategory>([
  * only the LCD shows the spinner, so a load does not flash the device away —
  * same shape as the hand-rolled fallbacks the globe and moon dial already used.
  */
-const ScreenLoading: React.FC<{ label: string; onBack: () => void; onHome: () => void }> = ({
+const ScreenLoading: React.FC<{ label: string; subtitle?: string; onBack: () => void; onHome: () => void }> = ({
   label,
+  subtitle = '',
   onBack,
   onHome,
 }) => (
-  <DeviceLayout title={label.replace('LOADING ', '').replace('...', '')} subtitle="" showBack={true} onBack={onBack} onHome={onHome} centerHeaderText={true}>
+  <DeviceLayout title={label.replace('LOADING ', '').replace('...', '')} subtitle={subtitle} showBack={true} onBack={onBack} onHome={onHome} centerHeaderText={true}>
     <div className="flex-1 bg-black flex flex-col items-center justify-center gap-4">
       <div className="w-16 h-16 rounded-full border-2 border-green-400 border-t-transparent animate-spin" />
       <span className="font-retro text-green-300 tracking-widest text-sm">{label}</span>
@@ -124,6 +125,12 @@ const App: React.FC = () => {
       navigate('/retro-globe');
     } else if (category === 'RETRO_GLOBE') {
       navigate('/retro-globe');
+    } else if (category === 'MASTER_SEARCH') {
+      // The orb opens MASTER SEARCH, which *is* the chip-filter screen —
+      // iOS 0.7.0 (I1) retired the plain master-search list into it
+      // (`MainMenuScreen.swift:415` → `.chipFilter`). `/list/MASTER_SEARCH`
+      // stays routable for existing links (v6#11).
+      navigate('/chip-filter');
     } else {
       navigate(`/list/${category}`);
     }
@@ -325,21 +332,7 @@ const App: React.FC = () => {
           path="/moon-dial"
           element={
             <Suspense
-              fallback={
-                <DeviceLayout
-                  title="MOON DIAL"
-                  subtitle="BIODYNAMIC SCAN"
-                  showBack={true}
-                  onBack={handleBack}
-                  onHome={handleHome}
-                  centerHeaderText={true}
-                >
-                  <div className="flex-1 bg-black flex flex-col items-center justify-center gap-4">
-                    <div className="w-16 h-16 rounded-full border-2 border-green-400 border-t-transparent animate-spin" />
-                    <span className="font-retro text-green-300 tracking-widest text-sm">LOADING MOON DIAL...</span>
-                  </div>
-                </DeviceLayout>
-              }
+              fallback={<ScreenLoading label="LOADING MOON DIAL..." subtitle="BIODYNAMIC SCAN" onBack={handleBack} onHome={handleHome} />}
             >
               <MoonDialScreen onBack={handleBack} onHome={handleHome} />
             </Suspense>
@@ -360,21 +353,7 @@ const App: React.FC = () => {
           path="/retro-globe"
           element={
             <Suspense
-              fallback={
-                <DeviceLayout
-                  title="GLOBE SCAN"
-                  subtitle="TACTILE VIEW"
-                  showBack={true}
-                  onBack={handleBack}
-                  onHome={handleHome}
-                  centerHeaderText={true}
-                >
-                  <div className="flex-1 bg-black flex flex-col items-center justify-center gap-4">
-                    <div className="w-16 h-16 rounded-full border-2 border-green-400 border-t-transparent animate-spin" />
-                    <span className="font-retro text-green-300 tracking-widest text-sm">LOADING GLOBE SCAN...</span>
-                  </div>
-                </DeviceLayout>
-              }
+              fallback={<ScreenLoading label="LOADING GLOBE SCAN..." subtitle="TACTILE VIEW" onBack={handleBack} onHome={handleHome} />}
             >
               <RetroGlobeScreen
                 onBack={handleBack}
@@ -394,7 +373,6 @@ const App: React.FC = () => {
             <Suspense fallback={<ScreenLoading label="LOADING TOOLS..." onBack={handleBack} onHome={handleHome} />}>
               <MinigamesScreen
                 onScanner={() => navigate('/scanner')}
-                onChipFilter={() => navigate('/chip-filter')}
                 onQuiz={() => navigate('/quiz')}
                 onDailyChallenge={() => navigate('/daily-challenge')}
                 onDailyGrape={() => navigate('/daily')}

@@ -1,10 +1,9 @@
 import React from 'react';
-import { Sparkles, ScanSearch, MoonStar, Filter, BadgeCheck, Flame } from 'lucide-react';
+import { Sparkles, MoonStar, BadgeCheck, Flame, EyeOff, Camera, Hourglass } from 'lucide-react';
 import DeviceLayout from './DeviceLayout';
 
 interface MinigamesScreenProps {
   onScanner: () => void;
-  onChipFilter: () => void;
   onQuiz: () => void;
   onDailyChallenge: () => void;
   onDailyGrape: () => void;
@@ -12,6 +11,31 @@ interface MinigamesScreenProps {
   onBack: () => void;
   onHome: () => void;
 }
+
+/**
+ * The tool shelf, in iOS reading order (`ToolRoster.all`), so the walkthrough's
+ * TOOLS sentence can be **derived** from what the shelf actually draws rather
+ * than hand-written — iOS learned that lesson twice (0.7.2 LR1, 0.8.8 D2):
+ * prose and a grid of literals cannot be compared, so the prose goes wrong.
+ *
+ * WHAT'S THAT…? holds the slot iOS gave PROF. VINO in 0.8.93 — the game's
+ * deletion is an open ruling (v6#6) and the professor an open port (v6#26).
+ */
+export const TOOL_TITLES = [
+  'BLIND TASTING',
+  'LABEL SCAN',
+  'WINE EXAM',
+  'DAILY CHALLENGE',
+  "WHAT'S THAT…?",
+  'MOON DIAL',
+] as const;
+
+/** iOS `ToolRoster.sentence` — six lowercase names, Oxford-comma'd. */
+export const toolSentence = (): string => {
+  const names = TOOL_TITLES.map(t => t.toLowerCase());
+  const last = names[names.length - 1]!;
+  return names.slice(0, -1).join(', ') + ', and ' + last;
+};
 
 interface TileProps {
   title: string;
@@ -21,37 +45,62 @@ interface TileProps {
   shadow: string;
   ink: string;
   icon: React.ReactNode;
+  /**
+   * iOS's announced-but-unbuilt treatment (`ToolsScreen.swift` 0.7.0, I2):
+   * the tile still exists and looks like what it will be, its ink dims, and it
+   * says COMING SOON in words. Not `disabled` — a dead grey tile is
+   * indistinguishable from a paywalled one and from a bug. It stays tappable
+   * and does nothing, because there is nothing yet to explain that the label
+   * has not already said.
+   */
+  comingSoon?: boolean;
   onClick: () => void;
 }
 
-/**
- * The Tools hub, ported from `vinodex-ios/Sources/VinodexUI/ToolsScreen.swift`.
- *
- * Square glyph-over-label tiles in the iOS 3×2 order: SCANNER, FILTER SEARCH,
- * WINE EXAM, DAILY CHALLENGE, WHAT'S THAT…?, MOON DIAL — so the two apps read as
- * one product. Reached from the Settings TOOLS tile.
- *
- * Each tile is a filled colour face with a 6px bottom extrusion — the same
- * look as the SETTINGS grid's `FeatureTile` (SettingsPanel.tsx) — using the
- * per-tool faces/shadows/inks from iOS `ToolsScreen`. Yellow and cyan faces
- * take a dark ink; white is unreadable on either.
- */
-const Tile: React.FC<TileProps> = ({ title, face, shadow, ink, icon, onClick }) => (
+const Tile: React.FC<TileProps> = ({ title, face, shadow, ink, icon, comingSoon = false, onClick }) => (
   <button
     onClick={onClick}
     className="aspect-square flex flex-col items-center justify-center gap-3 rounded-xl transition-all active:translate-y-1 active:border-b-0"
-    style={{ backgroundColor: face, borderBottom: `6px solid ${shadow}`, color: ink }}
+    style={{ backgroundColor: face, borderBottom: `6px solid ${shadow}`, color: ink, opacity: comingSoon ? 0.62 : 1 }}
   >
     <span style={{ color: ink }}>{icon}</span>
-    <span className="font-retro text-[0.6rem] sm:text-xs tracking-widest text-center px-2 leading-relaxed whitespace-pre-line" style={{ color: ink }}>
+    {/* No hard line breaks in the label — a literal newline lands in the
+        button's accessible name (v6#39; same bug Block 10 fixed for
+        WHO WE ARE). Wrapping is the browser's job. */}
+    <span className="font-retro text-[0.6rem] sm:text-xs tracking-widest text-center px-2 leading-relaxed" style={{ color: ink }}>
       {title}
     </span>
+    {comingSoon && (
+      <span
+        className="flex items-center gap-1 font-retro text-[0.55rem] tracking-widest"
+        style={{ color: ink, opacity: 0.85 }}
+        aria-label="Coming soon — not built yet"
+      >
+        <Hourglass size={10} aria-hidden="true" />
+        COMING SOON
+      </span>
+    )}
   </button>
 );
 
+/**
+ * The Tools hub, ported from `vinodex-ios/Sources/VinodexUI/ToolsScreen.swift`
+ * at v0.9.2 (v6#10/#11/#13):
+ *
+ * - SCANNER became BLIND TASTING (0.7.1, E3) — UI string and glyph only; the
+ *   `/scanner` route and `scanner` state keys keep their names, per the same
+ *   convention iOS follows (`DexRoute.scanner` is unrenamed there too).
+ * - FILTER SEARCH left the shelf (0.7.0, I1/I2): the main menu's big round
+ *   button opens that screen now, and a tool reachable two ways from one
+ *   screen is a tool nobody can find.
+ * - LABEL SCAN holds its slot with the COMING SOON treatment until the web
+ *   OCR ruling (v6#4/v6#27).
+ *
+ * Faces/shadows/inks are iOS `ToolsScreen`'s current values; yellow faces take
+ * a dark ink — white on it is unreadable.
+ */
 const MinigamesScreen: React.FC<MinigamesScreenProps> = ({
   onScanner,
-  onChipFilter,
   onQuiz,
   onDailyChallenge,
   onDailyGrape,
@@ -63,15 +112,18 @@ const MinigamesScreen: React.FC<MinigamesScreenProps> = ({
     <DeviceLayout title="TOOLS" subtitle="" showBack={true} onBack={onBack} onHome={onHome} centerHeaderText={true}>
       <div className="flex-1 min-h-0 overflow-y-auto custom-scrollbar bg-stone-950 p-3">
         <div className="grid grid-cols-2 gap-3">
-          <Tile title="SCANNER" face="#22C55E" shadow="#15803D" ink="#FFFFFF" icon={<ScanSearch size={32} />} onClick={onScanner} />
-          <Tile title={'FILTER\nSEARCH'} face="#2AB5FF" shadow="#136A99" ink="#FFFFFF" icon={<Filter size={32} />} onClick={onChipFilter} />
-          <Tile title={'WINE\nEXAM'} face="#A855F7" shadow="#6B21A8" ink="#FFFFFF" icon={<BadgeCheck size={32} />} onClick={onQuiz} />
-          <Tile title={'DAILY\nCHALLENGE'} face="#EF4444" shadow="#991B1B" ink="#FFFFFF" icon={<Flame size={32} />} onClick={onDailyChallenge} />
-          {/* Named for the question it asks rather than its pick — the reveal
-              rotates through regions and styles as well as grapes. Yellow +
-              cyan faces take a dark ink (iOS amber900 / cyan-950). */}
-          <Tile title={"WHAT'S\nTHAT…?"} face="#FACC15" shadow="#CA8A04" ink="#78350F" icon={<Sparkles size={32} />} onClick={onDailyGrape} />
-          <Tile title="MOON DIAL" face="#67E8F9" shadow="#155E75" ink="#164E63" icon={<MoonStar size={32} />} onClick={onMoonDial} />
+          {/* The two that answer a question about a specific glass go first —
+              they are the reason to open this screen while actually drinking
+              something (iOS row 1). */}
+          <Tile title="BLIND TASTING" face="#22C55E" shadow="#15803D" ink="#FFFFFF" icon={<EyeOff size={32} />} onClick={onScanner} />
+          <Tile title="LABEL SCAN" face="#3B82F6" shadow="#1D4ED8" ink="#FFFFFF" icon={<Camera size={32} />} comingSoon onClick={() => {}} />
+          {/* The quiz family sits together: the practice ladder, then the one
+              paper a day that keeps the streak (iOS row 2). */}
+          <Tile title="WINE EXAM" face="#A855F7" shadow="#6B21A8" ink="#FFFFFF" icon={<BadgeCheck size={32} />} onClick={onQuiz} />
+          <Tile title="DAILY CHALLENGE" face="#EF4444" shadow="#991B1B" ink="#FFFFFF" icon={<Flame size={32} />} onClick={onDailyChallenge} />
+          {/* WHAT'S THAT…? — held pending v6#6; yellow face takes a dark ink. */}
+          <Tile title="WHAT'S THAT…?" face="#FACC15" shadow="#CA8A04" ink="#78350F" icon={<Sparkles size={32} />} onClick={onDailyGrape} />
+          <Tile title="MOON DIAL" face="#0891B2" shadow="#155E75" ink="#FFFFFF" icon={<MoonStar size={32} />} onClick={onMoonDial} />
         </div>
       </div>
     </DeviceLayout>

@@ -68,7 +68,7 @@ const ChipFilterScreen: React.FC<ChipFilterScreenProps> = ({ allEntries, onSelec
   const count = filterCount(filter);
 
   return (
-    <DeviceLayout title="FILTER SEARCH" subtitle="" showBack onBack={onBack} onHome={onHome} centerHeaderText>
+    <DeviceLayout title="MASTER SEARCH" subtitle="" showBack onBack={onBack} onHome={onHome} centerHeaderText>
       <div className="h-full overflow-y-auto custom-scrollbar p-3 space-y-3" style={{ backgroundColor: 'var(--lcd-page)' }}>
 
         {/* Summary */}
@@ -90,12 +90,17 @@ const ChipFilterScreen: React.FC<ChipFilterScreenProps> = ({ allEntries, onSelec
           )}
         </div>
 
-        {/* Search */}
+        {/* Search. Focused on arrival (iOS AUDIT L35): the one route whose
+            whole purpose is typing should not make you tap the field first —
+            and since the orb became the only way here (v6#11), every arrival
+            is that route. */}
         <input
           type="text"
+          autoFocus
           value={query}
           onChange={e => setSearch(e.target.value)}
           placeholder="SEARCH MATCHES…"
+          aria-label="Search matches"
           className="w-full rounded-lg bg-black/40 border-2 border-stone-700 px-3 py-2 font-mono text-sm text-green-200 placeholder:text-stone-600 focus:border-green-600 focus:outline-none"
         />
 

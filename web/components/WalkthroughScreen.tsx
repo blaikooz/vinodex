@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Search, ChevronLeft, Home, Settings, Wrench, Grip, Globe, Wine, Leaf, ChevronRight, UserRound, Flag, Palette, SlidersHorizontal } from 'lucide-react';
 import DeviceLayout from './DeviceLayout';
+import { toolSentence } from './MinigamesScreen';
 
 /**
  * The guided tour, ported from
@@ -25,7 +26,10 @@ const STEPS: Step[] = [
   { id: 'back', title: 'GOING BACK', highlight: 'back', body: 'Back steps one screen at a time and remembers where you were — scroll position, open sections, all of it.' },
   { id: 'home', title: 'STARTING OVER', highlight: 'home', body: "Home returns to the main menu and clears the trail. Feeling lost? This one resets everything you didn't save." },
   { id: 'settings', title: 'MAKING IT YOURS', highlight: 'settings', body: 'The cog: screen modes, chassis skins, text size, haptics, sound. The person button beside Back keeps your shelf and profile.' },
-  { id: 'tools', title: 'TOOLS', highlight: 'tools', body: 'Also behind the cog: the wrench tile. Scanner, filter search, wine exam, the daily challenge, and the moon dial.' },
+  // The tool list is derived from the shelf (iOS 0.8.8, D2): hand-written
+  // copy went stale twice over there — prose and a grid of literals cannot
+  // be compared — so the sentence is built from what TOOLS actually draws.
+  { id: 'tools', title: 'TOOLS', highlight: 'tools', body: `Also behind the cog: the wrench tile. ${toolSentence().charAt(0).toUpperCase()}${toolSentence().slice(1)}.` },
   { id: 'done', title: "THAT'S IT.", highlight: 'device', body: 'Press Home and pick a tile. Rerun this tour any time from TUTORIAL in settings.' },
 ];
 
