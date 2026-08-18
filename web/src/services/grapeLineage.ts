@@ -88,6 +88,22 @@ interface Edge {
   ref: LineageRef;
 }
 
+/**
+ * One index per catalog array (ledger I6): three screens were each building
+ * their own walk of 177 grapes. Keyed by array identity — `getAllEntries()`
+ * returns one cached array, so the whole app shares one index, and a test
+ * passing a fixture gets a fresh one for free.
+ */
+const indexCache = new WeakMap<WineEntry[], GrapeLineageIndex>();
+
+export const lineageIndexFor = (entries: WineEntry[]): GrapeLineageIndex => {
+  const cached = indexCache.get(entries);
+  if (cached) return cached;
+  const built = new GrapeLineageIndex(entries);
+  indexCache.set(entries, built);
+  return built;
+};
+
 export class GrapeLineageIndex {
   private names = new Map<string, string>();
   private authored = new Map<string, GrapeLineage>();

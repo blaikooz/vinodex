@@ -3,8 +3,8 @@ import { GitBranch, CircleHelp, BookOpen } from 'lucide-react';
 import DeviceLayout from './DeviceLayout';
 import { WineEntry } from '@/shared/types';
 import {
-  GrapeLineageIndex,
   LineageNode,
+  lineageIndexFor,
   relativesIsEmpty,
 } from '../src/services/grapeLineage';
 
@@ -34,7 +34,7 @@ interface GrapeLineageScreenProps {
  * *look* different.
  */
 const GrapeLineageScreen: React.FC<GrapeLineageScreenProps> = ({ entry, allEntries, onFocus, onOpenEntry, onBack, onHome }) => {
-  const index = useMemo(() => new GrapeLineageIndex(allEntries), [allEntries]);
+  const index = lineageIndexFor(allEntries);
   const relatives = useMemo(() => index.relatives(entry.id), [index, entry.id]);
   const byId = useMemo(() => new Map(allEntries.map(e => [e.id, e])), [allEntries]);
 

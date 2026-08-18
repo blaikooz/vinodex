@@ -55,7 +55,7 @@ import {
   saveProfile,
 } from '../src/services/userProfiles';
 import { DEMO_STOPS, demoCycleSeconds, startDemo } from '../src/services/demoMode';
-import { GrapeLineageIndex } from '../src/services/grapeLineage';
+import { lineageIndexFor } from '../src/services/grapeLineage';
 import { FIRMWARE_RELEASES } from '@/shared/constants';
 
 export type SettingsSectionId = 'CUSTOMIZE' | 'SETTINGS' | 'DATA' | 'ACCESS' | 'DEV';
@@ -986,7 +986,7 @@ export const SettingsSectionPanel: React.FC<{
         const fontsStatus =
           typeof document !== 'undefined' && document.fonts ? document.fonts.status : 'OK';
         const fontsOk = fontsStatus === 'loaded' || fontsStatus === 'OK';
-        const lineageConnected = new GrapeLineageIndex(allEntries).connectedIDs.size;
+        const lineageConnected = lineageIndexFor(allEntries).connectedIDs.size;
         return (
           <>
             <Section title="DIAGNOSTICS">

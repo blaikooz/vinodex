@@ -34,7 +34,7 @@ import { recordRecentlyViewed } from '../src/services/recentlyViewed';
 import { isTastable } from '../src/services/wineData';
 import RatingPrompt from './RatingPrompt';
 import StampUnlockedPrompt, { Celebration } from './StampUnlockedPrompt';
-import { GrapeLineageIndex, edgeCount } from '../src/services/grapeLineage';
+import { edgeCount, lineageIndexFor } from '../src/services/grapeLineage';
 import { fireVino, setSuspended } from '../src/services/vinoPresenter';
 import { reportCoachmark } from '../src/services/coachmarks';
 import InsightSection from './InsightSection';
@@ -66,7 +66,7 @@ const EntryDetail: React.FC<EntryDetailProps> = ({ entry, allEntries, onBack, on
   const entryVisualResolver = useMemo(() => createEntryVisualResolver({ entries: allEntries }), [allEntries]);
   // The pedigree gate + its teaser count (v6#16). Index built once per
   // catalog; the per-entry answer is a set lookup.
-  const lineageIndex = useMemo(() => new GrapeLineageIndex(allEntries), [allEntries]);
+  const lineageIndex = lineageIndexFor(allEntries);
   const lineageEdges = useMemo(
     () => (isGrapeEntry(entry) && lineageIndex.hasLineage(entry.id) ? edgeCount(lineageIndex.relatives(entry.id)) : 0),
     [lineageIndex, entry],

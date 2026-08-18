@@ -602,3 +602,57 @@ the GROWTH wave). Its web-side work maps onto this document as follows —
 This closes the cleared list. Still blocked on rulings: #2–#7, #12, #14,
 #26-portrait, #27, #28, #35–#38; #19-geometry stays declined on the
 unrunnable screenshot gate; #24 external.
+
+### Fourth execution pass — two rulings land, the #21 tail closes (2026-08-18)
+
+On `testing` (the repo is down to `master` + `testing`; all phase branches
+folded).
+
+**v6#21 is now fully done.** `insight.ts` ports the panel half of
+`Insight.swift` — the reliability-ordered depth ladder (0/1/5/15/40), seven
+depth-gated line kinds, resolvable-only rosters, the Jaccard similar-to, the
+derived-only rule — and `InsightSection` renders it on the entry page after
+INFO, live-updating on the shelf, tagged as the walkthrough's `insightPanel`
+target. `bookmarks.ts` gains iOS's `triedEntryDays` log at the one place
+membership changes. `firstInsight`'s web deferral lifts — the line is live,
+its event site is the panel drawing a line, exactly as the deferral
+mechanism promised. 11 ported InsightTests cases.
+
+**Ruling v6#6 taken: WHAT'S THAT…? deleted**, matching iOS 0.8.93. Screen,
+`/daily` route and shelf tile removed; PROF. VINO holds the slot and the
+shelf is the fixed six; the derived roster/sentence updated themselves.
+R3 applied strictly: `dailyPick.ts` trimmed to the two primitives —
+`dayIndex` (read by the daily challenge, moon dial, tried-day log, exam
+record, archive) and `revealCursor` (the exam-seeding counter, key
+unrenamed and archived on both platforms, exactly iOS's surviving
+`RevealCursor`). The reveal arithmetic and its tests went with the game.
+
+**Ruling v6#3 taken: the Shop stays out of scope for the web.** The web
+tier remains deliberately free and un-gated; the ACCESS panel keeps its
+ACCESS label (the honest name for a panel that sells nothing — iOS's SHOP
+is a `displayName` over the same stored `ACCESS` raw value, so the two apps
+still agree on storage). Dispositions:
+
+- **v6#38 (the Shop itself): closed — out of scope.** The standing
+  "Access tiers / entitlements" position in `IOS-PARITY.md`, now ruled.
+- **v6#36 (expansion packs / cartridges): closed — out of scope.** Packs
+  are purchased content bundles and the web ships the whole catalog; there
+  is nothing to sell or install. The cartridge-art collectible presentation
+  would be v6#2-blocked and is not planned.
+- **v6#37 (cosmetic entitlements / emblems / stickers): closed as
+  commerce.** The gating dies with the shop; the emblem/sticker art and
+  its chassis rendering re-file under **v6#2** (+ the #19 screenshot gate).
+- **v6#35 (Device Workshop): unblocked from #3, re-blocked on #2/#19.**
+  Not commerce — the free-tier precedent (v5#20, lineage un-gated) says the
+  web would ship it un-gated — but it is built of drawn device parts and
+  chassis art, so it waits on the art ruling and the screenshot gate.
+  GARAGISTE joins the cheat table when it lands, per the table's rule.
+
+**v6#14 re-checked:** nothing in it was gated on #6 — what #6 freed was the
+professor's shelf slot (now his). #14's system half (the presenter hooks,
+fire sites and suspension seam on the entry page) landed with #23/#26, and
+`firstInsight` went live this pass; **#14 is closed except its portrait
+half, which rides v6#2** with the rest of the drawn art.
+
+**Ledger I6 executed:** `lineageIndexFor` — one index per catalog array,
+keyed by identity; the three per-screen builds now share it.
