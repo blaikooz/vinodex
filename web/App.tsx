@@ -32,6 +32,7 @@ const ChipFilterScreen = lazy(() => import('./components/ChipFilterScreen'));
 const TastingQuizScreen = lazy(() => import('./components/TastingQuizScreen'));
 const WineExamScreen = lazy(() => import('./components/WineExamScreen'));
 const FirmwareHistoryScreen = lazy(() => import('./components/FirmwareHistoryScreen'));
+const RecommendationsScreen = lazy(() => import('./components/RecommendationsScreen'));
 const PassportScreen = lazy(() => import('./components/PassportScreen'));
 const WalkthroughScreen = lazy(() => import('./components/WalkthroughScreen'));
 const BookmarksScreen = lazy(() => import('./components/BookmarksScreen'));
@@ -422,7 +423,13 @@ const App: React.FC = () => {
           path="/passport"
           element={
             <Suspense fallback={<ScreenLoading label="LOADING PASSPORT..." onBack={handleBack} onHome={handleHome} />}>
-              <PassportScreen allEntries={allEntries} onBack={handleBack} onHome={handleHome} />
+              <PassportScreen
+                allEntries={allEntries}
+                onSelect={handleSelectEntry}
+                onShowAllRecommendations={() => navigate('/recommendations')}
+                onBack={handleBack}
+                onHome={handleHome}
+              />
             </Suspense>
           }
         />
@@ -491,6 +498,14 @@ const App: React.FC = () => {
                 onBack={handleBack}
                 onHome={handleHome}
               />
+            </Suspense>
+          }
+        />
+        <Route
+          path="/recommendations"
+          element={
+            <Suspense fallback={<ScreenLoading label="LOADING PICKS..." onBack={handleBack} onHome={handleHome} />}>
+              <RecommendationsScreen allEntries={allEntries} onSelect={handleSelectEntry} onBack={handleBack} onHome={handleHome} />
             </Suspense>
           }
         />

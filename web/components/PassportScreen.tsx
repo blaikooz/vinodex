@@ -1,14 +1,24 @@
 import React, { useMemo } from 'react';
-import { Grid3x3, Wine, Flag, Map as MapIcon, Droplet, Package, Crown, Flame, GraduationCap, Lock } from 'lucide-react';
+import { Grid3x3, Wine, Flag, Map as MapIcon, Droplet, Package, Crown, Flame, GraduationCap, Lock, ChevronRight } from 'lucide-react';
 import DeviceLayout from './DeviceLayout';
 import { WineEntry } from '@/shared/types';
 import { shelfIds } from '../src/services/bookmarks';
+import { useBookmarks } from '../src/services/useBookmarks';
 import { bestStreak } from '../src/services/dailyChallenge';
 import { highestUnlocked } from '../src/services/quiz';
 import { computePassport, BadgeId } from '../src/services/passport';
+import {
+  RECOMMENDATION_STRIP,
+  allRecommendations,
+  buildProfile,
+  buildTriedIndex,
+} from '../src/services/recommendations';
+import EntryTile from './EntryTile';
 
 interface PassportScreenProps {
   allEntries: WineEntry[];
+  onSelect: (entry: WineEntry) => void;
+  onShowAllRecommendations: () => void;
   onBack: () => void;
   onHome: () => void;
 }
@@ -68,11 +78,20 @@ const ProgressRow: React.FC<{ label: string; done: number; total: number; fill: 
   );
 };
 
-const PassportScreen: React.FC<PassportScreenProps> = ({ allEntries, onBack, onHome }) => {
+const PassportScreen: React.FC<PassportScreenProps> = ({ allEntries, onSelect, onShowAllRecommendations, onBack, onHome }) => {
+  const revision = useBookmarks();
   const passport = useMemo(
     () => computePassport(shelfIds('tried'), allEntries, bestStreak(), highestUnlocked()),
-    [allEntries],
+    [allEntries, revision],
   );
+  // YOU MIGHT LIKE (iOS 0.8.91, B3): the head of the full ranking, capped at
+  // the strip length; SHOW ALL opens the same list uncapped. Empty when the
+  // profile is thin — the strip withholds itself rather than guessing from
+  // two tastings.
+  const recommended = useMemo(() => {
+    const index = buildTriedIndex(allEntries);
+    return allRecommendations(buildProfile(index), index);
+  }, [allEntries, revision]);
 
   return (
     <DeviceLayout title="PASSPORT" subtitle="" showBack onBack={onBack} onHome={onHome} centerHeaderText>
@@ -97,6 +116,24 @@ const PassportScreen: React.FC<PassportScreenProps> = ({ allEntries, onBack, onH
             <ProgressRow key={r} label={r} done={passport.byRarity[r] ?? 0} total={passport.rarityTotals[r] ?? 0} fill={RARITY_TINT[r] ?? '#888'} />
           ))}
         </Section>
+
+        {recommended.length > 0 && (
+          <Section title="YOU MIGHT LIKE">
+            <div className="flex flex-col gap-2">
+              {recommended.slice(0, RECOMMENDATION_STRIP).map((entry, i) => (
+                <EntryTile key={entry.id} entry={entry} onPress={() => onSelect(entry)} index={i} />
+              ))}
+              {recommended.length > RECOMMENDATION_STRIP && (
+                <button
+                  onClick={onShowAllRecommendations}
+                  className="w-full flex items-center justify-center gap-1.5 rounded-xl bg-stone-900/70 border-2 border-green-800 px-4 py-2.5 font-retro text-[0.55rem] tracking-widest text-green-400 transition-colors hover:border-green-500"
+                >
+                  SHOW ALL ({recommended.length}) <ChevronRight size={13} />
+                </button>
+              )}
+            </div>
+          </Section>
+        )}
 
         <Section title="STAMPS">
           <div className="grid grid-cols-2 gap-3">
