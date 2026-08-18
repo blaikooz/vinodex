@@ -23,6 +23,8 @@ import { SETTINGS_SECTIONS, SettingsSectionId } from './components/SettingsPanel
 import { installGlobalTapSound } from './src/services/sound';
 import { installGlobalHaptics } from './src/services/haptics';
 import { demoStopAt, isDemoActive, stopDemo, subscribeToDemo } from './src/services/demoMode';
+import { IDLE_SCREENSAVER_SECONDS } from './src/services/screensaver';
+import ScreensaverOverlay from './components/ScreensaverOverlay';
 
 const RetroGlobeScreen = lazy(() => import('./components/RetroGlobeScreen'));
 const MoonDialScreen = lazy(() => import('./components/MoonDialScreen'));
@@ -113,6 +115,31 @@ const App: React.FC = () => {
       window.removeEventListener('keydown', interrupt, true);
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [demoActive]);
+
+  // The screensaver (v6#33): one authored threshold (60 s, iOS 0.8.0 H).
+  // Any activity resets the clock; raising it while the demo loop runs would
+  // kill the attract loop's point, so the demo suppresses it.
+  const [saverUp, setSaverUp] = React.useState(false);
+  useEffect(() => {
+    if (demoActive) {
+      setSaverUp(false);
+      return;
+    }
+    let last = Date.now();
+    const activity = () => {
+      last = Date.now();
+      setSaverUp(false);
+    };
+    const events: (keyof WindowEventMap)[] = ['pointerdown', 'pointermove', 'keydown', 'wheel', 'touchstart'];
+    events.forEach(e => window.addEventListener(e, activity, { capture: true, passive: true }));
+    const poll = setInterval(() => {
+      if (Date.now() - last >= IDLE_SCREENSAVER_SECONDS * 1000) setSaverUp(true);
+    }, 1000);
+    return () => {
+      events.forEach(e => window.removeEventListener(e, activity, { capture: true }));
+      clearInterval(poll);
+    };
   }, [demoActive]);
 
   // Home is an in-app control, so it lands on the dex menu — never the splash.
@@ -306,6 +333,7 @@ const App: React.FC = () => {
 
   return (
     <div className="antialiased text-gray-900 bg-gray-900 min-h-screen overflow-hidden">
+      {saverUp && <ScreensaverOverlay onDismiss={() => setSaverUp(false)} />}
       <Routes>
         {/*
           "/" is the splash: a fresh visit forks between the dex and the
