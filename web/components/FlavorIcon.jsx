@@ -1,16 +1,10 @@
 import { Icon } from '../src/components/LocalIcon';
-import {
-  FLAVOR_ICON_MAP,
-  FLAVOR_NAME_ICON_MAP,
-  resolveFlavorIcon,
-} from '@/shared/services/flavorIcon';
+import { resolveFlavorIcon } from '@/shared/services/flavorIcon';
 
-// Re-exported for backward compatibility — the lookup tables and resolver
-// function now live in ../src/services/flavorIcon.ts (a plain .ts module with
-// no JSX/React dependency) so they can also be imported by
-// native/scripts/generate.ts, which runs under a script runner that can't
-// load .jsx files.
-export { FLAVOR_ICON_MAP, FLAVOR_NAME_ICON_MAP, resolveFlavorIcon };
+// The raw lookup-table re-exports (FLAVOR_ICON_MAP, FLAVOR_NAME_ICON_MAP)
+// were removed with the v0.9.x shared master cleanup — the maps no longer
+// exist there and nothing here imported them; `resolveFlavorIcon` is the API
+// both apps use now (v6#1 repair, IOS-PARITY-v6.md).
 
 function FlavorIcon({ flavor, name, className, style }) {
   const iconName = resolveFlavorIcon(name, flavor);

@@ -2,8 +2,9 @@ import React, { useMemo } from 'react';
 import { WineEntry, isFlavorEntry, isGrapeEntry, isRegionEntry, isStyleEntry } from '@/shared/types';
 import { ChevronRight } from 'lucide-react';
 import { CLIMATE_CLASS_MAP } from '@/shared/data/climateClasses';
-import { WINE_ENTRIES } from '@/shared/constants';
 import { CONTAINER_SIZE_LIST, CONTAINER_BORDER_CLASS, CONTAINER_SHADOW_CLASS, CONTAINER_BORDER, ICON_SIZE_LIST } from '../src/services/iconRendering';
+import { getAllEntries } from '../src/services/wineData';
+import { extractTagAbbrev } from '../src/services/entryDisplay';
 import { createEntryVisualResolver, resolveEntryIconVisual } from '../src/services/entryIconVisuals';
 import Chip from './Chip';
 import { getGrapeColorLabel, getGrapeBodyLabel, getGrapeColorChipColors, getGrapeBodyChipColors } from '../src/services/grapeDisplay';
@@ -15,7 +16,6 @@ import {
   getFlavorSubclassChipColors,
   SYSTEM_CHIP_COLOR,
   APPELLATION_CHIP_COLORS,
-  extractTagAbbrev,
 } from '@/shared/services/chipColors';
 import { getColorType, getStyleClassType } from '@/shared/services/entryUtils';
 
@@ -78,7 +78,7 @@ const EntryTile: React.FC<EntryTileProps> = ({ entry, onPress, index, anchorId }
   const flavorSubclassLabel = formatLabelUpper(isFlavorEntry(entry) ? entry.details.subclass : '');
   const grapeOriginLabel = formatUpper(originLabel);
 
-  const entryVisualResolver = useMemo(() => createEntryVisualResolver({ entries: WINE_ENTRIES }), []);
+  const entryVisualResolver = useMemo(() => createEntryVisualResolver({ entries: getAllEntries() }), []);
   const entryVisual = resolveEntryIconVisual(entry, {
     size: ICON_SIZE_LIST,
     resolver: entryVisualResolver,

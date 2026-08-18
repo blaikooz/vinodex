@@ -7,7 +7,7 @@ import type { GrapeEntry, StyleEntry, WineEntry } from '@/shared/types';
 import { CLIMATE_CLASS_MAP } from '@/shared/data/climateClasses';
 import { getFlagGradient } from '@/shared/data/flagGradients';
 import { getFlagImage } from '../../data/flagImages';
-import { getStylePalette } from '@/shared/stylePalette';
+import { darkenHex, getStylePalette } from './colorHelpers';
 import FlavorIcon from '../../components/FlavorIcon';
 import {
   findEntryByName,
@@ -17,7 +17,6 @@ import {
   normalizeLabel,
 } from '@/shared/services/entryUtils';
 import {
-  darkenHex,
   getFlavorSubclassIconColor,
   getRegionClassificationIconColor,
 } from '@/shared/services/colorUtils';

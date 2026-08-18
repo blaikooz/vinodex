@@ -1,6 +1,5 @@
-import { getStylePalette } from '@/shared/stylePalette';
 import { getWineTypeChipColors, type ChipColorStyle } from '@/shared/services/chipColors';
-import { isLightColor } from '@/shared/services/colorUtils';
+import { getStylePalette, isLightColor } from './colorHelpers';
 
 export type StyleClassType = 'STYLE' | 'METHOD' | 'ORIGIN' | 'TYPE' | 'BLEND';
 

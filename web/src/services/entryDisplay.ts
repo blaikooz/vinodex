@@ -89,3 +89,13 @@ export function hasAppellationName(classification: string, country: string): boo
   if (!system) return false;
   return appellationName(system, country) !== system;
 }
+
+/**
+ * First word of a tag, uppercased — "AOC (Appellation d'Origine…)" → "AOC".
+ *
+ * Lived in `shared/services/chipColors.ts` until the v0.9.x master cleanup
+ * removed it (iOS stopped reading it); the chip labels here still do, so it
+ * moves to the web's display service. Implementation unchanged (v6#1 repair).
+ */
+export const extractTagAbbrev = (tag: string): string =>
+  (tag.split(/[\s(]/)[0] ?? '').toUpperCase();

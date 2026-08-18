@@ -57,6 +57,17 @@ const styleKeys = index(styles);
 const flavorKeys = index(flavors);
 const regionOrigins = new Set(regions.map((r) => norm(r.details?.origin)));
 
+// A continent may list a country with *zero* regions on purpose — the
+// coming-soon gates — and the mark of "planned, not typo'd" is an authored
+// blurb: a misspelled roster name has no description, a deliberate gate always
+// does. Ported from the iOS checker (`find-missing-refs.mjs`), which reads the
+// same rule from countries.json; here the blurb rides the COUNTRY_GATE entry.
+const blurbedCountries = new Set(
+  byCategory('COUNTRY_GATE')
+    .filter((e) => (e.description ?? '').trim().length > 0)
+    .map((e) => norm(e.name)),
+);
+
 type Bucket = Map<string, { name: string; from: string[] }>;
 const missing: Record<string, Bucket> = {
   grapes: new Map(),
@@ -104,8 +115,8 @@ for (const st of styles) {
 
 for (const c of continents) {
   for (const country of c.details?.keyRegions ?? []) {
-    if (!regionOrigins.has(norm(country))) {
-      record(missing.countries, country, `continent ${c.name} (no region originates there)`);
+    if (!regionOrigins.has(norm(country)) && !blurbedCountries.has(norm(country))) {
+      record(missing.countries, country, `continent ${c.name} (no region originates there, no authored blurb)`);
     }
   }
 }

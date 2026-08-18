@@ -17,7 +17,7 @@ import {
   getStyleClassType,
 } from '@/shared/services/entryUtils';
 import Chip from './Chip';
-import { getCountryChipColors, getFlavorClassChipColors, getFlavorSubclassChipColors, getRarityChipColors, SYSTEM_CHIP_COLOR, CLIMATE_CHIP_COLOR, APPELLATION_CHIP_COLORS, extractTagAbbrev } from '@/shared/services/chipColors';
+import { getCountryChipColors, getFlavorClassChipColors, getFlavorSubclassChipColors, getRarityChipColors, SYSTEM_CHIP_COLOR, CLIMATE_CHIP_COLOR, APPELLATION_CHIP_COLORS } from '@/shared/services/chipColors';
 import { getGrapeColorLabel, getGrapeBodyLabel, getGrapeColorChipColors, getGrapeBodyChipColors } from '../src/services/grapeDisplay';
 import { getLucideIcon } from '../src/services/lucideIconMap';
 import { getSoilIcon, getSoilsForRegion } from '../src/services/soilDisplay';
@@ -25,7 +25,7 @@ import { normalizeTypeClass, getStyleClassTileColors, getStyleColorTileColors, g
 import { getFlavorClassTileColors, getFlavorSubclassTileColors } from '../src/services/flavorDisplay';
 import { getClimateIcon } from '../src/services/climateDisplay';
 import { colorIconId, bodyIconId, styleClassIconId, flavorClassIconId, flavorSubclassIconId } from '../src/services/classArt';
-import { appellationName, hasAppellationName } from '../src/services/entryDisplay';
+import { appellationName, extractTagAbbrev, hasAppellationName } from '../src/services/entryDisplay';
 import { isOn as isFlagOn, keyForDetail, toggleFlag } from '../src/services/screenState';
 import { useScreenAnchor } from '../src/services/useScreenAnchor';
 import { isBookmarked, toggleBookmark, isOnShelf, toggleShelf, getRating, setRating, makeRating } from '../src/services/bookmarks';

@@ -1,5 +1,5 @@
 import { GrapeCard, GrapeEntry, WineEntry, isGrapeEntry } from '@/shared/types';
-import { WINE_ENTRIES } from '@/shared/constants';
+import { buildWineEntries } from '@/shared/constants';
 
 let cachedEntries: WineEntry[] | null = null;
 let inFlight: Promise<WineEntry[]> | null = null;
@@ -81,7 +81,10 @@ const canonicalizeEntries = (entries: WineEntry[]) => entries.map(canonicalizeEn
  */
 export function getAllEntries(): WineEntry[] {
   if (!cachedEntries) {
-    cachedEntries = canonicalizeEntries(WINE_ENTRIES);
+    // `buildWineEntries()` replaced the pre-built `WINE_ENTRIES` array in the
+    // v0.9.x shared master (iOS selects subsets via `EntrySelection`; the web
+    // always wants everything). Built once here — this module is the cache.
+    cachedEntries = canonicalizeEntries(buildWineEntries());
   }
   return cachedEntries;
 }
