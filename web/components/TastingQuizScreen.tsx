@@ -1,49 +1,43 @@
 import React, { useEffect, useMemo, useState } from 'react';
-import { CheckCircle2, XCircle, BadgeCheck, BadgeX, Lock, Flame, ChevronRight, BookOpen } from 'lucide-react';
+import { CheckCircle2, XCircle, BadgeCheck, BadgeX, Flame, BookOpen } from 'lucide-react';
 import DeviceLayout from './DeviceLayout';
 import EntryTile from './EntryTile';
 import { WineEntry } from '@/shared/types';
 import {
   QuizSession,
-  QuizTier,
-  QUIZ_TIERS,
-  newSession,
   quizQuestion,
   chooseAnswer,
   advance,
-  retrySession,
   isComplete,
   isPassed,
   isAnswered,
   kindTopic,
-  isTierUnlocked,
-  recordTierPass,
-  tierRank,
 } from '../src/services/quiz';
 import { dailySession, recordDaily, isTodayDone, currentStreak } from '../src/services/dailyChallenge';
-import { dayIndex, revealCursor } from '../src/services/dailyPick';
 import { query as ssQuery, setQuery as ssSetQuery } from '../src/services/screenState';
 import { playCorrect } from '../src/services/sound';
 
-type QuizMode = 'practice' | 'daily';
-
 interface TastingQuizScreenProps {
-  mode: QuizMode;
   allEntries: WineEntry[];
   onOpen: (entry: WineEntry) => void;
   onBack: () => void;
   onHome: () => void;
 }
 
-const TIER_LABEL: Record<QuizTier, string> = { NOVICE: 'NOVICE', ENTHUSIAST: 'ENTHUSIAST', SOMMELIER: 'SOMMELIER' };
-const TIER_BLURB: Record<QuizTier, string> = {
-  NOVICE: 'The grapes everyone has heard of.',
-  ENTHUSIAST: 'The full cellar.',
-  SOMMELIER: 'The back corner of the cellar.',
-};
+/**
+ * The DAILY CHALLENGE — one generated paper a day that keeps the streak.
+ *
+ * This screen used to carry the practice WINE EXAM as a second mode; iOS split
+ * the two in 0.7.5 (D) — the exam runs on the authored 420-question bank
+ * (`WineExamScreen` here, v6#8), while the daily keeps the *generated* quiz
+ * because a daily must never contradict an entry, and a generated question
+ * can't. The practice arm here was stripped when `/quiz` repointed, so the
+ * quiz engine is genuinely daily-challenge-only, as on iOS
+ * (`WineExamScreen.swift:18`).
+ */
+const KEY = 'dailyChallenge';
 
-const TastingQuizScreen: React.FC<TastingQuizScreenProps> = ({ mode, allEntries, onOpen, onBack, onHome }) => {
-  const KEY = mode === 'daily' ? 'dailyChallenge' : 'wsetQuiz';
+const TastingQuizScreen: React.FC<TastingQuizScreenProps> = ({ allEntries, onOpen, onBack, onHome }) => {
   const byId = useMemo(() => new Map(allEntries.map(e => [e.id, e])), [allEntries]);
   const entryName = (id: string) => byId.get(id)?.name ?? id;
 
@@ -55,30 +49,19 @@ const TastingQuizScreen: React.FC<TastingQuizScreenProps> = ({ mode, allEntries,
       return null;
     }
   });
-  const [lockedTier, setLockedTier] = useState<QuizTier | null>(null);
-  const [newlyUnlocked, setNewlyUnlocked] = useState<QuizTier | null>(null);
 
   const setSession = (s: QuizSession | null) => {
     setSessionState(s);
     ssSetQuery(KEY, s ? JSON.stringify(s) : '');
   };
 
-  // Daily: auto-start today's paper unless it's already done.
+  // Auto-start today's paper unless it's already done.
   useEffect(() => {
-    if (mode === 'daily' && !session && !isTodayDone()) setSession(dailySession());
+    if (!session && !isTodayDone()) setSession(dailySession());
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const question = session && !isComplete(session) ? quizQuestion(allEntries, session.index, session.seed, session.tier) : null;
-
-  const beginTier = (tier: QuizTier) => {
-    if (!isTierUnlocked(tier)) {
-      setLockedTier(tier);
-      return;
-    }
-    setNewlyUnlocked(null);
-    setSession(newSession(revealCursor() + dayIndex(), tier));
-  };
 
   const choose = (id: string) => {
     if (session && question && !isAnswered(session)) {
@@ -90,13 +73,7 @@ const TastingQuizScreen: React.FC<TastingQuizScreenProps> = ({ mode, allEntries,
   const next = () => {
     if (!session) return;
     const adv = advance(session);
-    if (isComplete(adv)) {
-      if (mode === 'practice') {
-        if (isPassed(adv)) setNewlyUnlocked(recordTierPass(adv.tier));
-      } else {
-        recordDaily(isPassed(adv));
-      }
-    }
+    if (isComplete(adv)) recordDaily(isPassed(adv));
     setSession(adv);
   };
 
@@ -104,30 +81,22 @@ const TastingQuizScreen: React.FC<TastingQuizScreenProps> = ({ mode, allEntries,
   if (session && isComplete(session)) {
     const passed = isPassed(session);
     return (
-      <DeviceLayout title={mode === 'daily' ? 'DAILY CHALLENGE' : 'WINE EXAM'} showBack onBack={onBack} onHome={onHome} centerHeaderText>
+      <DeviceLayout title="DAILY CHALLENGE" showBack onBack={onBack} onHome={onHome} centerHeaderText>
         <div className="h-full flex flex-col items-center justify-center gap-4 p-6 text-center" style={{ backgroundColor: 'var(--lcd-page)' }}>
           {passed ? <BadgeCheck size={72} className="text-green-400" /> : <BadgeX size={72} className="text-red-400" />}
           <div className="font-retro text-3xl text-stone-100">{session.correct}/{session.length}</div>
           <div className={`font-retro text-lg tracking-widest ${passed ? 'text-green-400' : 'text-red-400'}`}>{passed ? 'PASS' : 'FAIL'}</div>
-          {newlyUnlocked && <div className="font-retro text-xs tracking-widest text-yellow-300">{TIER_LABEL[newlyUnlocked]} UNLOCKED</div>}
           <div className="font-mono text-xs text-stone-400 max-w-[16rem] normal-case">
-            {mode === 'daily'
-              ? currentStreak() > 0
-                ? `Streak: ${currentStreak()} day${currentStreak() === 1 ? '' : 's'}.`
-                : 'Streak reset — tomorrow is a fresh paper.'
-              : passed
-                ? 'WSET Level 1 material. Santé!'
-                : `Not quite — ${session.passMark}/${session.length} passes. Swirl and retry.`}
+            {currentStreak() > 0
+              ? `Streak: ${currentStreak()} day${currentStreak() === 1 ? '' : 's'}.`
+              : 'Streak reset — tomorrow is a fresh paper.'}
           </div>
           <div className="flex flex-col gap-3 mt-2 w-full max-w-[16rem]">
-            {mode === 'practice' && (
-              <button onClick={() => { setSession(retrySession(session)); setNewlyUnlocked(null); }} className="w-full rounded-xl bg-yellow-400 border-b-4 border-yellow-600 active:translate-y-0.5 px-5 py-3 font-retro text-[0.6rem] tracking-widest text-amber-900">RETRY</button>
-            )}
             <button
-              onClick={() => (mode === 'daily' ? onBack() : (setSession(null), setNewlyUnlocked(null)))}
+              onClick={onBack}
               className="w-full rounded-xl bg-stone-800 border-b-4 border-stone-950 active:translate-y-0.5 px-5 py-3 font-retro text-[0.6rem] tracking-widest text-stone-300"
             >
-              {mode === 'daily' ? 'EXIT' : 'BACK TO PAPERS'}
+              EXIT
             </button>
           </div>
         </div>
@@ -140,12 +109,12 @@ const TastingQuizScreen: React.FC<TastingQuizScreenProps> = ({ mode, allEntries,
     const answered = isAnswered(session);
     const answer = byId.get(question.answerID);
     return (
-      <DeviceLayout title={mode === 'daily' ? 'DAILY CHALLENGE' : 'WINE EXAM'} showBack onBack={onBack} onHome={onHome} centerHeaderText>
+      <DeviceLayout title="DAILY CHALLENGE" showBack onBack={onBack} onHome={onHome} centerHeaderText>
         <div className="relative h-full">
           <div className="h-full overflow-y-auto custom-scrollbar p-4 flex flex-col gap-4" style={{ backgroundColor: 'var(--lcd-page)' }}>
             <div className="flex items-center justify-between">
               <span className="font-retro text-[0.55rem] tracking-widest text-green-400">
-                {(mode === 'daily' ? 'DAILY' : TIER_LABEL[session.tier])} · {kindTopic(question.kind)}
+                DAILY · {kindTopic(question.kind)}
               </span>
               <span className="font-retro text-[0.55rem] tracking-widest text-stone-400">{Math.min(session.index + 1, session.length)}/{session.length}</span>
             </div>
@@ -201,62 +170,17 @@ const TastingQuizScreen: React.FC<TastingQuizScreenProps> = ({ mode, allEntries,
   }
 
   // ---- Daily done card ----
-  if (mode === 'daily') {
-    const streak = currentStreak();
-    return (
-      <DeviceLayout title="DAILY CHALLENGE" showBack onBack={onBack} onHome={onHome} centerHeaderText>
-        <div className="h-full flex flex-col items-center justify-center gap-4 p-6 text-center" style={{ backgroundColor: 'var(--lcd-page)' }}>
-          <Flame size={64} className={streak > 0 ? 'text-yellow-400' : 'text-stone-600'} />
-          <div className="font-retro text-lg text-stone-100">PAPER COMPLETE</div>
-          <div className="font-mono text-xs text-stone-400 max-w-[16rem] normal-case">
-            {streak > 0 ? `Streak: ${streak} day${streak === 1 ? '' : 's'}. Come back tomorrow.` : "Today's paper is done. A new one arrives tomorrow."}
-          </div>
-          <button onClick={onBack} className="rounded-xl bg-green-600 border-b-4 border-green-800 active:translate-y-0.5 px-6 py-3 font-retro text-[0.6rem] tracking-widest text-white">EXIT</button>
-        </div>
-      </DeviceLayout>
-    );
-  }
-
-  // ---- Tier picker (practice) ----
+  const streak = currentStreak();
   return (
-    <DeviceLayout title="WINE EXAM" showBack onBack={onBack} onHome={onHome} centerHeaderText>
-      <div className="h-full overflow-y-auto custom-scrollbar p-4 flex flex-col gap-3" style={{ backgroundColor: 'var(--lcd-page)' }}>
-        {/* Left-aligned over a hairline rule, matching iOS. */}
-        <div className="font-retro text-xs tracking-widest text-green-400 text-left pb-1 mb-1 border-b-2" style={{ borderColor: 'var(--lcd-accent)' }}>CHOOSE YOUR EXAM</div>
-        {QUIZ_TIERS.map(tier => {
-          const unlocked = isTierUnlocked(tier);
-          return (
-            <button
-              key={tier}
-              onClick={() => beginTier(tier)}
-              className={`w-full flex items-center gap-3 p-4 rounded-xl border-2 transition-colors ${
-                unlocked ? 'bg-stone-900/70 border-green-700 hover:border-green-400' : 'bg-stone-900/40 border-stone-800 opacity-60'
-              }`}
-            >
-              {/* No leading tier glyph — iOS tier rows carry none. */}
-              <div className="flex-1 text-left">
-                <div className="font-retro text-sm tracking-widest text-stone-100">{TIER_LABEL[tier]}</div>
-                <div className="font-mono text-xs text-stone-500 mt-0.5 normal-case">{TIER_BLURB[tier]}</div>
-              </div>
-              {unlocked ? <ChevronRight size={20} className="text-green-400" /> : <Lock size={18} className="text-stone-600" />}
-            </button>
-          );
-        })}
-        <p className="font-mono text-xs text-stone-500 text-left mt-2 normal-case">Ten questions, 8 to pass. Passing a paper unlocks the next one.</p>
-      </div>
-
-      {/* Locked-tier alert */}
-      {lockedTier && (
-        <div className="absolute inset-0 z-40 bg-black/80 flex items-center justify-center p-6">
-          <div className="w-full max-w-xs bg-stone-900 border-2 border-yellow-700 rounded-lg p-5 flex flex-col gap-3 text-center">
-            <p className="font-retro text-xs tracking-widest text-yellow-300">{TIER_LABEL[lockedTier]} IS LOCKED</p>
-            <p className="font-mono text-sm text-stone-300 normal-case">
-              Pass {TIER_LABEL[QUIZ_TIERS[tierRank(lockedTier) - 1] ?? 'NOVICE']} — 8 of 10 — to unlock it.
-            </p>
-            <button onClick={() => setLockedTier(null)} className="rounded-xl bg-stone-800 border-2 border-stone-600 py-2.5 font-retro text-[0.6rem] tracking-widest text-stone-300">OK</button>
-          </div>
+    <DeviceLayout title="DAILY CHALLENGE" showBack onBack={onBack} onHome={onHome} centerHeaderText>
+      <div className="h-full flex flex-col items-center justify-center gap-4 p-6 text-center" style={{ backgroundColor: 'var(--lcd-page)' }}>
+        <Flame size={64} className={streak > 0 ? 'text-yellow-400' : 'text-stone-600'} />
+        <div className="font-retro text-lg text-stone-100">PAPER COMPLETE</div>
+        <div className="font-mono text-xs text-stone-400 max-w-[16rem] normal-case">
+          {streak > 0 ? `Streak: ${streak} day${streak === 1 ? '' : 's'}. Come back tomorrow.` : "Today's paper is done. A new one arrives tomorrow."}
         </div>
-      )}
+        <button onClick={onBack} className="rounded-xl bg-green-600 border-b-4 border-green-800 active:translate-y-0.5 px-6 py-3 font-retro text-[0.6rem] tracking-widest text-white">EXIT</button>
+      </div>
     </DeviceLayout>
   );
 };

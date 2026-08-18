@@ -30,6 +30,7 @@ const DailyGrapeScreen = lazy(() => import('./components/DailyGrapeScreen'));
 const ScannerScreen = lazy(() => import('./components/ScannerScreen'));
 const ChipFilterScreen = lazy(() => import('./components/ChipFilterScreen'));
 const TastingQuizScreen = lazy(() => import('./components/TastingQuizScreen'));
+const WineExamScreen = lazy(() => import('./components/WineExamScreen'));
 const PassportScreen = lazy(() => import('./components/PassportScreen'));
 const WalkthroughScreen = lazy(() => import('./components/WalkthroughScreen'));
 const BookmarksScreen = lazy(() => import('./components/BookmarksScreen'));
@@ -397,11 +398,14 @@ const App: React.FC = () => {
             </Suspense>
           }
         />
+        {/* The WINE EXAM runs on the shared 420-question bank (v6#8); the
+            daily challenge keeps the generated quiz — a daily must never
+            contradict an entry, and a generated question can't. */}
         <Route
           path="/quiz"
           element={
             <Suspense fallback={<ScreenLoading label="LOADING EXAM..." onBack={handleBack} onHome={handleHome} />}>
-              <TastingQuizScreen mode="practice" allEntries={allEntries} onOpen={handleSelectEntry} onBack={handleBack} onHome={handleHome} />
+              <WineExamScreen onBack={handleBack} onHome={handleHome} />
             </Suspense>
           }
         />
@@ -409,7 +413,7 @@ const App: React.FC = () => {
           path="/daily-challenge"
           element={
             <Suspense fallback={<ScreenLoading label="LOADING CHALLENGE..." onBack={handleBack} onHome={handleHome} />}>
-              <TastingQuizScreen mode="daily" allEntries={allEntries} onOpen={handleSelectEntry} onBack={handleBack} onHome={handleHome} />
+              <TastingQuizScreen allEntries={allEntries} onOpen={handleSelectEntry} onBack={handleBack} onHome={handleHome} />
             </Suspense>
           }
         />
