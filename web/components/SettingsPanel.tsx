@@ -593,6 +593,75 @@ export const SettingsSectionPanel: React.FC<{
                 The ring/silent switch always wins — sounds never interrupt your music.
               </p>
             </Section>
+            <Section title="TUTORIAL">
+              <button
+                onClick={() => setOfferingTour(true)}
+                className="w-full flex items-center gap-3 px-3 py-3 rounded border-2 text-left transition-all active:translate-y-0.5"
+                style={{ backgroundColor: 'var(--lcd-surface)', borderColor: 'var(--lcd-surface-edge)' }}
+              >
+                <span style={{ color: 'var(--lcd-subtext)' }}><Flag size={20} /></span>
+                <span className="flex-1 min-w-0">
+                  <span className="block font-retro text-[0.6rem] tracking-widest" style={{ color: 'var(--lcd-text)' }}>TAKE THE TOUR</span>
+                  <span className="block font-mono text-sm normal-case mt-1" style={{ color: 'var(--lcd-subtext)' }}>
+                    A walk round the device — about a minute.
+                  </span>
+                </span>
+                <ChevronRight size={16} style={{ color: 'var(--lcd-subtext)' }} />
+              </button>
+            </Section>
+
+
+            {/* SUPPORT above CHEAT CODES, as on iOS (0.8.91 F1): the door for
+                "who do I tell" belongs above the console for the initiated. */}
+            <Section title="SUPPORT">
+              <button
+                onClick={() => navigate('/support')}
+                className="w-full flex items-center gap-3 px-3 py-3 rounded border-2 text-left transition-all active:translate-y-0.5"
+                style={{ backgroundColor: 'var(--lcd-surface)', borderColor: 'var(--lcd-surface-edge)' }}
+              >
+                <span style={{ color: 'var(--lcd-subtext)' }}><Mail size={20} /></span>
+                <span className="flex-1 min-w-0">
+                  <span className="block font-retro text-[0.6rem] tracking-widest" style={{ color: 'var(--lcd-text)' }}>SUPPORT</span>
+                  <span className="block font-mono text-sm normal-case mt-1" style={{ color: 'var(--lcd-subtext)' }}>
+                    Something broken, or something it should do? Write in.
+                  </span>
+                </span>
+                <ChevronRight size={16} style={{ color: 'var(--lcd-subtext)' }} />
+              </button>
+            </Section>
+
+            <Section title="CHEAT CODES">
+              <button
+                onClick={() => navigate('/cheats')}
+                className="w-full flex items-center gap-3 px-3 py-3 rounded border-2 text-left transition-all active:translate-y-0.5"
+                style={{ backgroundColor: 'var(--lcd-surface)', borderColor: 'var(--lcd-surface-edge)' }}
+              >
+                <span style={{ color: 'var(--lcd-subtext)' }}><KeyRound size={20} /></span>
+                <span className="flex-1 min-w-0">
+                  <span className="block font-retro text-[0.6rem] tracking-widest" style={{ color: 'var(--lcd-text)' }}>CHEAT CODES</span>
+                  <span className="block font-mono text-sm normal-case mt-1" style={{ color: 'var(--lcd-subtext)' }}>
+                    Found, not listed. Type one and see.
+                  </span>
+                </span>
+                <ChevronRight size={16} style={{ color: 'var(--lcd-subtext)' }} />
+              </button>
+            </Section>
+
+            <Section title="DEMO MODE">
+              <button
+                onClick={() => { startDemo(); }}
+                className="w-full flex items-center gap-3 px-3 py-3 rounded border-2 text-left transition-all active:translate-y-0.5"
+                style={{ backgroundColor: 'var(--lcd-surface)', borderColor: 'var(--lcd-surface-edge)' }}
+              >
+                <span style={{ color: 'var(--lcd-subtext)' }}><Play size={20} /></span>
+                <span className="flex-1 min-w-0">
+                  <span className="block font-retro text-[0.6rem] tracking-widest" style={{ color: 'var(--lcd-text)' }}>START DEMO</span>
+                  <span className="block font-mono text-sm normal-case mt-1" style={{ color: 'var(--lcd-subtext)' }}>
+                    The unattended tour — {DEMO_STOPS.length} stops, about {Math.round(demoCycleSeconds())}s a lap. Touch anything to take over.
+                  </span>
+                </span>
+              </button>
+            </Section>
 
             {/* Named snapshots of the whole saved state (iOS 0.8.92 item 5,
                 v6#32). FRESH is a virtual row, not a slot — loading it is a
@@ -650,77 +719,10 @@ export const SettingsSectionPanel: React.FC<{
               </div>
             </Section>
 
-            {/* SUPPORT above CHEAT CODES, as on iOS (0.8.91 F1): the door for
-                "who do I tell" belongs above the console for the initiated. */}
-            <Section title="SUPPORT">
-              <button
-                onClick={() => navigate('/support')}
-                className="w-full flex items-center gap-3 px-3 py-3 rounded border-2 text-left transition-all active:translate-y-0.5"
-                style={{ backgroundColor: 'var(--lcd-surface)', borderColor: 'var(--lcd-surface-edge)' }}
-              >
-                <span style={{ color: 'var(--lcd-subtext)' }}><Mail size={20} /></span>
-                <span className="flex-1 min-w-0">
-                  <span className="block font-retro text-[0.6rem] tracking-widest" style={{ color: 'var(--lcd-text)' }}>SUPPORT</span>
-                  <span className="block font-mono text-sm normal-case mt-1" style={{ color: 'var(--lcd-subtext)' }}>
-                    Something broken, or something it should do? Write in.
-                  </span>
-                </span>
-                <ChevronRight size={16} style={{ color: 'var(--lcd-subtext)' }} />
-              </button>
-            </Section>
-
-            <Section title="CHEAT CODES">
-              <button
-                onClick={() => navigate('/cheats')}
-                className="w-full flex items-center gap-3 px-3 py-3 rounded border-2 text-left transition-all active:translate-y-0.5"
-                style={{ backgroundColor: 'var(--lcd-surface)', borderColor: 'var(--lcd-surface-edge)' }}
-              >
-                <span style={{ color: 'var(--lcd-subtext)' }}><KeyRound size={20} /></span>
-                <span className="flex-1 min-w-0">
-                  <span className="block font-retro text-[0.6rem] tracking-widest" style={{ color: 'var(--lcd-text)' }}>CHEAT CODES</span>
-                  <span className="block font-mono text-sm normal-case mt-1" style={{ color: 'var(--lcd-subtext)' }}>
-                    Found, not listed. Type one and see.
-                  </span>
-                </span>
-                <ChevronRight size={16} style={{ color: 'var(--lcd-subtext)' }} />
-              </button>
-            </Section>
-
-            <Section title="DEMO MODE">
-              <button
-                onClick={() => { startDemo(); }}
-                className="w-full flex items-center gap-3 px-3 py-3 rounded border-2 text-left transition-all active:translate-y-0.5"
-                style={{ backgroundColor: 'var(--lcd-surface)', borderColor: 'var(--lcd-surface-edge)' }}
-              >
-                <span style={{ color: 'var(--lcd-subtext)' }}><Play size={20} /></span>
-                <span className="flex-1 min-w-0">
-                  <span className="block font-retro text-[0.6rem] tracking-widest" style={{ color: 'var(--lcd-text)' }}>START DEMO</span>
-                  <span className="block font-mono text-sm normal-case mt-1" style={{ color: 'var(--lcd-subtext)' }}>
-                    The unattended tour — {DEMO_STOPS.length} stops, about {Math.round(demoCycleSeconds())}s a lap. Touch anything to take over.
-                  </span>
-                </span>
-              </button>
-            </Section>
 
             {/* The guided tour's door, moved here from its old grid tile —
                 iOS 0.7.6 (F1): "three things the device can tell you or do",
                 and a guided tour of the device belongs with them. */}
-            <Section title="TUTORIAL">
-              <button
-                onClick={() => setOfferingTour(true)}
-                className="w-full flex items-center gap-3 px-3 py-3 rounded border-2 text-left transition-all active:translate-y-0.5"
-                style={{ backgroundColor: 'var(--lcd-surface)', borderColor: 'var(--lcd-surface-edge)' }}
-              >
-                <span style={{ color: 'var(--lcd-subtext)' }}><Flag size={20} /></span>
-                <span className="flex-1 min-w-0">
-                  <span className="block font-retro text-[0.6rem] tracking-widest" style={{ color: 'var(--lcd-text)' }}>TAKE THE TOUR</span>
-                  <span className="block font-mono text-sm normal-case mt-1" style={{ color: 'var(--lcd-subtext)' }}>
-                    A walk round the device — about a minute.
-                  </span>
-                </span>
-                <ChevronRight size={16} style={{ color: 'var(--lcd-subtext)' }} />
-              </button>
-            </Section>
 
             <Section title="STORED DATA">
               {/* A copy of everything this device holds, as one file the user
