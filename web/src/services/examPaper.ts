@@ -22,6 +22,12 @@ import { QuizTier } from './quiz';
  * Deterministic rather than random for the reason `TastingQuiz` and
  * `DailyPick` are: a given seed is a given paper, which is what makes any of
  * this testable.
+ *
+ * **Seeds are deterministic per platform, not portable across them** (review
+ * M1): this Fisher–Yates does not reproduce Swift's `shuffled(using:)` draw
+ * sequence, so the same seed yields a different (equally valid) paper on iOS.
+ * Nothing persists or trades a seed today; if an archive ever carries one,
+ * the shuffles must be unified first.
  */
 
 // ---------------------------------------------------------------------------

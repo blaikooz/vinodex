@@ -518,3 +518,25 @@ the GROWTH wave). Its web-side work maps onto this document as follows —
 | `InstallBanner` | web-only, no v6 id | Arrives with bundle. |
 | PassportScreen RANK tier card (APPRENTICE 5 / MASTER 25 / GRANDMASTER 100 / LEGENDARY 250 / WINE MONK 400) | v6#21 | The fuller #21 port **must include these tiers with exactly these thresholds** (verify against iOS `PassportProgress` at port time) so the bundle's smaller card becomes strictly redundant. This pass added the YOU MIGHT LIKE strip to `PassportScreen` (v6#15); expect a section-ordering conflict, both sides additive. |
 | `quiz.test.ts` golden re-pins | — | Will conflict regardless; the bundle doc says regenerate after merge. This pass did not re-pin goldens. |
+
+### Cleanbot batch-1 findings — folded in (2026-08-18)
+
+- **M1** — noted in `examPaper.ts`: exam seeds are deterministic per platform,
+  **not portable across platforms** (the web Fisher–Yates does not reproduce
+  Swift's draw sequence). Nothing persists a seed today; unify the shuffles
+  before any archive ever carries one.
+- **M2** — `examPaper.test.ts` now pins every `noteKeys` / `image.key`
+  against the icon manifest (56 aroma keys + 11 image keys resolve).
+- **M3** — `MinigamesScreen` tiles are now *driven by* `TOOL_ROSTER`; the
+  titles, faces and walkthrough sentence all read one constant.
+- **L1** — a missing `format` header is refused on decode, matching iOS's
+  non-optional Codable field. **L2** — ratings are rebuilt field-by-field on
+  decode.
+- **I1 answered:** iOS counts found codes via raw `access.granted`
+  membership (`CheatConsoleScreen.swift:39-41` — "granted, not isUnlocked"),
+  and the web's `isGranted` is the same raw `grantedIds()` membership with no
+  subsumption — GRANDCRU alone reads 1 OF 3 on both platforms. Already
+  matched; no change.
+- **Decomposition candidate:** `SettingsPanel.tsx` crossed 1,000 lines this
+  pass. Next structural touch should extract the section panels
+  (block-8-style: extract first, then edit), not grow the file further.

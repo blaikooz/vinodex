@@ -92,15 +92,28 @@ export const decodeArchive = (json: string): DecodeResult => {
   const raw = parsed as Record<string, unknown>;
   const app = str(raw.app) ?? '';
   if (!ACCEPTED_TAGS.includes(app)) return { ok: false, refusal: { kind: 'notOurArchive', app } };
-  const format = num(raw.format, 0);
+  // A missing/non-numeric format is refused, matching iOS's non-optional
+  // Codable field (review L1) — the headers are the two things forward-compat
+  // does NOT forgive.
+  if (typeof raw.format !== 'number' || !Number.isFinite(raw.format)) {
+    return { ok: false, refusal: { kind: 'notJSON' } };
+  }
+  const format = Math.trunc(raw.format);
   if (format > CURRENT_FORMAT) return { ok: false, refusal: { kind: 'unreadableFormat', format } };
 
+  // Rebuilt field by field rather than passed through (review L2), so a
+  // stranger key inside a rating does not ride into storage.
   const ratings: Record<string, TriedRating> = {};
   if (raw.triedRatings && typeof raw.triedRatings === 'object' && !Array.isArray(raw.triedRatings)) {
     for (const [id, r] of Object.entries(raw.triedRatings as Record<string, unknown>)) {
-      if (r && typeof r === 'object' && typeof (r as TriedRating).rating === 'number') {
-        ratings[id] = r as TriedRating;
-      }
+      if (!r || typeof r !== 'object') continue;
+      const cand = r as { rating?: unknown; note?: unknown; day?: unknown };
+      if (typeof cand.rating !== 'number') continue;
+      ratings[id] = {
+        rating: cand.rating,
+        note: typeof cand.note === 'string' ? cand.note : '',
+        day: typeof cand.day === 'number' ? cand.day : 0,
+      } as TriedRating;
     }
   }
 

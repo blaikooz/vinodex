@@ -21,14 +21,33 @@ interface MinigamesScreenProps {
  * WHAT'S THAT…? holds the slot iOS gave PROF. VINO in 0.8.93 — the game's
  * deletion is an open ruling (v6#6) and the professor an open port (v6#26).
  */
-export const TOOL_TITLES = [
-  'BLIND TASTING',
-  'LABEL SCAN',
-  'WINE EXAM',
-  'DAILY CHALLENGE',
-  "WHAT'S THAT…?",
-  'MOON DIAL',
-] as const;
+export type ToolId = 'scanner' | 'labelReader' | 'wineExam' | 'dailyChallenge' | 'dailyGrape' | 'moonDial';
+
+interface ToolEntry {
+  id: ToolId;
+  title: string;
+  face: string;
+  shadow: string;
+  ink: string;
+  comingSoon?: boolean;
+}
+
+/**
+ * The one roster the tiles, the titles and the walkthrough sentence all read
+ * (cleanbot batch-1 M3): a constant and six JSX literals were the exact
+ * parallel-copy drift the derived sentence exists to prevent.
+ */
+export const TOOL_ROSTER: ToolEntry[] = [
+  { id: 'scanner', title: 'BLIND TASTING', face: '#22C55E', shadow: '#15803D', ink: '#FFFFFF' },
+  { id: 'labelReader', title: 'LABEL SCAN', face: '#3B82F6', shadow: '#1D4ED8', ink: '#FFFFFF', comingSoon: true },
+  { id: 'wineExam', title: 'WINE EXAM', face: '#A855F7', shadow: '#6B21A8', ink: '#FFFFFF' },
+  { id: 'dailyChallenge', title: 'DAILY CHALLENGE', face: '#EF4444', shadow: '#991B1B', ink: '#FFFFFF' },
+  // WHAT'S THAT…? — held pending v6#6; yellow face takes a dark ink.
+  { id: 'dailyGrape', title: "WHAT'S THAT…?", face: '#FACC15', shadow: '#CA8A04', ink: '#78350F' },
+  { id: 'moonDial', title: 'MOON DIAL', face: '#0891B2', shadow: '#155E75', ink: '#FFFFFF' },
+];
+
+export const TOOL_TITLES: string[] = TOOL_ROSTER.map(t => t.title);
 
 /** iOS `ToolRoster.sentence` — six lowercase names, Oxford-comma'd. */
 export const toolSentence = (): string => {
@@ -111,19 +130,40 @@ const MinigamesScreen: React.FC<MinigamesScreenProps> = ({
   return (
     <DeviceLayout title="TOOLS" subtitle="" showBack={true} onBack={onBack} onHome={onHome} centerHeaderText={true}>
       <div className="flex-1 min-h-0 overflow-y-auto custom-scrollbar bg-stone-950 p-3">
+        {/* Rows 1–3 as iOS orders them: the two that answer a question about a
+            specific glass first, then the quiz family, then the rest. The grid
+            *is* the roster — nothing here restates a title or a face. */}
         <div className="grid grid-cols-2 gap-3">
-          {/* The two that answer a question about a specific glass go first —
-              they are the reason to open this screen while actually drinking
-              something (iOS row 1). */}
-          <Tile title="BLIND TASTING" face="#22C55E" shadow="#15803D" ink="#FFFFFF" icon={<EyeOff size={32} />} onClick={onScanner} />
-          <Tile title="LABEL SCAN" face="#3B82F6" shadow="#1D4ED8" ink="#FFFFFF" icon={<Camera size={32} />} comingSoon onClick={() => {}} />
-          {/* The quiz family sits together: the practice ladder, then the one
-              paper a day that keeps the streak (iOS row 2). */}
-          <Tile title="WINE EXAM" face="#A855F7" shadow="#6B21A8" ink="#FFFFFF" icon={<BadgeCheck size={32} />} onClick={onQuiz} />
-          <Tile title="DAILY CHALLENGE" face="#EF4444" shadow="#991B1B" ink="#FFFFFF" icon={<Flame size={32} />} onClick={onDailyChallenge} />
-          {/* WHAT'S THAT…? — held pending v6#6; yellow face takes a dark ink. */}
-          <Tile title="WHAT'S THAT…?" face="#FACC15" shadow="#CA8A04" ink="#78350F" icon={<Sparkles size={32} />} onClick={onDailyGrape} />
-          <Tile title="MOON DIAL" face="#0891B2" shadow="#155E75" ink="#FFFFFF" icon={<MoonStar size={32} />} onClick={onMoonDial} />
+          {TOOL_ROSTER.map(tool => {
+            const icon = {
+              scanner: <EyeOff size={32} />,
+              labelReader: <Camera size={32} />,
+              wineExam: <BadgeCheck size={32} />,
+              dailyChallenge: <Flame size={32} />,
+              dailyGrape: <Sparkles size={32} />,
+              moonDial: <MoonStar size={32} />,
+            }[tool.id];
+            const action = {
+              scanner: onScanner,
+              labelReader: () => {},
+              wineExam: onQuiz,
+              dailyChallenge: onDailyChallenge,
+              dailyGrape: onDailyGrape,
+              moonDial: onMoonDial,
+            }[tool.id];
+            return (
+              <Tile
+                key={tool.id}
+                title={tool.title}
+                face={tool.face}
+                shadow={tool.shadow}
+                ink={tool.ink}
+                icon={icon}
+                comingSoon={tool.comingSoon}
+                onClick={action}
+              />
+            );
+          })}
         </div>
       </div>
     </DeviceLayout>

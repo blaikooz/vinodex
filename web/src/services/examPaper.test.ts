@@ -1,4 +1,5 @@
 import { beforeEach, describe, expect, it } from 'vitest';
+import iconManifest from '../data/iconManifest.json';
 import {
   EXAM_QUESTIONS,
   EXAM_FORMATS,
@@ -155,6 +156,23 @@ describe('the bank', () => {
   it('every question carries a teachable explanation', () => {
     for (const q of EXAM_QUESTIONS) {
       expect(q.explanation.trim().length, `${q.id} has no explanation`).toBeGreaterThan(0);
+    }
+  });
+
+  it('every asset-backed question resolves against the icon manifest', () => {
+    // Review M2: `questionImage` falls back silently, so a renamed manifest
+    // key would strip the picture off a question that is nothing but one.
+    const flavorArt = (iconManifest as { flavorArt?: Record<string, string> }).flavorArt ?? {};
+    const shapes = (iconManifest as { countryShapeIcons?: Record<string, string> }).countryShapeIcons ?? {};
+    const byEntry = (iconManifest as { byEntry?: Record<string, string> }).byEntry ?? {};
+    for (const q of EXAM_QUESTIONS) {
+      if (q.format === 'aromaIdentification') {
+        for (const key of q.noteKeys) expect(flavorArt[key], `${q.id} noteKey "${key}" unresolved`).toBeTruthy();
+      }
+      if (q.format === 'imageIdentification') {
+        const table = q.image.kind === 'countryOutline' ? shapes : byEntry;
+        expect(table[q.image.key], `${q.id} image key "${q.image.key}" unresolved`).toBeTruthy();
+      }
     }
   });
 

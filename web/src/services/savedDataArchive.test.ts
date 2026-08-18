@@ -114,6 +114,20 @@ describe('saved-data archive', () => {
     expect(decodeArchive('{not json').ok).toBe(false);
   });
 
+  it('a missing format is refused — the headers are not forgiven (L1)', () => {
+    const raw = JSON.parse(encodeArchive(exportArchive(1))) as Record<string, unknown>;
+    delete raw.format;
+    expect(decodeArchive(JSON.stringify(raw)).ok).toBe(false);
+  });
+
+  it('a rating with stranger keys is rebuilt clean (L2)', () => {
+    const raw = JSON.parse(encodeArchive(exportArchive(1))) as { triedRatings: Record<string, unknown> };
+    raw.triedRatings = { G001: { rating: 3, note: 'ok', day: 7, smuggled: 'x' } };
+    const result = decodeArchive(JSON.stringify(raw));
+    expect(result.ok).toBe(true);
+    if (result.ok) expect(result.archive.triedRatings.G001).toEqual({ rating: 3, note: 'ok', day: 7 });
+  });
+
   it('an iOS archive is accepted — the vocabulary is shared', () => {
     expect(ACCEPTED_TAGS).toContain('vinodex-ios');
     const result = decodeArchive(JSON.stringify({ ...exportArchive(1), app: 'vinodex-ios' }));
