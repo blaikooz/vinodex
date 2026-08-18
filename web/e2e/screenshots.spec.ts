@@ -56,3 +56,27 @@ for (const [modeName, mode] of MODES) {
     });
   }
 }
+
+/**
+ * The new shells (v6#19-geometry). One capture each so a colour-table typo
+ * is visible rather than merely compiling — the failure mode a token port
+ * has, and the reason this item waited for the gate.
+ */
+const NEW_SKINS = ['PSVINO', 'GRIS_DE_GRIS', 'ORANGE_WINE', 'PET_NAT', 'WALDGLAS', 'HALLOWEEN', 'W64'];
+
+for (const skin of NEW_SKINS) {
+  test(`the ${skin} shell renders`, async ({ page }, testInfo) => {
+    await page.addInitScript(s => {
+      window.localStorage.setItem('unlockedAppIDs', JSON.stringify(['vinodex']));
+      window.sessionStorage.setItem('booted', '1');
+      window.localStorage.setItem('firstTimeTriggersSeen', 'firstLaunch,firstLaunchNamed');
+      window.localStorage.setItem('coachmarkOffered', 'true');
+      window.localStorage.setItem('chassisSkin', s);
+    }, skin);
+    await page.goto('/dex');
+    await page.waitForTimeout(700);
+    const shot = await page.screenshot();
+    await testInfo.attach(`skin-${skin}`, { body: shot, contentType: 'image/png' });
+    await page.screenshot({ path: `web/e2e/.shots/skin-${skin}.png` });
+  });
+}

@@ -166,8 +166,8 @@ const FeatureTile: React.FC<{ title: string; icon: React.ReactNode; onClick: () 
  * The drawn sticker each chassis skin wears, mirrored from iOS by the web art
  * leg (v6#2). Keyed by our skin id; a skin with no mirrored sticker is simply
  * absent and the tile falls back to the tinted emblem. The six unused stems
- * (gris-de-gris, halloween, pet-nat, psvino, w64, waldglas) belong to skins
- * the web has not taken yet - see v6#19-geometry.
+ * ORANGE WINE is the one shell with no mirrored sticker and keeps the tinted
+ * emblem; CHRISTMAS has never had one on either platform.
  */
 const SKIN_STICKER: Partial<Record<ChassisSkinId, string>> = {
   CLASSIC: 'sticker-classic',
@@ -184,6 +184,12 @@ const SKIN_STICKER: Partial<Record<ChassisSkinId, string>> = {
   NOCTURNE: 'sticker-nocturne',
   STEEL: 'sticker-steel',
   BLUSH: 'sticker-blush',
+  PSVINO: 'sticker-psvino',
+  GRIS_DE_GRIS: 'sticker-gris-de-gris',
+  PET_NAT: 'sticker-pet-nat',
+  WALDGLAS: 'sticker-waldglas',
+  HALLOWEEN: 'sticker-halloween',
+  W64: 'sticker-w64',
 };
 
 const SkinPreviewTile: React.FC<{ id: ChassisSkinId; selected: boolean; onClick: () => void }> = ({ id, selected, onClick }) => {

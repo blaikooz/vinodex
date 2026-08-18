@@ -16,7 +16,9 @@
 export type ChassisSkinId =
   | 'CLASSIC' | 'MIDNIGHT' | 'ORIGINAL' | 'BURGUNDY' | 'RIESLING'
   | 'VINHO_VERDE' | 'GLOUGLOU' | 'SMART_GRAPE' | 'CHAMPAGNE' | 'CHRISTMAS'
-  | 'NOUVEAU' | 'OAKED' | 'NOCTURNE' | 'STEEL' | 'BLUSH';
+  | 'NOUVEAU' | 'OAKED' | 'NOCTURNE' | 'STEEL' | 'BLUSH'
+  | 'PSVINO' | 'GRIS_DE_GRIS' | 'ORANGE_WINE' | 'PET_NAT' | 'WALDGLAS'
+  | 'HALLOWEEN' | 'W64';
 export type LcdModeId =
   | 'DARK' | 'LIGHT' | 'VINTAGE' | 'AMBER' | 'WINE_OS'
   | 'TERMINAL' | 'BLUE_SCREEN' | 'STAR_TREK' | 'GRUENER_BOY';
@@ -242,6 +244,99 @@ export const CHASSIS_SKINS: Record<ChassisSkinId, ChassisSkin> = {
     grill: '#C8879A',
     onBody: '#4A1220',
     onBodyShadow: '#D2718A',
+  },
+  /**
+   * The seven shells iOS added through 0.8.9x, ported with the art ruling
+   * (v6#2 / v6#19-geometry). Values are `ChassisSkins.swift`'s verbatim;
+   * WALDGLAS is authored translucent there and is composited here over the
+   * same #14161A underlay iOS puts behind its translucent shells, so the web
+   * renders one deterministic colour rather than whatever happens to sit
+   * behind the device.
+   *
+   * `displayName` is iOS's, which is not always the case name: PSVINO shows
+   * as PX, PET NAT as FIBERGLASS, HALLOWEEN as HALLOWINE and W64 as 1964.
+   * The raw ids never change - they are the persisted vocabulary and the
+   * sticker stems key off them.
+   */
+  PSVINO: {
+    id: 'PSVINO',
+    displayName: 'PX',
+    body: '#232427',
+    footerWash: 'rgba(35, 36, 39, 0.75)',
+    panel: '#3B3C41',
+    panelEdge: '#141517',
+    grill: '#55575E',
+    onBody: '#FFFFFF',
+    onBodyShadow: '#141517',
+  },
+  GRIS_DE_GRIS: {
+    id: 'GRIS_DE_GRIS',
+    displayName: 'GRIS DE GRIS',
+    body: '#C8C4BC',
+    footerWash: 'rgba(200, 196, 188, 0.75)',
+    panel: '#DAD6CE',
+    panelEdge: '#8B8880',
+    grill: '#9A968E',
+    onBody: '#2B2A30',
+    onBodyShadow: '#8B8880',
+  },
+  ORANGE_WINE: {
+    id: 'ORANGE_WINE',
+    displayName: 'ORANGE WINE',
+    body: '#E8720E',
+    footerWash: 'rgba(232, 114, 14, 0.75)',
+    panel: '#F6A550',
+    panelEdge: '#8A4406',
+    grill: '#A85708',
+    onBody: '#3A1B02',
+    onBodyShadow: '#8A4406',
+  },
+  PET_NAT: {
+    id: 'PET_NAT',
+    displayName: 'FIBERGLASS',
+    body: '#EFE9DC',
+    // Authored `Color.clear` on iOS: this shell wears no footer wash.
+    footerWash: 'rgba(0, 0, 0, 0)',
+    panel: '#F8F4EA',
+    panelEdge: '#2B3244',
+    grill: '#4A5468',
+    onBody: '#2B3244',
+    onBodyShadow: '#4A5468',
+  },
+  WALDGLAS: {
+    id: 'WALDGLAS',
+    displayName: 'WALDGLAS',
+    // rgba(160,183,116,0.42) over #14161A.
+    body: '#4F5A40',
+    footerWash: 'rgba(160, 183, 116, 0.28)',
+    // rgba(214,229,178,0.55) and rgba(122,142,84,0.85) over the same.
+    panel: '#7F886E',
+    panelEdge: '#6B7C4B',
+    grill: '#6C8348',
+    onBody: '#F2F6E6',
+    onBodyShadow: '#2A3320',
+  },
+  HALLOWEEN: {
+    id: 'HALLOWEEN',
+    displayName: 'HALLOWINE',
+    body: '#17141A',
+    footerWash: 'rgba(23, 20, 26, 0.75)',
+    panel: '#241E2B',
+    panelEdge: '#0C0A10',
+    grill: '#4A3F55',
+    onBody: '#FF8A3D',
+    onBodyShadow: '#0C0A10',
+  },
+  W64: {
+    id: 'W64',
+    displayName: '1964',
+    body: '#4A2E8C',
+    footerWash: 'rgba(74, 46, 140, 0.75)',
+    panel: '#33206B',
+    panelEdge: '#1D1145',
+    grill: '#8B6FD4',
+    onBody: '#FFFFFF',
+    onBodyShadow: '#1D1145',
   },
 };
 
@@ -493,6 +588,13 @@ const SKIN_LIGHTS: Record<ChassisSkinId, { orb: string; orbGlow: string; lamps: 
   NOCTURNE:    { orb: '#7CFC9A', orbGlow: '#3EE06C', lamps: [['#B9FFAB', '#57D63E'], ['#8DF06A', '#2E8A20'], ['#57D63E', '#1E6A14']] },
   STEEL:       { orb: '#E8F1FF', orbGlow: '#9FB8D8', lamps: [['#E8F1FF', '#9FB8D8'], ['#C7CBD1', '#6B7078'], ['#9FD4FF', '#5FA8E8']] },
   BLUSH:       { orb: '#FF7FA8', orbGlow: '#E1447E', lamps: [['#FFE0E6', '#E11D48'], ['#F9A8D4', '#DB2777'], ['#D6296B', '#7A0B36']] },
+  PSVINO:       { orb: '#5B93D8', orbGlow: '#2E6DB4', lamps: [['#3AC4B4', '#0E7A6E'], ['#F0435C', '#8F0E20'], ['#6FA3E8', '#1B4470']] },
+  GRIS_DE_GRIS: { orb: '#E23E3E', orbGlow: '#8F1414', lamps: [['#FF8A8A', '#B02020'], ['#E23E3E', '#8F1414'], ['#A81E1E', '#5C0A0A']] },
+  ORANGE_WINE:  { orb: '#FFD22E', orbGlow: '#C99000', lamps: [['#FFD22E', '#B98A00'], ['#FF8A1F', '#A34C00'], ['#C24E06', '#6E2A00']] },
+  PET_NAT:      { orb: '#7FA6D8', orbGlow: '#3E6FA8', lamps: [['#E24A4A', '#8E1C1C'], ['#E8B93A', '#8E6A0A'], ['#3E7FBF', '#1B4470']] },
+  WALDGLAS:     { orb: '#C9E86A', orbGlow: '#7A9A2E', lamps: [['#D7E8AE', '#7E9A3E'], ['#A8C766', '#5A7526'], ['#5F7A28', '#2E3F10']] },
+  HALLOWEEN:    { orb: '#FF8A1F', orbGlow: '#B34700', lamps: [['#FFC98A', '#B36A00'], ['#FF8A1F', '#A34C00'], ['#8A2E00', '#3D1200']] },
+  W64:          { orb: '#F2C93A', orbGlow: '#B58A0C', lamps: [['#63C86B', '#1E7A2E'], ['#3E7FD8', '#123C74'], ['#D8343E', '#7A0E16']] },
 };
 
 export function applyTheme(): void {
