@@ -14,7 +14,9 @@
     "build:wine:json": "ts-node --esm scripts/convertExcelToJson.ts",
     "build:encyclopedia": "ts-node --esm scripts/cleanEncyclopediaText.ts",
     "build:encyclopedia:reference": "ts-node --esm scripts/buildEncyclopediaReference.ts",
-    "check:refs": "esbuild scripts/find-missing-refs.ts --bundle --platform=node --format=esm --log-level=error | node --input-type=module"
+    "check:refs": "esbuild scripts/find-missing-refs.ts --bundle --platform=node --format=esm --log-level=error | node --input-type=module",
+    "prerender:og": "esbuild scripts/prerender-og.ts --bundle --platform=node --format=esm --log-level=error | node --input-type=module",
+    "postbuild": "npm run prerender:og"
   },
   "dependencies": {
     "@iconify/react": "^6.0.2",

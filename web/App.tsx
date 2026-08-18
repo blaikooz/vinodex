@@ -1,5 +1,5 @@
 
-import React, { Suspense, lazy, useEffect, useMemo, useRef, useSyncExternalStore } from 'react';
+import React, { Suspense, lazy, useEffect, useMemo, useRef, useState, useSyncExternalStore } from 'react';
 import {
   Routes,
   Route,
@@ -16,6 +16,8 @@ import EncyclopediaList from './components/EncyclopediaList';
 import EntryDetail from './components/EntryDetail';
 import RegionMapScreen from './components/RegionMapScreen';
 import DeviceLayout from './components/DeviceLayout';
+import InstallBanner from './components/InstallBanner';
+import VinodexBoot from './components/VinodexBoot';
 import { WineEntry, EntryCategory } from '@/shared/types';
 import { getAllEntries } from './src/services/wineData';
 import { clear as clearScreenState } from './src/services/screenState';
@@ -24,7 +26,7 @@ import { installGlobalTapSound } from './src/services/sound';
 import { installGlobalHaptics } from './src/services/haptics';
 import { demoStopAt, isDemoActive, stopDemo, subscribeToDemo } from './src/services/demoMode';
 import { applyLeftMainScreen } from './src/services/marqueeScript';
-import { clearVino, fireVinoForArrival } from './src/services/vinoPresenter';
+import { clearVino, fireVinoForArrival, setSuspended } from './src/services/vinoPresenter';
 import { hasFired, isVinoSilenced, seedTriggers } from './src/services/firstTimeTriggers';
 import { seenBadges } from './src/services/passportProgress';
 import { computePassport } from './src/services/passport';
@@ -104,6 +106,26 @@ const App: React.FC = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const allEntries = useMemo(() => getAllEntries(), []);
+
+  // The BIOS boot: once per browser session, and skipped on a deep-link arrival
+  // (/detail, /website) so a shared-link visitor plays instantly. Any tap or the
+  // auto-advance clears it.
+  const [booting, setBooting] = useState(() => {
+    try {
+      const p = window.location.pathname;
+      const fresh = !window.sessionStorage.getItem('booted');
+      return fresh && !p.startsWith('/detail/') && !p.startsWith('/website');
+    } catch {
+      return false;
+    }
+  });
+  const finishBoot = () => {
+    try { window.sessionStorage.setItem('booted', '1'); } catch { /* ignore */ }
+    setBooting(false);
+  };
+  // While the boot screen owns the device, the professor holds his tongue —
+  // the same suspension seam the in-screen prompts claim.
+  useEffect(() => { setSuspended(booting, 'boot'); }, [booting]);
 
   // One global listener each rides a tap sound (opt-in) and a haptic
   // (default on) onto every button click.
@@ -427,6 +449,8 @@ const App: React.FC = () => {
       )}
       <CoachmarkOverlay />
       <VinoBubble />
+      <InstallBanner />
+      {booting && <VinodexBoot entries={allEntries.length} onDone={finishBoot} />}
       <Routes>
         {/*
           "/" is the splash: a fresh visit forks between the dex and the

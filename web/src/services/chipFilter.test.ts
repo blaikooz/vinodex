@@ -95,6 +95,22 @@ describe('chip filter', () => {
     }
   });
 
+  it('the shelf facet filters on the collection membership handed in', () => {
+    const grape = all.find(e => e.category === 'GRAPES')!;
+    const seeded = { saved: new Set([grape.id]), wantToTry: new Set<string>(), tried: new Set<string>() };
+    const f = toggleOption({}, option('shelf', 'saved'));
+    const r = matchingEntries(f, all, seeded);
+    expect(r.length).toBe(1);
+    expect(r[0]!.id).toBe(grape.id);
+    // An empty collection means the shelf chip matches nothing.
+    const empty = { saved: new Set<string>(), wantToTry: new Set<string>(), tried: new Set<string>() };
+    expect(matchingEntries(f, all, empty).length).toBe(0);
+    // WANTED and TRIED OR together within the facet.
+    const two = toggleOption(f, option('shelf', 'tried'));
+    const both = { saved: new Set([grape.id]), wantToTry: new Set<string>(), tried: new Set([all[1]!.id]) };
+    expect(matchingEntries(two, all, both).length).toBe(2);
+  });
+
   it('a filter round-trips through JSON for the screen-state store', () => {
     let f = toggleOption({}, option('color', 'white'));
     f = toggleOption(f, option('rarity', 'NOBLE'));

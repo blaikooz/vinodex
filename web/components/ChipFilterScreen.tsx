@@ -18,6 +18,7 @@ import {
   filterIsEmpty,
   includesCountries,
   searchableCountries,
+  shelfSnapshot,
 } from '../src/services/chipFilter';
 import { query as ssQuery, setQuery as ssSetQuery } from '../src/services/screenState';
 
@@ -52,11 +53,15 @@ const ChipFilterScreen: React.FC<ChipFilterScreenProps> = ({ allEntries, onSelec
   const options = useMemo(() => Object.fromEntries(CHIP_FACETS.map(f => [f, facetOptions(f, allEntries)])), [allEntries]);
   const q = query.trim().toLowerCase();
 
+  // One read of the shelves per render — the shelf facet matches against this
+  // rather than re-reading storage for every entry and every chip count.
+  const snap = useMemo(() => shelfSnapshot(), [filter, allEntries]);
+
   const results = useMemo(() => {
-    let list = matchingEntries(filter, allEntries);
+    let list = matchingEntries(filter, allEntries, snap);
     if (q) list = list.filter(e => e.name.toLowerCase().includes(q));
     return list;
-  }, [filter, allEntries, q]);
+  }, [filter, allEntries, q, snap]);
 
   const countryResults = useMemo(() => {
     if (!includesCountries(filter)) return [];
@@ -126,7 +131,7 @@ const ChipFilterScreen: React.FC<ChipFilterScreenProps> = ({ allEntries, onSelec
                 <div className="flex flex-wrap gap-2">
                   {(options[facet] ?? []).map(o => {
                     const on = isOn(filter, o);
-                    const cnt = countWithChip(filter, o, allEntries) + (toggleOption(filter, o).category?.includes('COUNTRIES') ? searchableCountries(allEntries).length : 0);
+                    const cnt = countWithChip(filter, o, allEntries, snap) + (toggleOption(filter, o).category?.includes('COUNTRIES') ? searchableCountries(allEntries).length : 0);
                     const dead = !on && cnt === 0;
                     return (
                       <button
