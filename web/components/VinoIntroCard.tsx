@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { GraduationCap } from 'lucide-react';
+import VinoPortrait from './VinoPortrait';
 import { VINO_NAME_MAX_LENGTH, chirpText, renderedLine, vinoLine } from '../src/services/vinoDialogue';
 import { fireOnce } from '../src/services/firstTimeTriggers';
 import { presentVinoLine, setSuspended } from '../src/services/vinoPresenter';
@@ -45,8 +45,8 @@ const VinoIntroCard: React.FC<VinoIntroCardProps> = ({ onDone }) => {
     <div className="fixed inset-0 z-[85] bg-black/85 flex items-center justify-center p-6" role="dialog" aria-modal="true" aria-label="Professor Vino introduces himself">
       <div className="w-full max-w-sm bg-stone-900 border-2 border-amber-500 rounded-2xl p-5 flex flex-col gap-4">
         <div className="flex items-start gap-3">
-          <span className="shrink-0 w-12 h-12 rounded-full border-2 border-amber-500 bg-stone-800 flex items-center justify-center text-amber-400">
-            <GraduationCap size={24} />
+          <span className="shrink-0 w-12 h-12 rounded-full border-2 border-amber-500 bg-stone-800 flex items-center justify-center overflow-hidden">
+            <VinoPortrait expression={ask.expression} size={42} />
           </span>
           <div className="flex-1 min-w-0">
             <p className="font-retro text-[0.5rem] tracking-widest text-amber-400">PROF. VINO</p>

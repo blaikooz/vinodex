@@ -2,7 +2,8 @@ import React from 'react';
 import { ShieldCheck } from 'lucide-react';
 import { Badge } from '../src/services/passport';
 import { PassportTier } from '../src/services/passportTier';
-import { BADGE_ICON, BADGE_TINT } from './badgeVisuals';
+import { BADGE_TINT } from './badgeVisuals';
+import StampArt from './StampArt';
 
 /**
  * The celebration cards, ported from
@@ -24,7 +25,6 @@ interface StampUnlockedPromptProps {
 const StampUnlockedPrompt: React.FC<StampUnlockedPromptProps> = ({ celebration, onDismiss }) => {
   const isTier = celebration.kind === 'tier' && celebration.tier;
   const badge = celebration.badge;
-  const Icon = badge ? BADGE_ICON[badge.id] : ShieldCheck;
   const tint = isTier ? '#eab308' : badge ? BADGE_TINT[badge.id] : '#22c55e';
 
   return (
@@ -38,7 +38,7 @@ const StampUnlockedPrompt: React.FC<StampUnlockedPromptProps> = ({ celebration, 
         <p className="font-retro text-xs tracking-widest" style={{ color: tint }}>
           {isTier ? 'RANK UP' : 'STAMP EARNED'}
         </p>
-        <Icon size={44} color={tint} />
+        {badge ? <StampArt id={badge.id} size={64} earned /> : <ShieldCheck size={44} color={tint} />}
         <p className="font-retro text-sm tracking-widest text-stone-100">
           {isTier ? celebration.tier!.name : badge?.title}
         </p>

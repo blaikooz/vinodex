@@ -1,11 +1,8 @@
 import React, { useState, useSyncExternalStore } from 'react';
-import { GraduationCap, Smile, ThumbsUp, Wine, Zap, Brain, MessageSquare, CheckCircle2, CircleDashed } from 'lucide-react';
+import { MessageSquare, CheckCircle2, CircleDashed } from 'lucide-react';
+import VinoPortrait from './VinoPortrait';
 import DeviceLayout from './DeviceLayout';
-import {
-  FIRST_TIME_TRIGGERS,
-  VinoExpression,
-  VINO_EXPRESSIONS,
-} from '../src/services/vinoDialogue';
+import { FIRST_TIME_TRIGGERS, VINO_EXPRESSIONS } from '../src/services/vinoDialogue';
 import {
   hasFired,
   isVinoSilenced,
@@ -20,14 +17,6 @@ interface ProfVinoScreenProps {
   onHome: () => void;
 }
 
-const EXPRESSION_GLYPH: Record<VinoExpression, React.ComponentType<{ size?: number; className?: string }>> = {
-  neutral: GraduationCap,
-  smiling: Smile,
-  goodjob: ThumbsUp,
-  raiseaglass: Wine,
-  surprised: Zap,
-  thinking: Brain,
-};
 
 const Section: React.FC<{ title: string; children: React.ReactNode }> = ({ title, children }) => (
   <div>
@@ -44,9 +33,8 @@ const Section: React.FC<{ title: string; children: React.ReactNode }> = ({ title
  * two-writers fault), and the deliberately frank ledger of which first-time
  * tips have fired, whose audience today is the person testing him.
  *
- * **Portrait gap (v6#2):** iOS draws his six `VinoArt` portraits here at
- * full size; the web renders the same six-expression vocabulary as chrome
- * glyphs until the art-transport ruling lands.
+ * His six drawn portraits front the page and fill the FACES grid since the
+ * v6#2 art ruling — the same baked assets iOS renders.
  */
 const ProfVinoScreen: React.FC<ProfVinoScreenProps> = ({ onBack, onHome }) => {
   const silenced = useSyncExternalStore(subscribeToTriggers, isVinoSilenced, () => false);
@@ -64,8 +52,8 @@ const ProfVinoScreen: React.FC<ProfVinoScreenProps> = ({ onBack, onHome }) => {
       <div className="h-full overflow-y-auto custom-scrollbar p-4 flex flex-col gap-5" style={{ backgroundColor: 'var(--lcd-page)' }}>
         {/* The hero. */}
         <div className="flex items-center gap-4">
-          <span className="shrink-0 w-16 h-16 rounded-full border-2 border-amber-500 bg-stone-800 flex items-center justify-center text-amber-400">
-            <GraduationCap size={32} />
+          <span className="shrink-0 w-16 h-16 rounded-full border-2 border-amber-500 bg-stone-800 flex items-center justify-center overflow-hidden">
+            <VinoPortrait expression="neutral" size={56} />
           </span>
           <div className="flex-1 min-w-0">
             <div className="font-retro text-base tracking-widest text-stone-100">PROF. VINO</div>
@@ -101,15 +89,12 @@ const ProfVinoScreen: React.FC<ProfVinoScreenProps> = ({ onBack, onHome }) => {
 
         <Section title="HIS FACES">
           <div className="grid grid-cols-3 gap-2">
-            {VINO_EXPRESSIONS.map(expression => {
-              const Icon = EXPRESSION_GLYPH[expression];
-              return (
-                <div key={expression} className="rounded-lg border border-stone-700 bg-stone-900/50 p-2.5 flex flex-col items-center gap-1.5">
-                  <Icon size={24} className="text-amber-400" />
-                  <span className="font-retro text-[0.5rem] tracking-widest text-stone-300">{expression.toUpperCase()}</span>
-                </div>
-              );
-            })}
+            {VINO_EXPRESSIONS.map(expression => (
+              <div key={expression} className="rounded-lg border border-stone-700 bg-stone-900/50 p-2.5 flex flex-col items-center gap-1.5">
+                <VinoPortrait expression={expression} size={44} />
+                <span className="font-retro text-[0.5rem] tracking-widest text-stone-300">{expression.toUpperCase()}</span>
+              </div>
+            ))}
           </div>
         </Section>
 

@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useSyncExternalStore } from 'react';
-import { GraduationCap } from 'lucide-react';
+import VinoPortrait from './VinoPortrait';
 import {
   COACHMARK_STEPS,
   coachmarkPosition,
@@ -94,8 +94,8 @@ const CoachmarkOverlay: React.FC = () => {
       <div className="absolute inset-x-0 bottom-4 flex justify-center px-4">
         <div className="pointer-events-auto w-full max-w-sm rounded-2xl border-2 border-amber-500 bg-stone-900/95 p-3.5 flex flex-col gap-2.5 shadow-[0_4px_0_rgba(0,0,0,0.5)]">
           <div className="flex items-start gap-3">
-            <span className="shrink-0 w-10 h-10 rounded-full border-2 border-amber-500 bg-stone-800 flex items-center justify-center text-amber-400">
-              <GraduationCap size={20} />
+            <span className="shrink-0 w-10 h-10 rounded-full border-2 border-amber-500 bg-stone-800 flex items-center justify-center overflow-hidden">
+              <VinoPortrait expression={step.expression} size={34} />
             </span>
             <div className="flex-1 min-w-0">
               <p className="font-retro text-[0.5rem] tracking-widest text-amber-400">

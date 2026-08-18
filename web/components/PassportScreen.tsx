@@ -1,6 +1,7 @@
 import React, { useEffect, useMemo } from 'react';
-import { Grid3x3, Wine, Flag, Map as MapIcon, Lock, ChevronRight, ShieldCheck } from 'lucide-react';
-import { BADGE_ICON, BADGE_TINT } from './badgeVisuals';
+import { Grid3x3, Wine, Flag, Map as MapIcon, ChevronRight, ShieldCheck } from 'lucide-react';
+import { BADGE_TINT } from './badgeVisuals';
+import StampArt from './StampArt';
 import { tierProgress } from '../src/services/passportTier';
 import { seedIfNeeded } from '../src/services/passportProgress';
 import DeviceLayout from './DeviceLayout';
@@ -168,7 +169,6 @@ const PassportScreen: React.FC<PassportScreenProps> = ({ allEntries, onSelect, o
         <Section title="STAMPS">
           <div className="grid grid-cols-2 gap-3">
             {passport.badges.map(b => {
-              const Icon = BADGE_ICON[b.id];
               const tint = BADGE_TINT[b.id];
               return (
                 <div
@@ -176,7 +176,7 @@ const PassportScreen: React.FC<PassportScreenProps> = ({ allEntries, onSelect, o
                   className="rounded-xl bg-stone-900/60 p-3 flex flex-col items-center text-center gap-1"
                   style={{ border: `${b.earned ? 2 : 1}px solid ${b.earned ? `${tint}88` : '#44403c'}`, opacity: b.earned ? 1 : 0.7 }}
                 >
-                  {b.earned ? <Icon size={26} color={tint} /> : <Lock size={26} className="text-stone-600" />}
+                  <StampArt id={b.id} size={40} earned={b.earned} />
                   <span className="font-retro text-[0.55rem] tracking-widest mt-1" style={{ color: b.earned ? '#e7e5e4' : '#78716c' }}>{b.title}</span>
                   <span className="font-mono text-[0.62rem] text-stone-500 leading-tight normal-case">{b.blurb}</span>
                 </div>
