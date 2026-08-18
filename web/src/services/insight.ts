@@ -126,7 +126,13 @@ const triedLine = (
   triedDays: Record<string, number>,
   today: number,
 ): string | null => {
-  if (!index.triedIDs.has(entry.id)) return null;
+  // Grapes and styles only, as iOS asks (`Insight.swift` triedLine): a region
+  // or flavour id on the tried shelf is not something you drank, and only a
+  // restored or legacy shelf can carry one — the TRIED control is gated on
+  // `isTastable`. Answering "Tried today." for one would be the panel
+  // asserting a tasting that never happened.
+  const isTastableEntry = isGrapeEntry(entry) || isStyleEntry(entry);
+  if (!isTastableEntry || !index.triedIDs.has(entry.id)) return null;
   const day = triedDays[entry.id];
   // A day in the future is a clock that moved, not a negative age.
   if (day === undefined || day > today) return 'On your tried shelf.';
@@ -227,6 +233,9 @@ const countryLine = (
  * nothing are not similar, and the honest output is silence. Ties break by
  * name, per the determinism rule on the profile.
  */
+/** Canonical name ordering, so accented names tie-break as Swift orders them. */
+const nameOrder = (a: string, b: string): number => a.localeCompare(b, 'en');
+
 const similarLine = (entry: WineEntry, index: TriedIndex): string | null => {
   const notes = (isGrapeEntry(entry) || isStyleEntry(entry) ? entry.tastingProfile : undefined) ?? [];
   const mine = new Set(notes.map(n => normalizeLabel(n.note)));
@@ -242,7 +251,10 @@ const similarLine = (entry: WineEntry, index: TriedIndex): string | null => {
     if (shared === 0) continue;
     const union = mine.size + theirs.size - shared;
     const score = shared / union;
-    if (best && (score < best.score || (score === best.score && grape.name >= best.name))) continue;
+    // Ties by name. `localeCompare` with a fixed locale rather than `>=`,
+    // which compares UTF-16 code units and would order Gruner/Torrontes
+    // differently from Swift's canonical comparison.
+    if (best && (score < best.score || (score === best.score && nameOrder(grape.name, best.name) >= 0))) continue;
     best = { name: grape.name, score };
   }
   return best ? `Similar to ${best.name}, which you've tried.` : null;
@@ -271,6 +283,49 @@ const rarityLine = (
 // The panel
 // ---------------------------------------------------------------------------
 
+interface CatalogBuckets {
+  regionsByName: Map<string, WineEntry>;
+  grapesByCountry: Map<string, GrapeEntry[]>;
+  grapesByRarity: Map<string, GrapeEntry[]>;
+}
+
+/**
+ * The catalog, pre-bucketed once per array (ledger L1). iOS buckets at load
+ * and its own note forbids folding per draw — "a fold per grape per draw of
+ * a panel that redraws on scroll" — and this panel is rebuilt on every shelf
+ * change. Keyed by array identity like `lineageIndexFor`, so the one cached
+ * `getAllEntries()` array shares one set of buckets and a fixture gets its
+ * own. `push` rather than a spread, which made the build quadratic.
+ */
+const bucketCache = new WeakMap<WineEntry[], CatalogBuckets>();
+
+const catalogBuckets = (all: WineEntry[]): CatalogBuckets => {
+  const cached = bucketCache.get(all);
+  if (cached) return cached;
+
+  const regionsByName = new Map<string, WineEntry>();
+  const grapesByCountry = new Map<string, GrapeEntry[]>();
+  const grapesByRarity = new Map<string, GrapeEntry[]>();
+  for (const e of all) {
+    if (isRegionEntry(e)) regionsByName.set(normalizeLabel(e.name), e);
+    if (isGrapeEntry(e)) {
+      const countryKey = normalizeLabel(e.grapeCountryOfOrigin);
+      if (countryKey) {
+        const bucket = grapesByCountry.get(countryKey);
+        if (bucket) bucket.push(e);
+        else grapesByCountry.set(countryKey, [e]);
+      }
+      const band = grapesByRarity.get(e.rarity);
+      if (band) band.push(e);
+      else grapesByRarity.set(e.rarity, [e]);
+    }
+  }
+
+  const built = { regionsByName, grapesByCountry, grapesByRarity };
+  bucketCache.set(all, built);
+  return built;
+};
+
 /**
  * The panel for one entry. Pure and takes everything it needs — `triedDays`
  * and `today` arrive as parameters, so a test can put a tasting three days
@@ -293,33 +348,27 @@ export const buildInsightPanel = (
     return { depth, lines: [], teaser: INSIGHT_TEASER, nextDepth: next, toNextDepth: toNext };
   }
 
-  // Bucketed once per build rather than per line — the iOS catalog
-  // pre-buckets at load; one pass over the entries is the web's equivalent.
-  const regionsByName = new Map<string, WineEntry>();
-  const grapesByCountry = new Map<string, GrapeEntry[]>();
-  const grapesByRarity = new Map<string, GrapeEntry[]>();
-  for (const e of all) {
-    if (isRegionEntry(e)) regionsByName.set(normalizeLabel(e.name), e);
-    if (isGrapeEntry(e)) {
-      const countryKey = normalizeLabel(e.grapeCountryOfOrigin);
-      if (countryKey) grapesByCountry.set(countryKey, [...(grapesByCountry.get(countryKey) ?? []), e]);
-      grapesByRarity.set(e.rarity, [...(grapesByRarity.get(e.rarity) ?? []), e]);
-    }
-  }
+  const { regionsByName, grapesByCountry, grapesByRarity } = catalogBuckets(all);
 
   const lines: InsightLine[] = [];
-  const add = (kind: InsightLineKind, text: string | null) => {
-    if (depthRank(depth) < depthRank(lineDepth(kind)) || text === null) return;
+  // The builder is a thunk, not a string: a line the depth rejects must not
+  // be *computed* and thrown away — `similarLine` walks the whole tried shelf
+  // and `countryLine` a country's grapes. iOS uses `@autoclosure` for exactly
+  // this; a lambda invoked inside the guard is the same shape.
+  const add = (kind: InsightLineKind, build: () => string | null) => {
+    if (depthRank(depth) < depthRank(lineDepth(kind))) return;
+    const text = build();
+    if (text === null) return;
     lines.push({ kind, text });
   };
 
-  add('tried', triedLine(entry, index, triedDays, today));
-  add('regionProgress', regionLine(entry, index, regionsByName));
-  add('grapeRoster', rosterLine(entry, index));
-  add('countryProgress', countryLine(entry, index, grapesByCountry));
-  add('similarTried', similarLine(entry, index));
-  add('palateMatch', matchLine(entry, index, profile));
-  add('rarityProgress', rarityLine(entry, index, grapesByRarity));
+  add('tried', () => triedLine(entry, index, triedDays, today));
+  add('regionProgress', () => regionLine(entry, index, regionsByName));
+  add('grapeRoster', () => rosterLine(entry, index));
+  add('countryProgress', () => countryLine(entry, index, grapesByCountry));
+  add('similarTried', () => similarLine(entry, index));
+  add('palateMatch', () => matchLine(entry, index, profile));
+  add('rarityProgress', () => rarityLine(entry, index, grapesByRarity));
 
   // Drawn in kind order rather than append order, so a line added later in
   // this function cannot silently reorder the panel.

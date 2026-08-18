@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { getAllEntries } from './wineData';
 import { WineEntry, isGrapeEntry, isStyleEntry } from '@/shared/types';
+import { normalizeLabel } from '@/shared/services/entryUtils';
 import { buildProfile, buildTriedIndex } from './recommendations';
 import {
   INSIGHT_DEPTHS,
@@ -44,7 +45,10 @@ describe('the depth ladder', () => {
     expect(earnedDepth(1)).toBe('first');
     expect(earnedDepth(4)).toBe('first');
     expect(earnedDepth(5)).toBe('shallow');
+    // Lower bounds approached from below as well as from above.
+    expect(earnedDepth(14)).toBe('shallow');
     expect(earnedDepth(15)).toBe('deep');
+    expect(earnedDepth(39)).toBe('deep');
     expect(earnedDepth(40)).toBe('complete');
     expect(earnedDepth(500)).toBe('complete');
   });
@@ -93,13 +97,69 @@ describe('the panel', () => {
     expect([...order].sort((a, b) => a - b)).toEqual(order);
   });
 
-  it('flavours and continents get no derived percentage', () => {
+  it('regions, flavours and continents get no derived percentage', () => {
+    // Regions included, as iOS asserts: they are not things you drink, so a
+    // palate match on one would be a category error.
     const tried = triedIds(20);
-    for (const category of ['FLAVORS', 'CONTINENTS'] as const) {
+    for (const category of ['REGIONS', 'FLAVORS', 'CONTINENTS'] as const) {
       const entry = all.find(e => e.category === category)!;
       const p = panel(entry, tried);
       expect(p.lines.some(l => l.kind === 'palateMatch'), category).toBe(false);
     }
+  });
+
+  it('a roster line counts tried over resolvable, never over authored', () => {
+    const tried = triedIds(80);
+    const index = buildTriedIndex(all, tried);
+    for (const style of all.filter(isStyleEntry)) {
+      const line = panel(style, tried).lines.find(l => l.kind === 'grapeRoster');
+      if (!line) continue;
+      const resolvable = new Set(
+        (style.details.notableGrapes ?? [])
+          .map(g => normalizeLabel(g))
+          .filter(k => index.allGrapeKeys.has(k)),
+      );
+      expect(resolvable.size).toBeGreaterThan(0);
+      expect(line.text).toContain(`of ${resolvable.size} grapes behind`);
+    }
+  });
+
+  it('nothing resolvable means no roster line', () => {
+    // A roster of zero resolvable grapes is not a roster: "0 of 0" would be a
+    // completion nobody can reach.
+    const tried = triedIds(80);
+    const index = buildTriedIndex(all, tried);
+    let exercised = 0;
+    for (const style of all.filter(isStyleEntry)) {
+      const resolvable = (style.details.notableGrapes ?? [])
+        .map(g => normalizeLabel(g))
+        .filter(k => index.allGrapeKeys.has(k));
+      if (resolvable.length > 0) continue;
+      exercised += 1;
+      expect(panel(style, tried).lines.some(l => l.kind === 'grapeRoster'), style.name).toBe(false);
+    }
+    // A synthetic style guarantees the rule is exercised even when every
+    // shipped style resolves at least one grape.
+    const ghost = {
+      ...(all.find(isStyleEntry) as object),
+      id: 'S-GHOST',
+      name: 'Ghost Style',
+      details: { ...(all.find(isStyleEntry)!.details), notableGrapes: ['Nothing Anybody Grows'] },
+    } as WineEntry;
+    const withGhost = [...all, ghost];
+    const ghostIndex = buildTriedIndex(withGhost, tried);
+    const ghostPanel = buildInsightPanel(ghost, ghostIndex, buildProfile(ghostIndex), withGhost, {}, 100);
+    expect(ghostPanel.lines.some(l => l.kind === 'grapeRoster')).toBe(false);
+    expect(exercised + 1).toBeGreaterThan(0);
+  });
+
+  it('a region or flavour id on a legacy shelf never prints a tasting', () => {
+    // Unreachable through the UI (TRIED is gated on tastable) but reachable
+    // from a restored or legacy shelf — iOS asks grapes-and-styles only.
+    const region = all.find(e => e.category === 'REGIONS')!;
+    const tried = [region.id, ...triedIds(5)];
+    const p = panel(region, tried, { [region.id]: 100 }, 100);
+    expect(p.lines.some(l => l.kind === 'tried')).toBe(false);
   });
 
   it('a tried entry says when, and an untried one says nothing', () => {

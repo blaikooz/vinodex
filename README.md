@@ -42,7 +42,6 @@ wrapped in a plastic shell you can re-skin five different ways.
 | **The dex** | Grapes, regions, styles and flavours. Every entry cross-links to the others — a grape names its regions, a region names its grapes, and both resolve. |
 | **Globe scan** | A draggable 3D globe. Pick a continent, drill to a country, land on its regions. |
 | **Scanner** | Four questions about the glass in front of you — colour, body, origin, flavours — then a deduction. Flavours are ANDed, so three notes narrow 80 grapes to a handful. |
-| **What's that…?** | A daily reveal, played as a guess. Silhouette first, name second. Rotates through grapes, regions and styles so it is not a grape-only habit. |
 | **Moon dial** | The biodynamic day — fruit, root, leaf or flower — for anyone who plans a tasting around it. |
 | **Saved** | Bookmark anything. Stored as ids, so a data update never leaves you looking at stale text. |
 | **Five chassis skins** | Vinodex Classic, Côte de Nuits, Blanc de Blancs, Burgundy Velour, Electric Riesling. Plus a light screen mode and two text sizes. |

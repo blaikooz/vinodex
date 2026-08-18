@@ -656,3 +656,34 @@ half, which rides v6#2** with the rest of the drawn art.
 
 **Ledger I6 executed:** `lineageIndexFor` — one index per catalog array,
 keyed by identity; the three per-screen builds now share it.
+
+#### Cleanbot review of the fourth pass — fixes landed
+
+M1 README row dropped (the deletion sweep's one user-facing miss; the
+ledger and firmware-changelog mentions are history and stay). M2
+`triedLine` gated to grapes-and-styles as iOS gates it — a region or
+flavour id can only reach the tried shelf from a restored or legacy shelf,
+and the panel must not assert a tasting that never happened. M3 the two
+dropped roster cases ported (`rosterCountsResolvableOnly`,
+`emptyRosterIsSilent`, the latter with a synthetic style so the rule is
+exercised even when every shipped style resolves a grape) and
+`referenceEntriesAreQuiet` widened to regions. L4 `applyArchive` prunes
+`triedEntryDays` against the restored shelf — the log is not archived on
+either platform, and the restore writes the shelf directly, so a stale log
+would otherwise outlive its install. L1 catalog buckets memoized per array
+behind a WeakMap (mirroring `lineageIndexFor`) with `push` instead of a
+spread. L2 `add()` takes a thunk, so a depth-rejected line is never
+computed. L3 name tie-break через `localeCompare('en')` rather than UTF-16
+code units. L5 ladder lower bounds at 14 and 39. I1 the surviving
+`revealCursor` comment now says what is true — nothing increments it, and
+that matches iOS (`RevealCursor.advance()` has had no call site since
+0.8.93). I2 dead `'DAILY'` marquee case removed. I4 `toolSentence` carries
+iOS's `count > 1` guard.
+
+**I3 — an iOS-side gap worth reporting to dexbot, no web change.** iOS
+documents `firstInsight`'s source as an event fired from the entry screen
+(`FirstTimeTriggers.swift:84`) but has no `fireOnce(.firstInsight)` call
+anywhere; the line is authored, live and unreachable there. The web fires
+it from `InsightSection` now that the panel exists, which is the deferral
+contract working as designed — web is correctly ahead, and iOS is missing
+one call site.

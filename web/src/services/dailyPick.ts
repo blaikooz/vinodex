@@ -25,10 +25,17 @@ export function dayIndex(date: Date = new Date()): number {
 }
 
 /**
- * A per-install counter, persisted so the exam-seed cycle continues across
- * visits rather than restarting at the same paper every cold load. The key
- * keeps its `revealCursor` spelling — persisted raw values are never renamed,
- * and it is archived under that name on both platforms.
+ * A per-install counter the WINE EXAM adds to `dayIndex` when seeding a paper.
+ *
+ * **Nothing increments it any more, and that matches iOS.** The advance was
+ * the reveal's, and it went with the game — iOS keeps `RevealCursor.advance()`
+ * with no call site since 0.8.93 for the same reason this keeps the reader:
+ * the stored value is real, it is archived, and a restored install must seed
+ * from what it carried. So the value is whatever the install last wrote (0 on
+ * a fresh one), and the exam seed rotates on the day rather than on the open.
+ *
+ * The key keeps its `revealCursor` spelling — persisted raw values are never
+ * renamed, and it is archived under that name on both platforms.
  */
 const CURSOR_KEY = 'revealCursor';
 

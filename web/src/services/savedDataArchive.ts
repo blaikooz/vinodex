@@ -332,5 +332,30 @@ export const applyArchive = (archive: SavedDataArchive): AppliedKey[] => {
   put('keepAwakeEnabled', 'keepAwakeEnabled', archive.keepAwakeEnabled === null ? null : String(archive.keepAwakeEnabled));
   put('avatarJPEG', 'avatarImage', archive.avatarJPEG === null ? null : JPEG_PREFIX + archive.avatarJPEG);
 
+  // The tried-day log is **not** archived (iOS does not carry it either), and
+  // this writes the shelf directly rather than through the bookmark API that
+  // prunes it — so without this the previous install's log survives a restore:
+  // its stale ids linger forever, and every restored id, having no day,
+  // degrades to "On your tried shelf." across the whole panel. Pruning to the
+  // restored shelf leaves the honest answer for ids we have no date for and
+  // keeps a date only where it still describes something on the shelf.
+  try {
+    const raw = storage.getItem('triedEntryDays');
+    if (raw) {
+      const parsed: unknown = JSON.parse(raw);
+      const kept: Record<string, number> = {};
+      if (parsed && typeof parsed === 'object' && !Array.isArray(parsed)) {
+        const restored = new Set(archive.triedShelf);
+        for (const [id, day] of Object.entries(parsed as Record<string, unknown>)) {
+          if (restored.has(id) && typeof day === 'number' && Number.isFinite(day)) kept[id] = day;
+        }
+      }
+      if (Object.keys(kept).length === 0) storage.removeItem('triedEntryDays');
+      else storage.setItem('triedEntryDays', JSON.stringify(kept));
+    }
+  } catch {
+    /* a log we cannot read is a log the panel degrades past honestly */
+  }
+
   return written;
 };

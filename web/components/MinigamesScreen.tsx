@@ -54,7 +54,10 @@ export const TOOL_TITLES: string[] = TOOL_ROSTER.map(t => t.title);
 /** iOS `ToolRoster.sentence` — six lowercase names, Oxford-comma'd. */
 export const toolSentence = (): string => {
   const names = TOOL_TITLES.map(t => t.toLowerCase());
-  const last = names[names.length - 1]!;
+  const last = names[names.length - 1];
+  // iOS `ToolRoster.sentence`'s guard: a one-tool shelf is its own sentence,
+  // and an empty one is the empty string rather than ", and undefined".
+  if (last === undefined || names.length <= 1) return names[0] ?? '';
   return names.slice(0, -1).join(', ') + ', and ' + last;
 };
 

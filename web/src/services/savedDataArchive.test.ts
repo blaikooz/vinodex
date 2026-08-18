@@ -149,6 +149,26 @@ describe('saved-data archive', () => {
     }
   });
 
+  it('a restore prunes the tried-day log against the restored shelf', () => {
+    // The log is not archived (iOS does not carry it either) and the restore
+    // writes the shelf directly, so without pruning the previous install's
+    // days linger against ids that are no longer tried.
+    populate();
+    const archive = exportArchive(1);
+    localStorage.setItem('triedEntryDays', JSON.stringify({ G004: 12, GHOST: 99 }));
+    applyArchive(archive);
+    const log = JSON.parse(localStorage.getItem('triedEntryDays') ?? '{}') as Record<string, number>;
+    expect(log).toEqual({ G004: 12 });
+  });
+
+  it('a restore whose shelf shares nothing with the log clears it', () => {
+    populate();
+    const archive = exportArchive(1);
+    localStorage.setItem('triedEntryDays', JSON.stringify({ GHOST: 99 }));
+    applyArchive(archive);
+    expect(localStorage.getItem('triedEntryDays')).toBe(null);
+  });
+
   it('the filename names the version and the day', () => {
     const archive = exportArchive(123);
     expect(suggestedFilename(archive)).toBe(`vinodex-backup-${archive.appVersion}-123.json`);

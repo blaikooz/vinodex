@@ -41,7 +41,6 @@ const marqueeGlyph = (title: string, size: number): React.ReactNode => {
     case 'FILTER': return <SlidersHorizontal {...props} />;
     case 'WSET QUIZ':
     case 'QUIZ': return <GraduationCap {...props} />;
-    case 'DAILY':
     case 'DAILY CHALLENGE': return <Calendar {...props} />;
     case 'PASSPORT': return <BookOpen {...props} />;
     case 'MOON DIAL': return <Moon {...props} />;
