@@ -772,3 +772,86 @@ of the screens behind it; and the gate itself seeding `lcdMode` lowercase so
 - The BIOS reports **526 entries** where iOS reports 284: the web ships
   `COUNTRY_GATE` rows as real entries and iOS filters them out. Both numbers
   are honest about their own catalogue; `coverage.test.ts` says so already.
+
+### Cleanbot review of the fifth pass — fixes landed
+
+Two user-facing bugs, a weak gate, and a defect my merge dropped.
+
+**H1 — the intro card and the spotlight drew over the BIOS.** Neither was
+gated on `booting`, and both sit above it (z-85 and z-80 against z-70), so a
+genuinely fresh visitor met the name prompt with the POST hidden behind it,
+and a returning-but-untoured player got the spotlight painted over the boot.
+The presenter was already suspended under `'boot'`; these are the two hosts
+that do not read that seam, and they now check `!booting` directly. **The
+hole that hid it was the test seeding:** the professor's test seeded past the
+BIOS and the BIOS test seeded past the professor, so the two were never up at
+once. Two tests now put them up together, and both were confirmed to fail
+against the un-fixed code before the fix was restored.
+
+**H2 — the install banner advertised a placeholder listing.** `GET APP`
+pointed at `id0000000000` for every visitor. No id was invented: the banner
+gates on `APP_STORE_LISTING_IS_LIVE` and returns by itself when a real id
+lands. Its fixed bar was also clipping the status orb in every capture the
+gate produced, so it publishes its height and the shell pads down by exactly
+that, back to zero when dismissed.
+
+**M1** `shareEntry` now falls through to the clipboard on a cancelled share
+sheet, as its own comment always claimed — dismissing the sheet throws
+`AbortError` on both mobile platforms, which is the common path, and it was
+flashing COULD NOT SHARE at everyone who changed their mind. **M2** the main
+menu reads `var(--lcd-page)` like every other screen; the dial rewrite had
+carried a fixed dark `bg-dex-screen` through, so the two menu captures were
+identical apart from the rim and the "both modes" gate was blind on the
+most-visited surface.
+
+**M3/M4/M5 — the gate itself.** The console fixture lived inside
+`smoke.spec.ts` and applied to nothing else, so the screenshot suite ran with
+no error checking at all; it is hoisted to `e2e/fixtures.ts` and now also
+fails on failed requests and any 4xx, **filtering on the request URL rather
+than the word "404"** — Chrome logs a broken `<img>` as a 404, and this range
+added 72 `/art/` references, so the old text filter would have hidden exactly
+the mistyped-stem failure the gate exists for. The screenshot suite asserted
+only `body height > 200` (a blank page passes) and the shell loop asserted
+nothing; every case now checks the mode reached the LCD, and **every shell
+compares the computed `--chassis-body` against its own row in
+`CHASSIS_SKINS`**, which is the failure a colour-table port actually has.
+`.github/workflows/gates.yml` runs all five gates on `master` and `testing`,
+`npm run test:all` runs them locally, and the README says so — #19-geometry
+waited four passes for a gate and must not land on one nobody runs.
+
+**M6 — a live parity defect, re-recorded.** Taking this document "ours" in
+the merge dropped a measured finding from the bundle's doc, re-verified as
+still true: **the web derives grape characteristic bars from text labels**
+(`shared/data/grapeCards.ts` `levelFromText`/`bodyFromText`, over strings
+like "Medium-High") **while iOS carries numeric `grapeCharacteristics`.** On
+the 31 grapes the bundle imported, tannin matches iOS on **26/31**, acid
+**31/31**, body **30/31**. The bars are a headline readout on every grape
+page, so a five-grape disagreement is visible. Fixing it means carrying the
+numbers in the shared catalogue rather than re-deriving them per platform,
+which is a `HGapps/shared` change and a `sommbot`/data decision, not a web
+one. **Open, unowned, and now written down.**
+
+**L1** three display names caught up with iOS 0.9.2 (BURGUNDY VELOUR →
+BURGUNDY, ELECTRIC RIESLING → VIN JAUNE, SMART GRAPE → FIELD BLEND); the
+other 19 and all seven new ones already matched. **L2** `BADGE_ICON` retired
+— dead since the drawn stamps landed. **L3** the marquee map gained the nine
+filter-mode scan titles and the eleven other unmapped screens, and
+`marqueeArt.test.ts` now holds the map and the directory to each other in
+both directions, with a named `DRAWN_AHEAD` list for the two panels mirrored
+ahead of their screens (workshop, label scanner) on iOS's own discipline —
+so "the screen does not exist yet" and "somebody forgot to wire it" stop
+being the same observation. **L4** `matches` defaults to a live
+`shelfSnapshot()` like its two siblings; the empty-snapshot constant went
+with the disagreement, and the screen's snapshot memo is keyed `[]`. **L5**
+leftovers cleared and `NEXT-SESSION-PROMPT.md` deleted. **L6**
+`SETTINGS_SECTIONS`/`SettingsSectionId` moved to
+`web/src/services/settingsSections.tsx`: `App.tsx` imported them statically
+while lazily importing the same module, so the static edge won and the
+SettingsPanel chunk never split. It splits now (45.49 kB out of the entry
+bundle) and the build warning is gone — the first cut of the standing
+decomposition note.
+
+**The art leg's `/MIR` purges.** Scoped with a `*.png` mask, it still mirrors
+deletions inside the four web targets: a web-authored PNG dropped into
+`web/public/art/marquee/` would be removed by the next sync. That is the
+point of `/MIR` and it is now stated in the script's own comment.

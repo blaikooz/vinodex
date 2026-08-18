@@ -67,7 +67,6 @@ export function shelfSnapshot(): ShelfSnapshot {
     tried: new Set(shelfIds('tried')),
   };
 }
-const EMPTY_SNAPSHOT: ShelfSnapshot = { saved: new Set(), wantToTry: new Set(), tried: new Set() };
 
 /** The synthetic category chip that surfaces country pages (never matches an entry). */
 export const COUNTRIES_VALUE = 'COUNTRIES';
@@ -147,7 +146,16 @@ function satisfies(entry: WineEntry, facet: ChipFacet, chosen: string[], snap: S
   }
 }
 
-export function matches(filter: ChipFilter, entry: WineEntry, snap: ShelfSnapshot = EMPTY_SNAPSHOT): boolean {
+/**
+ * `shelfSnapshot()`, so the three entry points agree (L4). They disagreed:
+ * this one defaulted to an empty snapshot while `matchingEntries` and
+ * `countWithChip` defaulted to a live read, so calling `matches` directly
+ * silently answered "on no shelf" for every entry and the SHELF facet
+ * matched nothing. Every caller in the app passes a snapshot explicitly; the
+ * default is what a new caller inherits, and it should be the truthful one.
+ * (The empty-snapshot constant went with the disagreement.)
+ */
+export function matches(filter: ChipFilter, entry: WineEntry, snap: ShelfSnapshot = shelfSnapshot()): boolean {
   for (const facet of CHIP_FACETS) {
     const chosen = filter[facet];
     if (!chosen || chosen.length === 0) continue;

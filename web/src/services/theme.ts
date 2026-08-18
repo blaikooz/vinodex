@@ -106,7 +106,7 @@ export const CHASSIS_SKINS: Record<ChassisSkinId, ChassisSkin> = {
   },
   BURGUNDY: {
     id: 'BURGUNDY',
-    displayName: 'BURGUNDY VELOUR',
+    displayName: 'BURGUNDY',
     body: VELOUR,
     footerWash: 'rgba(75, 29, 63, 0.75)',
     panel: VELOUR_PANEL,
@@ -117,7 +117,7 @@ export const CHASSIS_SKINS: Record<ChassisSkinId, ChassisSkin> = {
   },
   RIESLING: {
     id: 'RIESLING',
-    displayName: 'ELECTRIC RIESLING',
+    displayName: 'VIN JAUNE',
     body: WALKMAN,
     footerWash: 'rgba(242, 193, 27, 0.7)',
     panel: WALKMAN_PANEL,
@@ -154,7 +154,7 @@ export const CHASSIS_SKINS: Record<ChassisSkinId, ChassisSkin> = {
   },
   SMART_GRAPE: {
     id: 'SMART_GRAPE',
-    displayName: 'SMART GRAPE',
+    displayName: 'FIELD BLEND',
     body: '#1C1C1E',
     footerWash: 'rgba(28, 28, 30, 0.75)',
     panel: '#2C2A28',

@@ -19,6 +19,16 @@ export const SHARE_BASE = 'https://vinodex.vercel.app';
  */
 export const APP_STORE_URL = 'https://apps.apple.com/app/vinodex/id0000000000';
 
+/**
+ * Whether the listing above is real yet.
+ *
+ * The id is a placeholder, and a prominent GET APP button pointing at a dead
+ * App Store page is worse than no button: it spends the one nudge a visitor
+ * gets. Callers gate on this rather than inventing an id, so the banner
+ * returns the moment the real listing is pasted in above.
+ */
+export const APP_STORE_LISTING_IS_LIVE = !APP_STORE_URL.includes('id0000000000');
+
 /** The path for an entry — the same route the web router already handles. */
 export function entryPath(id: string): string {
   return `/detail/${id}`;
@@ -44,9 +54,10 @@ export async function shareEntry(id: string, name: string): Promise<'shared' | '
       return 'shared';
     }
   } catch {
-    // A user cancelling the share sheet throws — fall through to clipboard so a
-    // deliberate cancel does not read as a failure the caller must surface.
-    return 'failed';
+    // A user cancelling the share sheet throws (AbortError on both mobile
+    // platforms), which is the common path, not an error. Fall through to the
+    // clipboard exactly as this comment always claimed — returning 'failed'
+    // here flashed COULD NOT SHARE at everyone who changed their mind.
   }
   try {
     await navigator.clipboard.writeText(url);

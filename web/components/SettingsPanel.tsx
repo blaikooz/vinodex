@@ -1,7 +1,13 @@
 import React from 'react';
-import { Palette, BarChart3, Lock, LockOpen, Bug, Check, Wrench, LogOut, Flag, SlidersHorizontal, Crown, Leaf, Sun, Moon, Grid3x3, Globe, Wine, Map as MapIcon, Layers, Vibrate, Volume2, ChevronRight, MemoryStick, Download, Upload, Mail, KeyRound, UserRound, Sparkle, Play } from 'lucide-react';
+import { Palette, Lock, LockOpen, Bug, Check, Wrench, LogOut, Flag, Crown, Leaf, Sun, Moon, Grid3x3, Globe, Wine, Map as MapIcon, Layers, Vibrate, Volume2, ChevronRight, MemoryStick, Download, Upload, Mail, KeyRound, UserRound, Sparkle, Play } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import DeviceLayout from './DeviceLayout';
+// The section vocabulary moved out so `App.tsx` can import it without
+// dragging this module into the entry bundle — see settingsSections.tsx.
+import { SETTINGS_SECTIONS, SettingsSectionId } from '../src/services/settingsSections';
+
+export type { SettingsSectionId };
+export { SETTINGS_SECTIONS };
 import { WineEntry } from '@/shared/types';
 import {
   CHASSIS_SKINS,
@@ -58,7 +64,6 @@ import { DEMO_STOPS, demoCycleSeconds, startDemo } from '../src/services/demoMod
 import { lineageIndexFor } from '../src/services/grapeLineage';
 import { FIRMWARE_RELEASES } from '@/shared/constants';
 
-export type SettingsSectionId = 'CUSTOMIZE' | 'SETTINGS' | 'DATA' | 'ACCESS' | 'DEV';
 
 /**
  * Full stored-data wipe behind the SETTINGS ▸ CLEAR SAVED DATA control, mirroring
@@ -110,20 +115,7 @@ function clearAllSavedData(): void {
   if (typeof window !== 'undefined') window.location.reload();
 }
 
-export const SETTINGS_SECTIONS: {
-  id: SettingsSectionId;
-  icon: React.ReactNode;
-  tint: string;
-  border: string;
-  /** DEV is developer plumbing, not a setting — reached via a button, not a tile. */
-  hidden?: boolean;
-}[] = [
-  { id: 'CUSTOMIZE', icon: <Palette size={30} />, tint: 'text-red-400', border: 'border-red-800' },
-  { id: 'SETTINGS', icon: <SlidersHorizontal size={30} />, tint: 'text-orange-400', border: 'border-orange-800' },
-  { id: 'DATA', icon: <BarChart3 size={30} />, tint: 'text-blue-400', border: 'border-blue-800' },
-  { id: 'ACCESS', icon: <Lock size={30} />, tint: 'text-yellow-400', border: 'border-yellow-700' },
-  { id: 'DEV', icon: <Bug size={30} />, tint: 'text-stone-400', border: 'border-stone-600', hidden: true },
-];
+
 
 /**
  * The settings grid, ported from
@@ -165,9 +157,8 @@ const FeatureTile: React.FC<{ title: string; icon: React.ReactNode; onClick: () 
 /**
  * The drawn sticker each chassis skin wears, mirrored from iOS by the web art
  * leg (v6#2). Keyed by our skin id; a skin with no mirrored sticker is simply
- * absent and the tile falls back to the tinted emblem. The six unused stems
- * ORANGE WINE is the one shell with no mirrored sticker and keeps the tinted
- * emblem; CHRISTMAS has never had one on either platform.
+ * absent and the tile falls back to the tinted emblem. ORANGE WINE and
+ * CHRISTMAS are the two without one on either platform.
  */
 const SKIN_STICKER: Partial<Record<ChassisSkinId, string>> = {
   CLASSIC: 'sticker-classic',

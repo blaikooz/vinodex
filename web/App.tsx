@@ -21,7 +21,7 @@ import VinodexBoot from './components/VinodexBoot';
 import { WineEntry, EntryCategory } from '@/shared/types';
 import { getAllEntries } from './src/services/wineData';
 import { clear as clearScreenState } from './src/services/screenState';
-import { SETTINGS_SECTIONS, SettingsSectionId } from './components/SettingsPanel';
+import { SETTINGS_SECTIONS, SettingsSectionId } from './src/services/settingsSections';
 import { installGlobalTapSound } from './src/services/sound';
 import { installGlobalHaptics } from './src/services/haptics';
 import { demoStopAt, isDemoActive, stopDemo, subscribeToDemo } from './src/services/demoMode';
@@ -228,8 +228,15 @@ const App: React.FC = () => {
     // {name}." behind the whole tutorial. The line is the one that tells the
     // player what he is *for*, and every later line assumes it. Caught by the
     // first-run smoke test, which is what the smoke test is for.
+    // `!booting` as well: the BIOS owns the device while it runs, and both
+    // of these draw above it (z-80/z-85 against the boot's z-70). Without it a
+    // genuinely fresh visitor meets the name prompt with the POST hidden
+    // behind it, and a returning-but-untoured player gets the spotlight
+    // painted over the boot. The presenter is already suspended under 'boot';
+    // this is the same rule for the two hosts that do not read that seam.
     if (
       path === '/dex' &&
+      !booting &&
       coachmarkShouldAutoStart() &&
       vinoQueueIsEmpty() &&
       (hasFired('firstLaunch') || isVinoSilenced())
@@ -237,10 +244,10 @@ const App: React.FC = () => {
       startCoachmarks();
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [location.pathname, introDone, vinoIdle]);
+  }, [location.pathname, introDone, vinoIdle, booting]);
 
   const showIntroCard =
-    location.pathname === '/dex' && !hasFired('firstLaunch') && !isVinoSilenced() && !introDone && !demoActive;
+    location.pathname === '/dex' && !booting && !hasFired('firstLaunch') && !isVinoSilenced() && !introDone && !demoActive;
 
   // Home is an in-app control, so it lands on the dex menu — never the splash.
   // The splash is where a fresh visit starts, not a screen to bounce back to.
@@ -451,7 +458,10 @@ const App: React.FC = () => {
   };
 
   return (
-    <div className="antialiased text-gray-900 bg-gray-900 min-h-screen overflow-hidden">
+    <div
+      className="antialiased text-gray-900 bg-gray-900 min-h-screen overflow-hidden"
+      style={{ paddingTop: 'var(--install-banner-h, 0px)' }}
+    >
       {saverUp && <ScreensaverOverlay onDismiss={() => setSaverUp(false)} />}
       {showIntroCard && (
         <VinoIntroCard

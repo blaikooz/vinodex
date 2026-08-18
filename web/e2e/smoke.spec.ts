@@ -1,41 +1,19 @@
-import { test, expect, Page } from '@playwright/test';
+import { test, expect, seedDevice } from './fixtures';
+import type { Page } from '@playwright/test';
 
 /**
  * Render smoke over the routes the v6 sweeps built and nobody had ever
- * looked at. Every test fails on a console error, which is the point: a
- * screen that throws on mount still typechecks and still passes vitest.
+ * looked at. Every test fails on a console error, a page error, a failed
+ * request or any 4xx/5xx — see `fixtures.ts` — which is the point: a screen
+ * that throws on mount, or an <img> pointing at a stem that does not exist,
+ * still typechecks and still passes vitest.
+ *
+ * Each test takes `consoleErrors` so the fixture is actually instantiated;
+ * Playwright only builds a fixture a test asks for.
  */
 
-const errors = new Map<Page, string[]>();
-
-test.beforeEach(async ({ page }) => {
-  const found: string[] = [];
-  errors.set(page, found);
-  page.on('console', m => {
-    if (m.type() === 'error') found.push(m.text());
-  });
-  page.on('pageerror', e => found.push(String(e)));
-});
-
-test.afterEach(async ({ page }) => {
-  const found = errors.get(page) ?? [];
-  // Favicon/manifest 404s from the preview server are not the app failing.
-  const real = found.filter(e => !/favicon|manifest\.webmanifest|404/i.test(e));
-  expect(real, `console errors: ${real.join(' | ')}`).toEqual([]);
-});
-
 /** The dex is behind an unlock code that persists; set it before first paint. */
-const unlock = async (page: Page) => {
-  await page.addInitScript(() => {
-    window.localStorage.setItem('unlockedAppIDs', JSON.stringify(['vinodex']));
-    // Past the BIOS: it owns the screen for its own beat and has its own
-    // test below, so every other assertion would otherwise be measuring it.
-    window.sessionStorage.setItem('booted', '1');
-    // Skip the professor's first-run card unless a test asks for it.
-    window.localStorage.setItem('firstTimeTriggersSeen', 'firstLaunch,firstLaunchNamed');
-    window.localStorage.setItem('coachmarkOffered', 'true');
-  });
-};
+const unlock = (page: Page) => seedDevice(page);
 
 const routes: [string, string][] = [
   ['/dex', 'the main menu'],
@@ -56,7 +34,8 @@ const routes: [string, string][] = [
 ];
 
 for (const [route, name] of routes) {
-  test(`renders ${name} (${route})`, async ({ page }) => {
+  test(`renders ${name} (${route})`, async ({ page, consoleErrors }) => {
+    void consoleErrors;
     await unlock(page);
     await page.goto(route);
     // The chassis always paints something; an empty body is a dead screen.
@@ -65,7 +44,8 @@ for (const [route, name] of routes) {
   });
 }
 
-test('a grape entry and its lineage render', async ({ page }) => {
+test('a grape entry and its lineage render', async ({ page, consoleErrors }) => {
+    void consoleErrors;
   await unlock(page);
   await page.goto('/list/GRAPES');
   await page.waitForTimeout(800);
@@ -79,7 +59,8 @@ test('a grape entry and its lineage render', async ({ page }) => {
   await expect(page.locator('body')).not.toBeEmpty();
 });
 
-test('the tools shelf is the fixed six', async ({ page }) => {
+test('the tools shelf is the fixed six', async ({ page, consoleErrors }) => {
+    void consoleErrors;
   await unlock(page);
   await page.goto('/minigames');
   await page.waitForTimeout(600);
@@ -89,7 +70,8 @@ test('the tools shelf is the fixed six', async ({ page }) => {
   await expect(page.getByText('PROF. VINO')).toBeVisible();
 });
 
-test('the professor greets a fresh device and takes a name', async ({ page }) => {
+test('the professor greets a fresh device and takes a name', async ({ page, consoleErrors }) => {
+    void consoleErrors;
   // Deliberately NOT unlocked-past: this is the first-run flow.
   await page.addInitScript(() => {
     window.localStorage.setItem('unlockedAppIDs', JSON.stringify(['vinodex']));
@@ -105,7 +87,8 @@ test('the professor greets a fresh device and takes a name', async ({ page }) =>
   await expect(page.getByText(/Pleasure, PAT/)).toBeVisible({ timeout: 5000 });
 });
 
-test('the stored-data dialogs open and refuse a foreign file', async ({ page }) => {
+test('the stored-data dialogs open and refuse a foreign file', async ({ page, consoleErrors }) => {
+    void consoleErrors;
   await unlock(page);
   await page.goto('/settings/SETTINGS');
   await page.waitForTimeout(600);
@@ -121,7 +104,8 @@ test('the stored-data dialogs open and refuse a foreign file', async ({ page }) 
   await expect(page.getByText(/Not a Vinodex backup/)).toBeVisible({ timeout: 5000 });
 });
 
-test('the BIOS boots once a session and hands the device over', async ({ page }) => {
+test('the BIOS boots once a session and hands the device over', async ({ page, consoleErrors }) => {
+    void consoleErrors;
   await page.addInitScript(() => {
     window.localStorage.setItem('unlockedAppIDs', JSON.stringify(['vinodex']));
     window.localStorage.setItem('firstTimeTriggersSeen', 'firstLaunch,firstLaunchNamed');
@@ -137,4 +121,43 @@ test('the BIOS boots once a session and hands the device over', async ({ page })
   // Second visit in the same session goes straight through.
   await page.goto('/passport');
   await expect(page.getByText(/VINODEX BIOS/)).toHaveCount(0);
+});
+
+/**
+ * The hole that hid H1: the professor test seeded past the BIOS and the BIOS
+ * test seeded past the professor, so the two were never up at once — and on
+ * a genuinely fresh launch they are, with the intro card (z-85) and the
+ * spotlight (z-80) drawing straight over the boot (z-70).
+ */
+test('the BIOS runs alone on a genuinely fresh device', async ({ page, consoleErrors }) => {
+  void consoleErrors;
+  // Nothing seeded but the unlock: no `booted`, no triggers, no coachmark.
+  await page.addInitScript(() => {
+    window.localStorage.setItem('unlockedAppIDs', JSON.stringify(['vinodex']));
+  });
+  await page.goto('/dex');
+
+  // While the POST is up, nothing may cover it.
+  await expect(page.getByText(/VINODEX BIOS/)).toBeVisible();
+  await expect(page.getByRole('dialog', { name: /introduces himself/i })).toHaveCount(0);
+  await expect(page.getByText(/TUTORIAL \d\/\d/)).toHaveCount(0);
+
+  // And once it hands over, the first-run flow arrives.
+  await expect(page.getByText(/VINODEX BIOS/)).toBeHidden({ timeout: 20_000 });
+  await expect(page.getByRole('dialog', { name: /introduces himself/i })).toBeVisible({ timeout: 10_000 });
+});
+
+test('a returning untoured player is not spotlit over the BIOS', async ({ page, consoleErrors }) => {
+  void consoleErrors;
+  await page.addInitScript(() => {
+    window.localStorage.setItem('unlockedAppIDs', JSON.stringify(['vinodex']));
+    // Met the professor, never took the tour: the auto-start path.
+    window.localStorage.setItem('firstTimeTriggersSeen', 'firstLaunch,firstLaunchNamed');
+  });
+  await page.goto('/dex');
+  await expect(page.getByText(/VINODEX BIOS/)).toBeVisible();
+  await expect(page.getByText(/TUTORIAL \d\/\d/)).toHaveCount(0);
+  await expect(page.getByText(/VINODEX BIOS/)).toBeHidden({ timeout: 20_000 });
+  // The tour takes over only after the device is handed to the player.
+  await expect(page.getByText(/TUTORIAL \d\/\d/)).toBeVisible({ timeout: 10_000 });
 });

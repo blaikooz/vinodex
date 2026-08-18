@@ -1,0 +1,35 @@
+name: gates
+
+# The four gates plus the render gate. #19-geometry was declined for four
+# passes for want of a gate; landing it on one nobody runs would be the same
+# gap wearing a green tick.
+on:
+  push:
+    branches: [master, testing]
+  pull_request:
+
+jobs:
+  gates:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+      - run: npm ci
+      - run: npm run typecheck
+      - run: npm test
+      - run: npm run build
+      - run: npm run check:refs
+      # Chromium only: the suite drives the handheld viewport, not a matrix.
+      - run: npx playwright install --with-deps chromium
+      - run: npm run test:e2e
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: render-gate
+          path: |
+            web/e2e/.shots
+            web/e2e/.artifacts
+          retention-days: 7

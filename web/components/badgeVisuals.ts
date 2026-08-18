@@ -1,19 +1,12 @@
-import { Droplet, Package, Crown, Map as MapIcon, Flame, GraduationCap } from 'lucide-react';
 import { BadgeId } from '../src/services/passport';
 
 /**
- * One table for the stamp glyphs and tints, read by the passport's grid and
- * the unlock prompt alike — two copies of a six-row lookup is the
- * parallel-copy drift the tool roster just got fixed for (M3).
+ * The stamp tints, read by the passport's grid and the unlock prompt alike.
+ *
+ * The glyph half of this table retired when the drawn stamps arrived (v6#2):
+ * `StampArt` draws the real thing now, so six lucide icons were being
+ * imported and never rendered.
  */
-export const BADGE_ICON: Record<BadgeId, React.ComponentType<{ size?: number; className?: string; color?: string }>> = {
-  firstSip: Droplet,
-  tenBottles: Package,
-  allNoble: Crown,
-  regionComplete: MapIcon,
-  streakWeek: Flame,
-  sommelier: GraduationCap,
-};
 
 export const BADGE_TINT: Record<BadgeId, string> = {
   firstSip: '#ef4444',

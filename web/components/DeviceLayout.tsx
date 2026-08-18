@@ -26,7 +26,7 @@ import { IDLE_ACTIVITY_EVENTS } from '../src/services/screensaver';
  * title-keyed and any title without a panel falls through to the lucide
  * glyph below rather than drawing nothing.
  */
-const MARQUEE_ART: Record<string, string> = {
+export const MARQUEE_ART: Record<string, string> = {
   'VINODEX': 'marquee-menu',
   'SYSTEM': 'marquee-system',
   'SAVED': 'marquee-user',
@@ -64,6 +64,30 @@ const MARQUEE_ART: Record<string, string> = {
   'DATA': 'marquee-data',
   'DEV': 'marquee-dev',
   'ACCESS': 'marquee-shop',
+  // The filter-mode scan titles the listing sets, and the remaining screens.
+  // Every stem below exists on disk; `marqueeArt.test.ts` holds the map and
+  // the directory to each other in both directions.
+  'SECTOR SCAN': 'marquee-regions',
+  'AREA SCAN': 'marquee-countryscan',
+  'STYLE SCAN': 'marquee-stylescan',
+  'FLAVOR SCAN': 'marquee-flavorscan',
+  'GEOLOGY SCAN': 'marquee-soilscan',
+  'REGION SCAN': 'marquee-regions',
+  'STATE SCAN': 'marquee-countryscan',
+  'CLIMATE SCAN': 'marquee-soilscan',
+  'SYSTEM SCAN': 'marquee-system',
+  'WORLD SCAN': 'marquee-globescan',
+  'SECTOR SELECT': 'marquee-continentscan',
+  'TACTILE VIEW': 'marquee-globescan',
+  'BIODYNAMIC SCAN': 'marquee-moondial',
+  'PROF. VINO': 'marquee-vinodex',
+  'SUPPORT': 'marquee-notifications',
+  'YOU MIGHT LIKE': 'marquee-encyclopedia',
+  'DEMO MODE': 'marquee-demo',
+  'PROFILES': 'marquee-user',
+  'HAPTICS': 'marquee-haptics',
+  'HEALTH': 'marquee-dev',
+  'SETTINGS': 'marquee-settings',
 };
 
 const marqueeGlyph = (title: string, size: number): React.ReactNode => {

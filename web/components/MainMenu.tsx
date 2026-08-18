@@ -80,7 +80,7 @@ const MainMenu: React.FC<MainMenuProps> = ({ onNavigate }) => {
       onTitleTap={() => setIsFlipped(true)}
       backFace={<DeviceBackPanel onReturn={() => setIsFlipped(false)} />}
     >
-      <div className="flex-1 min-h-0 w-full flex items-center justify-center bg-dex-screen relative overflow-hidden p-4">
+      <div className="flex-1 min-h-0 w-full flex items-center justify-center bg-[var(--lcd-page)] relative overflow-hidden p-4">
         {/* Retro grid background */}
         <div
           className="absolute inset-0 opacity-10 pointer-events-none"

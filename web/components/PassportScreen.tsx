@@ -94,7 +94,6 @@ const PassportScreen: React.FC<PassportScreenProps> = ({ allEntries, onSelect, o
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-
   return (
     <DeviceLayout title="PASSPORT" subtitle="" showBack onBack={onBack} onHome={onHome} centerHeaderText>
       <div className="h-full overflow-y-auto custom-scrollbar p-4" style={{ backgroundColor: 'var(--lcd-page)' }}>

@@ -72,8 +72,8 @@ describe('theme', () => {
       for (const [id, scale] of Object.entries(TEXT_SCALES)) expect(scale.id).toBe(id);
     });
 
-    // Twenty-two since the v6#2 art ruling brought iOS's 0.8.9x shells
-    // across; iOS ships the same twenty-two in `ChassisSkin`.
+    // Twenty-two since v6#19-geometry brought iOS's 0.8.9x shells across;
+    // iOS ships the same twenty-two in `ChassisSkin`.
     it('ships twenty-two skins, nine screen modes and two text scales', () => {
       expect(Object.keys(CHASSIS_SKINS)).toHaveLength(22);
       expect(Object.keys(LCD_MODES)).toHaveLength(9);

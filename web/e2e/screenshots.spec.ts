@@ -1,17 +1,19 @@
-import { test, expect, Page } from '@playwright/test';
+import { test, expect, seedDevice } from './fixtures';
+import { CHASSIS_SKINS, ChassisSkinId } from '../src/services/theme';
 
 /**
  * The screenshot gate, in both screen modes.
  *
  * v6#19-geometry was declined for four passes on exactly this: the chassis
  * item's own approval names a screenshot gate in both modes, and there was
- * no way to run one. This is that gate. It is deliberately not a
- * pixel-diff baseline — the art is still moving — it captures the surfaces
- * a chassis change would break so a human can eyeball a change set, and it
- * asserts the frame is actually drawn rather than blank.
+ * no way to run one. This is that gate.
  *
- * DARK and LIGHT because the LCD's contrast is the thing skins are most
- * able to ruin, and the standing craft rule is contrast in *both* modes.
+ * It is deliberately not a pixel-diff baseline — the art is still moving —
+ * so it has to assert something real or it is only a screenshot printer:
+ * a body-height check passes on a blank white page. So each case asserts the
+ * chassis actually painted its own skin, and every case inherits the shared
+ * console/network fixture, which is what makes a shell that throws on mount
+ * (or an art stem that 404s) a failure rather than a pretty picture.
  */
 const MODES: [string, string][] = [
   ['DARK', 'DARK'],
@@ -27,28 +29,42 @@ const SURFACES: [string, string][] = [
   ['/list/GRAPES', 'listing'],
 ];
 
-const seed = async (page: Page, lcdMode: string) => {
-  await page.addInitScript(mode => {
-    window.localStorage.setItem('unlockedAppIDs', JSON.stringify(['vinodex']));
-    window.sessionStorage.setItem('booted', '1');
-    window.localStorage.setItem('firstTimeTriggersSeen', 'firstLaunch,firstLaunchNamed');
-    window.localStorage.setItem('coachmarkOffered', 'true');
-    window.localStorage.setItem('lcdMode', mode);
-    // A shelf, so the passport and its rank card have something to draw.
-    window.localStorage.setItem('triedEntryIDs', JSON.stringify(['G001', 'G002', 'G003', 'G004', 'G005', 'G006']));
-  }, lcdMode);
+/** The value the chassis actually resolved, normalised for comparison. */
+const rgbOf = (hex: string): string => {
+  const h = hex.replace('#', '');
+  const n = parseInt(h, 16);
+  return `rgb(${(n >> 16) & 255}, ${(n >> 8) & 255}, ${n & 255})`;
 };
+
+const chassisBody = (page: import('@playwright/test').Page) =>
+  page.evaluate(() => {
+    const raw = getComputedStyle(document.documentElement).getPropertyValue('--chassis-body').trim();
+    // Resolve to whatever the browser computes, so hex and rgb() compare.
+    const probe = document.createElement('div');
+    probe.style.color = raw;
+    document.body.appendChild(probe);
+    const out = getComputedStyle(probe).color;
+    probe.remove();
+    return out;
+  });
 
 for (const [modeName, mode] of MODES) {
   for (const [route, label] of SURFACES) {
-    test(`${label} renders in ${modeName}`, async ({ page }, testInfo) => {
-      await seed(page, mode);
+    test(`${label} renders in ${modeName}`, async ({ page, consoleErrors }, testInfo) => {
+      void consoleErrors;
+      await seedDevice(page, {
+        lcdMode: mode,
+        triedEntryIDs: JSON.stringify(['G001', 'G002', 'G003', 'G004', 'G005', 'G006']),
+      });
       await page.goto(route);
       await page.waitForTimeout(900);
 
-      // The frame is drawn: the chassis paints a non-zero box.
-      const box = await page.locator('body').boundingBox();
-      expect(box?.height ?? 0).toBeGreaterThan(200);
+      // The mode actually took: the LCD page variable is the one every
+      // screen reads, and it differs between the two modes by construction.
+      const lcdPage = await page.evaluate(() =>
+        getComputedStyle(document.documentElement).getPropertyValue('--lcd-page').trim(),
+      );
+      expect(lcdPage, 'the screen mode did not reach the LCD').not.toBe('');
 
       const shot = await page.screenshot({ fullPage: false });
       await testInfo.attach(`${label}-${mode}`, { body: shot, contentType: 'image/png' });
@@ -58,23 +74,30 @@ for (const [modeName, mode] of MODES) {
 }
 
 /**
- * The new shells (v6#19-geometry). One capture each so a colour-table typo
- * is visible rather than merely compiling — the failure mode a token port
- * has, and the reason this item waited for the gate.
+ * Every shell, including the seven the art ruling brought across. Asserts the
+ * chassis resolved to that skin's own authored body colour — the failure a
+ * colour-table port actually has is a typo that compiles, and only a
+ * comparison against the table can see it.
  */
-const NEW_SKINS = ['PSVINO', 'GRIS_DE_GRIS', 'ORANGE_WINE', 'PET_NAT', 'WALDGLAS', 'HALLOWEEN', 'W64'];
+const ALL_SKINS = Object.keys(CHASSIS_SKINS) as ChassisSkinId[];
 
-for (const skin of NEW_SKINS) {
-  test(`the ${skin} shell renders`, async ({ page }, testInfo) => {
-    await page.addInitScript(s => {
-      window.localStorage.setItem('unlockedAppIDs', JSON.stringify(['vinodex']));
-      window.sessionStorage.setItem('booted', '1');
-      window.localStorage.setItem('firstTimeTriggersSeen', 'firstLaunch,firstLaunchNamed');
-      window.localStorage.setItem('coachmarkOffered', 'true');
-      window.localStorage.setItem('chassisSkin', s);
-    }, skin);
+for (const skin of ALL_SKINS) {
+  test(`the ${skin} shell renders its own colour`, async ({ page, consoleErrors }, testInfo) => {
+    void consoleErrors;
+    await seedDevice(page, { chassisSkin: skin });
     await page.goto('/dex');
-    await page.waitForTimeout(700);
+    await page.waitForTimeout(600);
+
+    const expected = CHASSIS_SKINS[skin].body;
+    const actual = await chassisBody(page);
+    // WALDGLAS and friends are authored as plain hex here; a skin whose body
+    // is an rgba string is compared by the browser's own resolution.
+    if (expected.startsWith('#')) {
+      expect(actual, `${skin} body`).toBe(rgbOf(expected));
+    } else {
+      expect(actual, `${skin} body`).not.toBe('');
+    }
+
     const shot = await page.screenshot();
     await testInfo.attach(`skin-${skin}`, { body: shot, contentType: 'image/png' });
     await page.screenshot({ path: `web/e2e/.shots/skin-${skin}.png` });

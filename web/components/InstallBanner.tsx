@@ -1,6 +1,6 @@
 import React from 'react';
 import { X, Apple } from 'lucide-react';
-import { APP_STORE_URL, isStandalone } from '../src/services/shareLink';
+import { APP_STORE_LISTING_IS_LIVE, APP_STORE_URL, isStandalone } from '../src/services/shareLink';
 
 const DISMISS_KEY = 'installNudgeDismissed';
 
@@ -9,11 +9,17 @@ const DISMISS_KEY = 'installNudgeDismissed';
  * the surface people arrive on from a shared link; once they've played in the
  * browser, this slim bar points them at the native install. It never shows for
  * someone already running the installed PWA, and it stays dismissed once closed.
+ *
+ * It also stays away entirely while the App Store id is still the placeholder.
+ * A prominent GET APP button pointing at a dead listing spends the single
+ * nudge a visitor gets, and buys nothing back; the bar returns by itself the
+ * moment a real id lands in `shareLink.ts`.
  */
 const InstallBanner: React.FC = () => {
   const [hidden, setHidden] = React.useState(true);
 
   React.useEffect(() => {
+    if (!APP_STORE_LISTING_IS_LIVE) return;
     if (isStandalone()) return;
     try {
       if (window.localStorage.getItem(DISMISS_KEY) === '1') return;
@@ -22,6 +28,19 @@ const InstallBanner: React.FC = () => {
     }
     setHidden(false);
   }, []);
+
+  // The bar is fixed and would otherwise sit on top of the chassis — it was
+  // clipping the status orb in every screenshot the gate produced. Publishing
+  // its height lets the app shell pad itself down by exactly the bar, and go
+  // back to zero the moment it is dismissed.
+  React.useEffect(() => {
+    const root = document.documentElement;
+    if (hidden) root.style.removeProperty('--install-banner-h');
+    else root.style.setProperty('--install-banner-h', '2.25rem');
+    return () => {
+      root.style.removeProperty('--install-banner-h');
+    };
+  }, [hidden]);
 
   if (hidden) return null;
 

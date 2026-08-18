@@ -108,7 +108,19 @@ npm run build      # production build into dist/
 npm run preview    # serve that build
 ```
 
-`typecheck`, `test` and `build` are the gates.
+`typecheck`, `test`, `build`, `check:refs` and `test:e2e` are the gates —
+`npm run test:all` runs the five in order, and `.github/workflows/gates.yml`
+runs them on every push to `master` and `testing`.
+
+The last one is the render gate: Playwright drives a real browser over the
+routes and fails on a console error, a failed request or any 4xx, and
+captures every surface in both screen modes. It exists because the other
+four never prove a screen *renders* — a screen that throws on mount
+typechecks and passes Vitest, and this repo went whole releases without
+anyone looking at the chassis. It found three real faults the day it landed.
+See [`playwright.config.ts`](playwright.config.ts); note that
+`reuseExistingServer` is on outside CI, so a stale server already on :4173
+will be tested instead of your build.
 
 Tests are Vitest under jsdom, configured by [`vitest.config.ts`](vitest.config.ts)
 and colocated with what they cover (`*.test.ts` beside the service, `*.test.tsx`

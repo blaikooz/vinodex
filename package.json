@@ -18,7 +18,8 @@
     "prerender:og": "esbuild scripts/prerender-og.ts --bundle --platform=node --format=esm --log-level=error | node --input-type=module",
     "postbuild": "npm run prerender:og",
     "test:e2e": "playwright test",
-    "test:e2e:shots": "playwright test screenshots.spec.ts"
+    "test:e2e:shots": "playwright test screenshots.spec.ts",
+    "test:all": "npm run typecheck && npm test && npm run build && npm run check:refs && npm run test:e2e"
   },
   "dependencies": {
     "@iconify/react": "^6.0.2",
