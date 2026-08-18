@@ -1,5 +1,5 @@
 import React from 'react';
-import { Palette, BarChart3, Lock, LockOpen, Bug, Check, Wrench, LogOut, Flag, SlidersHorizontal, Crown, Leaf, Sun, Moon, Grid3x3, Globe, Wine, Map as MapIcon, Layers, Vibrate, Volume2, ChevronRight, MemoryStick } from 'lucide-react';
+import { Palette, BarChart3, Lock, LockOpen, Bug, Check, Wrench, LogOut, Flag, SlidersHorizontal, Crown, Leaf, Sun, Moon, Grid3x3, Globe, Wine, Map as MapIcon, Layers, Vibrate, Volume2, ChevronRight, MemoryStick, Download, Upload } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import DeviceLayout from './DeviceLayout';
 import { WineEntry } from '@/shared/types';
@@ -39,6 +39,14 @@ import { removeEverything } from '../src/services/bookmarks';
 import iconManifest from '../src/data/iconManifest.json';
 import { isAppUnlocked, lockApp } from '../src/services/appUnlock';
 import { useAppUnlock } from '../src/services/useAppUnlock';
+import {
+  SavedDataArchive,
+  applyArchive,
+  decodeArchive,
+  encodeArchive,
+  exportArchive,
+  suggestedFilename,
+} from '../src/services/savedDataArchive';
 
 export type SettingsSectionId = 'CUSTOMIZE' | 'SETTINGS' | 'DATA' | 'ACCESS' | 'DEV';
 
@@ -458,6 +466,8 @@ export const SettingsSectionPanel: React.FC<{
   const [haptics, setHaptics] = React.useState(hapticsEnabled());
   const [confirmingWipe, setConfirmingWipe] = React.useState(false);
   const [offeringTour, setOfferingTour] = React.useState(false);
+  const [pendingRestore, setPendingRestore] = React.useState<SavedDataArchive | null>(null);
+  const [restoreError, setRestoreError] = React.useState<string | null>(null);
 
   useAccess();
   const locked = starterOnly();
@@ -585,6 +595,70 @@ export const SettingsSectionPanel: React.FC<{
             </Section>
 
             <Section title="STORED DATA">
+              {/* A copy of everything this device holds, as one file the user
+                  owns (iOS SavedDataArchive, v6#31) — a backup, and a way to
+                  move a shelf between browsers. */}
+              <button
+                onClick={() => {
+                  const archive = exportArchive();
+                  const blob = new Blob([encodeArchive(archive)], { type: 'application/json' });
+                  const url = URL.createObjectURL(blob);
+                  const a = document.createElement('a');
+                  a.href = url;
+                  a.download = suggestedFilename(archive);
+                  a.click();
+                  URL.revokeObjectURL(url);
+                }}
+                className="w-full flex items-center gap-3 px-3 py-3 rounded border-2 text-left transition-all active:translate-y-0.5 mb-2"
+                style={{ backgroundColor: 'var(--lcd-surface)', borderColor: 'var(--lcd-surface-edge)' }}
+              >
+                <span style={{ color: 'var(--lcd-subtext)' }}><Download size={20} /></span>
+                <span className="flex-1 min-w-0">
+                  <span className="block font-retro text-[0.6rem] tracking-widest" style={{ color: 'var(--lcd-text)' }}>EXPORT BACKUP</span>
+                  <span className="block font-mono text-sm normal-case mt-1" style={{ color: 'var(--lcd-subtext)' }}>
+                    Shelves, ratings, progress and settings as one file you own.
+                  </span>
+                </span>
+              </button>
+              <label
+                className="w-full flex items-center gap-3 px-3 py-3 rounded border-2 text-left transition-all active:translate-y-0.5 mb-2 cursor-pointer"
+                style={{ backgroundColor: 'var(--lcd-surface)', borderColor: 'var(--lcd-surface-edge)' }}
+              >
+                <span style={{ color: 'var(--lcd-subtext)' }}><Upload size={20} /></span>
+                <span className="flex-1 min-w-0">
+                  <span className="block font-retro text-[0.6rem] tracking-widest" style={{ color: 'var(--lcd-text)' }}>RESTORE BACKUP</span>
+                  <span className="block font-mono text-sm normal-case mt-1" style={{ color: 'var(--lcd-subtext)' }}>
+                    Replaces what is here with a backup file. Purchases never import.
+                  </span>
+                </span>
+                <input
+                  type="file"
+                  accept="application/json,.json"
+                  className="sr-only"
+                  aria-label="Restore backup from file"
+                  onChange={e => {
+                    const file = e.target.files?.[0];
+                    e.target.value = '';
+                    if (!file) return;
+                    void file.text().then(text => {
+                      const result = decodeArchive(text);
+                      if (!result.ok) {
+                        // A user who picked the wrong file should be told so.
+                        setRestoreError(
+                          result.refusal.kind === 'notOurArchive'
+                            ? `Not a Vinodex backup${result.refusal.app ? ` — it says "${result.refusal.app}"` : ''}.`
+                            : result.refusal.kind === 'unreadableFormat'
+                              ? `Written by a newer build (format ${result.refusal.format}); this one cannot read it.`
+                              : 'Not a readable backup file.',
+                        );
+                        return;
+                      }
+                      setPendingRestore(result.archive);
+                    });
+                  }}
+                />
+              </label>
+
               <button
                 onClick={() => setConfirmingWipe(true)}
                 className="w-full py-4 rounded border-2 font-retro text-[0.65rem] tracking-widest transition-colors"
@@ -798,6 +872,53 @@ export const SettingsSectionPanel: React.FC<{
       </div>
 
       {/* CLEAR SAVED DATA asks first — the one control here that cannot be undone. */}
+      {pendingRestore && (
+        <div className="absolute inset-0 z-30 bg-black/80 flex items-center justify-center p-6">
+          <div className="w-full max-w-xs bg-stone-900 border-2 border-yellow-700 rounded-lg p-5 flex flex-col gap-4 text-center">
+            <p className="font-retro text-xs tracking-widest text-yellow-300">RESTORE THIS BACKUP?</p>
+            <p className="font-mono text-sm text-stone-300 normal-case">
+              From {pendingRestore.app} {pendingRestore.appVersion || '(unknown version)'} —
+              {' '}{pendingRestore.triedShelf.length} tastings, {pendingRestore.savedShelf.length} saved.
+              It replaces everything currently on this device.
+            </p>
+            <div className="flex gap-3">
+              <button
+                onClick={() => setPendingRestore(null)}
+                className="flex-1 font-retro text-[0.6rem] tracking-widest text-stone-300 border-2 border-stone-600 rounded py-3"
+              >
+                CANCEL
+              </button>
+              <button
+                onClick={() => {
+                  applyArchive(pendingRestore);
+                  setPendingRestore(null);
+                  // Reload so every external store re-reads from the restored state.
+                  window.location.reload();
+                }}
+                className="flex-1 font-retro text-[0.6rem] tracking-widest text-black bg-yellow-400 border-2 border-yellow-600 rounded py-3"
+              >
+                RESTORE
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {restoreError && (
+        <div className="absolute inset-0 z-30 bg-black/80 flex items-center justify-center p-6" role="alertdialog" aria-modal="true" aria-label="Restore failed">
+          <div className="w-full max-w-xs bg-stone-900 border-2 border-red-700 rounded-lg p-5 flex flex-col gap-4 text-center">
+            <p className="font-retro text-xs tracking-widest text-red-400">CAN'T RESTORE</p>
+            <p className="font-mono text-sm text-stone-300 normal-case">{restoreError}</p>
+            <button
+              onClick={() => setRestoreError(null)}
+              className="font-retro text-[0.6rem] tracking-widest text-stone-300 border-2 border-stone-600 rounded py-3"
+            >
+              OK
+            </button>
+          </div>
+        </div>
+      )}
+
       {offeringTour && (
         <div className="absolute inset-0 z-30 bg-black/80 flex items-center justify-center p-6">
           <div className="w-full max-w-xs bg-stone-900 border-2 border-green-700 rounded-lg p-5 flex flex-col gap-4 text-center">
