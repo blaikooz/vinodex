@@ -38,6 +38,7 @@ const FirmwareHistoryScreen = lazy(() => import('./components/FirmwareHistoryScr
 const RecommendationsScreen = lazy(() => import('./components/RecommendationsScreen'));
 const SupportScreen = lazy(() => import('./components/SupportScreen'));
 const CheatConsoleScreen = lazy(() => import('./components/CheatConsoleScreen'));
+const GrapeLineageScreen = lazy(() => import('./components/GrapeLineageScreen'));
 const PassportScreen = lazy(() => import('./components/PassportScreen'));
 const WalkthroughScreen = lazy(() => import('./components/WalkthroughScreen'));
 const BookmarksScreen = lazy(() => import('./components/BookmarksScreen'));
@@ -299,6 +300,24 @@ const App: React.FC = () => {
     );
   };
 
+  const LineageRoute: React.FC = () => {
+    const { entryId } = useParams<{ entryId: string }>();
+    const entry = allEntries.find(e => e.id === entryId);
+    if (!entry || entry.category !== 'GRAPES') return <Navigate to="/dex" replace />;
+    return (
+      <Suspense fallback={<ScreenLoading label="LOADING LINEAGE..." onBack={handleBack} onHome={handleHome} />}>
+        <GrapeLineageScreen
+          entry={entry}
+          allEntries={allEntries}
+          onFocus={e => navigate(`/lineage/${e.id}`)}
+          onOpenEntry={e => navigate(`/detail/${e.id}`)}
+          onBack={handleBack}
+          onHome={handleHome}
+        />
+      </Suspense>
+    );
+  };
+
   const DetailRoute: React.FC = () => {
     const { entryId } = useParams<{ entryId: string }>();
     const entry = useMemo(
@@ -318,6 +337,7 @@ const App: React.FC = () => {
         onFilterBySoil={handleFilterBySoil}
         onFilterByOrigin={handleFilterByOrigin}
         onViewStates={handleViewStates}
+        onLineage={e => navigate(`/lineage/${e.id}`)}
       />
     );
   };
@@ -591,6 +611,7 @@ const App: React.FC = () => {
             </Suspense>
           }
         />
+        <Route path="/lineage/:entryId" element={<LineageRoute />} />
         <Route path="/settings/:section" element={<SettingsSectionRoute />} />
         <Route path="/list/:category" element={<ListRoute />} />
         <Route path="/detail/:entryId" element={<DetailRoute />} />

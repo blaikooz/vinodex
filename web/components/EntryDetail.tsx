@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useReducer, useRef, useState } from 'react';
-import { MapPin, Activity, Droplet, Grape, Mountain, ChevronRight, ChevronUp, ChevronDown, List, Leaf, Flame, Shield, BookOpen, Bookmark, MapPinned, Wind, Star, Crown, PlusCircle, CheckCircle2 } from 'lucide-react';
+import { MapPin, Activity, Droplet, Grape, Mountain, ChevronRight, ChevronUp, ChevronDown, List, Leaf, Flame, Shield, BookOpen, Bookmark, MapPinned, Wind, Star, Crown, PlusCircle, CheckCircle2, GitBranch } from 'lucide-react';
 import { Icon } from '../src/components/LocalIcon';
 import DeviceLayout from './DeviceLayout';
 import { EntryCategory, WineEntry, isCountryGateEntry, isFlavorEntry, isGrapeEntry, isRegionEntry, isStyleEntry } from '@/shared/types';
@@ -34,6 +34,7 @@ import { recordRecentlyViewed } from '../src/services/recentlyViewed';
 import { isTastable } from '../src/services/wineData';
 import RatingPrompt from './RatingPrompt';
 import StampUnlockedPrompt, { Celebration } from './StampUnlockedPrompt';
+import { GrapeLineageIndex, edgeCount } from '../src/services/grapeLineage';
 import { computePassport } from '../src/services/passport';
 import { announceBadges, announceTier, seedIfNeeded } from '../src/services/passportProgress';
 import { shelfIds } from '../src/services/bookmarks';
@@ -53,11 +54,20 @@ interface EntryDetailProps {
   onFilterBySoil: (soil: string) => void;
   onFilterByOrigin: (origin: string) => void;
   onViewStates?: () => void;
+  /** Opens the pedigree tree (v6#16); rendered only for connected grapes. */
+  onLineage?: (entry: WineEntry) => void;
 }
 
-const EntryDetail: React.FC<EntryDetailProps> = ({ entry, allEntries, onBack, onHome, onSelectRelated, onFilterByType, onFilterByNote, onFilterBySoil, onFilterByOrigin, onViewStates }) => {
+const EntryDetail: React.FC<EntryDetailProps> = ({ entry, allEntries, onBack, onHome, onSelectRelated, onFilterByType, onFilterByNote, onFilterBySoil, onFilterByOrigin, onViewStates, onLineage }) => {
   const scrollRef = useRef<HTMLDivElement>(null);
   const entryVisualResolver = useMemo(() => createEntryVisualResolver({ entries: allEntries }), [allEntries]);
+  // The pedigree gate + its teaser count (v6#16). Index built once per
+  // catalog; the per-entry answer is a set lookup.
+  const lineageIndex = useMemo(() => new GrapeLineageIndex(allEntries), [allEntries]);
+  const lineageEdges = useMemo(
+    () => (isGrapeEntry(entry) && lineageIndex.hasLineage(entry.id) ? edgeCount(lineageIndex.relatives(entry.id)) : 0),
+    [lineageIndex, entry],
+  );
 
   // Replaces the old `scrollTop = 0` reset keyed on entry.id. That reset existed
   // so following a cross-link would not open a never-seen entry halfway down;
@@ -1189,6 +1199,28 @@ const EntryDetail: React.FC<EntryDetailProps> = ({ entry, allEntries, onBack, on
               {rating?.note ? (
                 <p className="mt-3 font-mono text-lg text-stone-300 break-words whitespace-normal">{rating.note}</p>
               ) : null}
+          </div>
+        )}
+
+        {/* LINEAGE — the pedigree door (v6#16). Only where there is a tree:
+            iOS's gate is `hasLineage`, deliberately unaffected by
+            `parentageUnknown` — a screen whose whole content is "there is no
+            pedigree to draw" is not offered. */}
+        {isGrapeEntry(entry) && onLineage && lineageEdges > 0 && (
+          <div className="px-4 md:px-6 pb-2">
+            <button
+              onClick={() => onLineage(entry)}
+              className="w-full flex items-center gap-3 rounded-xl border-2 border-green-800 bg-stone-900/70 px-4 py-3 transition-colors hover:border-green-500"
+            >
+              <GitBranch size={18} className="text-green-400 shrink-0" />
+              <span className="flex-1 min-w-0 text-left">
+                <span className="block font-retro text-[0.65rem] tracking-widest text-stone-100">LINEAGE</span>
+                <span className="block font-mono text-xs text-stone-400 normal-case mt-0.5">
+                  {lineageEdges} recorded relative{lineageEdges === 1 ? '' : 's'} — the family tree.
+                </span>
+              </span>
+              <ChevronRight size={16} className="text-stone-400 shrink-0" />
+            </button>
           </div>
         )}
 
