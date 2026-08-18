@@ -687,3 +687,88 @@ anywhere; the line is authored, live and unreachable there. The web fires
 it from `InsightSection` now that the panel exists, which is the deferral
 contract working as designed — web is correctly ahead, and iOS is missing
 one call site.
+
+## Fifth execution pass — every ruling taken (2026-08-18)
+
+The bundle merged first (`33762bb`), so the art landed on final file shapes.
+
+### v6#2 art transport: APPROVED as a named subset — DONE
+
+`sync-shared.ps1` gains a **web art leg**: an enumerated list, one line per
+directory, copying vinodex-ios's baked `Resources` into
+`vinodex-web/web/public/art`. Three rules of that script honoured exactly:
+
+- **Not a folder under `shared/`.** `shared/` syncs into *both* repos, so art
+  placed there would land in `vinodex-ios/shared/` as well — precisely the
+  shape audit H12 deleted. The leg is one-way, ios → web, and the run
+  verified `vinodex-ios` stayed clean.
+- **Never a whole-tree `/MIR`**, and the 271 retired files are not
+  resurrected — only four named directories move.
+- **Masters stay owned by `vinodex-ios/art/`.** The *source* is the baked
+  Resources rather than the masters, because those are the already-downscaled
+  assets iOS itself renders (~20 KB against the masters' 157 KB), so one bake
+  serves both platforms and the two apps draw pixel-identical chrome. It is
+  the arrangement `web/public/icons/` has always had with `Resources/Icons/`.
+
+72 files: 6 expressions, 10 stamps, 36 marquee panels, 20 stickers. Art stays
+runtime-cached — `globIgnores: ['**/art/**']` already excludes it from
+precache, so the 6 MB precache ceiling is untouched.
+
+**#14-portrait and #26-portrait: DONE** — `VinoPortrait` replaces the
+chrome-glyph disc in the bubble, the intro card, the spotlight and the
+professor's hero and FACES grid. The asset swap the ruling was promised to
+be: the six-expression vocabulary was already threaded through, so nothing
+was rewritten. **Stamps** draw the passport grid and the celebration card,
+unearned greyed rather than locked. **Marquee** stamps its drawn panel per
+route, falling through to lucide where iOS has no panel. **#37: DONE** —
+stickers wear the picker's emblem slot, which iOS had marked in a comment.
+
+### v6#19-geometry: OFF DECLINED — DONE
+
+Declined for four passes on one thing: the item's own approval names a
+screenshot gate in both screen modes and none could run. With Playwright
+live it is portable, and the seven 0.8.9x shells land (web now ships iOS's
+twenty-two). WALDGLAS is composited over iOS's own translucent underlay.
+
+### Playwright: APPROVED — DONE
+
+32 render-smoke tests failing on any console error, plus a 19-case
+screenshot gate across both modes and every new shell. It found three real
+faults on its first run, all fixed: the walkthrough auto-starting over the
+professor's queued after-name line; both suites measuring the BIOS instead
+of the screens behind it; and the gate itself seeding `lcdMode` lowercase so
+"both modes" was dark twice.
+
+### The remaining rulings
+
+- **v6#4 OCR: COMING SOON kept.** No web OCR dependency is taken. The tile
+  keeps iOS's own announced-but-unbuilt treatment, which is honest about
+  what it is. **#27 closed — deferred with reason.** `firstScan` stays
+  deferred in the dialogue bank for the same reason and by the same
+  mechanism; its key is reserved and the line is gate-checked.
+- **v6#5 notifications: SKIPPED, recorded as a deliberate deviation.** A PWA
+  cannot reliably fire a scheduled local notification when it is closed —
+  the one moment a DAILY REMINDER exists for — and the permission prompt
+  costs a real interruption for a promise the platform will not keep. iOS
+  keeps `NotificationScheduler`; the web does not pretend to. **#28 closed —
+  won't-port**, on the same footing as haptics.
+- **v6#7 share: closed as implemented-by-bundle.** `shareLink.ts`, the
+  entry SHARE button, the OG tags and `prerender-og.ts` all arrived with the
+  user's bundle; nothing was built here. **#12 closed** the same way.
+- **#35 Device Workshop: still open, and now only on its own size.** The #2
+  and #3 blocks are gone — the art ruling passed and the workshop is a
+  feature rather than a storefront, so the web would ship it un-gated on the
+  free-tier precedent. What remains is an 897-line screen plus
+  `CustomDevices`, which wants its own pass. GARAGISTE joins the cheat table
+  when it lands.
+
+### Standing notes
+
+- **`App.tsx:24` statically imports `SETTINGS_SECTIONS`/`SettingsSectionId`
+  from `SettingsPanel` while lines 65/67 lazy-import the same module**, so
+  the build warns and the SettingsPanel chunk never splits. Pre-existing on
+  both merge sides. The fix is to move those constants to their own module,
+  and it pairs with the standing SettingsPanel decomposition note (I2).
+- The BIOS reports **526 entries** where iOS reports 284: the web ships
+  `COUNTRY_GATE` rows as real entries and iOS filters them out. Both numbers
+  are honest about their own catalogue; `coverage.test.ts` says so already.
