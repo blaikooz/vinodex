@@ -20,3 +20,5 @@ xcuserdata/
 # Stray dev-server output that shouldn't be version controlled
 vite-out.txt
 vite-dev.log
+web/e2e/.artifacts
+web/e2e/.shots

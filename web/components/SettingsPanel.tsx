@@ -162,6 +162,30 @@ const FeatureTile: React.FC<{ title: string; icon: React.ReactNode; onClick: () 
 };
 
 /** A mini-chassis preview: body over a dark base, status dots, a panel strip with a marquee bar. */
+/**
+ * The drawn sticker each chassis skin wears, mirrored from iOS by the web art
+ * leg (v6#2). Keyed by our skin id; a skin with no mirrored sticker is simply
+ * absent and the tile falls back to the tinted emblem. The six unused stems
+ * (gris-de-gris, halloween, pet-nat, psvino, w64, waldglas) belong to skins
+ * the web has not taken yet - see v6#19-geometry.
+ */
+const SKIN_STICKER: Partial<Record<ChassisSkinId, string>> = {
+  CLASSIC: 'sticker-classic',
+  MIDNIGHT: 'sticker-midnight',
+  ORIGINAL: 'sticker-original',
+  BURGUNDY: 'sticker-burgundy',
+  RIESLING: 'sticker-riesling',
+  VINHO_VERDE: 'sticker-vinho-verde',
+  GLOUGLOU: 'sticker-glouglou',
+  SMART_GRAPE: 'sticker-smart-grape',
+  CHAMPAGNE: 'sticker-champagne',
+  NOUVEAU: 'sticker-nouveau',
+  OAKED: 'sticker-oaked',
+  NOCTURNE: 'sticker-nocturne',
+  STEEL: 'sticker-steel',
+  BLUSH: 'sticker-blush',
+};
+
 const SkinPreviewTile: React.FC<{ id: ChassisSkinId; selected: boolean; onClick: () => void }> = ({ id, selected, onClick }) => {
   const s = CHASSIS_SKINS[id];
   return (
@@ -174,9 +198,21 @@ const SkinPreviewTile: React.FC<{ id: ChassisSkinId; selected: boolean; onClick:
         <span className="absolute inset-0" style={{ backgroundColor: s.body, backgroundImage: s.bodyPattern ? `url(/chassis/${s.bodyPattern}.png)` : undefined, backgroundSize: '40px' }} />
         <span className="absolute top-1 left-1 w-2 h-2 rounded-full" style={{ backgroundColor: s.grill }} />
         <span className="absolute top-1 right-1 w-2 h-2 rounded-full" style={{ backgroundColor: s.onBody }} />
-        {/* A small palette emblem, tinted to the shell's own on-body ink (iOS draws the skin's emblem here). */}
+        {/* The skin's own drawn sticker, as iOS draws it (v6#37, art ruling
+            v6#2). A shell whose sticker has not been mirrored keeps the
+            tinted palette emblem rather than a hole. */}
         <span className="absolute inset-0 flex items-center justify-center">
-          <Palette size={12} style={{ color: s.onBody, opacity: 0.85 }} />
+          {SKIN_STICKER[id] ? (
+            <img
+              src={`/art/sticker/${SKIN_STICKER[id]}.png`}
+              alt=""
+              aria-hidden="true"
+              draggable={false}
+              style={{ height: 26, width: 'auto', objectFit: 'contain', imageRendering: 'pixelated' }}
+            />
+          ) : (
+            <Palette size={12} style={{ color: s.onBody, opacity: 0.85 }} />
+          )}
         </span>
         <span className="absolute bottom-0 inset-x-0 h-3.5 flex items-center justify-center" style={{ backgroundColor: s.panel }}>
           <span className="w-5 h-0.5 rounded-full" style={{ backgroundColor: s.onBody }} />

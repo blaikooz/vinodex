@@ -26,7 +26,7 @@ import { installGlobalTapSound } from './src/services/sound';
 import { installGlobalHaptics } from './src/services/haptics';
 import { demoStopAt, isDemoActive, stopDemo, subscribeToDemo } from './src/services/demoMode';
 import { applyLeftMainScreen } from './src/services/marqueeScript';
-import { clearVino, fireVinoForArrival, setSuspended } from './src/services/vinoPresenter';
+import { clearVino, fireVinoForArrival, setSuspended, subscribeToVino, vinoQueueIsEmpty } from './src/services/vinoPresenter';
 import { hasFired, isVinoSilenced, seedTriggers } from './src/services/firstTimeTriggers';
 import { seenBadges } from './src/services/passportProgress';
 import { computePassport } from './src/services/passport';
@@ -191,6 +191,9 @@ const App: React.FC = () => {
   // the walkthrough's auto-start for anyone who is plainly not new. Counts
   // are catalog-resolved (review M4).
   const [introDone, setIntroDone] = React.useState(false);
+  // A change signal for the effect below: when his last bubble is dismissed
+  // the walkthrough becomes startable.
+  const vinoIdle = useSyncExternalStore(subscribeToVino, vinoQueueIsEmpty, () => true);
   useEffect(() => {
     const passport = computePassport(shelfIds('tried'), allEntries, bestStreak(), highestUnlocked());
     seedTriggers(passport.triedTotal, seenBadges().size > 0);
@@ -219,11 +222,22 @@ const App: React.FC = () => {
     // The walkthrough's own auto-start: once, on the main menu, after the
     // intro card has had its turn (iOS runs it after the BIOS; the pending
     // bundle's boot host slots ahead of both via the suspension seam).
-    if (path === '/dex' && coachmarkShouldAutoStart() && (hasFired('firstLaunch') || isVinoSilenced())) {
+    // Deliberately gated on his queue being empty as well. The intro card
+    // queues the after-name line on its way out, and the spotlight suspends
+    // the queue while it runs — so auto-starting here would hold "Pleasure,
+    // {name}." behind the whole tutorial. The line is the one that tells the
+    // player what he is *for*, and every later line assumes it. Caught by the
+    // first-run smoke test, which is what the smoke test is for.
+    if (
+      path === '/dex' &&
+      coachmarkShouldAutoStart() &&
+      vinoQueueIsEmpty() &&
+      (hasFired('firstLaunch') || isVinoSilenced())
+    ) {
       startCoachmarks();
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [location.pathname, introDone]);
+  }, [location.pathname, introDone, vinoIdle]);
 
   const showIntroCard =
     location.pathname === '/dex' && !hasFired('firstLaunch') && !isVinoSilenced() && !introDone && !demoActive;
@@ -443,7 +457,8 @@ const App: React.FC = () => {
         <VinoIntroCard
           onDone={() => {
             setIntroDone(true);
-            if (coachmarkShouldAutoStart()) startCoachmarks();
+            // Not started here: his after-name line is queued at this exact
+            // moment, and the route effect starts the tour once it is read.
           }}
         />
       )}

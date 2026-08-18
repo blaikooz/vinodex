@@ -32,6 +32,11 @@ const MARQUEE_ART: Record<string, string> = {
   'SAVED': 'marquee-user',
   'COLLECTION': 'marquee-user',
   'GRAPES': 'marquee-grapescan',
+  // The listing titles the app actually uses, which are not the category
+  // names (found by the screenshot gate: VARIETIES was falling back).
+  'VARIETIES': 'marquee-grapescan',
+  'DATABASE': 'marquee-encyclopedia',
+  'WORLD SEARCH': 'marquee-globescan',
   'REGIONS': 'marquee-regions',
   'COUNTRIES': 'marquee-countryscan',
   'STYLES': 'marquee-stylescan',
