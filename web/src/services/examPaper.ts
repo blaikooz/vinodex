@@ -1,6 +1,7 @@
 import {
   EXAM_QUESTIONS,
   EXAM_CATEGORIES,
+  EXAM_TIERS,
   ExamCategory,
   ExamQuestion,
   ExamTier,
@@ -403,6 +404,67 @@ export interface ExamRun {
   /** Category of each graded question, parallel to `marks`. */
   markedCategories: ExamCategory[];
 }
+
+/**
+ * An `ExamRun` read back from session storage, or null (W15).
+ *
+ * The screen did `JSON.parse(raw) as ExamRun`, which is a **claim**, not a
+ * check: sessionStorage is user-writable, a half-written value survives a
+ * crash, and the shape moves whenever this file does. A cast makes every one
+ * of those a `TypeError` several renders later, inside a component, with a
+ * stack that names the render and not the storage.
+ *
+ * The idiom is the one `savedDataArchive.ts` already uses for the same
+ * problem at larger scale: parse to `unknown`, check what you rely on, and
+ * hand back null when it does not hold - which every caller already handles,
+ * because it is the same null they get on a fresh device.
+ *
+ * Deliberately shallow on `answer`: it is a five-member discriminated union
+ * and a bad one costs a question rather than the run, so it is checked for
+ * being an object with a known `kind` and no further. Validating every arm
+ * would be more code than the type it protects.
+ */
+export const parseRun = (raw: string | null | undefined): ExamRun | null => {
+  if (!raw) return null;
+  let v: unknown;
+  try {
+    v = JSON.parse(raw);
+  } catch {
+    return null;
+  }
+  if (typeof v !== 'object' || v === null) return null;
+  const o = v as Record<string, unknown>;
+  const num = (x: unknown): x is number => typeof x === 'number' && Number.isFinite(x);
+  const boolArray = (x: unknown): x is boolean[] =>
+    Array.isArray(x) && x.every(b => typeof b === 'boolean');
+  if (!num(o.seed) || !num(o.length) || !num(o.passMark) || !num(o.index)) return null;
+  if (typeof o.tier !== 'string' || !(EXAM_TIERS as string[]).includes(o.tier)) return null;
+  if (typeof o.submitted !== 'boolean') return null;
+  if (!boolArray(o.marks)) return null;
+  if (!Array.isArray(o.markedCategories)) return null;
+  if (!o.markedCategories.every(c => typeof c === 'string' && (EXAM_CATEGORIES as string[]).includes(c))) {
+    return null;
+  }
+  const answer = o.answer;
+  if (answer !== null && answer !== undefined) {
+    if (typeof answer !== 'object') return null;
+    const kind = (answer as Record<string, unknown>).kind;
+    if (typeof kind !== 'string' || !['choice', 'truth', 'selection', 'pairing', 'sequence'].includes(kind)) {
+      return null;
+    }
+  }
+  return {
+    seed: o.seed,
+    tier: o.tier as ExamTier,
+    length: o.length,
+    passMark: o.passMark,
+    index: o.index,
+    answer: (answer ?? null) as ExamRun['answer'],
+    submitted: o.submitted,
+    marks: o.marks,
+    markedCategories: o.markedCategories as ExamRun['markedCategories'],
+  };
+};
 
 export const newRun = (
   seed: number,

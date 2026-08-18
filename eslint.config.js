@@ -114,6 +114,13 @@ export default tseslint.config(
       // to is a warning, not an error.
       'react-hooks/set-state-in-effect': 'warn',
 
+      // The three.js ambient module declaration. That dependency ships no
+      // types and the repo deliberately does not carry `@types/three`; the
+      // `any`s in `vite-env.d.ts` ARE the shim, and `unknown` there would
+      // break every call site in RetroGlobeScreen without making anything
+      // safer. A standing exemption rather than a baseline entry, because it
+      // is not a defect that shrinks — it goes when the types arrive.
+      //
       // 5 sites, all of them a text field the user has just chosen to open:
       // the unlock code, the cheat console, the two search boxes and the
       // name prompt. Focusing the field a modal exists to hold is the
@@ -136,6 +143,11 @@ export default tseslint.config(
     rules: { 'react-hooks/rules-of-hooks': 'off' },
   },
   {
+    // See the note by `no-autofocus`: this file is the three.js shim.
+    files: ['web/vite-env.d.ts'],
+    rules: { '@typescript-eslint/no-explicit-any': 'off' },
+  },
+  {
     // Node scripts, not browser code.
     files: ['scripts/**/*.{ts,mjs,js}', '*.config.{ts,js,mjs}'],
     languageOptions: { globals: globals.node },
@@ -152,18 +164,12 @@ export default tseslint.config(
   // files, and a new file may not be added to one.
   // ======================================================================
   {
-    // W14/W15 — 32 `any` casts bypassing the discriminated union on the
-    // passport, quiz and chip-facet paths. `grapeScan.ts` narrows with
-    // `isGrapeEntry` and is the idiom these should follow.
-    files: [
-      'web/src/services/passport.ts',
-      'web/src/services/quiz.ts',
-      'web/src/services/chipFilter.ts',
-      'web/src/services/artSprites.tsx',
-      'web/vite-env.d.ts',
-      'scripts/cleanEncyclopediaText.ts',
-      'scripts/find-missing-refs.ts',
-    ],
+    // W14 — FIXED for passport.ts, quiz.ts, chipFilter.ts, artSprites.tsx and
+    // find-missing-refs.ts; all five narrow with the shared type guards now.
+    // What is left is one Node script that assembles a free-form JSON
+    // document, where the `any` is the shape of the output rather than a
+    // bypassed union. Owner: the encyclopedia tooling, not this pass.
+    files: ['scripts/cleanEncyclopediaText.ts'],
     rules: { '@typescript-eslint/no-explicit-any': 'warn' },
   },
   {

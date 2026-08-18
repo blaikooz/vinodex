@@ -12,6 +12,7 @@ import {
   facetOptions,
   isOn,
   toggleOption,
+  parseFilter,
   matchingEntries,
   countWithChip,
   filterCount,
@@ -33,14 +34,9 @@ interface ChipFilterScreenProps {
 const SS_KEY = 'chipFilter';
 
 const ChipFilterScreen: React.FC<ChipFilterScreenProps> = ({ allEntries, onSelect, onSelectCountry, onBack, onHome }) => {
-  const [filter, setFilter] = useState<ChipFilter>(() => {
-    try {
-      const raw = ssQuery(SS_KEY);
-      return raw ? (JSON.parse(raw) as ChipFilter) : {};
-    } catch {
-      return {};
-    }
-  });
+  // Validated, not cast (W15) - see `chipFilter.parseFilter`. Unknown facets
+  // are dropped one at a time rather than failing the whole filter.
+  const [filter, setFilter] = useState<ChipFilter>(() => parseFilter(ssQuery(SS_KEY)));
   const [query, setSearch] = useState('');
   const [showsChips, setShowsChips] = useState(false);
 

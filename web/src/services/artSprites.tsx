@@ -74,7 +74,7 @@ const GRAPE_SPRITES = new Set([
 export const resolveGrapeArtStem = (grape: GrapeEntry): string | undefined => {
   const base = GRAPE_ART[grapeArtKey(grape)];
   if (!base) return undefined;
-  const rarity = String((grape as any).rarity ?? '').toLowerCase();
+  const rarity = String(grape.rarity ?? '').toLowerCase();
   if (rarity && rarity !== 'rare') {
     const variant = base.replace(/-rare$/, `-${rarity}`);
     if (GRAPE_SPRITES.has(variant)) return variant;

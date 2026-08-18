@@ -12,6 +12,7 @@ import {
   isPassed,
   isAnswered,
   kindTopic,
+  parseSession,
 } from '../src/services/quiz';
 import { dailySession, recordDaily, isTodayDone, currentStreak } from '../src/services/dailyChallenge';
 import { query as ssQuery, setQuery as ssSetQuery } from '../src/services/screenState';
@@ -41,14 +42,8 @@ const TastingQuizScreen: React.FC<TastingQuizScreenProps> = ({ allEntries, onOpe
   const byId = useMemo(() => new Map(allEntries.map(e => [e.id, e])), [allEntries]);
   const entryName = (id: string) => byId.get(id)?.name ?? id;
 
-  const [session, setSessionState] = useState<QuizSession | null>(() => {
-    try {
-      const raw = ssQuery(KEY);
-      return raw ? (JSON.parse(raw) as QuizSession) : null;
-    } catch {
-      return null;
-    }
-  });
+  // Validated, not cast (W15) - see `quiz.parseSession`.
+  const [session, setSessionState] = useState<QuizSession | null>(() => parseSession(ssQuery(KEY)));
 
   const setSession = (s: QuizSession | null) => {
     setSessionState(s);

@@ -1,4 +1,10 @@
-import { WineEntry } from '@/shared/types';
+import {
+  WineEntry,
+  isCountryGateEntry,
+  isGrapeEntry,
+  isRegionEntry,
+  isStyleEntry,
+} from '@/shared/types';
 import { normalizeLabel } from '@/shared/services/entryUtils';
 import { CONTINENTS } from '@/shared/data/continents';
 import { QuizTier } from './quiz';
@@ -43,14 +49,28 @@ export interface Passport {
 
 const label = normalizeLabel;
 const RARITIES = ['COMMON', 'UNCOMMON', 'RARE', 'NOBLE', 'GODFORSAKEN'];
-const originOf = (e: any): string => String(e.grapeCountryOfOrigin ?? e.details?.origin ?? '');
+/**
+ * Where an entry is *from*, across categories that spell it differently.
+ *
+ * A grape carries `grapeCountryOfOrigin` at the top level; regions, styles
+ * and country gates carry `details.origin`. Continents carry neither. Written
+ * as a switch over the discriminant rather than an `any` with two optional
+ * chains, so adding a seventh category is a compile error here instead of a
+ * silent empty string.
+ */
+const originOf = (e: WineEntry): string => {
+  if (isGrapeEntry(e)) return e.grapeCountryOfOrigin ?? '';
+  if (isRegionEntry(e) || isCountryGateEntry(e)) return e.details.origin ?? '';
+  if (isStyleEntry(e)) return e.details.origin ?? '';
+  return '';
+};
 
 export function computePassport(triedIds: string[], all: WineEntry[], bestStreak: number, highestTier: QuizTier): Passport {
   const byId = new Map(all.map(e => [e.id, e]));
   const tried = triedIds.map(id => byId.get(id)).filter((e): e is WineEntry => !!e);
-  const allGrapes = all.filter(e => e.category === 'GRAPES');
-  const triedGrapesList = tried.filter(e => e.category === 'GRAPES');
-  const triedStylesList = tried.filter(e => e.category === 'STYLES');
+  const allGrapes = all.filter(isGrapeEntry);
+  const triedGrapesList = tried.filter(isGrapeEntry);
+  const triedStylesList = tried.filter(isStyleEntry);
 
   const byColor = { red: 0, white: 0 };
   const colorTotals = { red: 0, white: 0 };
@@ -60,12 +80,12 @@ export function computePassport(triedIds: string[], all: WineEntry[], bestStreak
     byRarity[r] = 0;
     rarityTotals[r] = 0;
   }
-  for (const g of allGrapes as any[]) {
+  for (const g of allGrapes) {
     if (g.grapeType === 'red') colorTotals.red += 1;
     else if (g.grapeType === 'white') colorTotals.white += 1;
     if (g.rarity && g.rarity in rarityTotals) rarityTotals[g.rarity] = (rarityTotals[g.rarity] ?? 0) + 1;
   }
-  for (const g of triedGrapesList as any[]) {
+  for (const g of triedGrapesList) {
     if (g.grapeType === 'red') byColor.red += 1;
     else if (g.grapeType === 'white') byColor.white += 1;
     if (g.rarity && g.rarity in byRarity) byRarity[g.rarity] = (byRarity[g.rarity] ?? 0) + 1;
@@ -73,7 +93,7 @@ export function computePassport(triedIds: string[], all: WineEntry[], bestStreak
 
   const originKeys = new Set<string>();
   for (const e of tried) {
-    const o = originOf(e as any);
+    const o = originOf(e);
     if (o) originKeys.add(label(o));
   }
   const continents = CONTINENTS.filter(c =>
@@ -85,16 +105,16 @@ export function computePassport(triedIds: string[], all: WineEntry[], bestStreak
   const allGrapeKeys = new Set(allGrapes.map(g => label(g.name)));
   const triedCount = triedGrapesList.length + triedStylesList.length;
 
-  const nobleGrapes = (allGrapes as any[]).filter(g => g.rarity === 'NOBLE');
+  const nobleGrapes = allGrapes.filter(g => g.rarity === 'NOBLE');
   const allNoble = nobleGrapes.length > 0 && nobleGrapes.every(g => triedGrapeKeys.has(label(g.name)));
 
   const regionComplete = all
-    .filter(e => e.category === 'REGIONS')
+    .filter(isRegionEntry)
     .some(r => {
-      const req = ((r as any).details?.notableGrapes ?? [])
-        .map((n: string) => label(n))
-        .filter((k: string) => allGrapeKeys.has(k));
-      return req.length > 0 && req.every((k: string) => triedGrapeKeys.has(k));
+      const req = (r.details.notableGrapes ?? [])
+        .map(label)
+        .filter(k => allGrapeKeys.has(k));
+      return req.length > 0 && req.every(k => triedGrapeKeys.has(k));
     });
 
   const badges: Badge[] = [

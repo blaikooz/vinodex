@@ -19,6 +19,7 @@ import {
   matchingLeft,
   matchingRight,
   newRun,
+  parseRun,
   presentedOptions,
   retryRun,
   runCorrect,
@@ -88,14 +89,9 @@ const questionImage = (q: ExamQuestion): React.ReactNode => {
  * paper exactly.
  */
 const WineExamScreen: React.FC<WineExamScreenProps> = ({ onBack, onHome }) => {
-  const [run, setRunState] = useState<ExamRun | null>(() => {
-    try {
-      const raw = ssQuery(KEY);
-      return raw ? (JSON.parse(raw) as ExamRun) : null;
-    } catch {
-      return null;
-    }
-  });
+  // Validated, not cast (W15) - see `parseRun`. sessionStorage is
+  // user-writable and a half-written value survives a crash.
+  const [run, setRunState] = useState<ExamRun | null>(() => parseRun(ssQuery(KEY)));
   const [lockedTier, setLockedTier] = useState<QuizTier | null>(null);
   const [newlyUnlocked, setNewlyUnlocked] = useState<QuizTier | null>(null);
   const [recorded, setRecorded] = useState(false);

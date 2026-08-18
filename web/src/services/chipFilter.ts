@@ -1,4 +1,11 @@
-import { WineEntry } from '@/shared/types';
+import {
+  WineEntry,
+  isCountryGateEntry,
+  isFlavorEntry,
+  isGrapeEntry,
+  isRegionEntry,
+  isStyleEntry,
+} from '@/shared/types';
 import { normalizeLabel, getStyleClassType, getStyleColorType } from '@/shared/services/entryUtils';
 import { shelfIds } from './bookmarks';
 
@@ -81,7 +88,57 @@ export type ChipFilter = Partial<Record<ChipFacet, string[]>>;
 
 const label = normalizeLabel;
 
-const entryOrigin = (e: any): string => String(e.grapeCountryOfOrigin ?? e.details?.origin ?? '');
+/**
+ * The country an entry belongs to, across the categories that spell it
+ * differently — a grape's own `grapeCountryOfOrigin`, everything else's
+ * `details.origin`. The `??` chain is preserved exactly, including the grape
+ * falling through to its own `details.origin` when the top-level field is
+ * empty; narrowing that away moved two seeded quiz papers in the sibling
+ * module, which is the warning this comment exists to carry.
+ */
+const entryOrigin = (e: WineEntry): string => {
+  if (isGrapeEntry(e)) return e.grapeCountryOfOrigin || e.details.origin || '';
+  if (isRegionEntry(e) || isStyleEntry(e) || isCountryGateEntry(e)) return e.details.origin ?? '';
+  return '';
+};
+
+/** RARITY is declared on GRAPES and STYLES and nowhere else. */
+const entryRarity = (e: WineEntry): string | undefined =>
+  (isGrapeEntry(e) || isStyleEntry(e)) && e.rarity != null ? String(e.rarity) : undefined;
+
+/** CLIMATE is a REGIONS field. */
+const entryClimate = (e: WineEntry): string | undefined =>
+  isRegionEntry(e) && e.climate != null ? String(e.climate) : undefined;
+
+/**
+ * A `ChipFilter` read back from session storage (W15).
+ *
+ * Returns `{}` rather than null on anything unrecognised - an empty filter is
+ * this type's own identity value and is what a fresh screen starts from, so
+ * there is no second "absent" state for a caller to handle. Unknown facets and
+ * non-string values are dropped individually rather than failing the whole
+ * object: a filter is a bag of independent choices, and losing one stale facet
+ * is better than losing the four the user still wants.
+ */
+export function parseFilter(raw: string | null | undefined): ChipFilter {
+  if (!raw) return {};
+  let v: unknown;
+  try {
+    v = JSON.parse(raw);
+  } catch {
+    return {};
+  }
+  if (typeof v !== 'object' || v === null || Array.isArray(v)) return {};
+  const o = v as Record<string, unknown>;
+  const out: ChipFilter = {};
+  for (const facet of CHIP_FACETS) {
+    const chosen = o[facet];
+    if (!Array.isArray(chosen)) continue;
+    const values = chosen.filter((x): x is string => typeof x === 'string');
+    if (values.length > 0) out[facet] = values;
+  }
+  return out;
+}
 
 // --- model ops (pure) -------------------------------------------------------
 export function isOn(filter: ChipFilter, o: ChipOption): boolean {
@@ -110,37 +167,40 @@ export function includesCountries(filter: ChipFilter): boolean {
 
 // --- matching ---------------------------------------------------------------
 function satisfies(entry: WineEntry, facet: ChipFacet, chosen: string[], snap: ShelfSnapshot): boolean {
-  const e = entry as any;
   switch (facet) {
     case 'category':
       return chosen.includes(entry.category);
     case 'color':
-      return entry.category === 'GRAPES' && chosen.includes(String(e.grapeType ?? ''));
+      return isGrapeEntry(entry) && chosen.includes(entry.grapeType ?? '');
     case 'body': {
-      if (entry.category !== 'GRAPES') return false;
-      const b = label(String(e.grapeBodyClass ?? ''));
+      if (!isGrapeEntry(entry)) return false;
+      const b = label(entry.grapeBodyClass ?? '');
       return chosen.some(v => label(v) === b);
     }
     case 'grapeStyle':
-      return entry.category === 'GRAPES' && chosen.includes(String(e.grapeStyle ?? ''));
-    case 'rarity':
-      return e.rarity != null && chosen.includes(String(e.rarity));
-    case 'climate':
-      return e.climate != null && chosen.includes(String(e.climate));
+      return isGrapeEntry(entry) && chosen.includes(entry.grapeStyle ?? '');
+    case 'rarity': {
+      const r = entryRarity(entry);
+      return r != null && chosen.includes(r);
+    }
+    case 'climate': {
+      const c = entryClimate(entry);
+      return c != null && chosen.includes(c);
+    }
     case 'country': {
-      const o = entryOrigin(e);
+      const o = entryOrigin(entry);
       if (o === '') return false;
       const ok = label(o);
       return chosen.some(v => label(v) === ok);
     }
     case 'styleClass':
-      return entry.category === 'STYLES' && chosen.includes(getStyleClassType(entry.name, e.details?.classification));
+      return isStyleEntry(entry) && chosen.includes(getStyleClassType(entry.name, entry.details.classification));
     case 'styleColor':
-      return entry.category === 'STYLES' && chosen.includes(getStyleColorType(entry.name));
+      return isStyleEntry(entry) && chosen.includes(getStyleColorType(entry.name));
     case 'flavorClass':
-      return entry.category === 'FLAVORS' && chosen.includes(String(e.details?.classification ?? ''));
+      return isFlavorEntry(entry) && chosen.includes(entry.details.classification ?? '');
     case 'flavorSubclass':
-      return entry.category === 'FLAVORS' && chosen.includes(String(e.details?.subclass ?? ''));
+      return isFlavorEntry(entry) && chosen.includes(entry.details.subclass ?? '');
     case 'shelf':
       return chosen.some(s => snap[s as keyof ShelfSnapshot]?.has(entry.id) ?? false);
   }
@@ -187,7 +247,7 @@ const STYLE_COLOR_ORDER = ['RED', 'WHITE', 'ROSE', 'ORANGE', 'DUAL'];
 const FLAVOR_CLASS_ORDER = ['SWEET', 'SOUR', 'SALTY', 'BITTER', 'UMAMI'];
 
 /** Distinct values a projection yields over the dataset, kept in a fixed order (extras appended, alpha). */
-function orderedPresent(all: WineEntry[], project: (e: any) => string | undefined, order: string[]): string[] {
+function orderedPresent(all: WineEntry[], project: (e: WineEntry) => string | undefined, order: string[]): string[] {
   const present = new Set<string>();
   for (const e of all) {
     const v = project(e);
@@ -201,7 +261,7 @@ function orderedPresent(all: WineEntry[], project: (e: any) => string | undefine
 export function searchableCountries(all: WineEntry[]): string[] {
   const seen = new Map<string, string>();
   for (const e of all) {
-    const o = entryOrigin(e as any);
+    const o = entryOrigin(e);
     if (o) {
       const k = label(o);
       if (!seen.has(k)) seen.set(k, o);
@@ -214,8 +274,8 @@ export function facetOptions(facet: ChipFacet, all: WineEntry[]): ChipOption[] {
   const opt = (value: string, lbl: string): ChipOption => ({ facet, value, label: lbl });
   switch (facet) {
     case 'category': {
-      const present = new Set(all.map(e => e.category));
-      const cats = CATEGORY_ORDER.filter(c => present.has(c as any));
+      const present = new Set<string>(all.map(e => e.category));
+      const cats = CATEGORY_ORDER.filter(c => present.has(c));
       return [...cats.map(c => opt(c, c)), opt(COUNTRIES_VALUE, 'COUNTRIES')];
     }
     case 'color':
@@ -223,8 +283,8 @@ export function facetOptions(facet: ChipFacet, all: WineEntry[]): ChipOption[] {
     case 'body': {
       const seen = new Map<string, string>();
       for (const e of all) {
-        if (e.category === 'GRAPES') {
-          const b = String((e as any).grapeBodyClass ?? '');
+        if (isGrapeEntry(e)) {
+          const b = e.grapeBodyClass ?? '';
           if (b) seen.set(label(b), b);
         }
       }
@@ -234,12 +294,18 @@ export function facetOptions(facet: ChipFacet, all: WineEntry[]): ChipOption[] {
     }
     case 'rarity': {
       const present = new Set<string>();
-      for (const e of all) if ((e as any).rarity) present.add(String((e as any).rarity));
+      for (const e of all) {
+        const r = entryRarity(e);
+        if (r) present.add(r);
+      }
       return RARITY_ORDER.filter(r => present.has(r)).map(r => opt(r, r));
     }
     case 'climate': {
       const present = new Set<string>();
-      for (const e of all) if ((e as any).climate) present.add(String((e as any).climate));
+      for (const e of all) {
+        const c = entryClimate(e);
+        if (c) present.add(c);
+      }
       return Array.from(present)
         .sort()
         .map(c => opt(c, c.toUpperCase()));

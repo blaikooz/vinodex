@@ -19,8 +19,9 @@
 // Run: `npm run check:refs`
 
 import { buildWineEntries } from '../shared/constants';
+import type { WineEntry } from '../shared/types';
 
-const entries = buildWineEntries() as any[];
+const entries = buildWineEntries() as WineEntry[];
 
 const norm = (s: unknown) =>
   String(s ?? '')
@@ -32,7 +33,7 @@ const norm = (s: unknown) =>
 
 const byCategory = (cat: string) => entries.filter((e) => e.category === cat);
 
-const index = (list: any[]) => {
+const index = (list: WineEntry[]) => {
   const keys = new Set<string>();
   for (const e of list) {
     keys.add(norm(e.name));

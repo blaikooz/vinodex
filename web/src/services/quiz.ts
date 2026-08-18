@@ -1,4 +1,11 @@
-import { WineEntry } from '@/shared/types';
+import {
+  WineEntry,
+  isCountryGateEntry,
+  isFlavorEntry,
+  isGrapeEntry,
+  isRegionEntry,
+  isStyleEntry,
+} from '@/shared/types';
 import { normalizeLabel } from '@/shared/services/entryUtils';
 
 /**
@@ -37,6 +44,36 @@ export interface QuizSession {
   chosenID: string | null;
 }
 
+/**
+ * A `QuizSession` read back from session storage, or null (W15). See
+ * `examPaper.parseRun` for why the cast this replaces was a claim rather than
+ * a check.
+ */
+export const parseSession = (raw: string | null | undefined): QuizSession | null => {
+  if (!raw) return null;
+  let v: unknown;
+  try {
+    v = JSON.parse(raw);
+  } catch {
+    return null;
+  }
+  if (typeof v !== 'object' || v === null) return null;
+  const o = v as Record<string, unknown>;
+  const num = (x: unknown): x is number => typeof x === 'number' && Number.isFinite(x);
+  if (!num(o.seed) || !num(o.length) || !num(o.passMark) || !num(o.index) || !num(o.correct)) return null;
+  if (typeof o.tier !== 'string' || !(QUIZ_TIERS as string[]).includes(o.tier)) return null;
+  if (o.chosenID !== null && typeof o.chosenID !== 'string') return null;
+  return {
+    seed: o.seed,
+    length: o.length,
+    passMark: o.passMark,
+    tier: o.tier as QuizTier,
+    index: o.index,
+    correct: o.correct,
+    chosenID: o.chosenID ?? null,
+  };
+};
+
 export const DEFAULT_LENGTH = 10;
 export const DEFAULT_PASS = 8;
 const OPTION_COUNT = 4;
@@ -53,12 +90,48 @@ const label = normalizeLabel;
 // --- entry accessors (the generator only touches these) ---------------------
 const byId = (a: WineEntry, b: WineEntry) => (a.id < b.id ? -1 : a.id > b.id ? 1 : 0);
 const inCat = (all: WineEntry[], cat: string) => all.filter(e => e.category === cat).slice().sort(byId);
-const gType = (e: any): string => String(e.grapeType ?? '');
-const gBody = (e: any): string => String(e.grapeBodyClass ?? '');
-const gCountry = (e: any): string => String(e.grapeCountryOfOrigin ?? e.details?.origin ?? '');
-const rarityOf = (e: any): string | undefined => (e.rarity ? String(e.rarity) : undefined);
-const notableOf = (e: any): string[] => (Array.isArray(e.details?.notableGrapes) ? e.details.notableGrapes : []);
-const originOf = (e: any): string => String(e.details?.origin ?? '');
+//
+// **Accessors over the union, not over `any` (W14).** These six were written
+// against `any` because the generator walks a mixed pool — a question about a
+// grape draws distractors from grapes, but the same helper is asked for the
+// `origin` of a region. That is a real requirement and `any` was the wrong
+// answer to it: it also silently permitted a typo, and made every one of
+// these a place the discriminated union stops being checked.
+//
+// Each is a total function over `WineEntry` now, narrowing with the same
+// guards `grapeScan.ts` uses, and returning the category's own empty value
+// where the field does not exist. Behaviour is unchanged — `String(undefined
+// ?? '')` was already `''` — but a seventh category, or a renamed field, is
+// now a compile error rather than an empty string in a quiz answer.
+const gType = (e: WineEntry): string => (isGrapeEntry(e) ? e.grapeType ?? '' : '');
+const gBody = (e: WineEntry): string => (isGrapeEntry(e) ? e.grapeBodyClass ?? '' : '');
+// The `??` chain is kept exactly: a grape whose `grapeCountryOfOrigin` is
+// absent falls back to its own `details.origin`, which is what the `any`
+// version did and what two seeded-paper tests pin. Narrowing without
+// preserving that fallback changed two papers — caught by `quiz.test.ts`,
+// which is the reason those seeds are in the suite.
+const gCountry = (e: WineEntry): string =>
+  isGrapeEntry(e) ? e.grapeCountryOfOrigin || e.details.origin || '' : originOf(e);
+const rarityOf = (e: WineEntry): string | undefined =>
+  (isGrapeEntry(e) || isStyleEntry(e)) && e.rarity ? String(e.rarity) : undefined;
+// STYLES carries `details.notableGrapes` too, and omitting it here moved two
+// seeded papers — `quiz.test.ts`'s golden seeds caught it, which is exactly
+// what a determinism pin is for. The four categories that declare the field
+// are the four listed; GRAPES and CONTINENTS do not have it.
+const notableOf = (e: WineEntry): string[] => {
+  if (isRegionEntry(e) || isStyleEntry(e) || isFlavorEntry(e)) return e.details.notableGrapes ?? [];
+  if (isCountryGateEntry(e)) return e.details.notableGrapes ?? [];
+  return [];
+};
+// Every category whose details declare `origin`, GRAPES included — the old
+// `e.details?.origin` reached it too, and a caller that hands this a grape
+// must keep getting an answer.
+const originOf = (e: WineEntry): string => {
+  if (isGrapeEntry(e) || isRegionEntry(e) || isStyleEntry(e) || isCountryGateEntry(e)) {
+    return e.details.origin ?? '';
+  }
+  return '';
+};
 const nameOf = (e: WineEntry): string => e.name;
 
 // --- tier answer-eligibility (answer pool only; distractors never filtered) --
