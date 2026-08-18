@@ -1,12 +1,15 @@
-import React, { useMemo } from 'react';
-import { Grid3x3, Wine, Flag, Map as MapIcon, Droplet, Package, Crown, Flame, GraduationCap, Lock, ChevronRight } from 'lucide-react';
+import React, { useEffect, useMemo } from 'react';
+import { Grid3x3, Wine, Flag, Map as MapIcon, Lock, ChevronRight, ShieldCheck } from 'lucide-react';
+import { BADGE_ICON, BADGE_TINT } from './badgeVisuals';
+import { tierProgress } from '../src/services/passportTier';
+import { seedIfNeeded } from '../src/services/passportProgress';
 import DeviceLayout from './DeviceLayout';
 import { WineEntry } from '@/shared/types';
 import { shelfIds } from '../src/services/bookmarks';
 import { useBookmarks } from '../src/services/useBookmarks';
 import { bestStreak } from '../src/services/dailyChallenge';
 import { highestUnlocked } from '../src/services/quiz';
-import { computePassport, BadgeId } from '../src/services/passport';
+import { computePassport } from '../src/services/passport';
 import {
   RECOMMENDATION_STRIP,
   allRecommendations,
@@ -23,22 +26,6 @@ interface PassportScreenProps {
   onHome: () => void;
 }
 
-const BADGE_ICON: Record<BadgeId, React.ComponentType<{ size?: number; className?: string; color?: string }>> = {
-  firstSip: Droplet,
-  tenBottles: Package,
-  allNoble: Crown,
-  regionComplete: MapIcon,
-  streakWeek: Flame,
-  sommelier: GraduationCap,
-};
-const BADGE_TINT: Record<BadgeId, string> = {
-  firstSip: '#ef4444',
-  tenBottles: '#3b82f6',
-  allNoble: '#eab308',
-  regionComplete: '#22c55e',
-  streakWeek: '#f97316',
-  sommelier: '#a855f7',
-};
 const RARITY_TINT: Record<string, string> = {
   COMMON: '#22c55e',
   UNCOMMON: '#3b82f6',
@@ -93,9 +80,49 @@ const PassportScreen: React.FC<PassportScreenProps> = ({ allEntries, onSelect, o
     return allRecommendations(buildProfile(index), index);
   }, [allEntries, revision]);
 
+  // The rank ladder (v6#21): held rung + floor-based progress to the next.
+  const tastings = shelfIds('tried').length;
+  const rank = tierProgress(tastings);
+
+  // Seed the announce ledgers here too — the passport is the iOS seeding
+  // site; the entry page covers the update-then-tap-TRIED path.
+  useEffect(() => {
+    seedIfNeeded(() => passport.badges, () => tastings);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
   return (
     <DeviceLayout title="PASSPORT" subtitle="" showBack onBack={onBack} onHome={onHome} centerHeaderText>
       <div className="h-full overflow-y-auto custom-scrollbar p-4" style={{ backgroundColor: 'var(--lcd-page)' }}>
+
+        {/* RANK — thresholds from the ladder (APPRENTICE 5 / MASTER 25 /
+            GRANDMASTER 100 / LEGENDARY 250 / WINE MONK 400), progress from
+            the held rung's floor rather than zero. */}
+        <Section title="RANK">
+          <div className="rounded-xl bg-stone-900/70 border-2 border-yellow-700/50 p-3.5">
+            <div className="flex items-center gap-3">
+              <ShieldCheck size={30} color="#eab308" />
+              <div className="flex-1 min-w-0">
+                <div className="font-retro text-sm tracking-widest text-stone-100">
+                  {rank.held ? rank.held.name : 'UNRANKED'}
+                </div>
+                <div className="font-mono text-[0.65rem] text-stone-400 normal-case mt-0.5">
+                  {rank.held ? rank.held.blurb : 'Mark five entries tried to take the first rung.'}
+                </div>
+              </div>
+            </div>
+            {rank.next && (
+              <div className="mt-3">
+                <div className="h-3 rounded-full bg-black/50 overflow-hidden">
+                  <span className="block h-full rounded-full bg-yellow-500" style={{ width: `${Math.max(rank.fraction > 0 ? 8 : 0, Math.round(rank.fraction * 100))}%` }} />
+                </div>
+                <div className="font-mono text-[0.62rem] text-stone-400 normal-case mt-1 text-right">
+                  {tastings}/{rank.next.threshold} toward {rank.next.name}
+                </div>
+              </div>
+            )}
+          </div>
+        </Section>
 
         <Section title="TASTINGS">
           <div className="grid grid-cols-2 gap-3">

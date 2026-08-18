@@ -33,6 +33,12 @@ import { useBookmarks } from '../src/services/useBookmarks';
 import { recordRecentlyViewed } from '../src/services/recentlyViewed';
 import { isTastable } from '../src/services/wineData';
 import RatingPrompt from './RatingPrompt';
+import StampUnlockedPrompt, { Celebration } from './StampUnlockedPrompt';
+import { computePassport } from '../src/services/passport';
+import { announceBadges, announceTier, seedIfNeeded } from '../src/services/passportProgress';
+import { shelfIds } from '../src/services/bookmarks';
+import { bestStreak } from '../src/services/dailyChallenge';
+import { highestUnlocked } from '../src/services/quiz';
 
 type FilterMode = 'REGION' | 'TYPE' | 'TASTING' | 'SOIL' | 'ORIGIN' | 'RARITY' | 'SYSTEM' | 'CLIMATE' | null;
 
@@ -70,6 +76,20 @@ const EntryDetail: React.FC<EntryDetailProps> = ({ entry, allEntries, onBack, on
   const tried = isOnShelf('tried', entry.id);
   const rating = getRating(entry.id);
   const [showRating, setShowRating] = useState(false);
+  /** Celebration queue (v6#17) — one card at a time, rating prompt after. */
+  const [celebrations, setCelebrations] = useState<Celebration[]>([]);
+  const [ratingAfterCelebrations, setRatingAfterCelebrations] = useState(false);
+
+  // Seed the announce ledgers on appear — always before this page's own
+  // TRIED pill can be pressed, so an updated install never celebrates a
+  // stamp the user earned weeks ago (iOS `seedIfNeeded`, thunked so the
+  // passport is not computed once the flags are set).
+  useEffect(() => {
+    seedIfNeeded(
+      () => computePassport(shelfIds('tried'), allEntries, bestStreak(), highestUnlocked()).badges,
+      () => shelfIds('tried').length,
+    );
+  }, [allEntries]);
 
   // Record this open in the recently-viewed trail. Keyed on entry.id, not [],
   // because following a cross-link swaps the entry without remounting the
@@ -1086,7 +1106,20 @@ const EntryDetail: React.FC<EntryDetailProps> = ({ entry, allEntries, onBack, on
                     <button
                       onClick={() => {
                         const nowTried = toggleShelf('tried', entry.id);
-                        if (nowTried) setShowRating(true);
+                        if (!nowTried) return;
+                        // Announce at the moment the thing happens, never in
+                        // a render (v6#17): stamps first, then a rank-up, one
+                        // card at a time; the rating prompt waits its turn.
+                        const passport = computePassport(shelfIds('tried'), allEntries, bestStreak(), highestUnlocked());
+                        const queue: Celebration[] = announceBadges(passport.badges).map(b => ({ kind: 'stamp' as const, badge: b }));
+                        const rankedUp = announceTier(shelfIds('tried').length);
+                        if (rankedUp) queue.push({ kind: 'tier', tier: rankedUp });
+                        if (queue.length > 0) {
+                          setCelebrations(queue);
+                          setRatingAfterCelebrations(true);
+                        } else {
+                          setShowRating(true);
+                        }
                       }}
                       aria-pressed={tried}
                       className={shelfClass}
@@ -1402,6 +1435,19 @@ const EntryDetail: React.FC<EntryDetailProps> = ({ entry, allEntries, onBack, on
         )}
 
       </div>
+      {celebrations[0] && (
+        <StampUnlockedPrompt
+          celebration={celebrations[0]}
+          onDismiss={() => {
+            const rest = celebrations.slice(1);
+            setCelebrations(rest);
+            if (rest.length === 0 && ratingAfterCelebrations) {
+              setRatingAfterCelebrations(false);
+              setShowRating(true);
+            }
+          }}
+        />
+      )}
       {showRating && tastable && (
         <RatingPrompt
           entryName={entry.name}
