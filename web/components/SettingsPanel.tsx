@@ -1,5 +1,5 @@
 import React from 'react';
-import { Palette, BarChart3, Lock, LockOpen, Bug, Check, Wrench, LogOut, Flag, SlidersHorizontal, Crown, Leaf, Sun, Moon, Grid3x3, Globe, Wine, Map as MapIcon, Layers, Vibrate, Volume2, ChevronRight, MemoryStick, Download, Upload, Mail, KeyRound, UserRound, Sparkle } from 'lucide-react';
+import { Palette, BarChart3, Lock, LockOpen, Bug, Check, Wrench, LogOut, Flag, SlidersHorizontal, Crown, Leaf, Sun, Moon, Grid3x3, Globe, Wine, Map as MapIcon, Layers, Vibrate, Volume2, ChevronRight, MemoryStick, Download, Upload, Mail, KeyRound, UserRound, Sparkle, Play } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import DeviceLayout from './DeviceLayout';
 import { WineEntry } from '@/shared/types';
@@ -54,6 +54,7 @@ import {
   profiles,
   saveProfile,
 } from '../src/services/userProfiles';
+import { DEMO_STOPS, demoCycleSeconds, startDemo } from '../src/services/demoMode';
 
 export type SettingsSectionId = 'CUSTOMIZE' | 'SETTINGS' | 'DATA' | 'ACCESS' | 'DEV';
 
@@ -673,6 +674,22 @@ export const SettingsSectionPanel: React.FC<{
                   </span>
                 </span>
                 <ChevronRight size={16} style={{ color: 'var(--lcd-subtext)' }} />
+              </button>
+            </Section>
+
+            <Section title="DEMO MODE">
+              <button
+                onClick={() => { startDemo(); }}
+                className="w-full flex items-center gap-3 px-3 py-3 rounded border-2 text-left transition-all active:translate-y-0.5"
+                style={{ backgroundColor: 'var(--lcd-surface)', borderColor: 'var(--lcd-surface-edge)' }}
+              >
+                <span style={{ color: 'var(--lcd-subtext)' }}><Play size={20} /></span>
+                <span className="flex-1 min-w-0">
+                  <span className="block font-retro text-[0.6rem] tracking-widest" style={{ color: 'var(--lcd-text)' }}>START DEMO</span>
+                  <span className="block font-mono text-sm normal-case mt-1" style={{ color: 'var(--lcd-subtext)' }}>
+                    The unattended tour — {DEMO_STOPS.length} stops, about {Math.round(demoCycleSeconds())}s a lap. Touch anything to take over.
+                  </span>
+                </span>
               </button>
             </Section>
 

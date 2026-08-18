@@ -1,5 +1,5 @@
 
-import React, { Suspense, lazy, useEffect, useMemo } from 'react';
+import React, { Suspense, lazy, useEffect, useMemo, useRef, useSyncExternalStore } from 'react';
 import {
   Routes,
   Route,
@@ -22,6 +22,7 @@ import { clear as clearScreenState } from './src/services/screenState';
 import { SETTINGS_SECTIONS, SettingsSectionId } from './components/SettingsPanel';
 import { installGlobalTapSound } from './src/services/sound';
 import { installGlobalHaptics } from './src/services/haptics';
+import { demoStopAt, isDemoActive, stopDemo, subscribeToDemo } from './src/services/demoMode';
 
 const RetroGlobeScreen = lazy(() => import('./components/RetroGlobeScreen'));
 const MoonDialScreen = lazy(() => import('./components/MoonDialScreen'));
@@ -86,6 +87,33 @@ const App: React.FC = () => {
   // One global listener each rides a tap sound (opt-in) and a haptic
   // (default on) onto every button click.
   useEffect(() => { installGlobalTapSound(); installGlobalHaptics(); }, []);
+
+  // The attract loop (v6#30): while DEMO MODE is on, walk the tour's stops on
+  // their own dwells; the first human touch ends it where it stands — a demo
+  // that fights the person who just picked the device up has failed at the
+  // one moment it exists for.
+  const demoActive = useSyncExternalStore(subscribeToDemo, isDemoActive, () => false);
+  const demoCounter = useRef(0);
+  useEffect(() => {
+    if (!demoActive) return;
+    let timer: ReturnType<typeof setTimeout>;
+    const step = () => {
+      const stop = demoStopAt(demoCounter.current);
+      demoCounter.current += 1;
+      navigate(stop.path);
+      timer = setTimeout(step, stop.dwell * 1000);
+    };
+    const interrupt = () => stopDemo();
+    window.addEventListener('pointerdown', interrupt, true);
+    window.addEventListener('keydown', interrupt, true);
+    step();
+    return () => {
+      clearTimeout(timer);
+      window.removeEventListener('pointerdown', interrupt, true);
+      window.removeEventListener('keydown', interrupt, true);
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [demoActive]);
 
   // Home is an in-app control, so it lands on the dex menu — never the splash.
   // The splash is where a fresh visit starts, not a screen to bounce back to.
