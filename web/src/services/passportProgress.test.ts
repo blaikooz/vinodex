@@ -79,6 +79,9 @@ describe('the announce ledgers', () => {
 
   it('a rung celebrates the tier now held, once, by threshold', () => {
     expect(announceTier(3)).toBe(null);
+    // Exact crossing: the threshold itself is inclusive.
+    expect(announceTier(5)?.name).toBe('APPRENTICE');
+    localStorage.clear();
     expect(announceTier(6)?.name).toBe('APPRENTICE');
     expect(announceTier(7)).toBe(null);
     // A jump celebrates the held rung, not each one passed.
@@ -96,6 +99,9 @@ describe('the announce ledgers', () => {
   it('an unknown stored index repeats a card rather than inventing a demotion', () => {
     localStorage.setItem(SEEN_TIER_KEY, '77');
     expect(announceTier(30)?.name).toBe('MASTER');
+    // The announce also repairs the store: the alien index is overwritten
+    // with MASTER's declaration index, so the repeat happens once.
+    expect(localStorage.getItem(SEEN_TIER_KEY)).toBe('0');
   });
 
   it('seeding marks what is already earned without returning it, per-ledger', () => {

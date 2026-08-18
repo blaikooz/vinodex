@@ -24,6 +24,14 @@ export interface Passport {
   totalGrapes: number;
   triedStyles: number;
   totalStyles: number;
+  /**
+   * Catalog-resolved tastings — grapes + styles, dead ids dropped (review
+   * M4, mirroring iOS `Passport.triedTotal`). **This, never the raw shelf
+   * length, is what the rank ladder counts**: a data batch that retires a
+   * tried entry must move the rank the same way it moves every other count
+   * on the page.
+   */
+  triedTotal: number;
   byColor: { red: number; white: number };
   colorTotals: { red: number; white: number };
   byRarity: Record<string, number>;
@@ -103,6 +111,7 @@ export function computePassport(triedIds: string[], all: WineEntry[], bestStreak
     totalGrapes: allGrapes.length,
     triedStyles: triedStylesList.length,
     totalStyles: all.filter(e => e.category === 'STYLES').length,
+    triedTotal: triedGrapesList.length + triedStylesList.length,
     byColor,
     colorTotals,
     byRarity,

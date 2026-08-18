@@ -81,7 +81,9 @@ const PassportScreen: React.FC<PassportScreenProps> = ({ allEntries, onSelect, o
   }, [allEntries, revision]);
 
   // The rank ladder (v6#21): held rung + floor-based progress to the next.
-  const tastings = shelfIds('tried').length;
+  // Catalog-resolved (review M4), so the rank agrees with every other count
+  // on this page when a data batch retires an entry.
+  const tastings = passport.triedTotal;
   const rank = tierProgress(tastings);
 
   // Seed the announce ledgers here too — the passport is the iOS seeding

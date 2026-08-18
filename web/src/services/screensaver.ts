@@ -21,6 +21,20 @@
 export const IDLE_SCREENSAVER_SECONDS = 60;
 
 /**
+ * What counts as activity, for **every** consumer of the one idle reckoning
+ * (review L4): the marquee's dwell restart and the screensaver's clock read
+ * the same list, because two clocks counting the same silence differently is
+ * exactly what the A4 fold retired on iOS.
+ */
+export const IDLE_ACTIVITY_EVENTS: (keyof WindowEventMap)[] = [
+  'pointerdown',
+  'pointermove',
+  'keydown',
+  'wheel',
+  'touchstart',
+];
+
+/**
  * Points per second per axis. Different and coprime-ish rather than equal, so
  * the mark traces a long path that does not repeat quickly — equal speeds
  * send it round a short diagonal loop, which reads as a bug.

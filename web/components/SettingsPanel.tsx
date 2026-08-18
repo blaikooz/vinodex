@@ -83,6 +83,22 @@ const WIPE_KEYS = [
   'lcdMode',
   'textScale',
   'uiScale',
+  // The pass-2/pass-3 ledgers (v6#17/#23/#26/#8): announce state, exam
+  // history, the professor's memory and the walkthrough flags all go with a
+  // wipe — a fresh start with these standing would open with the
+  // celebrations spent and the tutorial already offered.
+  'passportSeenBadges',
+  'passportSeenBadgesSeeded',
+  'passportSeenTierRank',
+  'passportSeenTierSeeded',
+  'examResults',
+  'examBestPassStreak',
+  'firstTimeTriggersSeen',
+  'firstTimeTriggersSeeded',
+  'vinoSilenced',
+  'coachmarkReached',
+  'coachmarkOffered',
+  'coachmarkCompleted',
 ];
 function clearAllSavedData(): void {
   try {
@@ -478,9 +494,18 @@ export const SettingsSectionPanel: React.FC<{
   const [offeringTour, setOfferingTour] = React.useState(false);
   const [pendingRestore, setPendingRestore] = React.useState<SavedDataArchive | null>(null);
   const [restoreError, setRestoreError] = React.useState<string | null>(null);
-  /** A profile action waiting on its confirm. Every case is destructive. */
-  const [pendingProfile, setPendingProfile] = React.useState<{ mode: 'save' | 'load'; slot: number | 'fresh' } | null>(null);
-  const [profileList, setProfileList] = React.useState(() => profiles());
+  /** A profile action waiting on its confirm. Every case is destructive.
+   *  SAVE is always into a numbered slot — FRESH is a load-only row. */
+  const [pendingProfile, setPendingProfile] = React.useState<
+    { mode: 'save'; slot: number } | { mode: 'load'; slot: number | 'fresh' } | null
+  >(null);
+  // Read in an effect, not a `useState` initializer (review L5): `profiles()`
+  // seeds HORIZON on first read, and a localStorage write + notify during
+  // render is a side effect React may run twice.
+  const [profileList, setProfileList] = React.useState<ReturnType<typeof profiles>>([]);
+  React.useEffect(() => {
+    setProfileList(profiles());
+  }, []);
   // The exam bank is 283 KB and belongs to the exam's own chunk; the DEV row
   // fetches its count on demand rather than dragging the bank into /settings.
   const [examCount, setExamCount] = React.useState<number | null>(null);
@@ -719,10 +744,6 @@ export const SettingsSectionPanel: React.FC<{
               </div>
             </Section>
 
-
-            {/* The guided tour's door, moved here from its old grid tile —
-                iOS 0.7.6 (F1): "three things the device can tell you or do",
-                and a guided tour of the device belongs with them. */}
 
             <Section title="STORED DATA">
               {/* A copy of everything this device holds, as one file the user
@@ -1026,7 +1047,7 @@ export const SettingsSectionPanel: React.FC<{
           <div className="w-full max-w-xs bg-stone-900 border-2 border-yellow-700 rounded-lg p-5 flex flex-col gap-4 text-center">
             <p className="font-retro text-xs tracking-widest text-yellow-300">
               {pendingProfile.mode === 'save'
-                ? `SAVE INTO ${pendingProfile.slot === 'fresh' ? '' : `SLOT ${pendingProfile.slot}`}?`
+                ? `SAVE INTO SLOT ${pendingProfile.slot}?`
                 : `LOAD ${pendingProfile.slot === 'fresh' ? FRESH_PROFILE_NAME : profileList.find(p => p.slot === pendingProfile.slot)?.name ?? `SLOT ${pendingProfile.slot}`}?`}
             </p>
             <p className="font-mono text-sm text-stone-300 normal-case">
@@ -1047,10 +1068,10 @@ export const SettingsSectionPanel: React.FC<{
                 onClick={() => {
                   const action = pendingProfile;
                   setPendingProfile(null);
-                  if (action.mode === 'save' && action.slot !== 'fresh') {
+                  if (action.mode === 'save') {
                     saveProfile(action.slot);
                     setProfileList(profiles());
-                  } else if (action.mode === 'load') {
+                  } else {
                     loadProfile(action.slot);
                     // Relaunch into the loaded state, so every store re-reads.
                     window.location.reload();

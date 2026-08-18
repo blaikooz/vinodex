@@ -15,6 +15,13 @@ const badge = (id: string, p: { badges: Badge[] }) => p.badges.find(b => b.id ==
 
 // Mirrors PassportTests.swift.
 describe('passport', () => {
+  it('triedTotal is catalog-resolved — a dead id does not count toward the ladder (M4)', () => {
+    const grape = allGrapes[0]!;
+    const p = compute([grape.id, 'ZOMBIE-ID', 'ANOTHER-GHOST']);
+    expect(p.triedTotal).toBe(1);
+    expect(p.triedTotal).toBe(p.triedGrapes + p.triedStyles);
+  });
+
   it('an empty shelf is an empty passport with every stamp waiting', () => {
     const p = compute([]);
     expect(p.triedGrapes).toBe(0);

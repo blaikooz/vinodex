@@ -4,13 +4,13 @@ import { Home, CircleUser, Settings, Wine, Bookmark, Leaf, Map as MapIcon, Spark
 import { useNavigate } from 'react-router-dom';
 import {
   applyActivity,
-  applyLeftMainScreen,
   applyTimedOut,
   currentScript,
   scriptTextAfter,
   stageTimeout,
   subscribeToMarquee,
 } from '../src/services/marqueeScript';
+import { IDLE_ACTIVITY_EVENTS } from '../src/services/screensaver';
 
 /**
  * The marquee's per-route glyph, stamped between the banner's repetitions —
@@ -161,29 +161,33 @@ const DeviceLayout: React.FC<DeviceLayoutProps> = ({
     };
 
     // Activity restarts whichever dwell the resting stage is waiting out,
-    // even when the stage itself does not move.
+    // even when the stage itself does not move. The event list is the one
+    // shared idle reckoning (review L4) — the screensaver reads the same
+    // list, because two clocks counting the same silence differently is what
+    // the A4 fold retired.
     const activity = () => {
       applyActivity();
       arm();
     };
-    window.addEventListener('pointerdown', activity, true);
-    window.addEventListener('keydown', activity, true);
+    IDLE_ACTIVITY_EVENTS.forEach(e => window.addEventListener(e, activity, { capture: true, passive: true }));
     arm();
     return () => {
       if (timer) clearTimeout(timer);
       if (rotate) clearInterval(rotate);
-      window.removeEventListener('pointerdown', activity, true);
-      window.removeEventListener('keydown', activity, true);
-      // Leaving the main screen consumes the greeting and parks at MENU.
-      applyLeftMainScreen();
+      IDLE_ACTIVITY_EVENTS.forEach(e => window.removeEventListener(e, activity, { capture: true }));
+      // Deliberately no `applyLeftMainScreen()` here (review L3): teardown is
+      // not navigation — StrictMode's dev double-invoke and any same-route
+      // remount would consume the once-per-launch WELCOME! before it ever
+      // painted. The App's route watcher applies the transition when the
+      // path actually leaves the main screen.
     };
   }, [isMainScreen]);
 
   const footerTitle = isMainScreen ? scriptTextAfter(script, cheersElapsed) : title;
   const backEnabled = showBack && !!onBack;
-  const footerTitleSize = footerTitle === 'VINODEX'
-    ? 'text-[2rem] md:text-[2.3rem]'
-    : 'text-[1.55rem] md:text-[1.8rem]';
+  // One size: the marquee never says VINODEX any more (the script replaced
+  // the wordmark loop), so the old big-wordmark branch was dead (review I3).
+  const footerTitleSize = 'text-[1.55rem] md:text-[1.8rem]';
   const defaultFooterDisplay = (
     <div className="w-full max-w-[16.5rem] min-w-0 rounded-[1.1rem] bg-black px-[0.35rem] py-[0.3rem] border border-white/75 shadow-[inset_0_1px_0_rgba(255,255,255,0.85),0_3px_0_rgba(120,120,120,0.95)]">
       <div className="flex items-center min-h-[4.1rem] overflow-hidden bg-black rounded-[0.9rem] px-1 shadow-[inset_0_0_18px_rgba(34,197,94,0.16)]">
@@ -427,6 +431,7 @@ const DeviceLayout: React.FC<DeviceLayoutProps> = ({
                 type="button"
                 onClick={() => navigate('/saved')}
                 aria-label="Saved entries"
+                data-coachmark="passportButton"
                 className="relative w-12 h-12 md:w-14 md:h-14 rounded-full bg-gradient-to-b from-stone-700 to-stone-950 border-[3px] border-stone-400 shadow-[inset_0_3px_6px_rgba(255,255,255,0.15),0_6px_10px_rgba(0,0,0,0.5)] transition-transform active:scale-[0.95] hover:scale-[1.02]"
               >
                 <span className="absolute inset-0 flex items-center justify-center pointer-events-none">

@@ -251,7 +251,7 @@ export default function EncyclopediaList({ category, filterMode, filterValue, in
               <p className="text-red-500 font-retro text-xs">NO DATA FOUND</p>
             </div>
           ) : (
-            <div className="flex flex-col gap-2 relative z-10 pb-4">
+            <div className="flex flex-col gap-2 relative z-10 pb-4" data-coachmark="listingRow">
               {filteredEntries.map((entry, index) => (
                 <EntryTile
                   key={entry.id}
