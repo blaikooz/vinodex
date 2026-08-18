@@ -44,7 +44,10 @@ const GRAPE_NAME_BLOCKLIST = new Set([
 // Country names that appear as section headings in the encyclopedia but have
 // no real content — these are page-header artifacts, not country chapters.
 // Empty-country-blurb is the main signal; this set is only for cosmetic order.
-const COUNTRY_HEADER_DEBRIS_REGEX = /^(see also|maps?|chapter|introduction)\b/i;
+// Retained, unused: `_`-prefixed per the repo convention for a value kept
+// for its documentation value rather than deleted (cf. DeviceLayout's
+// `_subtitle`). The heading-debris signal that shipped is the empty blurb.
+const _COUNTRY_HEADER_DEBRIS_REGEX = /^(see also|maps?|chapter|introduction)\b/i;
 
 interface EncycRoot {
   attribution: Record<string, string>;

@@ -185,7 +185,7 @@ function repairSplitAocHeadings(lines: string[]): string[] {
     if (
       next
       && SPLIT_AOC_PREFIXES.has(cur)
-      && /^([A-ZÀ-ŸŒÆ0-9'’ .\-]+?)\s+(AOC|DOC|DOCG|DOCa|VDQS|DO|IGT|VR|VdT|VdP|VLQPRD|QmP|QbA)$/.test(next)
+      && /^([A-ZÀ-ŸŒÆ0-9'’ .-]+?)\s+(AOC|DOC|DOCG|DOCa|VDQS|DO|IGT|VR|VdT|VdP|VLQPRD|QmP|QbA)$/.test(next)
     ) {
       repaired.push(`${cur} ${next}`);
       i++;
@@ -213,7 +213,7 @@ function repairLines(rawLines: string[]): string[] {
     let line = rawLines[i];
 
     // Normalize whitespace
-    line = normalizeOcrText(line.replace(/ /g, ' ').replace(/\u00a0/g, ' ').replace(/\s+$/g, ''));
+    line = normalizeOcrText(line.replace(/\u00a0/g, ' ').replace(/\s+$/g, ''));
 
     // Strip standalone page numbers
     if (/^\s*\d{1,3}\s*$/.test(line)) continue;
@@ -253,7 +253,7 @@ function repairLines(rawLines: string[]): string[] {
 
 // ---------- Phase B: heading detection ----------
 
-const RE_AOC = /^([A-ZÀ-ŸŒÆ0-9'’ \.\-]+?)\s+(AOC|DOC|DOCG|DOCa|VDQS|DO|IGT|VR|VdT|VdP|VLQPRD|QmP|QbA)$/;
+const RE_AOC = /^([A-ZÀ-ŸŒÆ0-9'’ .-]+?)\s+(AOC|DOC|DOCG|DOCa|VDQS|DO|IGT|VR|VdT|VdP|VLQPRD|QmP|QbA)$/;
 const RE_STYLE_HEADER = /^(RED|WHITE|ROSÉ|ROSE|SPARKLING|FORTIFIED|SWEET)\b/;
 
 function isCountryHeading(line: string): boolean {
@@ -460,7 +460,7 @@ function buildTree(lines: string[]): {
     // or describe a topic rather than a single varietal.
     if (
       glossaryActive
-      && /^[A-ZÀ-ŸŒÆ][A-ZÀ-ŸŒÆ '\-]{2,40}$/.test(trimmed)
+      && /^[A-ZÀ-ŸŒÆ][A-ZÀ-ŸŒÆ '-]{2,40}$/.test(trimmed)
       && !COUNTRY_SET.has(trimmed)
       && !/\b(AND|OR|VARIETIES|COLOR|CLONES|CROSSES|HYBRIDS|SYNONYMS|GRAPE)\b/.test(trimmed)
     ) {

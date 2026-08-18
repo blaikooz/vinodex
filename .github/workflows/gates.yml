@@ -1,6 +1,6 @@
 name: gates
 
-# The four gates plus the render gate. #19-geometry was declined for four
+# The five gates plus the render gate. #19-geometry was declined for four
 # passes for want of a gate; landing it on one nobody runs would be the same
 # gap wearing a green tick.
 on:
@@ -18,6 +18,10 @@ jobs:
           node-version-file: .nvmrc
           cache: npm
       - run: npm ci
+      # Lint first: it is the cheapest gate and the only one that reads the
+      # code rather than the types, and a hook-rule violation should not wait
+      # behind a two-minute build to be reported.
+      - run: npm run lint
       - run: npm run typecheck
       - run: npm test
       - run: npm run build
