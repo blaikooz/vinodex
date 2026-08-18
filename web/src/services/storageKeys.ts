@@ -1,0 +1,180 @@
+/**
+ * Every key this app persists, and what a wipe does to it (W25).
+ *
+ * Ported in spirit from `vinodex-ios/Sources/VinodexCore/SavedData.swift`'s
+ * `SavedDataKey`, and for the reason that type's own comment gives: the web
+ * had a **hand-kept literal array** in `SettingsPanel.tsx` and it had drifted
+ * exactly the way iOS's had before AUDIT M35 caught it. Thirty-six key
+ * constants existed across the services; `WIPE_KEYS` named twenty-seven.
+ *
+ * The two that mattered were the **profile slots**: `userProfilesIndex` and
+ * the five `userProfileSlot-N` blobs were on no list at all, so CLEAR ALL
+ * SAVED DATA left five complete snapshots of the erased device sitting in
+ * localStorage — every shelf, every rating, the display name — and the
+ * PROFILES panel went on offering to load them. That is the failure this
+ * registry exists to make impossible, and it is now a ruling: **a wipe wipes
+ * the profiles too.**
+ *
+ * ## The rule, stated once
+ *
+ * **Everything the device remembers about *you* goes. The one thing that
+ * stays is the grant that let you through the door.**
+ *
+ * That settles the inconsistency the audit flagged: `textScale`, `uiScale`
+ * and `chassisSkin` were wiped while `hapticsEnabled` and `soundsEnabled`
+ * were not, which is not a rule, it is two people's guesses. iOS wipes all
+ * five — every one of them is a `SavedDataKey` case and `wipeAll` is built on
+ * "no key survives a wipe" — so the web follows, and the preferences go with
+ * the rest.
+ *
+ * `unlockedAppIDs` is the single `keep`, and it is a deliberate divergence
+ * from iOS rather than an oversight: iOS has no such key because it has no
+ * door. On the web, wiping it would log you out of the dex and drop you back
+ * at the company portal — which reads as a bug rather than as a reset, and is
+ * a *different* destructive act from the one the button offers. It is also
+ * not user data: it is an access grant, and the code that produces it is
+ * documented as a doorman rather than a lock.
+ *
+ * ## Why a registry rather than a longer array
+ *
+ * `storageKeys.test.ts` walks the source for every `localStorage` key the app
+ * actually touches and fails if one is not listed here. So a new key is a
+ * failing test in one place, rather than a value that quietly survives a wipe
+ * and is discovered by somebody who thought they had erased it.
+ */
+
+/** What CLEAR ALL SAVED DATA does to a key. */
+export type KeyDisposition = 'wipe' | 'keep';
+
+export interface StorageKeySpec {
+  key: string;
+  disposition: KeyDisposition;
+  /** Why — required on `keep`, and worth having on the rest. */
+  note: string;
+}
+
+/** How many profile slots exist. Mirrors `userProfiles.MAX_PROFILES`. */
+export const PROFILE_SLOT_COUNT = 5;
+
+/** The slot blob key. Mirrors `userProfiles.slotKey`. */
+export const profileSlotKey = (slot: number): string => `userProfileSlot-${slot}`;
+
+export const STORAGE_KEYS: readonly StorageKeySpec[] = [
+  // --- Shelves and ratings. Also cleared by `removeEverything()`, which
+  // notifies subscribers; listed anyway so this registry is a complete
+  // statement rather than a supplement to one.
+  { key: 'bookmarkedEntryIDs', disposition: 'wipe', note: 'SAVED shelf' },
+  { key: 'wantToTryEntryIDs', disposition: 'wipe', note: 'WANT TO TRY shelf' },
+  { key: 'triedEntryIDs', disposition: 'wipe', note: 'TRIED shelf' },
+  { key: 'triedRatings', disposition: 'wipe', note: 'per-entry ratings' },
+  { key: 'triedEntryDays', disposition: 'wipe', note: 'when each entry joined TRIED' },
+
+  // --- Trail
+  { key: 'recentlyViewedEntryIDs', disposition: 'wipe', note: 'the 20-entry trail' },
+
+  // --- Progress
+  { key: 'quizTierUnlocked', disposition: 'wipe', note: 'highest daily-quiz tier' },
+  { key: 'dailyStreak', disposition: 'wipe', note: 'current challenge streak' },
+  { key: 'dailyLastDay', disposition: 'wipe', note: 'last challenge day' },
+  { key: 'dailyBestStreak', disposition: 'wipe', note: 'best challenge streak' },
+  { key: 'revealCursor', disposition: 'wipe', note: 'daily pick cursor' },
+  { key: 'examResults', disposition: 'wipe', note: 'wine exam history' },
+  {
+    key: 'examBestPassStreak',
+    disposition: 'wipe',
+    note: 'exam pass streak — an un-reset history would leave a fresh start claiming a hundred papers of statistics',
+  },
+
+  // --- Entitlements
+  { key: 'grantedEntitlements', disposition: 'wipe', note: 'unlocked entry tiers' },
+  {
+    key: 'starterOnly',
+    disposition: 'wipe',
+    note: "starter-tier flag. Note the key differs from iOS's `starterTierOnly`; recorded in IOS-PARITY-v6 rather than renamed, because a rename resets stored state",
+  },
+
+  // --- Identity
+  { key: 'userDisplayName', disposition: 'wipe', note: 'the name the professor uses' },
+  { key: 'avatarImage', disposition: 'wipe', note: 'profile photo' },
+
+  // --- Preferences. Wiped, per the rule above: iOS carries all five as
+  // SavedDataKey cases and wipes them, and half-wiping a preference set is
+  // the inconsistency this registry was written to settle.
+  { key: 'chassisSkin', disposition: 'wipe', note: 'chassis colourway' },
+  { key: 'lcdMode', disposition: 'wipe', note: 'screen mode' },
+  { key: 'textScale', disposition: 'wipe', note: 'text size' },
+  { key: 'uiScale', disposition: 'wipe', note: 'chassis furniture size' },
+  { key: 'hapticsEnabled', disposition: 'wipe', note: 'haptics preference' },
+  { key: 'soundsEnabled', disposition: 'wipe', note: 'tap-sound preference' },
+
+  // --- One-shot ledgers. Every one of these would, if it survived, open a
+  // fresh start with its celebration already spent — on the single run where
+  // earning it again is the whole point.
+  { key: 'passportSeenBadges', disposition: 'wipe', note: 'stamp announce ledger' },
+  { key: 'passportSeenBadgesSeeded', disposition: 'wipe', note: 'stamp ledger seeded flag' },
+  { key: 'passportSeenTierRank', disposition: 'wipe', note: 'rank announce ledger' },
+  { key: 'passportSeenTierSeeded', disposition: 'wipe', note: 'rank ledger seeded flag' },
+  { key: 'firstTimeTriggersSeen', disposition: 'wipe', note: "the professor's memory" },
+  {
+    key: 'firstTimeTriggersSeeded',
+    disposition: 'wipe',
+    note: 'trigger seeded flag — without it a wiped device declines to re-seed and every later seed is a no-op',
+  },
+  { key: 'vinoSilenced', disposition: 'wipe', note: 'professor silenced' },
+  { key: 'coachmarkReached', disposition: 'wipe', note: 'walkthrough progress' },
+  { key: 'coachmarkOffered', disposition: 'wipe', note: 'walkthrough offered' },
+  { key: 'coachmarkCompleted', disposition: 'wipe', note: 'walkthrough completed' },
+
+  // --- Profiles. THE W25 defect: neither of these was on any list, so a wipe
+  // left five complete snapshots of the erased device behind.
+  { key: 'userProfilesIndex', disposition: 'wipe', note: 'the profile slot index' },
+  ...Array.from({ length: PROFILE_SLOT_COUNT }, (_, i) => ({
+    key: profileSlotKey(i + 1),
+    disposition: 'wipe' as const,
+    note: `profile slot ${i + 1} — a full snapshot of a device, wiped with it`,
+  })),
+
+  // --- Kept, and the only one.
+  {
+    key: 'unlockedAppIDs',
+    disposition: 'keep',
+    note: 'the access grant that let you through the portal door. Wiping it would log you out of the dex and drop you at the company portal — a different destructive act from the one this button offers. Not user data; the code that grants it is a doorman, not a lock. iOS has no counterpart because iOS has no door.',
+  },
+
+  // --- Kept: not user data at all.
+  {
+    key: 'installNudgeDismissed',
+    disposition: 'keep',
+    note: 'the "add to home screen" banner has been dismissed. A browser-chrome preference about this *browser*, not a record of anything the player did; re-nagging someone who just erased their data would be the wrong reading of a reset.',
+  },
+] as const;
+
+/** Keys a wipe removes. */
+export const WIPE_KEYS: readonly string[] = STORAGE_KEYS
+  .filter(s => s.disposition === 'wipe')
+  .map(s => s.key);
+
+/** Keys a wipe deliberately leaves, each with its stated reason. */
+export const KEEP_KEYS: readonly StorageKeySpec[] = STORAGE_KEYS.filter(s => s.disposition === 'keep');
+
+/**
+ * Session-storage keys. Not part of the wipe contract — session storage dies
+ * with the tab, so there is nothing for a reset to promise about it — but
+ * registered so the drift test can tell "known and out of scope" from
+ * "somebody added a key and told nobody".
+ *
+ * There is exactly one. The in-flight exam paper, quiz session and chip
+ * filter look like session storage from their call sites (`ssQuery`), and are
+ * not: `screenState.ts` is a module-level `Map`, deliberately, so a cold load
+ * starts clean and a scroll handler never triggers a render. Nothing to
+ * register and nothing to wipe.
+ */
+export const SESSION_KEYS: readonly StorageKeySpec[] = [
+  { key: 'booted', disposition: 'keep', note: 'the BIOS has run this session' },
+] as const;
+
+/** Every registered key, local and session. */
+export const ALL_REGISTERED_KEYS: readonly string[] = [
+  ...STORAGE_KEYS.map(s => s.key),
+  ...SESSION_KEYS.map(s => s.key),
+];

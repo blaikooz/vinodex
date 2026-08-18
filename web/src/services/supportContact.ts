@@ -8,12 +8,32 @@
  * inbox.
  *
  * **The address is a placeholder and is marked as one** (iOS §F1 says so in
- * as many words). It is a `const` here and nowhere else, so replacing it is
- * one edit rather than a grep.
+ * as many words), and since W26 it is a placeholder in exactly one place —
+ * `brand.ts`.
+ *
+ * It was in two, with two different domains: this module said
+ * `hello@vinodex.com` and `WebsitePortal.tsx`'s CONTACT US page said
+ * `hello@vinodex.app`. Both were rendered to real users as live `mailto:`
+ * links, neither domain is registered, and mail to either goes nowhere while
+ * telling the sender nothing.
+ *
+ * **Which domain is not decided there either.** That is a business decision.
+ * It is registered in `releaseBlockers.ts` so it cannot ship unnoticed.
  */
+import { CONTACT_ADDRESS } from './brand';
 
-/** The recipient. Temporary — see the module note. */
-export const SUPPORT_ADDRESS = 'hello@vinodex.com';
+/**
+ * The recipient.
+ *
+ * Re-exported from `brand.ts` rather than declared here (W26). The address is
+ * the studio's, not the dex's, and the portal's CONTACT US page prints it
+ * too — so it lives where both products may read it without the portal
+ * importing a dex service, which the separation rule forbids.
+ *
+ * The name stays `SUPPORT_ADDRESS` at this module's call sites because that
+ * is what it means here; there is still exactly one string.
+ */
+export const SUPPORT_ADDRESS = CONTACT_ADDRESS;
 
 /**
  * The one paragraph the screen shows. Says what will and will not help,

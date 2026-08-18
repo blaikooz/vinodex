@@ -163,6 +163,16 @@ body {
   50%      { opacity: 0.8;  transform: translate(-50%, -50%) scale(1.18); }
 }
 
+/* The orb's halo and the three lamp haloes.
+   A class, not an inline `animation:` (U7). They were declared inline in
+   `DeviceLayout`, which put them beyond the reach of any selector -- including
+   the reduced-motion query below, so the two most prominent moving things on
+   the device were the two it could not switch off. The per-lamp stagger is a
+   custom property instead, which is what varies. */
+.chassis-glow {
+  animation: chassis-throb var(--glow-period, 5.3s) ease-in-out infinite;
+}
+
 /* Slide in animation */
 @keyframes slide-in-from-top {
   from {
@@ -322,3 +332,73 @@ body {
 .dex-subtext { color: var(--lcd-subtext); }
 .dex-disabled { color: var(--lcd-disabled-text); }
 .dex-chip-well { background-color: color-mix(in srgb, var(--lcd-accent) 12%, transparent); }
+
+/* ---------------------------------------------------------------------------
+   Reduced motion (U7)
+
+   The house rule has always said `prefers-reduced-motion` belongs on the
+   dissolves and the marquees. It was never written: this file carried eight
+   `@keyframes`, seven of them `infinite`, and not one `@media
+   (prefers-reduced-motion: reduce)` rule. Three components checked the query
+   in JS (`DataWave`, `ScreensaverOverlay`, the growth chart); everything on
+   the chassis ran regardless.
+
+   **Stopped, not merely slowed.** The setting is a request from someone for
+   whom motion is a symptom, not a preference about pacing, so each animation
+   is taken to the state it would have ended in rather than given a longer
+   duration:
+
+     - the lamps and the orb sit at their bright stop, so the device still
+       reads as powered rather than as dark;
+     - the marquee parks at its start, showing the beginning of the text
+       instead of a frame from the middle of a scroll;
+     - the cursor stops blinking, visible;
+     - the banner arrives in place.
+
+   Nothing here uses `animation: none !important` across the board. A blanket
+   kill would leave the marquee mid-slide at whatever `translateX` it happened
+   to hold, which is a worse read than the scroll it replaces.
+
+   The chassis lamp glows are declared inline in `DeviceLayout` and so cannot
+   be reached by a class selector; they use the `chassis-glow` class now for
+   exactly this reason, with their per-lamp durations kept as CSS variables.
+   --------------------------------------------------------------------------- */
+@media (prefers-reduced-motion: reduce) {
+  .animate-blink {
+    animation: none;
+    opacity: 1;
+  }
+
+  .lcd-pulse,
+  .dot-pulse-red,
+  .dot-pulse-yellow,
+  .dot-pulse-green,
+  .chassis-glow {
+    /* The bright stop of `chassis-throb`, held. */
+    animation: none;
+    opacity: 0.8;
+    transform: translate(-50%, -50%) scale(1.18);
+  }
+
+  .animate-in.slide-in-from-top-2 {
+    animation: none;
+  }
+
+  .terminal-marquee,
+  .terminal-marquee-slow {
+    animation: none;
+    transform: translateX(0);
+  }
+
+  /* Anything else that animates or transitions, including future additions
+     and Tailwind's own `transition-*` utilities. Near-instant rather than
+     zero so a `transitionend` listener still fires. */
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}

@@ -24,11 +24,21 @@ const VinoBubble: React.FC = () => {
   const text = renderedLine(line, displayName());
 
   return (
-    <div className="fixed inset-x-0 bottom-3 z-[70] flex justify-center px-4 pointer-events-none">
+    // `role="status"` belongs on the region, not on the control (U7's a11y
+    // batch; found by `jsx-a11y/no-interactive-element-to-noninteractive-role`
+    // on the linter's first run). It was on the `<button>`, which overrides
+    // the button role entirely — so the bubble announced as a status message
+    // and the fact that it can be dismissed was not discoverable to anyone
+    // using assistive tech. The live region wraps it now and the button is a
+    // button again.
+    <div
+      className="fixed inset-x-0 bottom-3 z-[70] flex justify-center px-4 pointer-events-none"
+      role="status"
+      aria-live="polite"
+    >
       <button
         onClick={dismissVino}
-        role="status"
-        aria-label={`Professor Vino: ${text}`}
+        aria-label={`Dismiss Professor Vino: ${text}`}
         className="pointer-events-auto w-full max-w-sm flex items-start gap-3 rounded-2xl border-2 border-amber-500 bg-stone-900/95 p-3.5 text-left shadow-[0_4px_0_rgba(0,0,0,0.5)]"
       >
         <span className="shrink-0 w-11 h-11 rounded-full border-2 border-amber-500 bg-stone-800 flex items-center justify-center overflow-hidden">

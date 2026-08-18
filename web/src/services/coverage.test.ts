@@ -12,19 +12,39 @@ import { isGrapeEntry, isRegionEntry, WineEntry } from '@/shared/types';
  * numbers are pinned deliberately: a change you did not intend is exactly what
  * this is for. Update them on purpose when the data changes.
  *
- * One structural difference from Swift. `EntryCategory` on iOS cannot decode
- * COUNTRY_GATE, so that category is filtered out of the iOS bundle and its
- * total is 284. The web ships COUNTRY_GATE as real entries, so the raw total
- * here is higher — but the five categories iOS counts still sum to exactly the
- * same 284, which is asserted below. That equality is the real guardrail: it
- * says the two apps are looking at one dataset.
+ * One structural difference from Swift, and it is **pinned rather than
+ * reconciled** (W18). `EntryCategory` on iOS cannot decode COUNTRY_GATE, so
+ * that category is filtered out of the iOS bundle; the web ships those 80
+ * gates as real entries. The two apps therefore honestly report two totals:
+ *
+ *     web BIOS / DATA panel   526   (446 + 80 country gates)
+ *     iOS BIOS / DATA panel   446
+ *
+ * Both numbers are true about their own catalogue and neither is a bug. The
+ * old header here said iOS totalled 284, which was three data batches out of
+ * date while the assertion below already said 446 — a comment drifting from
+ * the code it explains, in the file whose whole job is to stop that.
+ *
+ * The real guardrail is the equality: the five categories iOS counts sum to
+ * exactly the number iOS reports, so the two apps are looking at one dataset.
+ * Both sides of the divergence are asserted, so neither can move silently.
  */
 describe('dataset coverage', () => {
   const all: WineEntry[] = getAllEntries();
   const countIn = (category: string) => all.filter(e => e.category === category).length;
 
-  it('loads a non-empty dataset', () => {
-    expect(all.length).toBeGreaterThan(0);
+  /**
+   * The web's own total, gates included — the number its BIOS and DATA panel
+   * print. Pinned to the entry (W18): this assertion used to be
+   * `toBeGreaterThan(0)`, which passes on a dataset of one and is exactly the
+   * shape of check that lets a data swap through.
+   *
+   * A legitimate data batch moves this. Update it *with a comment naming the
+   * batch*, as the per-category pins below are updated — never by relaxing
+   * it back to an inequality.
+   */
+  it('ships 526 entries, the number the BIOS reports', () => {
+    expect(all.length).toBe(526);
   });
 
   it('gives every entry an id, a name and a category', () => {
@@ -59,6 +79,21 @@ describe('dataset coverage', () => {
     expect(countIn('STYLES')).toBe(33);
     expect(countIn('CONTINENTS')).toBe(6);
     expect(countIn('FLAVORS')).toBe(106);
+  });
+
+  /**
+   * The category iOS does not decode, pinned on its own (W18).
+   *
+   * It was the one category with no count at all, which is precisely the one
+   * that most needed it: the gates are the whole of the web's divergence from
+   * iOS's total, so an unpinned COUNTRY_GATE meant the divergence itself was
+   * unobserved. 526 - 446 = 80 is now checked from both ends.
+   */
+  it('ships the 80 country gates iOS filters out', () => {
+    expect(countIn('COUNTRY_GATE')).toBe(80);
+    const shared =
+      countIn('GRAPES') + countIn('REGIONS') + countIn('STYLES') + countIn('FLAVORS') + countIn('CONTINENTS');
+    expect(shared + countIn('COUNTRY_GATE')).toBe(all.length);
   });
 
   /**
@@ -112,7 +147,12 @@ describe('dataset coverage', () => {
       const noteInstances = all
         .filter(isGrapeEntry)
         .reduce((sum, g) => sum + (g.tastingProfile?.length ?? 0), 0);
-      expect(flavors.length).toBeGreaterThan(0);
+      // Pinned, not merely non-zero (W18). The *relationship* is the point of
+      // the test — 106 distinct flavours standing for 528 note instances — and
+      // a bound of "more than nothing" would hold if the grapes lost every
+      // tasting profile they have.
+      expect(flavors.length).toBe(106);
+      expect(noteInstances).toBe(528);
       expect(flavors.length).toBeLessThan(noteInstances);
     });
 
@@ -185,7 +225,9 @@ describe('dataset coverage', () => {
     const origins = [
       ...new Set(all.filter(isRegionEntry).map(e => e.details.origin).filter((o): o is string => !!o)),
     ].sort();
-    expect(origins.length).toBeGreaterThan(0);
+    // The same 26 the pin above counts, so this test cannot pass vacuously
+    // on an empty origin set (W18).
+    expect(origins.length).toBe(26);
 
     const missing = origins.filter(origin => {
       const gate = all.find(e => e.category === 'COUNTRY_GATE' && e.name === origin);

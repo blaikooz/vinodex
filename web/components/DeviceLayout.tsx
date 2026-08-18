@@ -360,8 +360,8 @@ const DeviceLayout: React.FC<DeviceLayoutProps> = ({
             <div className="relative shrink-0">
               <span
                 aria-hidden="true"
-                className="absolute left-1/2 top-1/2 w-16 h-16 md:w-20 md:h-20 rounded-full pointer-events-none"
-                style={{ backgroundColor: 'var(--chassis-orb-glow)', filter: 'blur(9px)', animation: 'chassis-throb 5.3s ease-in-out infinite' }}
+                className="chassis-glow absolute left-1/2 top-1/2 w-16 h-16 md:w-20 md:h-20 rounded-full pointer-events-none"
+                style={{ backgroundColor: 'var(--chassis-orb-glow)', filter: 'blur(9px)', '--glow-period': '5.3s' } as React.CSSProperties}
               />
               <button
                 type="button"
@@ -390,8 +390,8 @@ const DeviceLayout: React.FC<DeviceLayoutProps> = ({
                   style={{ backgroundColor: `var(--chassis-lamp${n})`, borderColor: `var(--chassis-lamp${n}-edge)` }}
                 >
                   <span
-                    className="absolute left-1/2 top-1/2 w-3.5 h-3.5 md:w-4 md:h-4 rounded-full pointer-events-none"
-                    style={{ backgroundColor: `var(--chassis-lamp${n})`, filter: 'blur(4px)', animation: `chassis-throb ${[6.1, 7.4, 4.8][i]}s ease-in-out infinite` }}
+                    className="chassis-glow absolute left-1/2 top-1/2 w-3.5 h-3.5 md:w-4 md:h-4 rounded-full pointer-events-none"
+                    style={{ backgroundColor: `var(--chassis-lamp${n})`, filter: 'blur(4px)', '--glow-period': `${[6.1, 7.4, 4.8][i]}s` } as React.CSSProperties}
                   />
                 </span>
               ))}

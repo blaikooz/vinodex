@@ -63,51 +63,32 @@ import {
 import { DEMO_STOPS, demoCycleSeconds, startDemo } from '../src/services/demoMode';
 import { lineageIndexFor } from '../src/services/grapeLineage';
 import { FIRMWARE_RELEASES } from '@/shared/constants';
+import { WIPE_KEYS } from '../src/services/storageKeys';
 
 
 /**
- * Full stored-data wipe behind the SETTINGS ▸ CLEAR SAVED DATA control, mirroring
- * iOS's reset: shelves + ratings (via the store's `removeEverything`, which also
- * notifies subscribers), then the remaining per-user keys — recents, quiz/streak
- * progress, name + photo, purchases, and the skin / screen / text preferences.
- * The encyclopedia itself is untouched. Reloads so every external store re-reads
- * from a clean slate.
+ * Full stored-data wipe behind SETTINGS ▸ CLEAR SAVED DATA, mirroring iOS's
+ * `SavedDataReset.wipeAll()`.
+ *
+ * What goes and what stays is stated once, in `storageKeys.ts`, rather than
+ * described here — a prose list beside a literal array is how the old one
+ * came to claim a completeness it did not have. The encyclopedia itself is
+ * untouched. Reloads so every external store re-reads from a clean slate.
  */
-const WIPE_KEYS = [
-  'recentlyViewedEntryIDs',
-  'quizTierUnlocked',
-  'dailyStreak',
-  'dailyLastDay',
-  'dailyBestStreak',
-  'userDisplayName',
-  'avatarImage',
-  'grantedEntitlements',
-  'starterOnly',
-  'revealCursor',
-  'chassisSkin',
-  'lcdMode',
-  'textScale',
-  'uiScale',
-  // The pass-2/pass-3 ledgers (v6#17/#23/#26/#8): announce state, exam
-  // history, the professor's memory and the walkthrough flags all go with a
-  // wipe — a fresh start with these standing would open with the
-  // celebrations spent and the tutorial already offered.
-  'passportSeenBadges',
-  'passportSeenBadgesSeeded',
-  'passportSeenTierRank',
-  'passportSeenTierSeeded',
-  'examResults',
-  'examBestPassStreak',
-  'firstTimeTriggersSeen',
-  'firstTimeTriggersSeeded',
-  'vinoSilenced',
-  'coachmarkReached',
-  'coachmarkOffered',
-  'coachmarkCompleted',
-];
 function clearAllSavedData(): void {
   try {
+    // The shelves first, through the store: `removeEverything()` also
+    // notifies subscribers, which the raw key loop below cannot do.
     removeEverything();
+    // Then the registry (W25). This was a hand-kept literal array of 27 keys
+    // and it had drifted the same way iOS's had before AUDIT M35 caught it —
+    // most seriously, the five profile slots were on no list at all, so a
+    // wipe left five complete snapshots of the erased device in localStorage
+    // and the PROFILES panel went on offering to load them.
+    //
+    // `storageKeys.ts` is the single statement of what persists and what a
+    // wipe does to it, and `storageKeys.test.ts` walks the source to prove
+    // nothing is missing from it.
     for (const k of WIPE_KEYS) window.localStorage.removeItem(k);
   } catch {
     /* ignore */

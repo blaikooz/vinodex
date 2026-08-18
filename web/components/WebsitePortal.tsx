@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { LayoutGrid, Users, Mail, Database, Delete, ChevronRight, Lock, ArrowUpRight } from 'lucide-react';
 import DeviceLayout from './DeviceLayout';
+import { CONTACT_ADDRESS } from '../src/services/brand';
 
 /**
  * The studio's other projects, shown under OUR WORK beneath Vinodex. These are
@@ -444,12 +445,15 @@ export const ContactUs: React.FC<{ onBack: () => void; onHome: () => void }> = (
           we read everything.
         </p>
 
+        {/* One address, from one constant (W26). This page and the in-app
+            SUPPORT screen used to advertise two different domains, neither
+            registered. See `supportContact.ts` and `releaseBlockers.ts`. */}
         <a
-          href="mailto:hello@vinodex.app"
+          href={`mailto:${CONTACT_ADDRESS}`}
           className="inline-flex items-center gap-3 px-7 py-5 rounded-2xl bg-green-500 border-b-4 border-green-700 active:translate-y-0.5 active:border-b-0 transition-all font-retro text-lg sm:text-xl tracking-widest text-white hover:bg-green-400 shadow-lg break-all"
         >
           <Mail size={24} className="shrink-0" />
-          hello@vinodex.app
+          {CONTACT_ADDRESS}
         </a>
 
       </div>
