@@ -1,5 +1,5 @@
 import React from 'react';
-import { Palette, BarChart3, Lock, LockOpen, Bug, Check, Wrench, LogOut, Flag, SlidersHorizontal, Crown, Leaf, Sun, Moon, Grid3x3, Globe, Wine, Map as MapIcon, Layers, Vibrate, Volume2, ChevronRight } from 'lucide-react';
+import { Palette, BarChart3, Lock, LockOpen, Bug, Check, Wrench, LogOut, Flag, SlidersHorizontal, Crown, Leaf, Sun, Moon, Grid3x3, Globe, Wine, Map as MapIcon, Layers, Vibrate, Volume2, ChevronRight, MemoryStick } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import DeviceLayout from './DeviceLayout';
 import { WineEntry } from '@/shared/types';
@@ -102,7 +102,9 @@ export const SETTINGS_SECTIONS: {
 // Filled tile faces per section, tuned for pale vs dark grounds — ported from
 // SettingsPanel.swift's tileColors (v0.5.6: each tile unique again).
 const TILE_FACE: Record<string, { dark: [string, string, string]; light: [string, string, string] }> = {
-  TUTORIAL: { dark: ['#22C55E', '#15803D', '#FFFFFF'], light: ['#15803D', '#0B4A24', '#FFFFFF'] },
+  // The green TUTORIAL freed when the tour moved into SETTINGS (iOS 0.7.6 F1),
+  // reassigned to FIRMWARE (0.8.92, item 2) — same slot, same livery.
+  FIRMWARE: { dark: ['#22C55E', '#15803D', '#FFFFFF'], light: ['#15803D', '#0B4A24', '#FFFFFF'] },
   TOOLS: { dark: ['#FACC15', '#CA8A04', '#78350F'], light: ['#B45309', '#7A3606', '#FFFFFF'] },
   CUSTOMIZE: { dark: ['#EF4444', '#991B1B', '#FFFFFF'], light: ['#B91C1C', '#7A1010', '#FFFFFF'] },
   SETTINGS: { dark: ['#F97316', '#9A3412', '#FFFFFF'], light: ['#C2410C', '#7C2D12', '#FFFFFF'] },
@@ -178,12 +180,11 @@ const ModePreviewTile: React.FC<{ id: LcdModeId; selected: boolean; onClick: () 
 export const SettingsGrid: React.FC<{
   onSection: (id: SettingsSectionId) => void;
   onMinigames: () => void;
-  onWalkthrough: () => void;
+  onFirmware: () => void;
   onExitToSplash: () => void;
   onBack: () => void;
   onHome: () => void;
-}> = ({ onSection, onMinigames, onWalkthrough, onExitToSplash, onBack, onHome }) => {
-  const [offeringTour, setOfferingTour] = React.useState(false);
+}> = ({ onSection, onMinigames, onFirmware, onExitToSplash, onBack, onHome }) => {
   const theme = useTheme();
   const isLight = LCD_MODES[theme.lcd].isLight;
   return (
@@ -192,14 +193,16 @@ export const SettingsGrid: React.FC<{
       className="flex-1 min-h-0 overflow-y-auto custom-scrollbar p-3"
       style={{ backgroundColor: 'var(--lcd-page)' }}
     >
-      {/* Filled colour faces in iOS order: TUTORIAL, TOOLS, then CUSTOMIZE /
-          DATA / ACCESS. DEV is a button below, not a peer tile. */}
+      {/* Filled colour faces in iOS 0.8.92 order: TOOLS, then CUSTOMIZE /
+          SETTINGS / DATA / ACCESS, with FIRMWARE closing the last pair
+          (v6#9). TUTORIAL's tile moved into SETTINGS, as on iOS (0.7.6, F1).
+          DEV is a button below, not a peer tile. */}
       <div className="grid grid-cols-2 gap-3">
-        <FeatureTile title="TUTORIAL" icon={<Flag size={30} />} onClick={() => setOfferingTour(true)} isLight={isLight} />
         <FeatureTile title="TOOLS" icon={<Wrench size={30} />} onClick={onMinigames} isLight={isLight} />
         {SETTINGS_SECTIONS.filter(s => !s.hidden).map(s => (
           <FeatureTile key={s.id} title={s.id} icon={s.icon} onClick={() => onSection(s.id)} isLight={isLight} />
         ))}
+        <FeatureTile title="FIRMWARE" icon={<MemoryStick size={30} />} onClick={onFirmware} isLight={isLight} />
       </div>
 
       {/*
@@ -218,20 +221,6 @@ export const SettingsGrid: React.FC<{
         </span>
       </button>
 
-      {offeringTour && (
-        <div className="absolute inset-0 z-30 bg-black/80 flex items-center justify-center p-6">
-          <div className="w-full max-w-xs bg-stone-900 border-2 border-green-700 rounded-lg p-5 flex flex-col gap-4 text-center">
-            <p className="font-retro text-xs tracking-widest text-green-300">TAKE THE TOUR?</p>
-            <p className="font-mono text-sm text-stone-300 normal-case">
-              A quick walk round the device — what each button does and where things live. About a minute, and you can leave at any point.
-            </p>
-            <div className="flex gap-3">
-              <button onClick={() => setOfferingTour(false)} className="flex-1 font-retro text-[0.6rem] tracking-widest text-stone-300 border-2 border-stone-600 rounded py-3">NOT NOW</button>
-              <button onClick={() => { setOfferingTour(false); onWalkthrough(); }} className="flex-1 font-retro text-[0.6rem] tracking-widest text-white bg-green-700 border-2 border-green-900 rounded py-3">YES</button>
-            </div>
-          </div>
-        </div>
-      )}
     </div>
   </DeviceLayout>
   );
@@ -468,6 +457,7 @@ export const SettingsSectionPanel: React.FC<{
   const [sounds, setSounds] = React.useState(soundsEnabled());
   const [haptics, setHaptics] = React.useState(hapticsEnabled());
   const [confirmingWipe, setConfirmingWipe] = React.useState(false);
+  const [offeringTour, setOfferingTour] = React.useState(false);
 
   useAccess();
   const locked = starterOnly();
@@ -572,6 +562,26 @@ export const SettingsSectionPanel: React.FC<{
               <p className="font-mono text-sm leading-relaxed normal-case mt-1" style={{ color: 'var(--lcd-subtext)' }}>
                 The ring/silent switch always wins — sounds never interrupt your music.
               </p>
+            </Section>
+
+            {/* The guided tour's door, moved here from its old grid tile —
+                iOS 0.7.6 (F1): "three things the device can tell you or do",
+                and a guided tour of the device belongs with them. */}
+            <Section title="TUTORIAL">
+              <button
+                onClick={() => setOfferingTour(true)}
+                className="w-full flex items-center gap-3 px-3 py-3 rounded border-2 text-left transition-all active:translate-y-0.5"
+                style={{ backgroundColor: 'var(--lcd-surface)', borderColor: 'var(--lcd-surface-edge)' }}
+              >
+                <span style={{ color: 'var(--lcd-subtext)' }}><Flag size={20} /></span>
+                <span className="flex-1 min-w-0">
+                  <span className="block font-retro text-[0.6rem] tracking-widest" style={{ color: 'var(--lcd-text)' }}>TAKE THE TOUR</span>
+                  <span className="block font-mono text-sm normal-case mt-1" style={{ color: 'var(--lcd-subtext)' }}>
+                    A walk round the device — about a minute.
+                  </span>
+                </span>
+                <ChevronRight size={16} style={{ color: 'var(--lcd-subtext)' }} />
+              </button>
             </Section>
 
             <Section title="STORED DATA">
@@ -788,6 +798,21 @@ export const SettingsSectionPanel: React.FC<{
       </div>
 
       {/* CLEAR SAVED DATA asks first — the one control here that cannot be undone. */}
+      {offeringTour && (
+        <div className="absolute inset-0 z-30 bg-black/80 flex items-center justify-center p-6">
+          <div className="w-full max-w-xs bg-stone-900 border-2 border-green-700 rounded-lg p-5 flex flex-col gap-4 text-center">
+            <p className="font-retro text-xs tracking-widest text-green-300">TAKE THE TOUR?</p>
+            <p className="font-mono text-sm text-stone-300 normal-case">
+              A quick walk round the device — what each button does and where things live. About a minute, and you can leave at any point.
+            </p>
+            <div className="flex gap-3">
+              <button onClick={() => setOfferingTour(false)} className="flex-1 font-retro text-[0.6rem] tracking-widest text-stone-300 border-2 border-stone-600 rounded py-3">NOT NOW</button>
+              <button onClick={() => { setOfferingTour(false); navigate('/walkthrough'); }} className="flex-1 font-retro text-[0.6rem] tracking-widest text-white bg-green-700 border-2 border-green-900 rounded py-3">YES</button>
+            </div>
+          </div>
+        </div>
+      )}
+
       {confirmingWipe && (
         <div className="absolute inset-0 z-30 bg-black/80 flex items-center justify-center p-6">
           <div className="w-full max-w-xs bg-stone-900 border-2 border-red-700 rounded-lg p-5 flex flex-col gap-4 text-center">

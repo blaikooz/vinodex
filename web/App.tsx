@@ -31,6 +31,7 @@ const ScannerScreen = lazy(() => import('./components/ScannerScreen'));
 const ChipFilterScreen = lazy(() => import('./components/ChipFilterScreen'));
 const TastingQuizScreen = lazy(() => import('./components/TastingQuizScreen'));
 const WineExamScreen = lazy(() => import('./components/WineExamScreen'));
+const FirmwareHistoryScreen = lazy(() => import('./components/FirmwareHistoryScreen'));
 const PassportScreen = lazy(() => import('./components/PassportScreen'));
 const WalkthroughScreen = lazy(() => import('./components/WalkthroughScreen'));
 const BookmarksScreen = lazy(() => import('./components/BookmarksScreen'));
@@ -480,7 +481,7 @@ const App: React.FC = () => {
               <SettingsGrid
                 onSection={id => navigate(`/settings/${id}`)}
                 onMinigames={() => navigate('/minigames')}
-                onWalkthrough={() => navigate('/walkthrough')}
+                onFirmware={() => navigate('/firmware')}
                 // Leaving the app clears screen state for the same reason Home
                 // does — re-entering the dex should not resume mid-page.
                 onExitToSplash={() => {
@@ -490,6 +491,14 @@ const App: React.FC = () => {
                 onBack={handleBack}
                 onHome={handleHome}
               />
+            </Suspense>
+          }
+        />
+        <Route
+          path="/firmware"
+          element={
+            <Suspense fallback={<ScreenLoading label="LOADING FIRMWARE..." onBack={handleBack} onHome={handleHome} />}>
+              <FirmwareHistoryScreen onBack={handleBack} onHome={handleHome} />
             </Suspense>
           }
         />
