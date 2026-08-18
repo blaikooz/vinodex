@@ -556,3 +556,49 @@ the GROWTH wave). Its web-side work maps onto this document as follows —
 - **Decomposition candidate:** `SettingsPanel.tsx` crossed 1,000 lines this
   pass. Next structural touch should extract the section panels
   (block-8-style: extract first, then edit), not grow the file further.
+
+### Third execution pass — the professor and the spotlight (2026-08-18)
+
+**v6#23 + v6#26-dialogue are done**, ported at the exam pass's fidelity:
+
+- `vinoDialogue.ts` — the seventeen authored lines byte-for-byte, the full
+  copy gate (name contract with the ask's named exemption, printable ASCII,
+  20-word cap, 1-in-4 gag budget, retired-terms word-boundary matcher,
+  expression coverage). Two web-side deferrals ride iOS's own deferral
+  mechanism: `firstScan` waits on the label reader (v6#27) and
+  `firstInsight` on the insight panel (v6#21's open tail) — keys reserved,
+  lines gated, turning each on is deleting one string.
+- `firstTimeTriggers.ts` / `vinoPresenter.ts` — the store (fire-once marked
+  on request, silence as filter-not-consumption, three-trigger history seed)
+  and the queue with the reasons-keyed suspension seam. **Merge note:** the
+  bundle's `VinodexBoot` host should claim `setSuspended(true, 'boot')`
+  while it runs, so the intro card and the walkthrough queue behind it.
+- `coachmarks.ts` + `CoachmarkOverlay` — the six-step walkthrough verbatim,
+  anchors/resume, action-gated advance, monotonic history seed; the web
+  spotlight resolves `data-coachmark` rects (user button, listing, TRIED
+  pill tagged). **`menuTile` runs card-only** — `MainMenu.tsx` is the
+  bundle's file, so the GRAPES tile is untagged until the merge; one
+  attribute closes it.
+- `ProfVinoScreen` (`/prof-vino`, the tools shelf's seventh tile until
+  ruling v6#6 returns the six, and its iOS slot on the demo loop), the
+  silence switch's **one** home per iOS 0.8.93.
+- **v6#26-portrait stays blocked on v6#2:** the six `VinoArt` portraits and
+  the bubble/intro/ProfVino heroes render the same six-expression vocabulary
+  as chrome glyphs; the ruling lands as an asset swap.
+- Cleanbot pass-2 fixes folded in (M4 catalog-resolved rank count + test;
+  L3 marquee transition off teardown; L4 one idle event list; L5 profiles
+  seed off the render path; I3 dead branches; I5 demo counter reset; the two
+  ledger tests). **I4 answered:** iOS's own profiles UI passes no name and
+  offers no delete (`SettingsPanel.swift:1085` saves nameless; the confirm
+  enum is overwrite/load only) — the web matches the shipped surface; the
+  deleted-profiles state the seed defends is reachable only by hand-edited
+  storage on both platforms. **I2 recorded:** SettingsPanel must be
+  decomposed before its next structural growth (this pass touched only
+  WIPE_KEYS and the L5/I3 fixes there; the silence switch went to the
+  professor's page, not settings). **I6 recorded:** three
+  `GrapeLineageIndex` builds (EntryDetail, LineageScreen, DEV panel) — a
+  consolidation watch item for a shared memo, no action yet.
+
+This closes the cleared list. Still blocked on rulings: #2–#7, #12, #14,
+#26-portrait, #27, #28, #35–#38; #19-geometry stays declined on the
+unrunnable screenshot gate; #24 external.
