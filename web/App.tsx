@@ -23,7 +23,25 @@ import { SETTINGS_SECTIONS, SettingsSectionId } from './components/SettingsPanel
 import { installGlobalTapSound } from './src/services/sound';
 import { installGlobalHaptics } from './src/services/haptics';
 import { demoStopAt, isDemoActive, stopDemo, subscribeToDemo } from './src/services/demoMode';
-import { IDLE_SCREENSAVER_SECONDS } from './src/services/screensaver';
+import { applyLeftMainScreen } from './src/services/marqueeScript';
+import { clearVino, fireVinoForArrival } from './src/services/vinoPresenter';
+import { hasFired, isVinoSilenced, seedTriggers } from './src/services/firstTimeTriggers';
+import { seenBadges } from './src/services/passportProgress';
+import { computePassport } from './src/services/passport';
+import { shelfIds, bookmarkCount } from './src/services/bookmarks';
+import { bestStreak } from './src/services/dailyChallenge';
+import { highestUnlocked } from './src/services/quiz';
+import {
+  coachmarkActionForArrival,
+  coachmarkShouldAutoStart,
+  reportCoachmark,
+  seedCoachmarks,
+  startCoachmarks,
+} from './src/services/coachmarks';
+import VinoBubble from './components/VinoBubble';
+import VinoIntroCard from './components/VinoIntroCard';
+import CoachmarkOverlay from './components/CoachmarkOverlay';
+import { IDLE_ACTIVITY_EVENTS, IDLE_SCREENSAVER_SECONDS } from './src/services/screensaver';
 import ScreensaverOverlay from './components/ScreensaverOverlay';
 
 const RetroGlobeScreen = lazy(() => import('./components/RetroGlobeScreen'));
@@ -39,6 +57,7 @@ const RecommendationsScreen = lazy(() => import('./components/RecommendationsScr
 const SupportScreen = lazy(() => import('./components/SupportScreen'));
 const CheatConsoleScreen = lazy(() => import('./components/CheatConsoleScreen'));
 const GrapeLineageScreen = lazy(() => import('./components/GrapeLineageScreen'));
+const ProfVinoScreen = lazy(() => import('./components/ProfVinoScreen'));
 const PassportScreen = lazy(() => import('./components/PassportScreen'));
 const WalkthroughScreen = lazy(() => import('./components/WalkthroughScreen'));
 const BookmarksScreen = lazy(() => import('./components/BookmarksScreen'));
@@ -99,6 +118,9 @@ const App: React.FC = () => {
   const demoCounter = useRef(0);
   useEffect(() => {
     if (!demoActive) return;
+    // Every START DEMO leads with the four spec-named stops (review I5) —
+    // a second run in one session must not resume mid-tour.
+    demoCounter.current = 0;
     let timer: ReturnType<typeof setTimeout>;
     const step = () => {
       const stop = demoStopAt(demoCounter.current);
@@ -132,7 +154,7 @@ const App: React.FC = () => {
       last = Date.now();
       setSaverUp(false);
     };
-    const events: (keyof WindowEventMap)[] = ['pointerdown', 'pointermove', 'keydown', 'wheel', 'touchstart'];
+    const events = IDLE_ACTIVITY_EVENTS;
     events.forEach(e => window.addEventListener(e, activity, { capture: true, passive: true }));
     const poll = setInterval(() => {
       if (Date.now() - last >= IDLE_SCREENSAVER_SECONDS * 1000) setSaverUp(true);
@@ -142,6 +164,48 @@ const App: React.FC = () => {
       clearInterval(poll);
     };
   }, [demoActive]);
+
+  // Professor Vino + the coachmarks (v6#23/#26). Seed both ledgers once per
+  // launch — the three history-derived triggers for an existing shelf, and
+  // the walkthrough's auto-start for anyone who is plainly not new. Counts
+  // are catalog-resolved (review M4).
+  const [introDone, setIntroDone] = React.useState(false);
+  useEffect(() => {
+    const passport = computePassport(shelfIds('tried'), allEntries, bestStreak(), highestUnlocked());
+    seedTriggers(passport.triedTotal, seenBadges().size > 0);
+    seedCoachmarks(passport.triedTotal > 0 || bookmarkCount() > 0);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  // The route watcher: leaving the main screen parks the marquee script
+  // (review L3 — teardown is not navigation, this is), a navigation drops any
+  // bubble about the screen just left, and an arrival owes its first-time
+  // lines and its coachmark action.
+  const prevPath = useRef(location.pathname);
+  useEffect(() => {
+    const path = location.pathname;
+    if (prevPath.current === '/dex' && path !== '/dex') applyLeftMainScreen();
+    if (prevPath.current !== path) clearVino();
+    prevPath.current = path;
+
+    const entry = path.startsWith('/detail/')
+      ? allEntries.find(e => e.id === path.slice('/detail/'.length)) ?? null
+      : null;
+    fireVinoForArrival(path, entry);
+    const action = coachmarkActionForArrival(path);
+    if (action) reportCoachmark(action);
+
+    // The walkthrough's own auto-start: once, on the main menu, after the
+    // intro card has had its turn (iOS runs it after the BIOS; the pending
+    // bundle's boot host slots ahead of both via the suspension seam).
+    if (path === '/dex' && coachmarkShouldAutoStart() && (hasFired('firstLaunch') || isVinoSilenced())) {
+      startCoachmarks();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [location.pathname, introDone]);
+
+  const showIntroCard =
+    location.pathname === '/dex' && !hasFired('firstLaunch') && !isVinoSilenced() && !introDone && !demoActive;
 
   // Home is an in-app control, so it lands on the dex menu — never the splash.
   // The splash is where a fresh visit starts, not a screen to bounce back to.
@@ -354,6 +418,16 @@ const App: React.FC = () => {
   return (
     <div className="antialiased text-gray-900 bg-gray-900 min-h-screen overflow-hidden">
       {saverUp && <ScreensaverOverlay onDismiss={() => setSaverUp(false)} />}
+      {showIntroCard && (
+        <VinoIntroCard
+          onDone={() => {
+            setIntroDone(true);
+            if (coachmarkShouldAutoStart()) startCoachmarks();
+          }}
+        />
+      )}
+      <CoachmarkOverlay />
+      <VinoBubble />
       <Routes>
         {/*
           "/" is the splash: a fresh visit forks between the dex and the
@@ -454,6 +528,7 @@ const App: React.FC = () => {
             <Suspense fallback={<ScreenLoading label="LOADING TOOLS..." onBack={handleBack} onHome={handleHome} />}>
               <MinigamesScreen
                 onScanner={() => navigate('/scanner')}
+                onProfVino={() => navigate('/prof-vino')}
                 onQuiz={() => navigate('/quiz')}
                 onDailyChallenge={() => navigate('/daily-challenge')}
                 onDailyGrape={() => navigate('/daily')}
@@ -612,6 +687,14 @@ const App: React.FC = () => {
           }
         />
         <Route path="/lineage/:entryId" element={<LineageRoute />} />
+        <Route
+          path="/prof-vino"
+          element={
+            <Suspense fallback={<ScreenLoading label="LOADING PROFESSOR..." onBack={handleBack} onHome={handleHome} />}>
+              <ProfVinoScreen onBack={handleBack} onHome={handleHome} />
+            </Suspense>
+          }
+        />
         <Route path="/settings/:section" element={<SettingsSectionRoute />} />
         <Route path="/list/:category" element={<ListRoute />} />
         <Route path="/detail/:entryId" element={<DetailRoute />} />

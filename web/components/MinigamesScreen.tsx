@@ -1,9 +1,10 @@
 import React from 'react';
-import { Sparkles, MoonStar, BadgeCheck, Flame, EyeOff, Camera, Hourglass } from 'lucide-react';
+import { Sparkles, MoonStar, BadgeCheck, Flame, EyeOff, Camera, Hourglass, GraduationCap } from 'lucide-react';
 import DeviceLayout from './DeviceLayout';
 
 interface MinigamesScreenProps {
   onScanner: () => void;
+  onProfVino: () => void;
   onQuiz: () => void;
   onDailyChallenge: () => void;
   onDailyGrape: () => void;
@@ -21,7 +22,7 @@ interface MinigamesScreenProps {
  * WHAT'S THAT…? holds the slot iOS gave PROF. VINO in 0.8.93 — the game's
  * deletion is an open ruling (v6#6) and the professor an open port (v6#26).
  */
-export type ToolId = 'scanner' | 'labelReader' | 'wineExam' | 'dailyChallenge' | 'dailyGrape' | 'moonDial';
+export type ToolId = 'scanner' | 'labelReader' | 'wineExam' | 'dailyChallenge' | 'dailyGrape' | 'profVino' | 'moonDial';
 
 interface ToolEntry {
   id: ToolId;
@@ -42,8 +43,13 @@ export const TOOL_ROSTER: ToolEntry[] = [
   { id: 'labelReader', title: 'LABEL SCAN', face: '#3B82F6', shadow: '#1D4ED8', ink: '#FFFFFF', comingSoon: true },
   { id: 'wineExam', title: 'WINE EXAM', face: '#A855F7', shadow: '#6B21A8', ink: '#FFFFFF' },
   { id: 'dailyChallenge', title: 'DAILY CHALLENGE', face: '#EF4444', shadow: '#991B1B', ink: '#FFFFFF' },
-  // WHAT'S THAT…? — held pending v6#6; yellow face takes a dark ink.
+  // WHAT'S THAT…? — held pending v6#6; yellow face takes a dark ink. On iOS
+  // the professor took exactly this slot (0.8.93), so ruling v6#6's delete
+  // resolves the shelf back to the fixed six.
   { id: 'dailyGrape', title: "WHAT'S THAT…?", face: '#FACC15', shadow: '#CA8A04', ink: '#78350F' },
+  // PROF. VINO (v6#26) — iOS's amber face; the seventh tile is the interim
+  // cost of the open ruling above.
+  { id: 'profVino', title: 'PROF. VINO', face: '#EAB308', shadow: '#A16207', ink: '#FFFFFF' },
   { id: 'moonDial', title: 'MOON DIAL', face: '#0891B2', shadow: '#155E75', ink: '#FFFFFF' },
 ];
 
@@ -120,6 +126,7 @@ const Tile: React.FC<TileProps> = ({ title, face, shadow, ink, icon, comingSoon 
  */
 const MinigamesScreen: React.FC<MinigamesScreenProps> = ({
   onScanner,
+  onProfVino,
   onQuiz,
   onDailyChallenge,
   onDailyGrape,
@@ -141,6 +148,7 @@ const MinigamesScreen: React.FC<MinigamesScreenProps> = ({
               wineExam: <BadgeCheck size={32} />,
               dailyChallenge: <Flame size={32} />,
               dailyGrape: <Sparkles size={32} />,
+              profVino: <GraduationCap size={32} />,
               moonDial: <MoonStar size={32} />,
             }[tool.id];
             const action = {
@@ -149,6 +157,7 @@ const MinigamesScreen: React.FC<MinigamesScreenProps> = ({
               wineExam: onQuiz,
               dailyChallenge: onDailyChallenge,
               dailyGrape: onDailyGrape,
+              profVino: onProfVino,
               moonDial: onMoonDial,
             }[tool.id];
             return (

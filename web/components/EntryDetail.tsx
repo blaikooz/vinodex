@@ -35,6 +35,8 @@ import { isTastable } from '../src/services/wineData';
 import RatingPrompt from './RatingPrompt';
 import StampUnlockedPrompt, { Celebration } from './StampUnlockedPrompt';
 import { GrapeLineageIndex, edgeCount } from '../src/services/grapeLineage';
+import { fireVino, setSuspended } from '../src/services/vinoPresenter';
+import { reportCoachmark } from '../src/services/coachmarks';
 import { computePassport } from '../src/services/passport';
 import { announceBadges, announceTier, seedIfNeeded } from '../src/services/passportProgress';
 import { shelfIds } from '../src/services/bookmarks';
@@ -90,14 +92,27 @@ const EntryDetail: React.FC<EntryDetailProps> = ({ entry, allEntries, onBack, on
   const [celebrations, setCelebrations] = useState<Celebration[]>([]);
   const [ratingAfterCelebrations, setRatingAfterCelebrations] = useState(false);
 
+  // While a celebration or the rating prompt owns this screen, Professor
+  // Vino holds his queue and the coachmark spotlight stands down — the
+  // reasons-keyed seam from `vinoPresenter` (v6#26); each host clears only
+  // its own claim.
+  const modalUp = celebrations.length > 0 || showRating;
+  useEffect(() => {
+    setSuspended(modalUp, 'entryDetailPrompt');
+    return () => setSuspended(false, 'entryDetailPrompt');
+  }, [modalUp]);
+
   // Seed the announce ledgers on appear — always before this page's own
   // TRIED pill can be pressed, so an updated install never celebrates a
   // stamp the user earned weeks ago (iOS `seedIfNeeded`, thunked so the
   // passport is not computed once the flags are set).
   useEffect(() => {
+    // Both thunks read the catalog-resolved passport (review M4): the rank
+    // ladder counts `triedTotal`, never the raw shelf length — dead ids must
+    // not inflate it.
     seedIfNeeded(
       () => computePassport(shelfIds('tried'), allEntries, bestStreak(), highestUnlocked()).badges,
-      () => shelfIds('tried').length,
+      () => computePassport(shelfIds('tried'), allEntries, bestStreak(), highestUnlocked()).triedTotal,
     );
   }, [allEntries]);
 
@@ -1114,6 +1129,7 @@ const EntryDetail: React.FC<EntryDetailProps> = ({ entry, allEntries, onBack, on
 
                   {tastable && (
                     <button
+                      data-coachmark="triedControl"
                       onClick={() => {
                         const nowTried = toggleShelf('tried', entry.id);
                         if (!nowTried) return;
@@ -1122,8 +1138,14 @@ const EntryDetail: React.FC<EntryDetailProps> = ({ entry, allEntries, onBack, on
                         // card at a time; the rating prompt waits its turn.
                         const passport = computePassport(shelfIds('tried'), allEntries, bestStreak(), highestUnlocked());
                         const queue: Celebration[] = announceBadges(passport.badges).map(b => ({ kind: 'stamp' as const, badge: b }));
-                        const rankedUp = announceTier(shelfIds('tried').length);
+                        const rankedUp = announceTier(passport.triedTotal);
                         if (rankedUp) queue.push({ kind: 'tier', tier: rankedUp });
+                        // The professor's remarks (v6#26): the write is the
+                        // trigger, and a stamp announced is his cue too.
+                        fireVino('firstTried');
+                        if (queue.some(c => c.kind === 'stamp')) fireVino('firstStamp');
+                        // The spotlit step advances on the same write (v6#23).
+                        reportCoachmark('markedTried');
                         if (queue.length > 0) {
                           setCelebrations(queue);
                           setRatingAfterCelebrations(true);

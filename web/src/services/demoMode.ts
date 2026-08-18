@@ -11,9 +11,9 @@
  * instantly and then says nothing more. The loop ends on the globe-adjacent
  * shape iOS chose so the wrap is the cut a passer-by most likely catches.
  *
- * The iOS tour carries twelve stops; the web walks the ten whose screens
- * exist here — LABEL SCAN arrives with v6#27 and PROF. VINO with v6#26, each
- * added when the thing it shows is, same rule as the cheat table.
+ * The iOS tour carries twelve stops; the web walks the eleven whose screens
+ * exist here — LABEL SCAN arrives with v6#27, added when the thing it shows
+ * is, same rule as the cheat table.
  */
 
 export interface DemoStop {
@@ -34,6 +34,8 @@ export const DEMO_STOPS: DemoStop[] = [
   // The rest of the shelf.
   { path: '/quiz', caption: 'WINE EXAM', dwell: 4.5 },
   { path: '/daily-challenge', caption: 'DAILY CHALLENGE', dwell: 4.0 },
+  // PROF. VINO joined with v6#26, in iOS's slot on the loop (0.8.93).
+  { path: '/prof-vino', caption: 'PROF. VINO', dwell: 4.0 },
   { path: '/moon-dial', caption: 'MOON DIAL', dwell: 4.5 },
   { path: '/chip-filter', caption: 'MASTER SEARCH', dwell: 3.5 },
   // Two more of the encyclopedia, so the loop is not eight tools and one
