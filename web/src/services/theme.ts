@@ -597,6 +597,166 @@ const SKIN_LIGHTS: Record<ChassisSkinId, { orb: string; orbGlow: string; lamps: 
   W64:          { orb: '#F2C93A', orbGlow: '#B58A0C', lamps: [['#63C86B', '#1E7A2E'], ['#3E7FD8', '#123C74'], ['#D8343E', '#7A0E16']] },
 };
 
+
+/**
+ * A moulded footer cap: the four colours one of the band's controls is drawn
+ * from.
+ *
+ * Ported from `ChassisControl` in `vinodex-ios/Sources/VinodexUI/Chassis/
+ * ChassisSkins.swift:93`, hex for hex.
+ *
+ * `glyph` is a field rather than an assumed white because several skins need
+ * it dark: ORIGINAL's caps are the original handheld's pale grey, CHAMPAGNE's
+ * are pale gold, PET NAT's are paper, and white on any of those is
+ * unreadable. That is iOS's own note and it is the reason the type has four
+ * stops rather than two.
+ */
+export interface ChassisCap {
+  /** Top of the cap's gradient. */
+  top: string;
+  /** Bottom of it. */
+  bottom: string;
+  /** The rim. */
+  edge: string;
+  /** The chevron, house, person or cog incised into the face. */
+  glyph: string;
+}
+
+/** The four controls in the footer band. */
+export type FooterCapKind = 'back' | 'home' | 'user' | 'settings';
+
+export const FOOTER_CAP_KINDS: FooterCapKind[] = ['back', 'home', 'user', 'settings'];
+
+/**
+ * Each skin's moulded cap — the one every control wears unless the skin
+ * authors a set below.
+ *
+ * From `ChassisSkin.control` (`ChassisSkins.swift:769`).
+ *
+ * Three skins carry `rgba(...)` stops rather than hex: GLOUGLOU, NOUVEAU and
+ * WALDGLAS are smoke plastic, and the translucent stops are what make their
+ * buttons read as moulded from the same material as the shell. They are
+ * carried across verbatim — CSS takes them directly, which is one place the
+ * web has an easier time of it than Swift.
+ */
+const SKIN_CAP: Record<ChassisSkinId, ChassisCap> = {
+  CLASSIC:      { top: '#44403c', bottom: '#0c0a09', edge: '#a8a29e', glyph: '#ffffff' },
+  MIDNIGHT:     { top: '#3b3746', bottom: '#0b0a10', edge: '#8b86a3', glyph: '#ffffff' },
+  // Pale grey with a dark glyph -- the original handheld's own d-pad.
+  ORIGINAL:     { top: '#c2c2ba', bottom: '#83837b', edge: '#5f5f59', glyph: '#262622' },
+  BURGUNDY:     { top: '#5b21b6', bottom: '#1e0a38', edge: '#a78bfa', glyph: '#ffffff' },
+  // Neutral grey: the blue cast the caps used to carry fought the livery once
+  // the orb went red.
+  RIESLING:     { top: '#5a6068', bottom: '#14171c', edge: '#a7adb5', glyph: '#ffffff' },
+  VINHO_VERDE:  { top: '#4B4F54', bottom: '#111316', edge: '#8A9096', glyph: '#ffffff' },
+  // Clear caps: the rgba stops are what makes the buttons read as moulded
+  // from the same smoke plastic as the shell.
+  GLOUGLOU:     { top: 'rgba(203,213,225,0.55)', bottom: 'rgba(51,65,85,0.60)', edge: 'rgba(226,232,240,0.90)', glyph: '#0F172A' },
+  SMART_GRAPE:  { top: '#4A4239', bottom: '#151210', edge: '#8A7B6B', glyph: '#ffffff' },
+  // Pale gold with a dark glyph, per the Blanc de Blancs precedent.
+  CHAMPAGNE:    { top: '#D8C48E', bottom: '#7A6535', edge: '#55431F', glyph: '#2E2410' },
+  // The holly-berry caps.
+  CHRISTMAS:    { top: '#C93B3B', bottom: '#5C1010', edge: '#E88A8A', glyph: '#ffffff' },
+  NOUVEAU:      { top: 'rgba(216,180,254,0.55)', bottom: 'rgba(76,29,149,0.60)', edge: 'rgba(233,213,255,0.90)', glyph: '#2E1065' },
+  // Walnut with a cream glyph, like inlay.
+  OAKED:        { top: '#7A5A3A', bottom: '#2E2014', edge: '#A8865E', glyph: '#F2E8D5' },
+  // Moulded from the luminous shell, one register deeper.
+  NOCTURNE:     { top: '#A9D89A', bottom: '#4E7A42', edge: '#6FA75E', glyph: '#123B0C' },
+  // Machined, dark glyph, per the Blanc de Blancs precedent.
+  STEEL:        { top: '#B9BEC6', bottom: '#5E646C', edge: '#3E434B', glyph: '#14181D' },
+  BLUSH:        { top: '#F5BBC9', bottom: '#C97F94', edge: '#8F4A5E', glyph: '#4A1220' },
+  PSVINO:       { top: '#3A3B40', bottom: '#101114', edge: '#6A6C72', glyph: '#ffffff' },
+  GRIS_DE_GRIS: { top: '#D8484E', bottom: '#8A1F24', edge: '#F0989C', glyph: '#ffffff' },
+  // Black caps on the warning orange.
+  ORANGE_WINE:  { top: '#3A3A3C', bottom: '#0B0B0C', edge: '#6E6E70', glyph: '#ffffff' },
+  // Paper caps with an ink glyph -- white on paper is nothing at all.
+  PET_NAT:      { top: '#FBF8F1', bottom: '#DED7C7', edge: '#2B3244', glyph: '#2B3244' },
+  WALDGLAS:     { top: 'rgba(203,222,160,0.55)', bottom: 'rgba(72,96,30,0.60)', edge: 'rgba(226,238,200,0.90)', glyph: '#1F2C0A' },
+  // Black caps with an orange glyph -- the two colours, and only the two.
+  HALLOWEEN:    { top: '#2A2530', bottom: '#0A080C', edge: '#5E5468', glyph: '#FF8A1F' },
+  W64:          { top: '#6A4BB8', bottom: '#221448', edge: '#A98EE8', glyph: '#ffffff' },
+};
+
+/**
+ * The four skins that colour each control separately.
+ *
+ * From `ChassisSkin.buttonSet` (`ChassisSkins.swift:866`). Every other skin
+ * wears `SKIN_CAP` on all four, which is what `footerCap` below falls back
+ * to.
+ *
+ * **Home is a cap here, not a ramp.** iOS 0.8.98 is the whole reason this
+ * table can be written this way. Through 0.8.97 a livery's Home travelled as
+ * a `ChassisAccent` -- a six-stop lit ramp -- all the way into the button
+ * view, which kept a `.home` branch alive at every read it reached; and the
+ * history §A records is that every such branch eventually disagrees with its
+ * neighbours. Restating the ramp as a plain cap at the *resolution* step
+ * means the view has one colour model and cannot tell Home apart. "Lit" is a
+ * colour, not a code path.
+ *
+ * So the values below are what `ChassisControl(litRamp:)` produces from each
+ * livery's authored Home ramp: `top` = the ramp's `light`, `bottom` = `mid`,
+ * `edge` = `edge`, `glyph` = `ink`.
+ *
+ * CLASSIC is here for a different reason from the other three. It is not a
+ * colour scheme; it is the skin the device ships wearing, and its four caps
+ * used to disagree with each other -- Back, User and the cog resolved to
+ * near-black stone with a white glyph while Home resolved through the accent
+ * to an amber cap with dark amber ink. iOS 0.8.91 D2 made "CLASSIC's buttons
+ * are black" a decision rather than an accident.
+ */
+const SKIN_CAP_SET: Partial<Record<ChassisSkinId, Record<FooterCapKind, ChassisCap>>> = {
+  // Four grey glyphs on four black caps (iOS 0.8.91, D2).
+  CLASSIC: {
+    back:     { top: '#292524', bottom: '#0c0a09', edge: '#57534e', glyph: '#a8a29e' },
+    home:     { top: '#3f3c39', bottom: '#1c1917', edge: '#0c0a09', glyph: '#a8a29e' },
+    user:     { top: '#292524', bottom: '#0c0a09', edge: '#57534e', glyph: '#a8a29e' },
+    settings: { top: '#292524', bottom: '#0c0a09', edge: '#57534e', glyph: '#a8a29e' },
+  },
+  // Green / red / blue / magenta-pink.
+  PSVINO: {
+    back:     { top: '#F0435C', bottom: '#7E0C1C', edge: '#FF97A6', glyph: '#FFE3E8' },
+    home:     { top: '#9FE6DA', bottom: '#1E9E90', edge: '#0B5C54', glyph: '#04241F' },
+    user:     { top: '#6FA3E8', bottom: '#173D6B', edge: '#A9CBF5', glyph: '#E4EFFC' },
+    settings: { top: '#E86FC0', bottom: '#6E1250', edge: '#F5A9DA', glyph: '#FCE4F3' },
+  },
+  // Green / red / blue / yellow.
+  VINHO_VERDE: {
+    back:     { top: '#E5402F', bottom: '#7A1409', edge: '#FF9587', glyph: '#FFE2DE' },
+    home:     { top: '#A7E39A', bottom: '#3A9A28', edge: '#1E5C14', glyph: '#062A02' },
+    user:     { top: '#3F8FE0', bottom: '#123C68', edge: '#9AC6F0', glyph: '#E2EEFA' },
+    // Dark glyph on the yellow cap, per the Blanc de Blancs precedent.
+    settings: { top: '#F2C130', bottom: '#7A5A05', edge: '#FBE08C', glyph: '#3A2A00' },
+  },
+  // Green / blue / red / yellow. Home takes the green because it is the one
+  // control on the device built to look powered; the yellow goes on the cog
+  // so all four colours appear at once.
+  W64: {
+    back:     { top: '#D8343E', bottom: '#6E0C14', edge: '#F59098', glyph: '#FFE4E6' },
+    home:     { top: '#A8E3A4', bottom: '#3A9A44', edge: '#1E5C24', glyph: '#062A08' },
+    user:     { top: '#3E7FD8', bottom: '#123C74', edge: '#9AC2F0', glyph: '#E2EEFA' },
+    settings: { top: '#F2C93A', bottom: '#7A6008', edge: '#FBE694', glyph: '#3A2E00' },
+  },
+};
+
+/**
+ * The cap one footer control wears on one skin -- **the** resolution path,
+ * for all four kinds.
+ *
+ * The web twin of `ChassisLook.footerCap` (`DeviceParts.swift:498`), and it
+ * exists for the reason that function does: until iOS 0.8.94 the four caps
+ * resolved in three different places and Home resolved through a fourth, so
+ * three consecutive batches of cap fixes each "missed the home button" --
+ * every fix landed on the path Home was never on. One function means the next
+ * cap fix cannot cover three buttons and skip the fourth.
+ *
+ * The web had the same fork frozen in Tailwind: Back, User and Settings were
+ * hardcoded stone and Home was hardcoded amber with an inner lit disc, on
+ * every one of the twenty-two skins.
+ */
+export function footerCap(skin: ChassisSkinId, kind: FooterCapKind): ChassisCap {
+  return SKIN_CAP_SET[skin]?.[kind] ?? SKIN_CAP[skin];
+}
+
 export function applyTheme(): void {
   if (typeof document === 'undefined') return;
   const { skin, lcd, scale, uiScale } = readTheme();
@@ -614,6 +774,17 @@ export function applyTheme(): void {
   root.style.setProperty('--chassis-pattern', s.bodyPattern ? `url(/chassis/${s.bodyPattern}.png)` : 'none');
   root.style.setProperty('--chassis-rim-glow', s.rimGlow ?? 'transparent');
   root.dataset.translucent = s.translucent ? 'on' : 'off';
+
+  // The four footer caps (S1). Four properties each, so the band's buttons
+  // are painted by the skin like every other moulded part -- see `footerCap`
+  // for why this is one path rather than four.
+  for (const kind of FOOTER_CAP_KINDS) {
+    const cap = footerCap(skin, kind);
+    root.style.setProperty(`--cap-${kind}-top`, cap.top);
+    root.style.setProperty(`--cap-${kind}-bottom`, cap.bottom);
+    root.style.setProperty(`--cap-${kind}-edge`, cap.edge);
+    root.style.setProperty(`--cap-${kind}-glyph`, cap.glyph);
+  }
 
   // Orb + status lamps (iOS v0.6.x per-skin lighting).
   const lights = SKIN_LIGHTS[skin];

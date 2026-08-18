@@ -1,5 +1,5 @@
 import { test, expect, seedDevice } from './fixtures';
-import { CHASSIS_SKINS, ChassisSkinId } from '../src/services/theme';
+import { CHASSIS_SKINS, ChassisSkinId, FOOTER_CAP_KINDS, footerCap } from '../src/services/theme';
 
 /**
  * The screenshot gate, in both screen modes.
@@ -103,3 +103,82 @@ for (const skin of ALL_SKINS) {
     await page.screenshot({ path: `web/e2e/.shots/skin-${skin}.png` });
   });
 }
+
+/**
+ * The footer band, per skin (S1).
+ *
+ * The four moulded caps were hardcoded Tailwind -- three stone and one amber
+ * with an inner lit disc -- and rendered *identically on all twenty-two
+ * skins*. It was invisible to every gate the repo had, and was found by
+ * screenshotting the band and sampling pixels: Home's glyph came out
+ * rgb(123,51,6) on CLASSIC, ORIGINAL, BURGUNDY, OAKED, PET NAT, HALLOWEEN,
+ * W64 and PSVINO alike.
+ *
+ * So the gate reads the resolved custom properties rather than looking at a
+ * picture. A property that resolves to the empty string is the exact failure
+ * mode of a token rename -- CSS treats a missing `var()` as nothing, so the
+ * band would silently lose its paint with no error anywhere -- and comparing
+ * against `footerCap()` is what catches a typo that compiles.
+ *
+ * A screenshot is attached as well, because a colour that is *correct* and
+ * *wrong-looking* is still worth a human glance, and the band is the part of
+ * the device the eye lands on first.
+ */
+const capTokens = (page: import('@playwright/test').Page) =>
+  page.evaluate(() => {
+    const css = getComputedStyle(document.documentElement);
+    const out: Record<string, string> = {};
+    for (const kind of ['back', 'home', 'user', 'settings']) {
+      for (const stop of ['top', 'bottom', 'edge', 'glyph']) {
+        out[`${kind}-${stop}`] = css.getPropertyValue(`--cap-${kind}-${stop}`).trim();
+      }
+    }
+    return out;
+  });
+
+for (const skin of ALL_SKINS) {
+  test(`the ${skin} footer caps are painted by the skin`, async ({ page, consoleErrors }, testInfo) => {
+    void consoleErrors;
+    await seedDevice(page, { chassisSkin: skin });
+    await page.goto('/dex');
+    await page.waitForTimeout(600);
+
+    const tokens = await capTokens(page);
+    for (const kind of FOOTER_CAP_KINDS) {
+      const cap = footerCap(skin, kind);
+      for (const [stop, value] of Object.entries(cap)) {
+        const got = tokens[`${kind}-${stop}`];
+        expect(got, `${skin}/${kind}.${stop} did not reach the page`).not.toBe('');
+        expect(got, `${skin}/${kind}.${stop}`).toBe(value);
+      }
+    }
+
+    const footer = page.locator('footer').first();
+    await expect(footer).toBeVisible();
+    await testInfo.attach(`footer-${skin}`, {
+      body: await footer.screenshot(),
+      contentType: 'image/png',
+    });
+    await footer.screenshot({ path: `web/e2e/.shots/footer-${skin}.png` });
+  });
+}
+
+/**
+ * And the one thing no per-skin check can see: that the skins differ from
+ * each other at all.
+ *
+ * Every per-skin assertion above would have passed on the broken tree if the
+ * table itself were uniform. This walks the whole set and fails if the band
+ * is the same on two shells -- which is the shape of the defect as a user met
+ * it, rather than as the code expressed it.
+ */
+test('no two shells wear the same footer band', async () => {
+  const seen = new Map<string, ChassisSkinId>();
+  for (const skin of ALL_SKINS) {
+    const band = FOOTER_CAP_KINDS.map(k => JSON.stringify(footerCap(skin, k))).join('|');
+    const clash = seen.get(band);
+    expect(clash, `${skin} and ${clash} have identical footer bands`).toBeUndefined();
+    seen.set(band, skin);
+  }
+  expect(seen.size).toBe(ALL_SKINS.length);
+});

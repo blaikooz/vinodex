@@ -2,6 +2,7 @@
 import React, { useCallback, useEffect, useRef, useState, useSyncExternalStore } from 'react';
 import { Home, CircleUser, Settings, Wine, Bookmark, Leaf, Map as MapIcon, Sparkles, Search, ScanLine, Globe, GraduationCap, Calendar, BookOpen, SlidersHorizontal, Wrench, Moon } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import type { FooterCapKind } from '../src/services/theme';
 import {
   applyActivity,
   applyTimedOut,
@@ -160,6 +161,54 @@ interface DeviceLayoutProps {
    */
   showWordmark?: boolean;
 }
+
+
+/**
+ * One moulded footer cap, painted by the skin (S1).
+ *
+ * **The web had iOS's Home fork frozen in Tailwind.** Back, User and Settings
+ * were hardcoded `from-stone-700 to-stone-950 border-stone-400`; Home was
+ * hardcoded `from-amber-200 to-amber-500 border-amber-700` *plus an inner lit
+ * disc* -- and all four rendered identically on every one of the twenty-two
+ * skins. Measured before the change: the Home face and glyph came out
+ * `rgb(123,51,6)` on CLASSIC, ORIGINAL, BURGUNDY, OAKED, PET NAT, HALLOWEEN,
+ * W64 and PSVINO alike.
+ *
+ * That inner disc is the exact thing iOS deleted in 0.8.98. Its argument is
+ * worth restating rather than just following, because it is what makes this a
+ * four-line function instead of a switch: a lit Home is a cap that happens to
+ * be *bright*, not a control drawn by a second rule. Once the colour comes
+ * from the skin, there is nothing left for a `.home` branch to do -- and the
+ * history iOS records is that a branch which exists eventually disagrees with
+ * its neighbours. Three consecutive iOS releases of cap fixes each "missed
+ * the home button" for precisely that reason.
+ *
+ * So there is one function, no kind parameter beyond which token set to read,
+ * and the four call sites differ only in their glyph and their action.
+ */
+const capStyle = (kind: FooterCapKind): React.CSSProperties => ({
+  backgroundImage: `linear-gradient(to bottom, var(--cap-${kind}-top), var(--cap-${kind}-bottom))`,
+  borderColor: `var(--cap-${kind}-edge)`,
+  color: `var(--cap-${kind}-glyph)`,
+});
+
+/**
+ * The shared geometry and press of a moulded cap.
+ *
+ * `active:scale-[0.88]` and the brightness drop are iOS's `ChassisPress`, not
+ * its `DexPressStyle` (S8). iOS keeps the two apart deliberately: on-screen
+ * things press at 0.96, moulded parts of the shell press deeper and lose the
+ * light on the face. The orb already used these numbers and the four caps did
+ * not, which is the asymmetry this closes.
+ */
+const CAP_CLASS =
+  'relative w-12 h-12 md:w-14 md:h-14 rounded-full border-[3px] '
+  + 'shadow-[inset_0_3px_6px_rgba(255,255,255,0.15),0_6px_10px_rgba(0,0,0,0.5)] '
+  + 'flex items-center justify-center '
+  + 'transition-[transform,filter] duration-100 '
+  + 'active:scale-[0.88] active:brightness-90 '
+  + 'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/80 focus-visible:ring-offset-2 '
+  + 'focus-visible:ring-offset-[color:var(--chassis-footer)]';
 
 const DeviceLayout: React.FC<DeviceLayoutProps> = ({
   children,
@@ -500,25 +549,35 @@ const DeviceLayout: React.FC<DeviceLayoutProps> = ({
               onClick={backEnabled ? onBack : undefined}
               disabled={!backEnabled}
               aria-label="Back"
-              className={`relative w-12 h-12 md:w-14 md:h-14 rounded-full bg-gradient-to-b from-stone-700 to-stone-950 border-[3px] border-stone-400 shadow-[inset_0_3px_6px_rgba(255,255,255,0.15),0_6px_10px_rgba(0,0,0,0.5)] transition-transform focus:outline-none active:scale-[0.95] ${backEnabled ? 'hover:scale-[1.02]' : 'opacity-35 cursor-default'}`}
+              className={`${CAP_CLASS} ${backEnabled ? 'hover:scale-[1.02]' : 'opacity-35 cursor-default'}`}
+              style={capStyle('back')}
             >
-              <span className="absolute inset-0 flex items-center justify-center pointer-events-none">
-                <svg viewBox="0 0 24 24" className="w-8 h-8 text-white" fill="none" stroke="currentColor" strokeWidth={4} strokeLinecap="round" strokeLinejoin="round">
-                  <path d="M15 5L7 12l8 7" />
-                </svg>
-              </span>
+              {/* `currentColor`, so the chevron is the cap's own glyph ink --
+                  which several skins need dark (ORIGINAL, CHAMPAGNE, PET NAT,
+                  STEEL, BLUSH), where a hardcoded white was invisible. */}
+              <svg viewBox="0 0 24 24" className="w-8 h-8 pointer-events-none" fill="none" stroke="currentColor" strokeWidth={4} strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                <path d="M15 5L7 12l8 7" />
+              </svg>
             </button>
             {showSystemButtons && (
               <button
                 type="button"
                 onClick={() => navigate('/saved')}
+                // "Saved entries", unchanged. iOS renamed its equivalent to
+                // "User" in 0.8.5 (A1) on the grounds that the page holds
+                // three shelves and the label named one of them -- which is
+                // true here too, since /saved is titled COLLECTION. But the
+                // web's COLLECTION naming is a documented deliberate
+                // deviation, so the right web label is neither iOS's word nor
+                // this one, and picking it is a naming decision rather than a
+                // colour-model port. Left alone; `MoonDialScreen.test.tsx`
+                // caught the accidental rename, which is the test working.
                 aria-label="Saved entries"
                 data-coachmark="passportButton"
-                className="relative w-12 h-12 md:w-14 md:h-14 rounded-full bg-gradient-to-b from-stone-700 to-stone-950 border-[3px] border-stone-400 shadow-[inset_0_3px_6px_rgba(255,255,255,0.15),0_6px_10px_rgba(0,0,0,0.5)] transition-transform active:scale-[0.95] hover:scale-[1.02]"
+                className={`${CAP_CLASS} hover:scale-[1.02]`}
+                style={capStyle('user')}
               >
-                <span className="absolute inset-0 flex items-center justify-center pointer-events-none">
-                  <CircleUser className="w-7 h-7 text-white" strokeWidth={2} />
-                </span>
+                <CircleUser className="w-7 h-7 pointer-events-none" strokeWidth={2} aria-hidden="true" />
               </button>
             )}
           </div>
@@ -541,27 +600,35 @@ const DeviceLayout: React.FC<DeviceLayoutProps> = ({
             className="flex flex-col items-center gap-1.5 rounded-full p-1.5 -translate-y-1 shrink-0"
             style={{ backgroundColor: 'rgba(0,0,0,0.2)', boxShadow: 'inset 0 2px 4px rgba(0,0,0,0.35), inset 0 -1px 0 rgba(255,255,255,0.14)' }}
           >
+            {/* No inner lit disc, and no amber (S1). It was the web twin of
+                the `ChassisAccent`-lit disc iOS deleted in 0.8.98: a second
+                drawing rule for one of four identical controls, and the
+                reason three releases of cap fixes each missed this button.
+                Home is a cap like its neighbours now, and a livery that wants
+                it to look powered says so in the colour. */}
             <button
               type="button"
               onClick={onHome ? () => onHome() : undefined}
               disabled={!onHome}
               aria-label="Home"
-              className={`relative w-12 h-12 md:w-14 md:h-14 rounded-full bg-gradient-to-b from-amber-200 to-amber-500 border-[3px] border-amber-700 shadow-[inset_0_3px_5px_rgba(255,255,255,0.55),0_6px_10px_rgba(0,0,0,0.45)] overflow-hidden transition-transform active:scale-[0.95] ${onHome ? '' : 'opacity-35 cursor-default'}`}
+              className={`${CAP_CLASS} ${onHome ? 'hover:scale-[1.02]' : 'opacity-35 cursor-default'}`}
+              style={capStyle('home')}
             >
-              <span className="absolute inset-0 bg-gradient-to-br from-white/35 via-transparent to-black/25 pointer-events-none"></span>
-              <span className="absolute inset-[2px] rounded-full bg-gradient-to-b from-amber-100 to-amber-400 border border-amber-500 flex items-center justify-center shadow-inner">
-                <Home size={28} className="text-amber-900" />
-              </span>
+              <Home size={28} className="pointer-events-none" aria-hidden="true" />
             </button>
             {showSystemButtons && (
               <button
                 type="button"
                 onClick={() => navigate('/settings')}
                 aria-label="Settings"
-                className="relative w-12 h-12 md:w-14 md:h-14 rounded-full flex items-center justify-center border-[3px] transition-transform active:scale-[0.95] hover:scale-[1.02] shadow-[0_6px_10px_rgba(0,0,0,0.45)]"
-                style={{ background: 'linear-gradient(to bottom, #44403c, #1c1917)', borderColor: '#a8a29e' }}
+                className={`${CAP_CLASS} hover:scale-[1.02]`}
+                style={capStyle('settings')}
               >
-                <Settings className="w-[50%] h-[50%]" style={{ color: '#e8ebee', filter: 'drop-shadow(0 1px 0 rgba(0,0,0,0.5))' }} />
+                <Settings
+                  className="w-[50%] h-[50%] pointer-events-none"
+                  aria-hidden="true"
+                  style={{ filter: 'drop-shadow(0 1px 0 rgba(0,0,0,0.5))' }}
+                />
               </button>
             )}
           </div>
