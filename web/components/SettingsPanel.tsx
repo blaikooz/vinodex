@@ -55,6 +55,8 @@ import {
   saveProfile,
 } from '../src/services/userProfiles';
 import { DEMO_STOPS, demoCycleSeconds, startDemo } from '../src/services/demoMode';
+import { GrapeLineageIndex } from '../src/services/grapeLineage';
+import { FIRMWARE_RELEASES } from '@/shared/constants';
 
 export type SettingsSectionId = 'CUSTOMIZE' | 'SETTINGS' | 'DATA' | 'ACCESS' | 'DEV';
 
@@ -479,6 +481,13 @@ export const SettingsSectionPanel: React.FC<{
   /** A profile action waiting on its confirm. Every case is destructive. */
   const [pendingProfile, setPendingProfile] = React.useState<{ mode: 'save' | 'load'; slot: number | 'fresh' } | null>(null);
   const [profileList, setProfileList] = React.useState(() => profiles());
+  // The exam bank is 283 KB and belongs to the exam's own chunk; the DEV row
+  // fetches its count on demand rather than dragging the bank into /settings.
+  const [examCount, setExamCount] = React.useState<number | null>(null);
+  React.useEffect(() => {
+    if (section !== 'DEV' || examCount !== null) return;
+    void import('@/shared/data/exam').then(m => setExamCount(m.EXAM_QUESTIONS.length)).catch(() => setExamCount(0));
+  }, [section, examCount]);
 
   useAccess();
   const locked = starterOnly();
@@ -954,6 +963,7 @@ export const SettingsSectionPanel: React.FC<{
         const fontsStatus =
           typeof document !== 'undefined' && document.fonts ? document.fonts.status : 'OK';
         const fontsOk = fontsStatus === 'loaded' || fontsStatus === 'OK';
+        const lineageConnected = new GrapeLineageIndex(allEntries).connectedIDs.size;
         return (
           <>
             <Section title="DIAGNOSTICS">
@@ -974,6 +984,24 @@ export const SettingsSectionPanel: React.FC<{
               <HealthRow label="ENTRIES" ok={entriesOk} detail={`${allEntries.length} LOADED`} />
               <HealthRow label="ICON MANIFEST" ok={iconsOk} detail={`${iconKeys.length} KEYS`} />
               <HealthRow label="FONTS" ok={fontsOk} detail={String(fontsStatus).toUpperCase()} />
+              {/* The v6#34 delta against iOS DiagnosticsReport: the systems
+                  this parity pass added get their own OK-or-not lines. */}
+              <HealthRow label="EXAM BANK" ok={examCount === null || examCount > 0} detail={examCount === null ? 'LOADING…' : `${examCount} QUESTIONS`} />
+              <HealthRow
+                label="LINEAGE GRAPH"
+                ok={lineageConnected > 0}
+                detail={`${lineageConnected} CONNECTED GRAPES`}
+              />
+              <HealthRow
+                label="FLAVOR ART"
+                ok={Object.keys((iconManifest as { flavorArt?: Record<string, string> }).flavorArt ?? {}).length > 0}
+                detail={`${Object.keys((iconManifest as { flavorArt?: Record<string, string> }).flavorArt ?? {}).length} STEMS`}
+              />
+              <HealthRow
+                label="FIRMWARE LOG"
+                ok={FIRMWARE_RELEASES.length > 0}
+                detail={`${FIRMWARE_RELEASES.length} RELEASES`}
+              />
             </Section>
           </>
         );
