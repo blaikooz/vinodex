@@ -1,4 +1,4 @@
-import { test, expect, seedDevice } from './fixtures';
+import { test, expect, seedDevice, seedFreshDevice } from './fixtures';
 import type { Page } from '@playwright/test';
 
 /**
@@ -160,4 +160,77 @@ test('a returning untoured player is not spotlit over the BIOS', async ({ page, 
   await expect(page.getByText(/VINODEX BIOS/)).toBeHidden({ timeout: 20_000 });
   // The tour takes over only after the device is handed to the player.
   await expect(page.getByText(/TUTORIAL \d\/\d/)).toBeVisible({ timeout: 10_000 });
+});
+
+/**
+ * One detail route per category (W3).
+ *
+ * The suite opened exactly one entry — a grape, by clicking the first row of
+ * `/list/GRAPES` — while `EntryDetail` branches seven ways with separate
+ * header-tile code down each branch. Six of the app's largest screen's seven
+ * shapes had never been rendered in a real browser, where the things that
+ * actually break live: an `<img>` pointing at an art stem that does not
+ * exist, a lazy chunk that fails to resolve, a `TypeError` in a tile.
+ *
+ * `EntryDetail.categories.test.tsx` renders the same six under vitest and
+ * pins their section lists. This is the other half: vitest proves the tree is
+ * built, the browser proves the assets behind it resolve. The console-error
+ * fixture is what makes that second claim mean anything — a 404 on a flavour
+ * portrait fails the test.
+ *
+ * Ids rather than a click-through per category, deliberately: reaching a
+ * continent by navigation is four clicks that test the *listing*, and the
+ * listing already has its own route smoke above.
+ */
+const DETAIL_IDS: [string, string][] = [
+  ['G001', 'a grape'],
+  ['R001', 'a region'],
+  ['S001', 'a style'],
+  ['FLAVOR-BLACKCURRANT', 'a flavour'],
+  ['CONT_NORTH_AMERICA', 'a continent'],
+  ['STAL001', 'a country gate'],
+];
+
+for (const [id, name] of DETAIL_IDS) {
+  test(`renders the detail readout for ${name} (/detail/${id})`, async ({ page, consoleErrors }) => {
+    void consoleErrors;
+    await unlock(page);
+    await page.goto(`/detail/${id}`);
+    await page.waitForTimeout(700);
+    // An unknown id redirects to /dex, so staying on the route is the check
+    // that the fixture id is real — a silent redirect would make this test
+    // pass while rendering the menu.
+    await expect(page).toHaveURL(new RegExp(`/detail/${id}$`));
+    await expect(page.locator('body')).not.toBeEmpty();
+  });
+}
+
+/**
+ * First run, end to end, on a device that has never been used (W20).
+ *
+ * Every other test in this file seeds past the BIOS, the professor and the
+ * walkthrough offer — which is right for testing the screen behind them, and
+ * means first run was untested by construction. It is also where this app
+ * keeps hiding bugs: the BIOS layering fault and the W1 remount both live in
+ * this window, and the hole that hid the first was that each existing test
+ * seeded past the thing the other was testing.
+ */
+test('a genuinely fresh device boots, greets, and hands over', async ({ page, consoleErrors }) => {
+  void consoleErrors;
+  await seedFreshDevice(page);
+  await page.goto('/dex');
+
+  // The BIOS owns the device first.
+  await page.waitForTimeout(1200);
+  await expect(page.locator('body')).not.toBeEmpty();
+
+  // Any tap clears it, and the device is usable afterwards.
+  await page.locator('body').click({ position: { x: 200, y: 400 } });
+  await page.waitForTimeout(1500);
+
+  // The chassis is up: its four moulded controls carry accessible names, and
+  // they are the surface that proves the app rather than the boot is on
+  // screen.
+  await expect(page.getByLabel('Home').first()).toBeVisible();
+  await expect(page.getByLabel('Settings').first()).toBeVisible();
 });

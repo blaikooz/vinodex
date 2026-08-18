@@ -48,3 +48,31 @@ export const seedDevice = async (page: Page, extra: Record<string, string> = {})
     for (const [k, v] of Object.entries(e)) window.localStorage.setItem(k, v);
   }, extra);
 };
+
+/**
+ * A genuinely fresh device: unlocked, and nothing else.
+ *
+ * **First run was untested by construction (W20).** `seedDevice` exists to
+ * skip past the BIOS, the professor's greeting and the walkthrough offer,
+ * because those get in the way of testing the screen behind them — so every
+ * test that used it was, by definition, not testing first run. And first run
+ * is where this app keeps hiding bugs: the BIOS layering fault (the intro
+ * card and the coachmark spotlight drawing over the boot, cleanbot H1) and
+ * the W1 remount both live in that window, and the hole that hid H1 was
+ * precisely that the professor's test seeded past the BIOS while the BIOS
+ * test seeded past the professor.
+ *
+ * `unlockedAppIDs` is the one thing seeded, and only because the unlock code
+ * is a doorman rather than part of the experience under test — typing it in
+ * every spec would add a keypad walk to each one without exercising anything
+ * the spec is about. Everything else is left absent: no `booted`, no
+ * `firstTimeTriggersSeen`, no `coachmarkOffered`. What a real first visitor
+ * meets is what the test meets.
+ */
+export const seedFreshDevice = async (page: Page) => {
+  await page.addInitScript(() => {
+    window.localStorage.clear();
+    window.sessionStorage.clear();
+    window.localStorage.setItem('unlockedAppIDs', JSON.stringify(['vinodex']));
+  });
+};
