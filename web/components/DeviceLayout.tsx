@@ -2,7 +2,8 @@
 import React, { useCallback, useEffect, useRef, useState, useSyncExternalStore } from 'react';
 import { Home, CircleUser, Settings, Wine, Bookmark, Leaf, Map as MapIcon, Sparkles, Search, ScanLine, Globe, GraduationCap, Calendar, BookOpen, SlidersHorizontal, Wrench, Moon } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
-import type { FooterCapKind } from '../src/services/theme';
+import type { ChassisSkinId, FooterCapKind } from '../src/services/theme';
+import { useTheme } from '../src/services/useTheme';
 import {
   applyActivity,
   applyTimedOut,
@@ -210,6 +211,57 @@ const CAP_CLASS =
   + 'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/80 focus-visible:ring-offset-2 '
   + 'focus-visible:ring-offset-[color:var(--chassis-footer)]';
 
+
+/**
+ * The drawn cap for one control on the active skin, or null.
+ *
+ * `art/caps/{SKIN}-{kind}.png`, baked by `scripts/bake-footer-caps.py` from
+ * the four source sprites `sync-shared.ps1` mirrors out of iOS. 22 skins x 4
+ * caps = 88 files, 608 KB, none over ~12 KB, runtime-cached rather than
+ * precached like the rest of the art.
+ *
+ * **Null is a real answer, and the fallback is the whole control.** This is
+ * `ChassisButton.drawnCap`'s rule and it is worth keeping: the CSS circle
+ * underneath is not a placeholder, it is the button, correctly coloured by
+ * the same tokens. So an unbaked skin, a failed request or a browser with
+ * images off degrades to the S1 gradient rather than to a hole. iOS states it
+ * as "the conversion can be partial without any control being blank", which
+ * is the only defence against an art loader returning nil in silence.
+ */
+const capArt = (skin: ChassisSkinId | null, kind: FooterCapKind): string | null =>
+  skin ? `/art/caps/${skin}-${kind}.png` : null;
+
+/**
+ * One moulded cap: the drawn sprite over the coloured circle that is its own
+ * fallback.
+ *
+ * `onError` clears the sprite rather than leaving a broken image, so the
+ * circle below shows through — the failure is invisible to the player and
+ * loud to the render gate, which fails on any 4xx.
+ */
+const CapFace: React.FC<{ kind: FooterCapKind; skin: ChassisSkinId | null }> = ({ kind, skin }) => {
+  const [failed, setFailed] = useState(false);
+  const src = capArt(skin, kind);
+  useEffect(() => { setFailed(false); }, [src]);
+  if (!src || failed) return null;
+  return (
+    <img
+      src={src}
+      alt=""
+      aria-hidden="true"
+      draggable={false}
+      onError={() => setFailed(true)}
+      className="absolute inset-[-3px] w-[calc(100%+6px)] h-[calc(100%+6px)] pointer-events-none select-none"
+      // Inset by the border width and sized past it: the sprite is a whole
+      // moulded cap including its own rim, so it replaces the CSS border
+      // rather than sitting inside it. Drawn smooth, not pixelated -- these
+      // are a rendered circle downscaled, not pixel art on a grid, which is
+      // the same exception iOS carves out with `.interpolation(.high)`.
+      style={{ imageRendering: 'auto', objectFit: 'contain' }}
+    />
+  );
+};
+
 const DeviceLayout: React.FC<DeviceLayoutProps> = ({
   children,
   title,
@@ -230,6 +282,10 @@ const DeviceLayout: React.FC<DeviceLayoutProps> = ({
   showWordmark: _showWordmark = false,
 }) => {
   const navigate = useNavigate();
+  // The active shell, for the drawn caps. `useTheme` is the same external
+  // store the rest of the chassis reads, so a skin change repaints the band
+  // without a reload.
+  const theme = useTheme();
 
   const [orbHeld, setOrbHeld] = useState(false);
   const holdTimer = useRef<number | null>(null);
@@ -552,12 +608,15 @@ const DeviceLayout: React.FC<DeviceLayoutProps> = ({
               className={`${CAP_CLASS} ${backEnabled ? 'hover:scale-[1.02]' : 'opacity-35 cursor-default'}`}
               style={capStyle('back')}
             >
-              {/* `currentColor`, so the chevron is the cap's own glyph ink --
-                  which several skins need dark (ORIGINAL, CHAMPAGNE, PET NAT,
-                  STEEL, BLUSH), where a hardcoded white was invisible. */}
-              <svg viewBox="0 0 24 24" className="w-8 h-8 pointer-events-none" fill="none" stroke="currentColor" strokeWidth={4} strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-                <path d="M15 5L7 12l8 7" />
-              </svg>
+              {/* The drawn cap, with the coloured circle behind it as its own
+                  fallback. `currentColor` on the glyph so that fallback is
+                  legible on the pale skins, where a hardcoded white was not. */}
+              <CapFace kind="back" skin={theme.skin} />
+              {!capArt(theme.skin, 'back') && (
+                <svg viewBox="0 0 24 24" className="w-8 h-8 pointer-events-none" fill="none" stroke="currentColor" strokeWidth={4} strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                  <path d="M15 5L7 12l8 7" />
+                </svg>
+              )}
             </button>
             {showSystemButtons && (
               <button
@@ -577,7 +636,10 @@ const DeviceLayout: React.FC<DeviceLayoutProps> = ({
                 className={`${CAP_CLASS} hover:scale-[1.02]`}
                 style={capStyle('user')}
               >
-                <CircleUser className="w-7 h-7 pointer-events-none" strokeWidth={2} aria-hidden="true" />
+                <CapFace kind="user" skin={theme.skin} />
+                {!capArt(theme.skin, 'user') && (
+                  <CircleUser className="w-7 h-7 pointer-events-none" strokeWidth={2} aria-hidden="true" />
+                )}
               </button>
             )}
           </div>
@@ -614,7 +676,10 @@ const DeviceLayout: React.FC<DeviceLayoutProps> = ({
               className={`${CAP_CLASS} ${onHome ? 'hover:scale-[1.02]' : 'opacity-35 cursor-default'}`}
               style={capStyle('home')}
             >
-              <Home size={28} className="pointer-events-none" aria-hidden="true" />
+              <CapFace kind="home" skin={theme.skin} />
+              {!capArt(theme.skin, 'home') && (
+                <Home size={28} className="pointer-events-none" aria-hidden="true" />
+              )}
             </button>
             {showSystemButtons && (
               <button
@@ -624,11 +689,14 @@ const DeviceLayout: React.FC<DeviceLayoutProps> = ({
                 className={`${CAP_CLASS} hover:scale-[1.02]`}
                 style={capStyle('settings')}
               >
-                <Settings
-                  className="w-[50%] h-[50%] pointer-events-none"
-                  aria-hidden="true"
-                  style={{ filter: 'drop-shadow(0 1px 0 rgba(0,0,0,0.5))' }}
-                />
+                <CapFace kind="settings" skin={theme.skin} />
+                {!capArt(theme.skin, 'settings') && (
+                  <Settings
+                    className="w-[50%] h-[50%] pointer-events-none"
+                    aria-hidden="true"
+                    style={{ filter: 'drop-shadow(0 1px 0 rgba(0,0,0,0.5))' }}
+                  />
+                )}
               </button>
             )}
           </div>
