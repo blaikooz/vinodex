@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { readFileSync, readdirSync, statSync } from 'node:fs';
 import path from 'node:path';
-import { MARQUEE_ART } from '../../components/DeviceLayout';
+import { MARQUEE_ART } from './marqueeArt';
 
 /**
  * Every screen title resolves to a marquee panel, or is an accepted fallback

@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { readdirSync } from 'node:fs';
 import { resolve } from 'node:path';
-import { MARQUEE_ART } from '../../components/DeviceLayout';
+import { MARQUEE_ART } from './marqueeArt';
 
 /**
  * The marquee map and the mirrored directory, held to each other in both
