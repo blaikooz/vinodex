@@ -402,3 +402,130 @@ body {
     scroll-behavior: auto !important;
   }
 }
+
+/* ---------------------------------------------------------------------------
+   Chassis geometry (S2/S3/S4)
+
+   Three moulded details the web drew flat where iOS draws them as parts.
+
+   1. THE RECESSED LAMP
+
+   Every lamp on this chassis was a disc of colour with a hairline round it:
+   three in the island strip, two on the white top bezel, one in the bottom
+   vent strip, two more over the marquee. Eight lamps, none of which read as
+   fitted INTO the shell -- which is iOS's own diagnosis in `RecessedLamp`,
+   and its answer was one modifier rather than eight edits, so the next lamp
+   added is right by default. Same argument, same construction, one class:
+
+     the wall   dark, blurred, riding high -- the top edge of a recess is
+                where no light reaches. Blurred because a recess has a
+                radius; a crisp stroke reads as a printed outline.
+     the lip    pale, low, catching the light the caps catch.
+     the rim    the lamp's own dark keyline, kept and kept last so the
+                colour still terminates crisply.
+     the bead   a small blurred white dot at the top -- the orb's specular,
+                proportioned to this lamp rather than to that one.
+     the seat   a short dark drop separating the part from the shell.
+
+   Every measurement is a fraction of the lamp's own short axis, driven by
+   `--lamp-size`, so one class is correct on a 10px vent dot and a 22px island
+   lamp. Nothing here is skin-coloured: shading is a property of the light,
+   not of the plastic, which is what lets one rule serve all twenty-two
+   shells.
+
+   2. THE ORB IS A STADIUM
+
+   It was a bead standing proud: a thick white bezel all the way round, a
+   specular dot, a drop shadow outward. iOS's `RecessedLamp` note explains at
+   length why the orb was deliberately NOT routed through it -- seating a part
+   meant to catch the light inverts its lighting -- and then explains why that
+   argument stopped applying: since 0.7.9 the orb is the length of the whole
+   lamp trio and exactly a lamp's height, in the same row, at the same
+   distance from the eye. Two parts that alike, lit two different ways, read
+   as one of them being wrong.
+
+   3. THE CHAMFER
+
+   The screen housing is rounded on three corners and cut diagonally on the
+   bottom-left -- a keyed corner, the way a moulded part is cut so it seats
+   only one way round. It is the single asymmetry in an otherwise mirror-
+   symmetric chassis and it is what makes the device read as a manufactured
+   object rather than a drawn rectangle. The web drew a plain rounded box.
+
+   `clip-path` rather than a border-radius trick, because the fill, the clip
+   and the rim have to be the SAME shape: iOS's 0.6.6 E1 records what happens
+   otherwise -- a clip and a stroke antialias independently, so on the one
+   edge that is neither horizontal nor vertical the two soft edges do not
+   coincide and the fill leaks past the cut.
+   --------------------------------------------------------------------------- */
+
+.recessed-lamp {
+  position: relative;
+  isolation: isolate;
+  /* The seat: a short dark drop that separates the part from the shell. */
+  box-shadow: 0 calc(var(--lamp-size, 12px) * 0.06) calc(var(--lamp-size, 12px) * 0.12) rgba(0, 0, 0, 0.45);
+}
+
+.recessed-lamp::before,
+.recessed-lamp::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  pointer-events: none;
+}
+
+/* The wall, riding high. */
+.recessed-lamp::before {
+  border: max(calc(var(--lamp-size, 12px) * 0.16), 1.5px) solid rgba(0, 0, 0, 0.34);
+  filter: blur(max(calc(var(--lamp-size, 12px) * 0.08), 0.7px));
+  transform: translateY(calc(max(calc(var(--lamp-size, 12px) * 0.05), 0.5px) * -1));
+}
+
+/* The lip, low. */
+.recessed-lamp::after {
+  border: max(calc(var(--lamp-size, 12px) * 0.07), 1px) solid rgba(255, 255, 255, 0.26);
+  transform: translateY(max(calc(var(--lamp-size, 12px) * 0.06), 0.6px));
+}
+
+/* The bead: the orb's specular at this lamp's own scale. A child rather than
+   a third pseudo-element, since an element has only two. */
+.recessed-lamp > .lamp-bead {
+  position: absolute;
+  left: 50%;
+  top: max(calc(var(--lamp-size, 12px) * 0.12), 1px);
+  width: max(calc(var(--lamp-size, 12px) * 0.26), 2px);
+  height: max(calc(var(--lamp-size, 12px) * 0.26), 2px);
+  transform: translateX(-50%);
+  border-radius: 9999px;
+  background: rgba(255, 255, 255, 0.7);
+  filter: blur(max(calc(var(--lamp-size, 12px) * 0.04), 0.6px));
+  pointer-events: none;
+}
+
+/* The screen housing's keyed corner. `--panel-corner` and `--panel-chamfer`
+   are iOS's `screenPanelCorner` (2rem) and `screenPanelChamfer` (2.25rem),
+   which at the web's 16px rem are 32 and 36 -- so the diagonal is a little
+   longer than the radius, which is what makes it read as a cut rather than as
+   a fourth corner someone got wrong. */
+.chamfered-panel {
+  --panel-corner: 2rem;
+  --panel-chamfer: 2.25rem;
+  clip-path: polygon(
+    var(--panel-chamfer) 100%,
+    100% 100%,
+    100% 0,
+    0 0,
+    0 calc(100% - var(--panel-chamfer))
+  );
+  /* The rounded three corners survive the clip: the polygon only cuts the
+     bottom-left, and `border-radius` still rounds what is left. */
+  border-radius: var(--panel-corner);
+  border-bottom-left-radius: 0;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  /* Nothing here animates; listed so a future addition to this block is
+     considered rather than inherited. */
+  .recessed-lamp { transition: none; }
+}

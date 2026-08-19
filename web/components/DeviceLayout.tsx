@@ -462,10 +462,29 @@ const DeviceLayout: React.FC<DeviceLayoutProps> = ({
               depresses under the finger so the feedback arrives before the flip.
               Its bead and glow are the skin's own (iOS `skin.orb` / `.orbGlow`).
             */}
+            {/*
+              The orb: a stadium the length of the lamp trio, seated in the
+              deck (S3).
+
+              It was a 44px circle with a thick white bezel and a specular
+              dot -- a bead standing proud. iOS's `RecessedLamp` note argues
+              at length why the orb was deliberately NOT given the lamps'
+              treatment (seating a part meant to catch the light inverts its
+              lighting), and then records why that argument stopped applying:
+              since 0.7.9 the orb is the length of the whole trio and exactly
+              a lamp's height, in the same row, at the same distance from the
+              eye. Two parts that alike, lit two different ways, read as one
+              of them being wrong.
+
+              The width is derived, not authored -- three lamps and the two
+              gaps between them, which is iOS's own rule stated once so a
+              mockup can obey it too. The height is the short axis and drives
+              every measurement in `.recessed-lamp`.
+            */}
             <div className="relative shrink-0">
               <span
                 aria-hidden="true"
-                className="chassis-glow absolute left-1/2 top-1/2 w-16 h-16 md:w-20 md:h-20 rounded-full pointer-events-none"
+                className="chassis-glow absolute left-1/2 top-1/2 w-20 h-10 md:w-24 md:h-12 rounded-full pointer-events-none"
                 style={{ backgroundColor: 'var(--chassis-orb-glow)', filter: 'blur(9px)', '--glow-period': '5.3s' } as React.CSSProperties}
               />
               <button
@@ -477,23 +496,37 @@ const DeviceLayout: React.FC<DeviceLayoutProps> = ({
                 onPointerLeave={onTitleTap ? cancelOrbHold : undefined}
                 onPointerCancel={onTitleTap ? cancelOrbHold : undefined}
                 disabled={!onTitleTap}
-                className={`relative w-11 h-11 md:w-14 md:h-14 rounded-full border-[3px] border-white shadow-[0_4px_8px_rgba(0,0,0,0.5)] p-0 transition-transform duration-100 ${
+                className={`recessed-lamp relative w-[4.6rem] h-[0.9rem] md:w-[5.4rem] md:h-[1.05rem] rounded-full p-0 transition-transform duration-100 ${
                   orbHeld ? 'scale-[0.88] brightness-75' : ''
-                } ${onTitleTap ? 'cursor-pointer' : 'cursor-default'}`}
-                style={{ backgroundColor: 'var(--chassis-orb)' }}
+                } ${onTitleTap ? 'cursor-pointer' : 'cursor-default'} focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/80`}
+                style={{
+                  backgroundColor: 'var(--chassis-orb)',
+                  border: '1px solid var(--chassis-orb-glow)',
+                  // The short axis drives the recess: `.recessed-lamp` is a
+                  // set of fractions, so one class is correct on a 10px vent
+                  // dot and on this.
+                  '--lamp-size': '0.95rem',
+                } as React.CSSProperties}
               >
-                <span className="absolute top-1 left-1/2 -translate-x-1/2 w-2.5 h-2.5 bg-white rounded-full opacity-80 blur-[1px]"></span>
+                <span className="lamp-bead" aria-hidden="true" />
               </button>
             </div>
 
             {/* The three skin-tinted lamps, trailing-aligned in the right corner. */}
+            {/* The status trio, seated (S3). Same recess as every other lamp
+                on the device -- see `.recessed-lamp`. */}
             <div className="flex flex-row gap-2 items-center pt-1.5" aria-hidden="true">
               {[1, 2, 3].map((n, i) => (
                 <span
                   key={n}
-                  className="relative w-2.5 h-2.5 md:w-3 md:h-3 rounded-full border"
-                  style={{ backgroundColor: `var(--chassis-lamp${n})`, borderColor: `var(--chassis-lamp${n}-edge)` }}
+                  className="recessed-lamp relative w-2.5 h-2.5 md:w-3 md:h-3 rounded-full"
+                  style={{
+                    backgroundColor: `var(--chassis-lamp${n})`,
+                    border: `1px solid var(--chassis-lamp${n}-edge)`,
+                    '--lamp-size': '0.75rem',
+                  } as React.CSSProperties}
                 >
+                  <span className="lamp-bead" />
                   <span
                     className="chassis-glow absolute left-1/2 top-1/2 w-3.5 h-3.5 md:w-4 md:h-4 rounded-full pointer-events-none"
                     style={{ backgroundColor: `var(--chassis-lamp${n})`, filter: 'blur(4px)', '--glow-period': `${[6.1, 7.4, 4.8][i]}s` } as React.CSSProperties}
@@ -509,16 +542,46 @@ const DeviceLayout: React.FC<DeviceLayoutProps> = ({
           className="flex-1 min-h-0"
           style={{ paddingBottom: `calc(${footerHeight} + ${footerBottomPad})` }}
         >
+          {/*
+            The screen housing, with its keyed corner (S4) and NOCTURNE's
+            charge (S2).
+
+            The bottom-left is cut diagonally rather than rounded -- the way a
+            moulded part is keyed so it seats only one way round, and the one
+            asymmetry in an otherwise mirror-symmetric chassis. It is what
+            makes the device read as a manufactured object rather than a drawn
+            rectangle, and the web had a plain rounded box.
+
+            `--chassis-rim-glow` was written by `applyTheme` and read by
+            nothing, so NOCTURNE's glow-in-the-dark halo did not render at
+            all. Two stacked shadows -- a tight one and a wide one -- which is
+            what reads as phosphor rather than as a drop shadow. It resolves
+            to `transparent` on the other twenty-one shells, so it costs them
+            nothing.
+          */}
           <div
-            className="h-full flex flex-col relative m-2 mt-0 rounded-[2rem] border-l-[6px] border-r-[6px] border-b-[6px] border-t-0 shadow-inner"
-            style={{ backgroundColor: 'var(--chassis-panel)', borderColor: 'var(--chassis-panel-edge)' }}
+            className="chamfered-panel h-full flex flex-col relative m-2 mt-0 border-l-[6px] border-r-[6px] border-b-[6px] border-t-0 shadow-inner"
+            style={{
+              backgroundColor: 'var(--chassis-panel)',
+              borderColor: 'var(--chassis-panel-edge)',
+              boxShadow:
+                '0 0 6px var(--chassis-rim-glow, transparent), 0 0 16px var(--chassis-rim-glow, transparent)',
+            }}
           >
 
           {/* Decorative vents in white bezel - center only */}
+          {/* The two housing lamps. Fixed red on every shell, matching iOS's
+              `ventDot` -- these are the chassis's plain power/link
+              indicators, not a skin surface. Seated like the rest (S3). */}
           <div className="relative flex items-center justify-center px-4 h-6 opacity-50 shrink-0">
             <div className="flex gap-2">
-              <span className="w-2 h-2 rounded-full bg-red-500 border border-red-800 shadow-[0_0_6px_rgba(239,68,68,0.8)]"></span>
-              <span className="w-2 h-2 rounded-full bg-red-500 border border-red-800 shadow-[0_0_6px_rgba(239,68,68,0.8)]"></span>
+              {[0, 1].map(i => (
+                <span
+                  key={i}
+                  className="recessed-lamp w-2 h-2 rounded-full bg-red-500"
+                  style={{ border: '1px solid #991b1b', '--lamp-size': '0.5rem' } as React.CSSProperties}
+                />
+              ))}
             </div>
           </div>
           
@@ -555,7 +618,10 @@ const DeviceLayout: React.FC<DeviceLayoutProps> = ({
               stretched VINODEX wordmark — the device's one wordmark, moulded
               into the strip in the grille's own colour — and the grille slats. */}
           <div className="shrink-0 relative flex items-center gap-3 px-4 h-7">
-            <span className="w-2.5 h-2.5 rounded-full bg-red-500 border border-red-800 shadow-[0_0_6px_rgba(239,68,68,0.8)] shrink-0"></span>
+            <span
+              className="recessed-lamp w-2.5 h-2.5 rounded-full bg-red-500 shrink-0"
+              style={{ border: '1px solid #991b1b', '--lamp-size': '0.625rem' } as React.CSSProperties}
+            />
             <div className="flex-1 min-w-0 flex justify-center overflow-hidden">
               <span
                 aria-hidden="true"
@@ -646,9 +712,47 @@ const DeviceLayout: React.FC<DeviceLayoutProps> = ({
 
           {/* Centre: two indicator lamps over the marquee, matched to its width. */}
           <div className="flex-1 min-w-0 flex flex-col items-center gap-1 -translate-y-0.5">
+            {/*
+              The marquee's two indicator lamps, skin-tinted (S7a).
+
+              They were a hardcoded Tailwind red and a hardcoded #2AB5FF on
+              all twenty-two shells. iOS 0.7.1's A7 reversed exactly that
+              decision, and its reasoning transfers whole: the original rule
+              was "fixed red and blue, because these are the same bulbs as the
+              vent lamp and the skin's colours are already spoken for", and
+              two things were wrong with it. It was not true of the whole
+              device -- HALLOWEEN, VINHO VERDE and CHAMPAGNE repaint the trio,
+              the orb, the marquee ground and the letters, and then ran a
+              Tailwind red and a Tailwind blue across the middle of all of it.
+              And "already spoken for" treats a skin's lamp colours as a
+              scarce resource; they are a palette.
+
+              The OUTER two of the trio, not the first two: `statusLights` is
+              ordered light-to-deep on most skins, so [0] and [2] are the
+              widest pair the shell offers and the two lamps stay
+              distinguishable rather than being one colour twice. On
+              CHRISTMAS, whose trio is three identical holly berries, they
+              come out identical -- which is that skin working, not this rule
+              failing.
+
+              Still decoration here, deliberately. iOS 0.7.2 made them buttons
+              and 0.7.6 made them reassignable quick-pins with a press-and-
+              hold; that is a hidden gesture with no hover affordance on a
+              pointer device and wants its own decision, so the colour half
+              lands and the behaviour half does not.
+            */}
             <div className="w-full max-w-[16.5rem] flex gap-1.5 px-0.5" aria-hidden="true">
-              <span className="flex-1 h-1.5 rounded-full bg-red-500 border border-red-800"></span>
-              <span className="flex-1 h-1.5 rounded-full border" style={{ backgroundColor: '#2AB5FF', borderColor: '#0B6FA8' }}></span>
+              {[1, 3].map(n => (
+                <span
+                  key={n}
+                  className="recessed-lamp flex-1 h-1.5 rounded-full"
+                  style={{
+                    backgroundColor: `var(--chassis-lamp${n})`,
+                    border: `1px solid var(--chassis-lamp${n}-edge)`,
+                    '--lamp-size': '0.375rem',
+                  } as React.CSSProperties}
+                />
+              ))}
             </div>
             {footerCenter ? (
               <div className="flex items-center justify-center w-full">{footerCenter}</div>
