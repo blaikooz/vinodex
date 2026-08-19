@@ -47,6 +47,10 @@ enforced by nothing (L2).
 - **Rulings landed:** the **COLLECTION** button label; the bump to
   **v0.2.0** with its authored entry; and **FIRMWARE HISTORY now narrates the
   web's releases**.
+- **Release review (2026-08-19), pre-tag:** blockers R-S1–R-S3 done (CI Node
+  pin, lockfile version drift + its pin, the changelog's install-banner
+  claim); follow-ups R-S4–R-S8 and R-S11 queued as the next commit. See §7.
+  The v0.2.0 tag waits on these, which is why it still does not exist.
 - **Open, carried forward:** S5, S6, S7b, U1–U6, U8–U10. See "Still open".
 
 ### Commits
@@ -483,6 +487,28 @@ visible as deferred twice.
 | **v7#U9** | `SettingsSectionPanel` is a 697-line switch with 7 `useState` | Its primitives are good; the switch is the monolith. Section-title order is now pinned, which is what makes the split checkable. |
 | **v7#U10** | `EntryDetail.tsx` is 1,549 lines | **Recommend not scheduling alone** — let it fall out of U1 + U8, which must pass through it. A standalone refactor with no functional goal is the silent refactor the brief forbids. |
 | **v7#W7** | `DeviceLayout` decomposition | Explicitly deferred by the coordinator; would have collided with every Stage 2 commit. Now unblocked. |
+
+---
+
+## 7 · Release review — blockers before the `v0.2.0` tag (2026-08-19)
+
+A pre-tag review found the release could not ship as committed. Ids here are
+the review's own (`R-S1`…), cited qualified as `v7#R-S1`. Two commits: the
+blockers, then the follow-ups.
+
+### Commit 1 — blockers
+
+| id | item | outcome |
+|---|---|---|
+| **v7#R-S1** | **CI has never passed.** `.nvmrc` pinned `20.18.0` while `jsdom@30` is ESM-only with engines `^22.22.2 \|\| ^24.15.0 \|\| >=26`; all three runs of `gates.yml` died at `npm test` with `ERR_REQUIRE_ESM`, so build / check:refs / Playwright have **never executed in CI** — every green tick the workflow badge implied was unearned. | **Done.** `.nvmrc` → **24.15.0**: same major as the local dev machine (24.14.1) so CI and local gates share a V8, current Active LTS, and exactly jsdom's stated floor for the 24 line. 22.22.2 was rejected because it puts CI on a major no local run uses. Lockfile regenerated (`npm install --package-lock-only`, npm 11.11.0, verified `npm ci --dry-run` clean); the 66 extra lines are npm 11 recording `@tailwindcss/oxide-wasm32-wasi`'s bundled optional deps, no dependency moved. |
+| **v7#R-S2** | `package-lock.json` lines 3/9 still said `0.1.0` against package.json's `0.2.0` — the **third** occurrence of this exact drift (2f6effb caught the lockfile saying 0.0.0). | **Done.** The regenerate fixed the fields, and `appVersion.test.ts` now pins **both** lockfile version fields to `APP_VERSION`, so a fourth occurrence is a red test naming the fix command. |
+| **v7#R-S3** | The 0.2.0 changelog entry claimed "and an install banner", but `InstallBanner.tsx:22` returns early while `APP_STORE_LISTING_IS_LIVE` is false (`shareLink.ts:30`, placeholder App Store id) — by design. Player-facing FIRMWARE HISTORY copy claiming a feature that cannot appear. | **Done.** Note reworded to what actually ships: the BIOS power-on test and the share funnel with link previews, both genuinely live. The banner re-enters the changelog when a real App Store id lands. |
+
+**Dependency-ledger note (no sweep performed):** v6#42's hold — `@types/node`
+22 → 26 "**do not** while `.nvmrc` pins 20.18.0" — is now stale on its stated
+reason. With the pin at 24.15.0 the correct move is `@types/node` → the
+**24.x line** (types track the pinned runtime; 26 still overshoots it). For
+the next dependency pass, not this one.
 
 ---
 

@@ -78,7 +78,7 @@ const CURRENT: WebRelease = {
     'Professor Vino arrives -- six expressions, a bank of first-time lines, and a guided walkthrough.',
     'SAVE and RESTORE everything: shelves, ratings, streaks and settings, as one file you keep.',
     'Five profile slots, a demo attract loop, a screensaver, and an INSIGHT panel on the entry readout.',
-    'A BIOS power-on test, a share funnel with real link previews, and an install banner.',
+    'A BIOS power-on test, and a share funnel with real link previews.',
     'The device is drawn now: 22 chassis shells, marquee panels, passport stamps and skin stickers.',
     'The four footer buttons are drawn art, re-inked per shell -- so every skin has its own moulded caps.',
     'The chassis gains its keyed corner, seated lamps, a stadium orb, and NOCTURNE glows in the dark.',

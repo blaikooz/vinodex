@@ -1,4 +1,6 @@
 import { describe, expect, it } from 'vitest';
+import fs from 'node:fs';
+import path from 'node:path';
 import { APP_VERSION, APP_VERSION_DISPLAY, BUILD_NUMBER } from './appVersion';
 import pkg from '@/package.json';
 
@@ -34,6 +36,30 @@ describe('appVersion', () => {
    */
   it('matches the version in package.json', () => {
     expect(pkg.version).toBe(APP_VERSION);
+  });
+
+  /**
+   * The lockfile carries the version **twice more** — its own top-level
+   * `version` and `packages[""].version` — and `npm install` is the only
+   * thing that moves them. This repo has now shipped the drift **twice**:
+   * 2f6effb found the lockfile still saying 0.0.0 after the 0.1.0 bump, and
+   * the 0.2.0 bump left it saying 0.1.0 until a release review caught it.
+   * Both times the fix was the same `npm install --package-lock-only` nobody
+   * ran. Read via `fs` rather than imported, so the 700 KB file never enters
+   * a bundle graph by accident.
+   */
+  it('matches both version fields in package-lock.json', () => {
+    const lockPath = path.resolve(__dirname, '../../../package-lock.json');
+    const lock = JSON.parse(fs.readFileSync(lockPath, 'utf8')) as {
+      version?: string;
+      packages?: Record<string, { version?: string }>;
+    };
+    const hint = 'run `npm install --package-lock-only` after bumping the version';
+    expect(lock.version, `package-lock.json's top-level version is stale — ${hint}`).toBe(APP_VERSION);
+    expect(
+      lock.packages?.['']?.version,
+      `package-lock.json's packages[""] version is stale — ${hint}`,
+    ).toBe(APP_VERSION);
   });
 
   describe('display form', () => {
