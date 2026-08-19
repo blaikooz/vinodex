@@ -1,4 +1,5 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
+import ChassisLamp from './ChassisLamp';
 
 /**
  * The notch-level island strip (iOS `DeviceChassis.islandFlank`).
@@ -50,7 +51,7 @@ const ChassisIsland: React.FC<ChassisIslandProps> = ({ onTitleTap }) => {
   useEffect(() => cancelOrbHold, [cancelOrbHold]);
 
   return (
-    <div className="shrink-0 flex items-start justify-between px-5 pt-2.5 pb-1">
+    <div className="island-strip shrink-0 flex items-start justify-between px-5 pt-2.5 pb-1">
       {/*
         Hold the orb to flip the device — a deliberate easter egg. The orb
         depresses under the finger so the feedback arrives before the flip.
@@ -70,16 +71,33 @@ const ChassisIsland: React.FC<ChassisIslandProps> = ({ onTitleTap }) => {
         eye. Two parts that alike, lit two different ways, read as one
         of them being wrong.
 
-        The width is derived, not authored -- three lamps and the two
-        gaps between them, which is iOS's own rule stated once so a
-        mockup can obey it too. The height is the short axis and drives
-        every measurement in `.recessed-lamp`.
+        **Both axes are derived now, and neither was.** The width came
+        across as A1's number (5.4rem = iOS's 86.30pt at LARGE, an exact
+        port) while the height stayed on the 0.9/1.05rem that C1 retired
+        and the trio stayed at 0.625rem -- so the orb was five times
+        longer than the trio it is supposed to equal, and the comment
+        that used to sit here claimed the width was "three lamps and the
+        two gaps between them" while three lamps and two gaps came to
+        46px against the orb's 73.6.
+
+        The two rules now live in `.island-orb` / `.island-lamp` in
+        index.css, stated once each, which is the form iOS put them in
+        for exactly this reason.
       */}
       <div className="relative shrink-0">
         <span
           aria-hidden="true"
-          className="chassis-glow absolute left-1/2 top-1/2 w-20 h-10 md:w-24 md:h-12 rounded-full pointer-events-none"
-          style={{ backgroundColor: 'var(--chassis-orb-glow)', filter: 'blur(9px)', '--glow-period': '5.3s' } as React.CSSProperties}
+          className="island-orb chassis-glow absolute left-1/2 top-1/2 rounded-full pointer-events-none"
+          // Off the short axis (iOS 0.7.9, A1): the halo was authored at
+          // a flat 9px blur on a 5rem box, which is a spread more than
+          // twice the height of the part emitting it now that the orb is
+          // as tall as a lamp. `0.7 x` the short axis is the same rule
+          // the three status lamps beside it follow.
+          style={{
+            backgroundColor: 'var(--chassis-orb-glow)',
+            filter: 'blur(calc(var(--island-lamp) * 0.7))',
+            '--glow-period': '5.3s',
+          } as React.CSSProperties}
         />
         <button
           type="button"
@@ -90,7 +108,7 @@ const ChassisIsland: React.FC<ChassisIslandProps> = ({ onTitleTap }) => {
           onPointerLeave={onTitleTap ? cancelOrbHold : undefined}
           onPointerCancel={onTitleTap ? cancelOrbHold : undefined}
           disabled={!onTitleTap}
-          className={`recessed-lamp relative w-[4.6rem] h-[0.9rem] md:w-[5.4rem] md:h-[1.05rem] rounded-full p-0 transition-transform duration-100 ${
+          className={`recessed-lamp island-orb relative rounded-full p-0 transition-transform duration-100 ${
             orbHeld ? 'scale-[0.88] brightness-75' : ''
           } ${onTitleTap ? 'cursor-pointer' : 'cursor-default'} focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/80`}
           style={{
@@ -98,34 +116,30 @@ const ChassisIsland: React.FC<ChassisIslandProps> = ({ onTitleTap }) => {
             border: '1px solid var(--chassis-orb-glow)',
             // The short axis drives the recess: `.recessed-lamp` is a
             // set of fractions, so one class is correct on a 10px vent
-            // dot and on this.
-            '--lamp-size': '0.95rem',
+            // dot and on this. C1: the orb's short axis IS a lamp.
+            '--lamp-size': 'var(--island-lamp)',
           } as React.CSSProperties}
         >
           <span className="lamp-bead" aria-hidden="true" />
         </button>
       </div>
 
-      {/* The three skin-tinted lamps, trailing-aligned in the right corner. */}
-      {/* The status trio, seated (S3). Same recess as every other lamp
-          on the device -- see `.recessed-lamp`. */}
-      <div className="flex flex-row gap-2 items-center pt-1.5" aria-hidden="true">
+      {/* The status trio (S3): three lamps, `statusDotSpacing` apart, at
+          `islandStatusDot`. Decoration and nothing else -- iOS's own note on
+          `statusDots` says "these lamps carry no state", which is why the
+          group is `aria-hidden` and why the pins went on the marquee pair
+          instead. Sized by `.island-lamp` so the orb across the strip stays
+          exactly their length. */}
+      <div className="flex flex-row gap-[var(--island-gap)] items-center pt-1.5" aria-hidden="true">
         {[1, 2, 3].map((n, i) => (
-          <span
+          <ChassisLamp
             key={n}
-            className="recessed-lamp relative w-2.5 h-2.5 md:w-3 md:h-3 rounded-full"
-            style={{
-              backgroundColor: `var(--chassis-lamp${n})`,
-              border: `1px solid var(--chassis-lamp${n}-edge)`,
-              '--lamp-size': '0.75rem',
-            } as React.CSSProperties}
-          >
-            <span className="lamp-bead" />
-            <span
-              className="chassis-glow absolute left-1/2 top-1/2 w-3.5 h-3.5 md:w-4 md:h-4 rounded-full pointer-events-none"
-              style={{ backgroundColor: `var(--chassis-lamp${n})`, filter: 'blur(4px)', '--glow-period': `${[6.1, 7.4, 4.8][i]}s` } as React.CSSProperties}
-            />
-          </span>
+            className="island-lamp rounded-full"
+            size="var(--island-lamp)"
+            fill={`var(--chassis-lamp${n})`}
+            rim={`var(--chassis-lamp${n}-edge)`}
+            period={[6.1, 7.4, 4.8][i]}
+          />
         ))}
       </div>
     </div>

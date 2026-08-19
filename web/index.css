@@ -422,11 +422,73 @@ body {
    coincide and the fill leaks past the cut.
    --------------------------------------------------------------------------- */
 
+/* ---------------------------------------------------------------------------
+   The island cluster's geometry, as two derivations rather than four numbers.
+
+   iOS spent four batches tuning the orb against the lamp trio beside it and
+   then stopped tuning and stated the rules, precisely so the next refinement
+   would be one line:
+
+     A1 (0.7.9)  the orb spans the SAME LENGTH as the whole trio --
+                 `islandOrbWidth(lamp:spacing:) = 3 * lamp + 2 * spacing`
+     C1 (0.8.0)  the orb is exactly ONE LAMP TALL --
+                 `islandOrbHeight(lamp:) = lamp`, an identity function on
+                 purpose, so that "a preview that writes `height: lamp` is a
+                 preview that agrees by coincidence"
+
+   Together they make the two island clusters a matched pair of stadiums --
+   same length, same mass -- which is the "mirrored pair of blocks" reading
+   0.6.8's F3 asked for.
+
+   The web had NEITHER. It carried A1's md-breakpoint orb width (5.4rem
+   against iOS's 86.30pt at LARGE, an exact port) with the PRE-C1 orb height
+   (0.9/1.05rem against the 14.98/17.22pt C1 retired) and a lamp trio at
+   0.625rem -- so the orb was five times longer than the trio it is supposed
+   to equal, and `DeviceLayout`'s own comment claimed the width was "derived,
+   not authored ... three lamps and the two gaps between them" while 3 lamps
+   and 2 gaps came to 46px against the orb's 73.6.
+
+   Stated here rather than at the call site so the two clusters cannot drift
+   apart again, and so the values are one edit. `--island-lamp` is iOS's
+   `islandStatusDot` (22pt at SMALL, 24.29 at LARGE, `max(controlButton *
+   0.33, 22)`) and `--island-gap` is `statusDotSpacing` (0.42rem).
+   --------------------------------------------------------------------------- */
+
+.island-strip {
+  --island-lamp: 1.375rem;
+  --island-gap: 0.42rem;
+}
+
+@media (min-width: 768px) {
+  .island-strip { --island-lamp: 1.51875rem; }
+}
+
+/* A1: three lamps and the two gaps between them. */
+.island-orb {
+  width: calc(3 * var(--island-lamp) + 2 * var(--island-gap));
+  height: var(--island-lamp);
+}
+
+/* C1: as tall as one lamp, which is also how wide one is. */
+.island-lamp {
+  width: var(--island-lamp);
+  height: var(--island-lamp);
+}
+
 .recessed-lamp {
   position: relative;
   isolation: isolate;
-  /* The seat: a short dark drop that separates the part from the shell. */
-  box-shadow: 0 calc(var(--lamp-size, 12px) * 0.06) calc(var(--lamp-size, 12px) * 0.12) rgba(0, 0, 0, 0.45);
+  /* The seat: a short dark drop that separates the part from the shell -- and,
+     for the lamps that do not breathe, a static halo in their own colour.
+
+     `--lamp-halo` is iOS's `ventDot` shadow: `.shadow(color: red500.opacity(0.8),
+     radius: size * 0.26)`, which is "a lamp that is lit throws light on the
+     plastic around it". SwiftUI's shadow radius is roughly half a CSS blur, so
+     0.26 there is 0.52 here. It resolves to `transparent` at zero blur on every
+     lamp that does not set it, so the pulsing ones cost nothing. */
+  box-shadow:
+    0 calc(var(--lamp-size, 12px) * 0.06) calc(var(--lamp-size, 12px) * 0.12) rgba(0, 0, 0, 0.45),
+    0 0 calc(var(--lamp-size, 12px) * 0.52) var(--lamp-halo, transparent);
 }
 
 .recessed-lamp::before,

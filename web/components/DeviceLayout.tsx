@@ -133,17 +133,29 @@ const DeviceLayout: React.FC<DeviceLayoutProps> = ({
             }}
           >
 
-          {/* Decorative vents in white bezel - center only */}
           {/* The two housing lamps. Fixed red on every shell, matching iOS's
-              `ventDot` -- these are the chassis's plain power/link
-              indicators, not a skin surface. Seated like the rest (S3). */}
-          <div className="relative flex items-center justify-center px-4 h-6 opacity-50 shrink-0">
+              `ventDot` -- these are the chassis's plain power/link indicators,
+              not a skin surface, which is why they are the one group the
+              twenty-two-shell table does not reach.
+
+              **A6 reached them last (three fixes, one finding).** The web had
+              them at 0.5rem against iOS's `ventDot` (0.65rem), with no halo at
+              all, under a blanket `opacity-50` on the container. iOS draws a
+              full-strength `Dex.red500` with a red halo at 80%, and its own
+              note says why: "the red halo stays -- a lamp that is lit throws
+              light on the plastic around it". Half-opacity plus no halo is
+              exactly the printed-dot reading A6 exists to undo. */}
+          <div className="relative flex items-center justify-center px-4 h-6 shrink-0">
             <div className="flex gap-2">
               {[0, 1].map(i => (
                 <span
                   key={i}
-                  className="recessed-lamp w-2 h-2 rounded-full bg-red-500"
-                  style={{ border: '1px solid #991b1b', '--lamp-size': '0.5rem' } as React.CSSProperties}
+                  className="recessed-lamp w-[0.65rem] h-[0.65rem] rounded-full bg-red-500"
+                  style={{
+                    border: '1px solid #991b1b',
+                    '--lamp-size': '0.65rem',
+                    '--lamp-halo': 'rgba(239,68,68,0.8)',
+                  } as React.CSSProperties}
                 />
               ))}
             </div>
@@ -182,9 +194,17 @@ const DeviceLayout: React.FC<DeviceLayoutProps> = ({
               stretched VINODEX wordmark — the device's one wordmark, moulded
               into the strip in the grille's own colour — and the grille slats. */}
           <div className="shrink-0 relative flex items-center gap-3 px-4 h-7">
+            {/* `bottomVentDot` (0.75rem), a shade over the pair on the bezel
+                above: iOS's G3 makes them the same bulb at two sizes, and the
+                bottom one is bigger because at `ventDot` "it read as a speck
+                of dirt rather than as a lamp". */}
             <span
-              className="recessed-lamp w-2.5 h-2.5 rounded-full bg-red-500 shrink-0"
-              style={{ border: '1px solid #991b1b', '--lamp-size': '0.625rem' } as React.CSSProperties}
+              className="recessed-lamp w-[0.75rem] h-[0.75rem] rounded-full bg-red-500 shrink-0"
+              style={{
+                border: '1px solid #991b1b',
+                '--lamp-size': '0.75rem',
+                '--lamp-halo': 'rgba(239,68,68,0.8)',
+              } as React.CSSProperties}
             />
             <div className="flex-1 min-w-0 flex justify-center overflow-hidden">
               <span
