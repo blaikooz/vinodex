@@ -66,30 +66,42 @@ export interface WebRelease {
  * assertion. It also gives the thing you edit a name.
  */
 const CURRENT: WebRelease = {
-  version: '0.2.0',
-  date: '2026-08-18',
-  headline: 'THE PARITY PUSH',
+  version: '0.2.1',
+  date: '2026-08-19',
+  headline: 'THE LAMPS BECOME BUTTONS',
   notes: [
-    'WINE EXAM on the shared question bank, with tiers, a pass streak and a paper that survives a trip Back.',
-    'FIRMWARE HISTORY, TOOLS, YOU MIGHT LIKE, SUPPORT and the cheat console are all real screens now.',
-    'BLIND TASTING and MASTER SEARCH: the scanner walks a deduction, the orb opens a twelve-facet filter.',
-    'GRAPE LINEAGE: walk a grape back through its parents, and open any of them.',
-    'PASSPORT ranks and stamps, announced once each, at the moment you earn them.',
-    'Professor Vino arrives -- six expressions, a bank of first-time lines, and a guided walkthrough.',
-    'SAVE and RESTORE everything: shelves, ratings, streaks and settings, as one file you keep.',
-    'Five profile slots, a demo attract loop, a screensaver, and an INSIGHT panel on the entry readout.',
-    'A BIOS power-on test, and a share funnel with real link previews.',
-    'The device is drawn now: 22 chassis shells, marquee panels, passport stamps and skin stickers.',
-    'The four footer buttons are drawn art, re-inked per shell -- so every skin has its own moulded caps.',
-    'The chassis gains its keyed corner, seated lamps, a stadium orb, and NOCTURNE glows in the dark.',
-    'Reduced motion is honoured everywhere, and the whole app is linted and render-tested on every change.',
-    'CLEAR ALL SAVED DATA now clears the profile slots too.',
-    'The SHOP stays out of scope, LABEL SCAN stays COMING SOON, and there are still no notifications.',
+    'The two lamps over the marquee are buttons now -- press one to go where it points.',
+    'Point them anywhere: right-click or hold a lamp to choose TOOLS, CUSTOMIZE, SETTINGS, DATA or SHOP.',
+    'Each lamp wears its destination as a word cut into the cap, and remembers it.',
+    'The island orb and its lamp trio are a matched pair again -- same length, same height.',
+    'The lamps on the screen housing are lit rather than printed, and throw light on the plastic.',
   ],
 };
 
 /** Newest first. A new release is prepended by promoting `CURRENT`. */
 const PREVIOUS: WebRelease[] = [
+  {
+    version: '0.2.0',
+    date: '2026-08-18',
+    headline: 'THE PARITY PUSH',
+    notes: [
+      'WINE EXAM on the shared question bank, with tiers, a pass streak and a paper that survives a trip Back.',
+      'FIRMWARE HISTORY, TOOLS, YOU MIGHT LIKE, SUPPORT and the cheat console are all real screens now.',
+      'BLIND TASTING and MASTER SEARCH: the scanner walks a deduction, the orb opens a twelve-facet filter.',
+      'GRAPE LINEAGE: walk a grape back through its parents, and open any of them.',
+      'PASSPORT ranks and stamps, announced once each, at the moment you earn them.',
+      'Professor Vino arrives -- six expressions, a bank of first-time lines, and a guided walkthrough.',
+      'SAVE and RESTORE everything: shelves, ratings, streaks and settings, as one file you keep.',
+      'Five profile slots, a demo attract loop, a screensaver, and an INSIGHT panel on the entry readout.',
+      'A BIOS power-on test, and a share funnel with real link previews.',
+      'The device is drawn now: 22 chassis shells, marquee panels, passport stamps and skin stickers.',
+      'The four footer buttons are drawn art, re-inked per shell -- so every skin has its own moulded caps.',
+      'The chassis gains its keyed corner, seated lamps, a stadium orb, and NOCTURNE glows in the dark.',
+      'Reduced motion is honoured everywhere, and the whole app is linted and render-tested on every change.',
+      'CLEAR ALL SAVED DATA now clears the profile slots too.',
+      'The SHOP stays out of scope, LABEL SCAN stays COMING SOON, and there are still no notifications.',
+    ],
+  },
   {
     version: '0.1.0',
     date: '2026-07-29',

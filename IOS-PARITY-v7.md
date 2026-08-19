@@ -51,7 +51,14 @@ enforced by nothing (L2).
   pin, lockfile version drift + its pin, the changelog's install-banner
   claim); follow-ups R-S4–R-S8 and R-S11 done. See §7.
   The v0.2.0 tag waits on these, which is why it still does not exist.
-- **Open, carried forward:** S5, S6, S7b, U1–U6, U8–U10. See "Still open".
+- **Open, carried forward:** S5, S6, U1–U6, U8–U10. See "Still open".
+- **v0.2.1 pass (2026-08-19), §8 below:** **W7 done** (the `DeviceLayout`
+  decomposition, unblocked as promised) and **S7b done** (the marquee lamps
+  are the quick pins, on the ruling relayed this pass), plus four chassis
+  geometry gaps the lamp survey turned up, plus one separation defect the
+  feature would have introduced (L8). Gates at close: lint 22/22 · typecheck
+  clean · **610 tests / 53 files** · build OK · check:refs zero dangling ·
+  **playwright 107 passed**. Version **v0.2.1**.
 
 ### Commits
 
@@ -527,6 +534,152 @@ can be read against each other.)*
 
 ---
 
+## 8 · v0.2.1 — the lamps become buttons (2026-08-19)
+
+A second execution pass on this ledger, opened by the user's instruction to
+"make sure marquee status light buttons are updated" and widened by ruling to
+the `DeviceLayout` decomposition and the remaining leftovers. Ids are this
+section's, cited qualified as `v7#L1`. Measured against iOS **v0.9.2**
+(`vinodex-ios` @ `c0532a6`), on `testing`.
+
+### The finding that shaped the pass
+
+**The device has three lamp groups, not one, and only one of them is a
+control.** This was nearly mis-scoped twice, so it is written down:
+
+| group | where | count | shape | colour | iOS | web before |
+|---|---|---|---|---|---|---|
+| the island trio | notch-level strip | **3** | circle | `skin.headerLights` | `statusDots` (`DeviceChassis.swift:945`) — pure decoration, "these lamps carry no state" | 3 decorative spans |
+| the marquee pair | over the marquee, in the band | **2** | capsule | `skin.marqueeLights` [0] and [2] | `indicatorPills` → `lampButton` (`:1653`, `:1664`) — **buttons**, and reassignable quick pins | 2 decorative spans, 6px tall |
+| housing + vent | white bezel, bottom strip | 2 + 1 | circle | fixed red on every shell | `ventDot` (`:1103`) | 3 flat dots, no halo |
+
+**There is no two-versus-three discrepancy.** Both platforms carry both
+groups. The three lamps that are easiest to see are the *island* trio and they
+are decoration on both sides; the pins live on the *marquee* pair, which is a
+separate pair further down the chassis. Nothing was dropped and nothing was
+promoted to make the counts line up.
+
+The colour tables were already exact: all 22 skins' `statusLights` triples
+compared hex-for-hex against `ChassisSkins.swift:292` with zero mismatches.
+The gap was never colour.
+
+### Items
+
+| id | item | severity | outcome |
+|---|---|---|---|
+| **v7#L1** (v7#W7) | `DeviceLayout.tsx` was 840 lines doing five jobs | minor, craft | **Done.** Split at cleanbot's four named seams into `marqueeArt.tsx`, `useMarqueeScript.ts`, `ChassisIsland.tsx` and `DeviceFooter.tsx`. 840 → 245 lines. Pure refactor, identical DOM, landed first so the feature below went into extracted components. The tell cleanbot named was real: two unit tests imported `MARQUEE_ART` out of a *component* file. |
+| **v7#L2** | The island's **two derivations were both missing** | moderate, geometry | **Done.** iOS states them once each — the orb is as long as the whole trio (0.7.9, A1: `3 * lamp + 2 * spacing`) and as tall as one lamp (0.8.0, C1, an identity function on purpose so "a preview that writes `height: lamp` is a preview that agrees by coincidence"). The web had A1's md-breakpoint *width* (5.4rem = iOS's 86.30pt at LARGE, an exact port) against the **pre-C1** *height* (0.9/1.05rem — the 14.98/17.22pt C1 retired) and a trio at 0.625rem. So the orb was five times longer than the trio it is supposed to equal, while `DeviceLayout`'s own comment claimed the width was "three lamps and the two gaps between them" — which came to 46px against the orb's 73.6. Both rules now live in `.island-orb` / `.island-lamp`. Measured in Chromium after: orb 79.44 × 22, trio span 79.44, lamps 22 × 22 — iOS's SMALL figures exactly. |
+| **v7#L3** | The marquee pair **never pulsed** | minor | **Done.** iOS: `PulseGlow(color: fill, period: 5.7, maxRadius: bandPillHeight)` (`DeviceChassis.swift:1765`). The web had no glow element on those two at all; `index.css` even listed the four live periods (5.3 / 6.1 / 7.4 / 4.8) with 5.7 conspicuously absent. |
+| **v7#L4** | The housing and vent lamps were the group A6 reached last | minor | **Done.** 0.5rem against `ventDot`'s 0.65 and 0.625 against `bottomVentDot`'s 0.75, **no halo at all**, under a blanket `opacity-50`. iOS draws full-strength `Dex.red500` with a red halo at 80% — "a lamp that is lit throws light on the plastic around it". Half opacity with no halo is exactly the printed-dot reading 0.7.1's A6 exists to undo. `--lamp-halo` composes into `.recessed-lamp`'s box-shadow and is transparent at zero blur wherever it is not set. |
+| **v7#L5** (v7#S7b) | The marquee lamps are decoration, not quick pins | structural | **Done, on the ruling.** See below. |
+| **v7#L6** | The lamps were **invisible to every gate** | moderate, test | **Done.** The cap gate exists because "a colour-table port's real failure is a typo that compiles, and only a comparison against the table can see it"; that was equally true of the lamps and nothing checked them. 22 new per-skin Playwright cases assert the trio against `SKIN_LIGHTS`, the derived ink against `lampInk` *and* that it is genuinely a stop below its own rim, and that both lamp buttons announce their pins — plus one measured case holding A1 and C1 against the boxes the browser actually laid out. Playwright 84 → 107. |
+| **v7#L8** | Making the lamps controls would have **leaked the dex into the portal** | moderate, separation | **Caught and closed in the same pass.** Every pin resolves to `/minigames` or `/settings/*`, so two moulded buttons wearing engraved TOOLS / CUSTOMIZE would have appeared on OUR WORK and CONTACT US — dex navigation and dex copy on a portal screen, and a way round the unlock doorman from a page meant to be in front of it. The lamps follow `showSystemButtons` now, exactly as SAVED and SETTINGS do. **The parts stay and the controls go:** the portal wears them unlabelled, `aria-hidden` and still breathing, because a shell that grows and loses pieces between the two products is the shared-chassis decision half-applied. `DeviceFooter.test.tsx` pins it from the route table rather than from a list of labels, so a sixth pin cannot slip past. |
+| **v7#L7** | Was deleting `.dot-pulse-{red,yellow,green}` / `.lcd-pulse` a regression? | — | **No. Investigated and cleared.** They were the *pre-skin* hardcoded pulses — a blue orb and a red/yellow/green trio with the colours baked into eight keyframe stops each, at 5.3 / 6.1 / 7.4 / 4.8s. `chassis-throb` + `.chassis-glow` replaced them in `48f7759` and carry **the same four periods**, driven off the element's own `backgroundColor` so one keyframe serves all 22 shells. The names suggested red/amber/green status semantics; the CSS never had any, and neither does iOS — `statusDots`' own note says the trio carries no state. `2b49a8e` removed dead code, not intended behaviour. |
+
+### The ruling, and what it cost
+
+**The lamps are pressable.** iOS has had them as buttons since 0.7.2 (A9) and
+as reassignable pins since 0.7.6 (A1); v7 landed the colour half and held the
+behaviour half on one real question, which was that press-and-hold is a hidden
+gesture with no affordance on a pointer device.
+
+**`contextmenu` is the answer, and it is where the web deliberately goes past
+iOS.** A browser raises that one event for a right-click, for the Menu key and
+for Shift+F10 — so a single handler gives a mouse, a keyboard and a screen
+reader the same second action without inventing a shortcut for any of them.
+iOS needs a *named accessibility action* for the same job, because VoiceOver
+cannot perform a long press and without one "the whole of A1's customisation
+is unreachable with the screen reader on". The hold is kept for touch, where
+it is the gesture iOS taught.
+
+What came across whole, because the reasoning is iOS's and it transfers:
+
+- **`QuickPinStore`** → `web/src/services/quickPins.ts`, with iOS's key
+  spelling (`marqueeQuickPins`), cap (2), shipped pair (TOOLS, CUSTOMIZE) and
+  decoder unchanged — including the padding rule ("a lamp cannot be empty; a
+  dark one reads as a fault, not as an invitation") and the swap rule ("a
+  device with two identical buttons is not a choice anybody made"). The
+  vocabulary is the settings sections plus TOOLS, minus DEV, pinned by a test
+  against `SETTINGS_SECTIONS` so a renamed section is a red test rather than a
+  lamp pointing nowhere.
+- **The chooser assigns and closes and does not navigate.** A surface that
+  both configures a button and duplicates it is the duplication A1 deleted the
+  drawer to remove. Pinned by a test that renders it with **no router at all**,
+  so a stray `navigate` would throw before the first assertion ran.
+- **Drawn inside the LCD**, in iOS's own slot — above the screen, below the
+  scanlines — so it inherits the palette and the monochrome pass and reads as
+  something the screen is doing rather than as a sheet the browser put there.
+- **Three chip states**, including the middle one (the pin the *other* lamp
+  holds, outlined and marked with that lamp's initial). Without it, assigning
+  an already-used destination reads as the app losing a setting.
+- **The pill is 30px now, not 6.** `bandPillHeight` is 30 and the 30 is
+  load-bearing: iOS grew it from 24 in 0.8.5 when the pin's **name** went on
+  the cap, because 24 "left `bandPillLabel` no room between `RecessedLamp`'s
+  stroke stack above and the rim below". The legend is engraved — highlight
+  below the letters, shade above — in `ink`, the rim mixed 45% toward black,
+  **derived** (`lampInk`) rather than authored, so 22 skins get one derivation
+  instead of 44 hand-picked hexes.
+- **One legend size for both lamps** (0.8.6, D1), fitted to the longest word in
+  the vocabulary rather than per-label, using `100cqw` so it stays fluid on a
+  narrow phone. Measured: TOOLS and CUSTOMIZE both render at 11.83px.
+  Per-label fitting is the exact defect D1 names — two lamps side by side
+  wearing two different types.
+
+Craft, beyond the port:
+
+- The lamps stopped being `aria-hidden` spans and became `<button>`s announced
+  as the pin they hold, which is iOS's `accessibilityLabel(pin.displayName)`.
+  The **island trio stays `aria-hidden`**, correctly: iOS says outright that
+  those carry no state, so hiding pure decoration is the right call and always
+  was.
+- The hit target reaches 44px through a pseudo-element, because `--band-pill`
+  is a moulded dimension and padding would have moved it.
+- The chooser is **the first dialog in this repo that is actually a dialog** —
+  `role="dialog"`, `aria-modal`, initial focus, a Tab trap, Escape to close and
+  focus returned to the lamp that raised it. v7#U2/U6 record seven scrims of
+  which none did any of this; the pattern starts here rather than being
+  retrofitted everywhere in a release about lamps.
+- The moulding survives the semantics: the `<button>` is a transparent shell
+  around `ChassisLamp` and no measurement moved. The lamp does not shrink under
+  a finger, per iOS — "a moulded lamp that shrinks under a finger reads as
+  loose. Arriving at the screen is the feedback."
+
+Where the web could not follow, said plainly rather than approximated:
+
+- **No workshop override.** iOS's 0.7.6 B1 split `marqueeLamps` from
+  `headerLamps` into two Device Workshop axes, so recolouring the trio no
+  longer repaints the pair. The web has no workshop, so both groups read the
+  one `statusLights` table — which is what iOS itself does before an override
+  is set. Not a deviation to fix; a screen that does not exist here yet, and
+  it folds into **v7#S5**'s blocker.
+- **No per-skin marquee phosphor.** iOS tints the chooser's top hairline with
+  `skin.marqueeText`. The web's marquee letters are a fixed `text-green-500`
+  on all 22 shells, so there is no per-skin colour to read; the hairline uses
+  the LCD accent. Inventing a token would be a colour the panel below does not
+  wear.
+
+### Leftovers: closed, and deliberately left
+
+| leftover | outcome |
+|---|---|
+| `footerCap.test.ts`'s tautological cap-token block | **Already closed** — the round-six review fixed it in `2b49a8e`. It exercises `applyTheme()` and reads the properties back off `:root`, which is a real round trip. Re-verified, not re-done. |
+| S9's premultiply refinement | **Already closed.** `unpremultiply()` runs *before* the LANCZOS resize, which is the ordering the item asked for and which its own docstring argues for at length. |
+| The `quantize(colors=64)` step | **Deliberately left.** Re-baking 88 PNGs moves every hash in `capsManifest.json` for no visible gain, in a release about lamps. Not a defect; a size optimisation working as intended. |
+| Stale doc references | **Deliberately left.** The `DeviceLayout.tsx:NNN` line refs in `IOS-PARITY-v6.md` and `SHELL-AND-UI-SCOPE.md` are now wrong, and they are **sealed sweep records** — the house rule is that a shipped sweep's items are never edited. They are correct about the tree they measured. `README.md` carries no line-level refs and needed nothing. |
+| The 4.5 MB copyrighted raw text under `web/data/encyclopedia/source/` | **Unchanged.** Surfaced in this pass's greps as it does in every one. The user's decision, not scheduled. |
+
+### Commits
+
+| # | Commit | Items |
+|---|---|---|
+| 14 | `1e5b45b` refactor: DeviceLayout decomposition | L1 (W7) |
+| 15 | `66313ca` feat: the quick-pin store, ported from iOS QuickPinStore | L5, store half |
+| 16 | `bd9655b` fix: the island derivation, and the lamps A6 never reached | L2, L4 |
+| 17 | `0e2c91e` feat: the marquee lamps become the quick pins | L5, L3, L6 |
+| 18 | *(this commit)* docs(parity): v0.2.1, the lamps section, and the portal fix | L8, this section, the bump |
+
+---
+
 ## Deliberate deviations (carried forward, re-checked this sweep)
 
 Unchanged from `IOS-PARITY.md` and v6 — **none re-raised above**:
@@ -558,6 +711,28 @@ Unchanged from `IOS-PARITY.md` and v6 — **none re-raised above**:
 - **FIRMWARE HISTORY narrates the web's releases, not the device firmware
   line** (ruling, §4a). iOS's `shared/data/firmware.ts` is untouched and
   unread by anything the web bundles.
+
+**Added in the v0.2.1 pass (§8):**
+
+- **The marquee lamps' second action is `contextmenu`, not a long press
+  alone.** iOS uses press-and-hold plus a named VoiceOver action; the web uses
+  the one event a browser already raises for right-click, the Menu key and
+  Shift+F10, and keeps the hold for touch. A deliberate improvement on
+  interaction, under the standing rule that chassis *geometry* matches iOS
+  while affordances may not.
+- **The chooser's top hairline is the LCD accent, not the shell's marquee
+  phosphor.** The web has no per-skin marquee text colour to read — its
+  marquee letters are one green on all twenty-two shells — so the token iOS
+  reads does not exist here. Recorded rather than invented.
+- **The island trio and the marquee pair share one colour table.** iOS split
+  them into two Device Workshop axes in 0.7.6 (B1); with no workshop on the
+  web there is nothing to override, and both groups read `statusLights` —
+  which is iOS's own behaviour until an override is set. Folds into v7#S5's
+  blocker rather than standing as a gap.
+- **The island trio stays `aria-hidden`.** Not an oversight and not a
+  downgrade: iOS's `statusDots` says outright that those three lamps carry no
+  state, so they are decoration on both sides and hiding them from the
+  accessibility tree is correct. Only the marquee pair became controls.
 
 Carried open from v5 as *skipped*, still portable if wanted:
 

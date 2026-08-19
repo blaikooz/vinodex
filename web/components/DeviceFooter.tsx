@@ -7,6 +7,7 @@ import { useMarqueeScript } from '../src/services/useMarqueeScript';
 import { marqueeGlyph } from '../src/services/marqueeArt';
 import { pinAt, pinRoute, pinsRevision, subscribeToPins } from '../src/services/quickPins';
 import MarqueeLampButton from './MarqueeLampButton';
+import ChassisLamp from './ChassisLamp';
 
 /**
  * The button band.
@@ -292,14 +293,20 @@ const DeviceFooter: React.FC<DeviceFooterProps> = ({
           `MarqueeLampButton`, which gets right-click, the Menu key and
           Shift+F10 from one handler and keeps the hold for touch.
         */}
-        <div className="band-pills w-full max-w-[16.5rem] flex gap-[var(--band-pill-gap)] px-0.5">
+        <div
+          className="band-pills w-full max-w-[16.5rem] flex gap-[var(--band-pill-gap)] px-0.5"
+          // Decoration on the portal, so nothing to announce there.
+          aria-hidden={showSystemButtons ? undefined : true}
+        >
           {/* One hint for both lamps. iOS attaches an `accessibilityHint` per
               button; the web equivalent is one visually-hidden sentence that
               both `aria-describedby` at, rather than the same string twice. */}
-          <span id="lamp-hint" className="sr-only">
-            Right-click, or press and hold, to point this button somewhere else.
-          </span>
-          {[0, 1].map(slot => {
+          {showSystemButtons && (
+            <span id="lamp-hint" className="sr-only">
+              Right-click, or press and hold, to point this button somewhere else.
+            </span>
+          )}
+          {showSystemButtons ? [0, 1].map(slot => {
             // The OUTER two of the trio, not the first two: `statusLights` is
             // ordered light-to-deep on most skins, so [0] and [2] are the
             // widest pair the shell offers. iOS indexes `lights[0]`/`lights[2]`
@@ -318,7 +325,36 @@ const DeviceFooter: React.FC<DeviceFooterProps> = ({
                 hintId="lamp-hint"
               />
             );
-          })}
+          }) : (
+            /* **The portal gets the parts and not the controls.**
+               `showSystemButtons` is off on every `/website` screen, and it is
+               off for exactly this reason: SAVED and SETTINGS are in-app
+               controls, and so are these — every pin resolves to `/minigames`
+               or `/settings/*`, which are dex routes. Two moulded lamps on a
+               company page that jump straight into the encyclopedia would put
+               dex navigation AND dex copy (the engraved TOOLS / CUSTOMIZE) on
+               a portal screen, which is the one thing the two products must
+               not share.
+
+               They are not removed, though. The portal deliberately reuses
+               this chassis so the two read as one brand, and a shell that
+               grows and loses parts between the two products is that decision
+               half-applied. So the portal wears the lamps as what they were
+               before v0.2.1: moulded, lit, breathing, unlabelled and
+               `aria-hidden` -- a part of the case rather than a button. */
+            [1, 3].map(n => (
+              <ChassisLamp
+                key={n}
+                className="flex-1 h-[var(--band-pill)] rounded-full"
+                size="var(--band-pill)"
+                fill={`var(--chassis-lamp${n})`}
+                rim={`var(--chassis-lamp${n}-edge)`}
+                bead={false}
+                period={5.7}
+                glow={1}
+              />
+            ))
+          )}
         </div>
         {footerCenter ? (
           <div className="flex items-center justify-center w-full">{footerCenter}</div>
