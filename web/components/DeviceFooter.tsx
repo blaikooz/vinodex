@@ -1,10 +1,12 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useSyncExternalStore } from 'react';
 import { Home, CircleUser, Settings } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import type { ChassisSkinId, FooterCapKind } from '../src/services/theme';
 import { useTheme } from '../src/services/useTheme';
 import { useMarqueeScript } from '../src/services/useMarqueeScript';
 import { marqueeGlyph } from '../src/services/marqueeArt';
+import { pinAt, pinRoute, pinsRevision, subscribeToPins } from '../src/services/quickPins';
+import MarqueeLampButton from './MarqueeLampButton';
 
 /**
  * The button band.
@@ -30,6 +32,17 @@ export interface DeviceFooterProps {
   onHome?: () => void;
   /** SAVED and SETTINGS. The splash turns them off; see `DeviceLayoutProps`. */
   showSystemButtons?: boolean;
+  /**
+   * Raise the lamp chooser for a slot.
+   *
+   * Injected rather than owned, because the chooser is drawn **inside the
+   * LCD** — iOS's rule, and the reason it is: an overlay raised from a button
+   * on the chassis is the surface with the strongest claim to sit outside the
+   * display and the strongest reason not to. So the band asks and
+   * `DeviceLayout` mounts. Absent leaves the lamps navigable and not
+   * reassignable, which is what the splash wants.
+   */
+  onReassignLamp?: (slot: number) => void;
 }
 
 /**
@@ -150,8 +163,12 @@ const DeviceFooter: React.FC<DeviceFooterProps> = ({
   showBack = false,
   onHome,
   showSystemButtons = true,
+  onReassignLamp,
 }) => {
   const navigate = useNavigate();
+  // The lamps repaint when a pin moves, without a provider threaded through
+  // the chassis — the same external store the collection buttons use.
+  useSyncExternalStore(subscribeToPins, pinsRevision, pinsRevision);
   // The active shell, for the drawn caps. `useTheme` is the same external
   // store the rest of the chassis reads, so a skin change repaints the band
   // without a reload.
@@ -268,24 +285,40 @@ const DeviceFooter: React.FC<DeviceFooterProps> = ({
           come out identical -- which is that skin working, not this rule
           failing.
 
-          Still decoration here, deliberately. iOS 0.7.2 made them buttons
-          and 0.7.6 made them reassignable quick-pins with a press-and-
-          hold; that is a hidden gesture with no hover affordance on a
-          pointer device and wants its own decision, so the colour half
-          lands and the behaviour half does not.
+          **They are the quick pins now (v7#S7b, ruled).** The colour half
+          landed in v0.2.0 and the behaviour half was held on one question:
+          iOS's press-and-hold is a hidden gesture with no affordance on a
+          pointer device. The answer is `contextmenu` — see
+          `MarqueeLampButton`, which gets right-click, the Menu key and
+          Shift+F10 from one handler and keeps the hold for touch.
         */}
-        <div className="w-full max-w-[16.5rem] flex gap-1.5 px-0.5" aria-hidden="true">
-          {[1, 3].map(n => (
-            <span
-              key={n}
-              className="recessed-lamp flex-1 h-1.5 rounded-full"
-              style={{
-                backgroundColor: `var(--chassis-lamp${n})`,
-                border: `1px solid var(--chassis-lamp${n}-edge)`,
-                '--lamp-size': '0.375rem',
-              } as React.CSSProperties}
-            />
-          ))}
+        <div className="band-pills w-full max-w-[16.5rem] flex gap-[var(--band-pill-gap)] px-0.5">
+          {/* One hint for both lamps. iOS attaches an `accessibilityHint` per
+              button; the web equivalent is one visually-hidden sentence that
+              both `aria-describedby` at, rather than the same string twice. */}
+          <span id="lamp-hint" className="sr-only">
+            Right-click, or press and hold, to point this button somewhere else.
+          </span>
+          {[0, 1].map(slot => {
+            // The OUTER two of the trio, not the first two: `statusLights` is
+            // ordered light-to-deep on most skins, so [0] and [2] are the
+            // widest pair the shell offers. iOS indexes `lights[0]`/`lights[2]`
+            // for the same reason; `n` is the 1-based CSS token name.
+            const n = slot === 0 ? 1 : 3;
+            return (
+              <MarqueeLampButton
+                key={slot}
+                slot={slot}
+                pin={pinAt(slot)}
+                fill={`var(--chassis-lamp${n})`}
+                rim={`var(--chassis-lamp${n}-edge)`}
+                ink={`var(--chassis-lamp${n}-ink)`}
+                onActivate={() => navigate(pinRoute(pinAt(slot)))}
+                onReassign={() => onReassignLamp?.(slot)}
+                hintId="lamp-hint"
+              />
+            );
+          })}
         </div>
         {footerCenter ? (
           <div className="flex items-center justify-center w-full">{footerCenter}</div>

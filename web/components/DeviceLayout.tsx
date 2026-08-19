@@ -1,7 +1,8 @@
 
-import React from 'react';
+import React, { useState } from 'react';
 import ChassisIsland from './ChassisIsland';
 import DeviceFooter from './DeviceFooter';
+import MarqueeLampChooser from './MarqueeLampChooser';
 
 interface DeviceLayoutProps {
   children: React.ReactNode;
@@ -53,6 +54,12 @@ const DeviceLayout: React.FC<DeviceLayoutProps> = ({
   // there like every other screen. Prop kept for call-site compatibility.
   showWordmark: _showWordmark = false,
 }) => {
+  // Which lamp is being pointed, or null. State lives here rather than in the
+  // band because the chooser is drawn in the LCD and the button that raises it
+  // is on the chassis — iOS holds `lampBeingAssigned` at exactly this level for
+  // exactly this reason.
+  const [lampSlot, setLampSlot] = useState<number | null>(null);
+
   // Taller than the old single-row band: the footer now stacks two controls in
   // each side well (iOS v0.6.9 button band), so it reserves room for a pair.
   const footerHeight = '8.5rem';
@@ -179,6 +186,22 @@ const DeviceLayout: React.FC<DeviceLayoutProps> = ({
                 {children}
               </div>
 
+              {/* The lamp-reassignment chooser.
+                  Inside the LCD, above the screen and below the scanlines —
+                  iOS's own slot (`DeviceChassis.swift:1156`) and its reason:
+                  every overlay in this app is confined to the display, so it
+                  is subject to the palette, the monochrome pass and the clip,
+                  and reads as something this screen is doing rather than as a
+                  sheet the browser put there.
+
+                  `lcd-themed` for the same reason the content has it. z-5
+                  puts it over the screen and under the scanlines at z-10. */}
+              {lampSlot !== null && (
+                <div className="lcd-themed absolute inset-0 z-[5] uppercase">
+                  <MarqueeLampChooser slot={lampSlot} onClose={() => setLampSlot(null)} />
+                </div>
+              )}
+
               {/* Monochrome phosphor tint: grayscale lives on `.lcd-themed`;
                   this multiplies the tint over the whole LCD. Transparent in
                   colour modes, so a harmless no-op there. */}
@@ -234,6 +257,7 @@ const DeviceLayout: React.FC<DeviceLayoutProps> = ({
         </div>
 
         <DeviceFooter
+          onReassignLamp={setLampSlot}
           title={title}
           footerCenter={footerCenter}
           onBack={onBack}

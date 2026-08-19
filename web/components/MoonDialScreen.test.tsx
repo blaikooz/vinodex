@@ -2,6 +2,7 @@ import { afterEach, describe, expect, it, vi } from 'vitest';
 import { cleanup, render, screen } from '@testing-library/react';
 import { MemoryRouter } from 'react-router-dom';
 import MoonDialScreen from './MoonDialScreen';
+import { DEFAULTS } from '../src/services/quickPins';
 import {
   isGoodForDrinking,
   moonDay,
@@ -94,8 +95,16 @@ describe('<MoonDialScreen />', () => {
     // long-standing deliberate deviation from iOS's SAVED, and a chassis
     // control announcing a name the page does not use is that deviation half
     // applied.
+    //
+    // **The two marquee lamps joined the set in v0.2.1.** Each is announced as
+    // the pin it currently holds (iOS `accessibilityLabel(pin.displayName)`),
+    // so what they are called is a property of the device's state rather than
+    // a label in the markup. Read from `DEFAULTS` rather than written down: a
+    // device whose lamps have been pointed elsewhere names something else, and
+    // hardcoding TOOLS/CUSTOMIZE here would pin the shipped pair by accident
+    // in a test about the control *set*.
     expect(named.sort()).toEqual(
-      ['Back', 'Collection', 'Home', 'Settings'].sort(),
+      ['Back', 'Collection', 'Home', 'Settings', ...DEFAULTS].sort(),
     );
   });
 });

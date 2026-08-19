@@ -571,8 +571,37 @@ export function nextSkin(): void {
  * lighting, read only by `DeviceLayout`, and one table is far less error-prone
  * to keep in step with iOS than three fields across fifteen objects.
  */
-type Lamp = [fill: string, edge: string];
-const SKIN_LIGHTS: Record<ChassisSkinId, { orb: string; orbGlow: string; lamps: [Lamp, Lamp, Lamp] }> = {
+/**
+ * A lamp's **ink**: the legend colour for the two marquee lamp buttons.
+ *
+ * Derived, not authored — iOS `ChassisSkin.statusLights`'s third member, added
+ * in 0.7.5 (A1), and its note is the argument for deriving it here too:
+ *
+ * > A1 asks for a darker glyph, and the honest way to get one is a further stop
+ * > of the *lamp's own hue* rather than a chassis token: forty-two authored
+ * > hexes would have to be re-picked otherwise, and a glyph in `marqueeShadow`
+ * > would be the same near-black on all twenty-one skins.
+ *
+ * So it is the `edge` stop mixed 45% toward black — one derivation, twenty-two
+ * skins, and a new skin gets an ink by writing the two hexes it was always
+ * going to write. What it buys is a legend that reads as **cut into** the cap
+ * rather than printed on it: a shade the lamp is already wearing, one stop
+ * below the rim it is drawn with.
+ */
+export function lampInk(edge: string): string {
+  const m = /^#([0-9a-fA-F]{6})$/.exec(edge.trim());
+  // Every `edge` in `SKIN_LIGHTS` is a plain six-digit hex, and `lampInk`'s own
+  // test holds that true — but a table that grew an `rgba()` should darken
+  // nothing rather than emit `#NaNNaNNaN`.
+  if (!m) return edge;
+  const n = parseInt(m[1]!, 16);
+  const mix = (c: number) => Math.round(c * 0.55);
+  const [r, g, b] = [mix((n >> 16) & 255), mix((n >> 8) & 255), mix(n & 255)];
+  return `#${((r << 16) | (g << 8) | b).toString(16).padStart(6, '0')}`;
+}
+
+export type Lamp = [fill: string, edge: string];
+export const SKIN_LIGHTS: Record<ChassisSkinId, { orb: string; orbGlow: string; lamps: [Lamp, Lamp, Lamp] }> = {
   CLASSIC:     { orb: '#67e8f9', orbGlow: '#2AB5FF', lamps: [['#dc2626', '#991b1b'], ['#facc15', '#ca8a04'], ['#22c55e', '#15803d']] },
   MIDNIGHT:    { orb: '#d8b4fe', orbGlow: '#a855f7', lamps: [['#d8b4fe', '#7c3aed'], ['#a855f7', '#6b21a8'], ['#7c3aed', '#4c1d95']] },
   ORIGINAL:    { orb: '#ffd76e', orbGlow: '#f0b429', lamps: [['#ffd76e', '#f0b429'], ['#e8e0cc', '#9a9a93'], ['#d4a017', '#8a6820']] },
@@ -793,6 +822,10 @@ export function applyTheme(): void {
   lights.lamps.forEach((lamp, i) => {
     root.style.setProperty(`--chassis-lamp${i + 1}`, lamp[0]);
     root.style.setProperty(`--chassis-lamp${i + 1}-edge`, lamp[1]);
+    // The engraved-legend stop for the two marquee lamp buttons. Written for
+    // all three even though only the outer two are pilled, because a table
+    // with a hole in it is a table somebody indexes wrong.
+    root.style.setProperty(`--chassis-lamp${i + 1}-ink`, lampInk(lamp[1]));
   });
 
   root.style.setProperty('--lcd-screen', l.screen);

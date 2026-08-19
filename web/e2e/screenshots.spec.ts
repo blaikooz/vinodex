@@ -1,5 +1,12 @@
 import { test, expect, seedDevice } from './fixtures';
-import { CHASSIS_SKINS, ChassisSkinId, FOOTER_CAP_KINDS, footerCap } from '../src/services/theme';
+import {
+  CHASSIS_SKINS,
+  ChassisSkinId,
+  FOOTER_CAP_KINDS,
+  SKIN_LIGHTS,
+  footerCap,
+  lampInk,
+} from '../src/services/theme';
 
 /**
  * The screenshot gate, in both screen modes.
@@ -162,6 +169,122 @@ for (const skin of ALL_SKINS) {
     await footer.screenshot({ path: `web/e2e/.shots/footer-${skin}.png` });
   });
 }
+
+/**
+ * The lamps, per skin — the group the gate did not cover.
+ *
+ * The cap gate above exists because a colour-table port's real failure is "a
+ * typo that compiles, and only a comparison against the table can see it".
+ * That was exactly as true of the lamps and nothing checked them: the trio,
+ * the two marquee pills and the derived ink all reach the page as custom
+ * properties, and a renamed token un-paints them in silence because CSS
+ * resolves a missing `var()` to nothing.
+ *
+ * Three things are asserted, and each has its own failure mode:
+ *
+ * 1. **The trio matches `SKIN_LIGHTS`** — the typo case.
+ * 2. **`--chassis-lampN-ink` is a real colour and is darker than its edge** —
+ *    the derivation case. `lampInk` returning its input unchanged would leave
+ *    the legend the same colour as the rim it is cut beside, which is the
+ *    printed-on-the-cap reading iOS 0.7.5's A1 removed.
+ * 3. **The two lamp buttons carry their pins' names** — the case where the
+ *    chassis paints correctly and the control means nothing.
+ */
+const lampTokens = (page: import('@playwright/test').Page) =>
+  page.evaluate(() => {
+    const root = getComputedStyle(document.documentElement);
+    const out: Record<string, string> = {};
+    for (const n of [1, 2, 3]) {
+      for (const stop of ['', '-edge', '-ink']) {
+        out[`lamp${n}${stop}`] = root.getPropertyValue(`--chassis-lamp${n}${stop}`).trim();
+      }
+    }
+    return out;
+  });
+
+/** Relative luminance, for "the ink is a further stop down from the edge". */
+const lum = (hex: string): number => {
+  const m = /^#([0-9a-fA-F]{6})$/.exec(hex);
+  if (!m) return 1;
+  const n = parseInt(m[1]!, 16);
+  return (0.2126 * ((n >> 16) & 255) + 0.7152 * ((n >> 8) & 255) + 0.0722 * (n & 255)) / 255;
+};
+
+for (const skin of ALL_SKINS) {
+  test(`the ${skin} lamps are painted by the skin`, async ({ page, consoleErrors }, testInfo) => {
+    void consoleErrors;
+    await seedDevice(page, { chassisSkin: skin });
+    await page.goto('/dex');
+    await page.waitForTimeout(600);
+
+    const tokens = await lampTokens(page);
+    const lamps = SKIN_LIGHTS[skin].lamps;
+    for (const [i, [fill, edge]] of lamps.entries()) {
+      const n = i + 1;
+      expect(tokens[`lamp${n}`], `${skin}/lamp${n} did not reach the page`).toBe(fill);
+      expect(tokens[`lamp${n}-edge`], `${skin}/lamp${n} edge`).toBe(edge);
+      // Derived rather than authored, so this checks the derivation and not a
+      // second copy of the table.
+      expect(tokens[`lamp${n}-ink`], `${skin}/lamp${n} ink`).toBe(lampInk(edge));
+      expect(
+        lum(tokens[`lamp${n}-ink`]!),
+        `${skin}/lamp${n}: the ink is not a stop below its own rim`,
+      ).toBeLessThan(lum(edge) + 0.001);
+    }
+
+    // The two marquee lamps are the OUTER two of the trio, and they are
+    // controls: each is announced as the pin it currently holds.
+    const buttons = page.locator('.lamp-hit');
+    await expect(buttons).toHaveCount(2);
+    expect(await buttons.evaluateAll(ns => ns.map(n => n.getAttribute('aria-label'))))
+      .toEqual(['TOOLS', 'CUSTOMIZE']);
+
+    const strip = page.locator('.island-strip').first();
+    await expect(strip).toBeVisible();
+    await testInfo.attach(`island-${skin}`, {
+      body: await strip.screenshot(),
+      contentType: 'image/png',
+    });
+    await strip.screenshot({ path: `web/e2e/.shots/island-${skin}.png` });
+  });
+}
+
+/**
+ * The island's two derivations, measured in a real browser.
+ *
+ * iOS spent four batches tuning the orb against the trio, then stated the rules
+ * so the next refinement would be one line: the orb is as LONG as the whole
+ * trio (0.7.9, A1) and as TALL as one lamp (0.8.0, C1). A stylesheet can state
+ * both and a layout can still not honour them — a `calc()` against the wrong
+ * custom property resolves to nothing and collapses in silence — so the check
+ * is on the boxes the browser actually laid out.
+ */
+test('the orb is the trio long and one lamp tall', async ({ page, consoleErrors }) => {
+  void consoleErrors;
+  await seedDevice(page, { chassisSkin: 'CLASSIC' });
+  await page.goto('/dex');
+  await page.waitForTimeout(600);
+
+  const m = await page.evaluate(() => {
+    const box = (el: Element) => {
+      const b = el.getBoundingClientRect();
+      return { w: +b.width.toFixed(2), h: +b.height.toFixed(2), l: b.left, r: b.right };
+    };
+    const orb = document.querySelector('.island-orb.recessed-lamp')!;
+    const lamps = [...document.querySelectorAll('.island-lamp')];
+    return { orb: box(orb), lamps: lamps.map(box) };
+  });
+
+  expect(m.lamps).toHaveLength(3);
+  // A1. The trio's span is the first lamp's left edge to the third's right.
+  expect(m.orb.w, 'A1: the orb is not the length of the trio')
+    .toBeCloseTo(m.lamps[2]!.r - m.lamps[0]!.l, 1);
+  // C1. An identity function on purpose, so a preview cannot agree by accident.
+  expect(m.orb.h, 'C1: the orb is not one lamp tall').toBeCloseTo(m.lamps[0]!.h, 1);
+  // And the trio is square, which is what makes "one lamp tall" also mean
+  // "one lamp wide" and the two clusters a matched pair.
+  for (const l of m.lamps) expect(l.w).toBeCloseTo(l.h, 1);
+});
 
 // The 'no two shells wear the same band' assertion used to sit here. It
 // touches no browser -- it calls footerCap() and compares strings -- and was

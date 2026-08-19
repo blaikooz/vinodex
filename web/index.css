@@ -528,6 +528,86 @@ body {
   pointer-events: none;
 }
 
+/* ---------------------------------------------------------------------------
+   The two marquee lamp buttons (iOS 0.7.2 A9 -> 0.7.6 A1 -> 0.8.5 A2 -> 0.8.6 D1).
+
+   `--band-pill` is iOS's `bandPillHeight`. It is 30, and the 30 is load-bearing:
+   it was 24 until 0.8.5's A2 put the pin's NAME on the cap, and "24 left
+   `bandPillLabel` no room between `RecessedLamp`'s stroke stack above and the
+   rim below. The item asks for slightly taller and 6pt is what the type costs."
+   A pill with a word on it is a different part from a pill with a dot on it.
+
+   `--band-pill-gap` is `bandPillSpacing` (8).
+   --------------------------------------------------------------------------- */
+
+.band-pills {
+  --band-pill: 1.875rem;
+  --band-pill-gap: 0.5rem;
+}
+
+/* The engraved legend, at ONE size for both lamps (0.8.6, D1).
+
+   D1 is worth restating because the defect is subtle and the fix is not
+   obvious. iOS had this on a scaling font plus a per-label shrink-to-fit, and
+   the two halves combined into the bug: `minimumScaleFactor` fits EACH label
+   separately, so DATA rendered at full size, SETTINGS a little under and
+   CUSTOMIZE well under -- and the two lamps sitting side by side wore two
+   different types.
+
+   The fix is to fit ONCE, to the widest word in the vocabulary, and give every
+   lamp that answer. iOS's arithmetic: the width of `n` monospaced characters at
+   size `s` is `n * (advance * s + tracking)`, so the largest `s` that fits a
+   budget `w` is `(w / n - tracking) / advance`, capped at `bandPillLabel`
+   (`bandPillHeight * 0.42`).
+
+   Ported literally. `100cqw` is the pill's own width, which is what makes this
+   fluid on a narrow phone where the marquee is under its 16.5rem cap -- the
+   container is the button, both buttons are `flex-1`, so both resolve to the
+   same number and D1 holds by construction rather than by coincidence.
+   `--legend-chars` is `LampLegend.longest`, handed in from the pin list so a
+   sixth pin moves the fitting instead of overflowing a cap.
+
+   Press Start 2P is drawn on a 1em advance, so `advance` is 1 and drops out.
+   `inset` is iOS's 7pt of clearance at each end. */
+.lamp-legend {
+  font-size: min(
+    calc(var(--band-pill) * 0.42),
+    calc((100cqw - 0.875rem) / var(--legend-chars, 9) - 0.03125rem)
+  );
+  letter-spacing: 0.03125rem;
+  /* Engraved, not dropped: a highlight BELOW the letters and a shade ABOVE
+     them is what an incised legend on a lit cap looks like, and it is the
+     treatment the back plate's nameplate wears. Brighter and softer than the
+     plate's defaults, because a lamp is saturated plastic with a light behind
+     it rather than brushed aluminium -- iOS `.engraved(light: 0.42, dark: 0.30)`. */
+  text-shadow:
+    0 1px 0 rgba(255, 255, 255, 0.42),
+    0 -1px 0 rgba(0, 0, 0, 0.30);
+}
+
+/* The hit target, grown without moving the moulding.
+
+   A 30px pill clears WCAG 2.2's 24px minimum on its short axis and is well
+   past it on its long one, but a chassis control that a thumb has to be
+   accurate about is a chassis control nobody presses. The pseudo-element takes
+   the touch to 44px without adding a pixel of padding to the part, which is
+   the one thing that must not move: `--band-pill` is a moulded dimension. */
+/* The button is the query container, so `100cqw` in `.lamp-legend` is the
+   PILL's width and not the legend's own -- which would be circular. */
+.lamp-hit {
+  container-type: inline-size;
+}
+
+.lamp-hit::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 50%;
+  height: max(100%, 44px);
+  transform: translateY(-50%);
+}
+
 /* The screen housing's keyed corner. `--panel-corner` and `--panel-chamfer`
    are iOS's `screenPanelCorner` (2rem) and `screenPanelChamfer` (2.25rem),
    which at the web's 16px rem are 32 and 36 -- so the diagonal is a little
