@@ -100,13 +100,72 @@ describe('reduced motion', () => {
       selector: '.terminal-marquee',
       mustContain: ['animation: none', 'translateX(0)'],
     },
+    // The slow variant declares only `animation-duration` and rides the
+    // marquee's own animation, but it is still a class the stylesheet
+    // animates — the exact shape the derived check below exists to catch.
+    {
+      selector: '.terminal-marquee-slow',
+      mustContain: ['animation: none', 'translateX(0)'],
+    },
     // Arrives in place.
     { selector: '.animate-in.slide-in-from-top-2', mustContain: ['animation: none'] },
   ];
 
+  /**
+   * The class selectors the stylesheet animates, derived by parsing rather
+   * than authored (R-S7). `HANDLED` is a hand-authored list, and a hand-
+   * authored list only covers what its author knew about: a new class that
+   * *reuses* an existing keyframe — `.terminal-marquee-slow`, which declares
+   * only `animation-duration`, is the live example — never trips "a new
+   * keyframe appeared" and so escaped the held-at-its-own-end-state check
+   * entirely. The 0.01ms catch-all still stopped its motion, but that made
+   * the per-class assertions safety-net-only for any class not on the list.
+   *
+   * Any `animation-*` declaration counts, not just the shorthand, and
+   * `animation: none` inside the reduced-motion block does not (the block is
+   * cut out before parsing). Keyframe frame selectors (`0%`, `50%`) and the
+   * `@theme` token block fall out naturally: neither starts with `.`.
+   */
+  const animatedSelectors = (): string[] => {
+    const stripped = css
+      .replace(reducedMotionBlock(), '')
+      .replace('@media (prefers-reduced-motion: reduce)', '')
+      .replace(/\/\*[\s\S]*?\*\//g, '');
+    const out = new Set<string>();
+    const re = /([^{}]+)\{([^{}]*)\}/g;
+    let m: RegExpExecArray | null;
+    while ((m = re.exec(stripped)) !== null) {
+      const body = m[2]!;
+      if (!/(?:^|[;{\s])animation(?:-[a-z-]+)?\s*:/.test(body)) continue;
+      for (const sel of m[1]!.split(',').map(t => t.trim())) {
+        if (sel.startsWith('.')) out.add(sel);
+      }
+    }
+    return [...out].sort();
+  };
+
+  it('finds the animated classes it expects to find', () => {
+    // Guards the guard: a parse that returns nothing would make the derived
+    // check below pass vacuously. `.animate-blink` is the oldest animation in
+    // the file and is not going anywhere without this test hearing about it.
+    expect(animatedSelectors()).toContain('.animate-blink');
+    expect(animatedSelectors()).toContain('.terminal-marquee-slow');
+  });
+
   it('handles every animation class the stylesheet drives', () => {
     const missing = HANDLED.map(h => h.selector).filter(sel => !ruleFor(sel));
     expect(missing, `not handled under reduced motion: ${missing.join(', ')}`).toEqual([]);
+  });
+
+  it('lists every class the stylesheet animates in HANDLED — derived, not remembered', () => {
+    const handled = new Set(HANDLED.map(h => h.selector));
+    const unlisted = animatedSelectors().filter(sel => !handled.has(sel));
+    expect(
+      unlisted,
+      `these classes animate but state no reduced-motion end state of their own `
+      + `(the 0.01ms catch-all merely stops them): ${unlisted.join(', ')} — `
+      + 'add each to HANDLED with the state it should be held at',
+    ).toEqual([]);
   });
 
   it('holds each animation at its own end state, not at a shared one', () => {

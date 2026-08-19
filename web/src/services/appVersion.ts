@@ -25,14 +25,14 @@
  * 0.4.1.7 here and 0.4.1.5 in the frozen `ios/` copy while the live phone was
  * on 0.4.2.1.2. So the web starts over and counts on its own. Three parts,
  * plain semver, rather than the four- and five-part strings iOS carries — so
- * `package.json`, the `v0.1.0` tag and the nameplate are one spelling.
+ * `package.json`, the `v<version>` git tag and the nameplate are one spelling.
  * `appVersion.test.ts` pins that they stay that way.
  */
 
 /** Bump on release. The single source of truth for the web app's version. */
 export const APP_VERSION = '0.2.0';
 
-/** Display form, e.g. `v0.1.0`. */
+/** Display form, e.g. `v0.2.0`. */
 export const APP_VERSION_DISPLAY = `v${APP_VERSION}`;
 
 /**

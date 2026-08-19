@@ -151,7 +151,13 @@ describe('App route components keep their identity across re-renders (W1)', () =
     // Counting renders of the routed leaf is exactly the property: it must
     // re-render (so the poke reached it) and must not remount (so it kept its
     // identity). Neither half can pass for the wrong reason.
-    await waitFor(() => expect(detailRenders).toBeGreaterThan(rendersBefore));
+    //
+    // **Asserted synchronously, on purpose** (R-S8). `professorSpeaks`
+    // awaits `act(...)`, so the re-render it causes has flushed by the time
+    // it returns — a `waitFor` here would open a ~1s window in which any
+    // unrelated async render satisfies the assertion, proving correlation
+    // where this test exists to prove causation.
+    expect(detailRenders).toBeGreaterThan(rendersBefore);
     expect(detailMounts).toBe(1);
   });
 
@@ -167,7 +173,8 @@ describe('App route components keep their identity across re-renders (W1)', () =
 
     const rendersBefore = listRenders;
     await professorSpeaks();
-    await waitFor(() => expect(listRenders).toBeGreaterThan(rendersBefore));
+    // Synchronous for the same reason as the detail test above (R-S8).
+    expect(listRenders).toBeGreaterThan(rendersBefore);
     expect(listMounts).toBe(1);
   });
 });

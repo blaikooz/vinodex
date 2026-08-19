@@ -63,11 +63,32 @@ describe('the web changelog', () => {
     }
   });
 
+  it('never loses a release the log once carried', () => {
+    // The promotion discipline (R-S5). A bump is "promote CURRENT into
+    // PREVIOUS, write the new CURRENT" — but nothing structural stops an
+    // editor overwriting CURRENT in place, which would silently delete a
+    // release from the player-facing FIRMWARE HISTORY log. So the floor is
+    // pinned: the log holds at least two releases, and the first release ever
+    // shipped is still on it. **When a release lands, raise the floor to the
+    // new length** — the log only grows, and a shrink is a deletion someone
+    // has to explain here rather than a diff nobody reads.
+    expect(WEB_RELEASES.length, 'the changelog shrank — a release was deleted, not promoted').toBeGreaterThanOrEqual(2);
+    expect(releaseFor('0.1.0'), 'the first web release fell off the log').toBeDefined();
+  });
+
   it('is a separate line from the device firmware', () => {
-    // The distinction FirmwareHistoryScreen draws, pinned so a later edit
-    // cannot quietly merge the two. `shared/data/firmware.ts` is the device's
-    // line and is shared with iOS; this file is the web shell's own, and the
-    // two release on different clocks by design.
+    // Pinned so a later edit cannot quietly merge the two release lines.
+    // `shared/data/firmware.ts` is the device's line, shared with iOS and
+    // spanning 0.6.2 -> 0.9.2 (and growing); this file is the web shell's
+    // own, on its own clock. (`FirmwareHistoryScreen` now renders only this
+    // file — since ruling v7 §4a it draws no distinction on screen, so this
+    // test is the only place the separation is enforced.)
+    //
+    // **If this fails on an ordinary web bump** — say the web reaches 0.6.2,
+    // a number iOS's firmware line already used — nothing is broken. The two
+    // lines have coincided, and the resolution is that the web renumbers
+    // past the collision (skip to the next free number), not that either
+    // line rewrites its history.
     const firmwareVersions = new Set(FIRMWARE_RELEASES.map(r => r.version));
     const webVersions = new Set(WEB_RELEASES.map(r => r.version));
     const shared = [...webVersions].filter(v => firmwareVersions.has(v));

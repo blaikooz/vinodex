@@ -72,7 +72,15 @@ const localKeysIn = (src: string): { keys: Set<string>; unresolved: Set<string> 
 
   const keys = new Set<string>(mapValues);
   const unresolved = new Set<string>();
-  for (const m of src.matchAll(/localStorage\s*\.\s*(?:get|set|remove)Item\(\s*([^,)]+)/g)) {
+  // The receiver is widened past the bare global (R-S4): the services that
+  // guard against a missing `window` reach storage through an accessor —
+  // `ls()?.setItem(KEY, ...)` in coachmarks / firstTimeTriggers /
+  // passportProgress, and `storage?.removeItem(...)` off a captured `const
+  // storage = ls()`. A receiver this scan does not name is a call site it
+  // cannot see, and — worse — cannot even report as unresolved, so the hole
+  // was silent in both directions. No key was actually missing when the
+  // widened scan first ran; the widening is what keeps that true.
+  for (const m of src.matchAll(/(?:localStorage|ls\(\)\??|storage\??)\s*\.\s*(?:get|set|remove)Item\(\s*([^,)]+)/g)) {
     const arg = m[1]!.trim();
     const lit = arg.match(/^'([^']+)'$/);
     if (lit) { keys.add(lit[1]!); continue; }
@@ -99,6 +107,12 @@ const localKeysIn = (src: string): { keys: Set<string>; unresolved: Set<string> 
     // A template literal: the profile slot key, which is registered
     // explicitly for all five slots.
     if (arg.startsWith('`')) continue;
+    // The slot-key helper (`slotKey(slot)` in userProfiles.ts,
+    // `profileSlotKey(...)` from the registry): same template as above,
+    // registered for all five slots and pinned by the wipe test. Surfaced by
+    // the R-S4 receiver widening — these calls go through `storage.setItem`,
+    // which the old scan never saw at all.
+    if (/^(?:slotKey|profileSlotKey)\(/.test(arg)) continue;
     unresolved.add(arg);
   }
   return { keys, unresolved };

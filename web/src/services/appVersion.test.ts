@@ -20,8 +20,8 @@ import pkg from '@/package.json';
  */
 describe('appVersion', () => {
   /**
-   * Three parts, so `package.json`, the `v0.1.0` git tag and the string on the
-   * nameplate are one spelling. It also structurally excludes the iOS format —
+   * Three parts, so `package.json`, the `v<version>` git tag and the string on
+   * the nameplate are one spelling. It also structurally excludes the iOS format —
    * `0.4.2.1.2` has five — so a bump made out of iOS habit fails here rather
    * than shipping a number this app does not use.
    */

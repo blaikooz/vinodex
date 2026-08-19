@@ -49,7 +49,7 @@ enforced by nothing (L2).
   web's releases**.
 - **Release review (2026-08-19), pre-tag:** blockers R-S1–R-S3 done (CI Node
   pin, lockfile version drift + its pin, the changelog's install-banner
-  claim); follow-ups R-S4–R-S8 and R-S11 queued as the next commit. See §7.
+  claim); follow-ups R-S4–R-S8 and R-S11 done. See §7.
   The v0.2.0 tag waits on these, which is why it still does not exist.
 - **Open, carried forward:** S5, S6, S7b, U1–U6, U8–U10. See "Still open".
 
@@ -509,6 +509,21 @@ blockers, then the follow-ups.
 reason. With the pin at 24.15.0 the correct move is `@types/node` → the
 **24.x line** (types track the pinned runtime; 26 still overshoots it). For
 the next dependency pass, not this one.
+
+### Commit 2 — review follow-ups (test-integrity, not gating)
+
+| id | item | outcome |
+|---|---|---|
+| **v7#R-S4** | `storageKeys.test.ts` write-scan only matched `localStorage.setItem(` style; accessor-style calls (`ls()?.setItem(…)` in coachmarks / firstTimeTriggers / passportProgress, `storage?.removeItem(…)`) were invisible to the scan **and** to its `unresolved` reporter. A widened manual scan confirmed no key is currently missing — a hole, not a defect. | **Done.** Matcher widened to `(?:localStorage\|ls()?\|storage?)` receivers. |
+| **v7#R-S5** | Nothing prevented overwriting `CURRENT` in `webChangelog.ts` without promoting the old entry — silently deleting a release from the player-facing log. | **Done.** New test: the log holds ≥ 2 releases, still contains `0.1.0`, and the floor ratchets with each release. |
+| **v7#R-S6** | The two-lines-never-share-a-version test's comment cited "the distinction FirmwareHistoryScreen draws" — the screen no longer draws any (ruling §4a). And iOS's firmware line spans 0.6.2→0.9.2, so an ordinary web bump to 0.6.2 fails it by coincidence. | **Done.** Test kept; comment rewritten to say a collision means the web renumbers past the iOS-used number, not that something broke. |
+| **v7#R-S7** | `reducedMotion.test.ts`'s `HANDLED` was hand-authored, so a new class reusing an existing keyframe (`.terminal-marquee-slow` is the live example) escaped the held-at-end-state check — the 0.01ms catch-all made it safety-net-only. | **Done.** The animated-class set is now derived by parsing `index.css`; each derived class must appear in `HANDLED`. `.terminal-marquee-slow` added with its own end state. |
+| **v7#R-S8** | `App.routes.test.tsx:154,170` used `waitFor` after an awaited `act(…)` — a 1 s window in which an unrelated async render satisfies the assertion. | **Done.** Assertions made synchronous; the re-render is now provably caused by the poke. |
+| **v7#R-S11** | `appVersion.ts:28,35` still used `v0.1.0` as the worked example. | **Done.** Version-neutral `v<version>` spelling / `v0.2.0` example. |
+
+*(R-S9/R-S10 exist in the review but were not tasked to this pass; the gap in
+the numbering is preserved rather than renumbered so the review and the ledger
+can be read against each other.)*
 
 ---
 
