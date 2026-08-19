@@ -6,6 +6,7 @@ import {
   isRegionEntry,
   isStyleEntry,
 } from '@/shared/types';
+import { entryOrigin } from './entryOrigin';
 import { normalizeLabel } from '@/shared/services/entryUtils';
 
 /**
@@ -105,13 +106,11 @@ const inCat = (all: WineEntry[], cat: string) => all.filter(e => e.category === 
 // now a compile error rather than an empty string in a quiz answer.
 const gType = (e: WineEntry): string => (isGrapeEntry(e) ? e.grapeType ?? '' : '');
 const gBody = (e: WineEntry): string => (isGrapeEntry(e) ? e.grapeBodyClass ?? '' : '');
-// The `??` chain is kept exactly: a grape whose `grapeCountryOfOrigin` is
-// absent falls back to its own `details.origin`, which is what the `any`
-// version did and what two seeded-paper tests pin. Narrowing without
-// preserving that fallback changed two papers — caught by `quiz.test.ts`,
+// A grape's country, and any other entry's origin: the same question, so the
+// same function since L1. Narrowing this without preserving the grape's
+// fallback moved two seeded papers during W14 — caught by `quiz.test.ts`,
 // which is the reason those seeds are in the suite.
-const gCountry = (e: WineEntry): string =>
-  isGrapeEntry(e) ? e.grapeCountryOfOrigin || e.details.origin || '' : originOf(e);
+const gCountry = entryOrigin;
 const rarityOf = (e: WineEntry): string | undefined =>
   (isGrapeEntry(e) || isStyleEntry(e)) && e.rarity ? String(e.rarity) : undefined;
 // STYLES carries `details.notableGrapes` too, and omitting it here moved two
@@ -123,15 +122,7 @@ const notableOf = (e: WineEntry): string[] => {
   if (isCountryGateEntry(e)) return e.details.notableGrapes ?? [];
   return [];
 };
-// Every category whose details declare `origin`, GRAPES included — the old
-// `e.details?.origin` reached it too, and a caller that hands this a grape
-// must keep getting an answer.
-const originOf = (e: WineEntry): string => {
-  if (isGrapeEntry(e) || isRegionEntry(e) || isStyleEntry(e) || isCountryGateEntry(e)) {
-    return e.details.origin ?? '';
-  }
-  return '';
-};
+const originOf = entryOrigin;
 const nameOf = (e: WineEntry): string => e.name;
 
 // --- tier answer-eligibility (answer pool only; distractors never filtered) --

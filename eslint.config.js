@@ -31,6 +31,13 @@
  * their own commits rather than silenced here. Rules that would have required
  * a behavioural change to satisfy are set to `warn` with a note, never to
  * `off`, so they stay visible.
+ *
+ * **And the warning count is capped** (L2). `eslint .` exits 0 on warnings,
+ * so for its first several commits the baseline was a contract enforced by
+ * nothing at all -- and it had already drifted, 27 -> 28, inside the range
+ * this note was written in. `npm run lint` passes `--max-warnings`, so the
+ * number in `package.json` is the real ceiling: it comes DOWN as items land
+ * and a commit that raises it has to say why.
  */
 import js from '@eslint/js';
 import tseslint from 'typescript-eslint';
@@ -178,13 +185,20 @@ export default tseslint.config(
     // found this independently on its first run, which is the argument for
     // the linter in one line.
     //
-    // FIXED for App.tsx — the five are at module scope and
-    // `web/App.routes.test.tsx` pins it. MoonDialScreen and UnlockScreen
-    // carry the same shape at smaller scale, were never part of W1, and stay
-    // listed so the rule is on for every other file.
+    // FIXED for App.tsx (W1) and for UnlockScreen (M3).
+    //
+    // The note that used to stand here filed UnlockScreen's `Key` beside
+    // MoonDialScreen's `Row` as "the same shape at smaller scale", which was
+    // true of the mechanism and false of the effect: `Row` is
+    // non-interactive and stateless, so a remount costs a little work; `Key`
+    // renders a `<button>` and every press calls `setCode`, so all twelve
+    // keys were rebuilt after each digit and keyboard focus was lost from the
+    // key just pressed. Grading a hook defect by the size of the component
+    // rather than by what the component does is how that got baselined.
+    //
+    // `Row` genuinely is cosmetic, and is the only entry left.
     files: [
       'web/components/MoonDialScreen.tsx',
-      'web/components/UnlockScreen.tsx',
     ],
     rules: { 'react-hooks/static-components': 'warn' },
   },

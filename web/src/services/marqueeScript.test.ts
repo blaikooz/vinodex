@@ -26,7 +26,6 @@ describe('marquee script', () => {
     for (const text of all) {
       expect(text.length, `"${text}" too long`).toBeLessThanOrEqual(14);
       expect(text, `"${text}" not uppercase`).toBe(text.toUpperCase());
-      // eslint-disable-next-line no-control-regex
       expect(/^[\x20-\x7e]+$/.test(text), `"${text}" not ASCII`).toBe(true);
     }
   });

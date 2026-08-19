@@ -163,22 +163,9 @@ for (const skin of ALL_SKINS) {
   });
 }
 
-/**
- * And the one thing no per-skin check can see: that the skins differ from
- * each other at all.
- *
- * Every per-skin assertion above would have passed on the broken tree if the
- * table itself were uniform. This walks the whole set and fails if the band
- * is the same on two shells -- which is the shape of the defect as a user met
- * it, rather than as the code expressed it.
- */
-test('no two shells wear the same footer band', async () => {
-  const seen = new Map<string, ChassisSkinId>();
-  for (const skin of ALL_SKINS) {
-    const band = FOOTER_CAP_KINDS.map(k => JSON.stringify(footerCap(skin, k))).join('|');
-    const clash = seen.get(band);
-    expect(clash, `${skin} and ${clash} have identical footer bands`).toBeUndefined();
-    seen.set(band, skin);
-  }
-  expect(seen.size).toBe(ALL_SKINS.length);
-});
+// The 'no two shells wear the same band' assertion used to sit here. It
+// touches no browser -- it calls footerCap() and compares strings -- and was
+// costing a Chromium launch on the slowest gate in the repo to do it (L10).
+// It lives in footerCap.test.ts now, where it runs in milliseconds. What
+// stays here is everything that genuinely needs a page: the resolved custom
+// properties, read off :root in a real browser.

@@ -1,10 +1,10 @@
 import {
   WineEntry,
-  isCountryGateEntry,
   isGrapeEntry,
   isRegionEntry,
   isStyleEntry,
 } from '@/shared/types';
+import { entryOrigin } from './entryOrigin';
 import { normalizeLabel } from '@/shared/services/entryUtils';
 import { CONTINENTS } from '@/shared/data/continents';
 import { QuizTier } from './quiz';
@@ -49,21 +49,10 @@ export interface Passport {
 
 const label = normalizeLabel;
 const RARITIES = ['COMMON', 'UNCOMMON', 'RARE', 'NOBLE', 'GODFORSAKEN'];
-/**
- * Where an entry is *from*, across categories that spell it differently.
- *
- * A grape carries `grapeCountryOfOrigin` at the top level; regions, styles
- * and country gates carry `details.origin`. Continents carry neither. Written
- * as a switch over the discriminant rather than an `any` with two optional
- * chains, so adding a seventh category is a compile error here instead of a
- * silent empty string.
- */
-const originOf = (e: WineEntry): string => {
-  if (isGrapeEntry(e)) return e.grapeCountryOfOrigin ?? '';
-  if (isRegionEntry(e) || isCountryGateEntry(e)) return e.details.origin ?? '';
-  if (isStyleEntry(e)) return e.details.origin ?? '';
-  return '';
-};
+// Where an entry is from — one accessor for the whole app since L1. This
+// module had its own, which omitted the grape's fallback to `details.origin`
+// that its two siblings kept.
+const originOf = entryOrigin;
 
 export function computePassport(triedIds: string[], all: WineEntry[], bestStreak: number, highestTier: QuizTier): Passport {
   const byId = new Map(all.map(e => [e.id, e]));

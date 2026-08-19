@@ -433,7 +433,12 @@ const StatTile: React.FC<{ label: string; count: number }> = ({ label, count }) 
 
 /** The DATA panel's GROWTH area chart — a left-to-right sweep over the running
  *  cumulative entry total with a counter running up alongside it, mirroring iOS
- *  `DataWave`. Milestones are the running totals as each table is added. */
+ *  `DataWave`. Milestones are the running totals as each table is added.
+ *
+ *  This is the only implementation of that chart. A second one lived in a
+ *  standalone `DataWave.tsx` that nothing rendered, and carried the only
+ *  tests of it; W4 deleted the orphan and moved the coverage here, through
+ *  the panel that draws it (`SettingsSectionPanel.test.tsx`). */
 const GrowthWave: React.FC<{ milestones: number[] }> = ({ milestones }) => {
   const w = 300;
   const h = 88;

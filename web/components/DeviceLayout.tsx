@@ -232,18 +232,31 @@ const capArt = (skin: ChassisSkinId | null, kind: FooterCapKind): string | null 
   skin ? `/art/caps/${skin}-${kind}.png` : null;
 
 /**
- * One moulded cap: the drawn sprite over the coloured circle that is its own
- * fallback.
+ * One moulded cap: the drawn sprite, **or** the glyph it falls back to.
  *
- * `onError` clears the sprite rather than leaving a broken image, so the
- * circle below shows through — the failure is invisible to the player and
- * loud to the render gate, which fails on any 4xx.
+ * `children` is the fallback and it lives inside this component on purpose.
+ * The first version kept `failed` local here, returned null on error, and left
+ * the sibling glyph gated on `!capArt(...)` at each call site — which is a
+ * different condition, and a condition that is never true, because
+ * `readTheme().skin` always resolves. So all four glyph branches were dead
+ * code, and a cap whose PNG failed to load left a bare coloured circle with
+ * no symbol on it: offline before the cache is warm, images disabled, or a
+ * skin somebody added without re-running the bake.
+ *
+ * One component owning both halves is what makes the two conditions
+ * impossible to separate again. `onError` swaps to the glyph rather than
+ * leaving a broken image, so the failure is genuinely invisible to the player
+ * — and still loud to the render gate, which fails on any 4xx.
  */
-const CapFace: React.FC<{ kind: FooterCapKind; skin: ChassisSkinId | null }> = ({ kind, skin }) => {
+const CapFace: React.FC<{
+  kind: FooterCapKind;
+  skin: ChassisSkinId | null;
+  children: React.ReactNode;
+}> = ({ kind, skin, children }) => {
   const [failed, setFailed] = useState(false);
   const src = capArt(skin, kind);
   useEffect(() => { setFailed(false); }, [src]);
-  if (!src || failed) return null;
+  if (!src || failed) return <>{children}</>;
   return (
     <img
       src={src}
@@ -677,35 +690,35 @@ const DeviceLayout: React.FC<DeviceLayoutProps> = ({
               {/* The drawn cap, with the coloured circle behind it as its own
                   fallback. `currentColor` on the glyph so that fallback is
                   legible on the pale skins, where a hardcoded white was not. */}
-              <CapFace kind="back" skin={theme.skin} />
-              {!capArt(theme.skin, 'back') && (
+              <CapFace kind="back" skin={theme.skin}>
                 <svg viewBox="0 0 24 24" className="w-8 h-8 pointer-events-none" fill="none" stroke="currentColor" strokeWidth={4} strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
                   <path d="M15 5L7 12l8 7" />
                 </svg>
-              )}
+              </CapFace>
             </button>
             {showSystemButtons && (
               <button
                 type="button"
                 onClick={() => navigate('/saved')}
-                // "Saved entries", unchanged. iOS renamed its equivalent to
-                // "User" in 0.8.5 (A1) on the grounds that the page holds
-                // three shelves and the label named one of them -- which is
-                // true here too, since /saved is titled COLLECTION. But the
-                // web's COLLECTION naming is a documented deliberate
-                // deviation, so the right web label is neither iOS's word nor
-                // this one, and picking it is a naming decision rather than a
-                // colour-model port. Left alone; `MoonDialScreen.test.tsx`
-                // caught the accidental rename, which is the test working.
-                aria-label="Saved entries"
+                // **"Collection", by ruling.** iOS calls this control "User"
+                // (0.8.5, A1), having renamed it off "Saved entries" for a
+                // reason that is true here too: the page behind it holds three
+                // shelves and the old label named one of them.
+                //
+                // The web does not follow iOS's word, because the web does not
+                // follow iOS's page title either — COLLECTION rather than
+                // SAVED is a long-standing deliberate deviation. A chassis
+                // button that announces a name the page it opens does not use
+                // is the deviation half-applied; matching the title is what
+                // makes it coherent. Recorded as a deviation in IOS-PARITY-v7.
+                aria-label="Collection"
                 data-coachmark="passportButton"
                 className={`${CAP_CLASS} hover:scale-[1.02]`}
                 style={capStyle('user')}
               >
-                <CapFace kind="user" skin={theme.skin} />
-                {!capArt(theme.skin, 'user') && (
+                <CapFace kind="user" skin={theme.skin}>
                   <CircleUser className="w-7 h-7 pointer-events-none" strokeWidth={2} aria-hidden="true" />
-                )}
+                </CapFace>
               </button>
             )}
           </div>
@@ -780,10 +793,9 @@ const DeviceLayout: React.FC<DeviceLayoutProps> = ({
               className={`${CAP_CLASS} ${onHome ? 'hover:scale-[1.02]' : 'opacity-35 cursor-default'}`}
               style={capStyle('home')}
             >
-              <CapFace kind="home" skin={theme.skin} />
-              {!capArt(theme.skin, 'home') && (
+              <CapFace kind="home" skin={theme.skin}>
                 <Home size={28} className="pointer-events-none" aria-hidden="true" />
-              )}
+              </CapFace>
             </button>
             {showSystemButtons && (
               <button
@@ -793,14 +805,13 @@ const DeviceLayout: React.FC<DeviceLayoutProps> = ({
                 className={`${CAP_CLASS} hover:scale-[1.02]`}
                 style={capStyle('settings')}
               >
-                <CapFace kind="settings" skin={theme.skin} />
-                {!capArt(theme.skin, 'settings') && (
+                <CapFace kind="settings" skin={theme.skin}>
                   <Settings
                     className="w-[50%] h-[50%] pointer-events-none"
                     aria-hidden="true"
                     style={{ filter: 'drop-shadow(0 1px 0 rgba(0,0,0,0.5))' }}
                   />
-                )}
+                </CapFace>
               </button>
             )}
           </div>

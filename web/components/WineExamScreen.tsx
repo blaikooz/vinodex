@@ -103,6 +103,22 @@ const WineExamScreen: React.FC<WineExamScreenProps> = ({ onBack, onHome }) => {
     ssSetQuery(KEY, r ? JSON.stringify(r) : '');
   };
 
+  // `run` is deliberately not a dependency, and this is the one lint warning
+  // in the repo without a written reason (L3).
+  //
+  // `assemble` is a pure function of exactly the three fields listed, and a
+  // paper is expensive to build. `run` also carries `index`, `answer`,
+  // `submitted` and `marks`, all of which change on **every keystroke of
+  // every question** — so depending on the object would rebuild the whole
+  // paper on each interaction, and rebuild it identically, since none of
+  // those fields reaches `assemble`. Listing the three inputs is the honest
+  // dependency set; the rule cannot see through the property reads.
+  //
+  // The seam that makes it safe: a paper is derived from `(tier, length,
+  // seed)` and nothing else, which is the same property `examPaper.ts`'s
+  // seeded-determinism tests pin. If `assemble` ever grew a fourth input,
+  // those tests move first.
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   const paper = useMemo(() => (run ? assemble(run.tier, run.length, run.seed) : null), [run?.tier, run?.length, run?.seed]);
   const prompts: ExamPrompt[] = paper && paper.ok ? paper.prompts : [];
   const prompt = run && !runIsComplete(run) ? prompts[run.index] ?? null : null;

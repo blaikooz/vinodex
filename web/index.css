@@ -97,62 +97,25 @@ body {
   animation: blink 1s step-end infinite;
 }
 
-/* LCD orb slow random-feeling pulse */
-@keyframes lcd-pulse {
-  0%   { box-shadow: 0 0 6px 2px rgba(59,130,246,0.25); }
-  18%  { box-shadow: 0 0 18px 7px rgba(59,130,246,0.65); }
-  35%  { box-shadow: 0 0 8px 3px rgba(59,130,246,0.30); }
-  55%  { box-shadow: 0 0 24px 10px rgba(59,130,246,0.80); }
-  72%  { box-shadow: 0 0 10px 4px rgba(59,130,246,0.35); }
-  88%  { box-shadow: 0 0 20px 8px rgba(59,130,246,0.60); }
-  100% { box-shadow: 0 0 6px 2px rgba(59,130,246,0.25); }
-}
+/* The four hardcoded pulse animations that used to live here -- `lcd-pulse`
+   and `dot-pulse-red` / `-yellow` / `-green` -- are DELETED (M5).
 
-.lcd-pulse {
-  animation: lcd-pulse 5.3s ease-in-out infinite;
-}
+   They were the pre-skin lamp glows: a blue orb and a red/yellow/green trio,
+   with the colours baked into eight keyframe stops each. `chassis-throb` and
+   `.chassis-glow` below replaced them, driving the same effect off the
+   element's own backgroundColor so one keyframe serves all twenty-two shells,
+   and nothing had referenced the four since. Grepped before removal: zero
+   uses outside index.css and the reduced-motion test that named them.
 
-/* Red dot pulse */
-@keyframes dot-pulse-red {
-  0%   { box-shadow: 0 0 3px 1px rgba(220,38,38,0.2); }
-  22%  { box-shadow: 0 0 10px 4px rgba(220,38,38,0.85); }
-  40%  { box-shadow: 0 0 4px 1px rgba(220,38,38,0.25); }
-  63%  { box-shadow: 0 0 14px 5px rgba(220,38,38,0.75); }
-  80%  { box-shadow: 0 0 5px 2px rgba(220,38,38,0.30); }
-  100% { box-shadow: 0 0 3px 1px rgba(220,38,38,0.2); }
-}
-
-.dot-pulse-red {
-  animation: dot-pulse-red 6.1s ease-in-out infinite;
-}
-
-/* Yellow dot pulse */
-@keyframes dot-pulse-yellow {
-  0%   { box-shadow: 0 0 3px 1px rgba(234,179,8,0.2); }
-  15%  { box-shadow: 0 0 8px 3px rgba(234,179,8,0.60); }
-  38%  { box-shadow: 0 0 13px 5px rgba(234,179,8,0.85); }
-  58%  { box-shadow: 0 0 4px 1px rgba(234,179,8,0.25); }
-  76%  { box-shadow: 0 0 11px 4px rgba(234,179,8,0.70); }
-  100% { box-shadow: 0 0 3px 1px rgba(234,179,8,0.2); }
-}
-
-.dot-pulse-yellow {
-  animation: dot-pulse-yellow 7.4s ease-in-out infinite;
-}
-
-/* Green dot pulse */
-@keyframes dot-pulse-green {
-  0%   { box-shadow: 0 0 3px 1px rgba(34,197,94,0.2); }
-  30%  { box-shadow: 0 0 12px 5px rgba(34,197,94,0.80); }
-  50%  { box-shadow: 0 0 4px 1px rgba(34,197,94,0.25); }
-  70%  { box-shadow: 0 0 9px 3px rgba(34,197,94,0.65); }
-  90%  { box-shadow: 0 0 15px 6px rgba(34,197,94,0.90); }
-  100% { box-shadow: 0 0 3px 1px rgba(34,197,94,0.2); }
-}
-
-.dot-pulse-green {
-  animation: dot-pulse-green 4.8s ease-in-out infinite;
-}
+   They are removed rather than given a correct reduced-motion rule, because
+   the rule they had was wrong AND the CSS was dead. U7's block applied
+   `translate(-50%, -50%) scale(1.18)` to all five selectors -- the bright stop
+   of `chassis-throb`, correct for the centre-translated `.chassis-glow` and
+   for nothing else. These four animate box-shadow alone and are not centre-
+   translated, so the rule would have displaced them by half their own size and
+   forced them to 0.8 opacity while never holding the lit box-shadow it was
+   supposed to hold. Writing a second, correct rule for CSS with no callers is
+   the more expensive way to be wrong. */
 
 /* Per-skin lamp/orb glow: a blurred colour disc behind the bead, breathing.
    The colour is the element's own backgroundColor so one keyframe serves every
@@ -369,12 +332,12 @@ body {
     opacity: 1;
   }
 
-  .lcd-pulse,
-  .dot-pulse-red,
-  .dot-pulse-yellow,
-  .dot-pulse-green,
+  /* `.chassis-glow` ONLY. The declarations below are `chassis-throb`'s bright
+     stop, and that stop includes the centre translate the class is positioned
+     with -- so this rule is correct for this selector and would be actively
+     wrong for any element not centred the same way. Four other classes were
+     listed here and are now deleted; see the note above their old home. */
   .chassis-glow {
-    /* The bright stop of `chassis-throb`, held. */
     animation: none;
     opacity: 0.8;
     transform: translate(-50%, -50%) scale(1.18);

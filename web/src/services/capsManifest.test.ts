@@ -150,6 +150,37 @@ describe('the baked footer caps', () => {
       'footer-user.png',
     ]);
   });
+
+  it('is written to a directory the sync script does not mirror', () => {
+    // The check above is a *proxy* -- it observes the consequence (only four
+    // files in the mirrored folder) rather than the rule (which folders get
+    // /MIR'd), so it would still pass if somebody added `art/caps` to the
+    // sync leg and re-baked (L9). This reads the script.
+    //
+    // The script lives outside the repo, at the HGapps root, because it syncs
+    // two repos. Skipped rather than failed when it is absent, since a
+    // checkout of vinodex-web alone is a legitimate way to work -- but never
+    // silently: an absent script means this invariant is unverified here and
+    // the assertion above is all that stands.
+    const script = path.resolve(__dirname, '../../../../sync-shared.ps1');
+    if (!fs.existsSync(script)) {
+      expect(fs.existsSync(FOOTER_DIR), 'sync-shared.ps1 absent; source sprites must still be present').toBe(true);
+      return;
+    }
+    const src = fs.readFileSync(script, 'utf8');
+
+    // The `$WebArt` table is the enumerated list of mirrored folders.
+    const table = src.slice(src.indexOf('$WebArt = @('), src.indexOf(')', src.indexOf('$WebArt = @(')));
+    const mirrored = [...table.matchAll(/To\s*=\s*'([^']+)'/g)].map(m => m[1]!);
+
+    expect(mirrored, 'the art leg should mirror the four source sprites into art/footer').toContain('footer');
+    expect(
+      mirrored,
+      'art/caps appears in the $WebArt table of sync-shared.ps1. /MIR deletes anything the iOS '
+      + 'side does not have, and the iOS side has no baked caps -- so the next sync would '
+      + 'delete all 88 of them and the footer would silently fall back to CSS circles.',
+    ).not.toContain('caps');
+  });
 });
 
 /**

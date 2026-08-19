@@ -85,11 +85,17 @@ describe('<MoonDialScreen />', () => {
       .map(b => (b.getAttribute('aria-label') ?? b.textContent ?? '').trim());
 
     // The full chassis control set and nothing else. Since the v0.6.9 chrome
-    // port (DeviceLayout.tsx:357-414) Back and Saved are separate buttons in
-    // the left well rather than one slot that swaps label, so all four are
-    // present whenever there is somewhere to go back to.
+    // port Back and Collection are separate buttons in the left well rather
+    // than one slot that swaps label, so all four are present whenever there
+    // is somewhere to go back to.
+    //
+    // "Collection", not "Saved entries" and not iOS's "User" (ruling, v7):
+    // the page behind that button is titled COLLECTION here, which is a
+    // long-standing deliberate deviation from iOS's SAVED, and a chassis
+    // control announcing a name the page does not use is that deviation half
+    // applied.
     expect(named.sort()).toEqual(
-      ['Back', 'Saved entries', 'Home', 'Settings'].sort(),
+      ['Back', 'Collection', 'Home', 'Settings'].sort(),
     );
   });
 });

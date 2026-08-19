@@ -315,6 +315,35 @@ def reink(rgba, shape, ink_hex, glyph_hex):
     return np.clip(out, 0, 255).astype(np.uint8)
 
 
+
+def unpremultiply(rgba):
+    """Undo `reink`'s premultiplication before the pixels become a PNG.
+
+    `reink` is a faithful port of the Swift, and the Swift renders into a
+    `CGContext` declared `premultipliedLast` -- so its colour channels come out
+    multiplied by alpha, and Core Graphics knows that. A PNG does not: the
+    format is straight alpha, and a viewer compositing a premultiplied pixel
+    multiplies by alpha a second time. A pixel at coverage `c` composites as
+    `rgb * c^2` instead of `rgb * c`.
+
+    Today the error is invisible and bounded: the only partial-coverage pixels
+    are the `edgeFeather` ring, which is 1.5px of cel outline whose value is at
+    or under 0.06, so the largest achievable difference is under 2/255. It is
+    corrected anyway, and corrected *before* the LANCZOS resize rather than
+    after -- a downscale mixes edge pixels into their neighbours, so resizing
+    premultiplied data spreads the error inward across a much wider band than
+    the ring it started in, which is exactly how a harmless rounding difference
+    becomes a visible dark fringe if the feather ever widens or the art gains a
+    genuinely translucent region.
+    """
+    out = rgba.astype(np.float64)
+    a = out[..., 3:4]
+    with np.errstate(divide="ignore", invalid="ignore"):
+        straight = np.where(a > 0, out[..., :3] * 255.0 / np.maximum(a, 1e-9), 0.0)
+    out[..., :3] = np.clip(np.rint(straight), 0, 255)
+    return out.astype(np.uint8)
+
+
 # ---------------------------------------------------------------------------
 # The colour table, read out of theme.ts
 # ---------------------------------------------------------------------------
@@ -403,7 +432,9 @@ def main():
     for skin, caps in sorted(table.items()):
         for kind in STEMS:
             cap = caps[kind]
-            baked = reink(sprites[kind], shapes[kind], cap["top"], cap["glyph"])
+            baked = unpremultiply(
+                reink(sprites[kind], shapes[kind], cap["top"], cap["glyph"])
+            )
             im = Image.fromarray(baked, "RGBA").resize((OUTPUT_PX, OUTPUT_PX), Image.LANCZOS)
             im = im.quantize(colors=64, method=Image.FASTOCTREE)
             name = "%s-%s.png" % (skin, kind)

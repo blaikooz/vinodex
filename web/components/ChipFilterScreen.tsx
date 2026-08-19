@@ -53,7 +53,6 @@ const ChipFilterScreen: React.FC<ChipFilterScreenProps> = ({ allEntries, onSelec
   // rather than re-reading storage for every entry and every chip count.
   // Read once on mount: the shelves do not change while this screen is up,
   // and keying it on `filter` re-read storage on every chip tap.
-  // eslint-disable-next-line react-hooks/exhaustive-deps
   const snap = useMemo(() => shelfSnapshot(), []);
 
   const results = useMemo(() => {

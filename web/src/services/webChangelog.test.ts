@@ -58,7 +58,6 @@ describe('the web changelog', () => {
       for (const note of r.notes) {
         expect(note.trim(), `${r.version} has an empty note`).not.toBe('');
         // ASCII only: the panel and the terminal font both predate anything else.
-        // eslint-disable-next-line no-control-regex
         expect(note, `${r.version} has a non-ASCII note: ${note}`).toMatch(/^[\x20-\x7E]+$/);
       }
     }

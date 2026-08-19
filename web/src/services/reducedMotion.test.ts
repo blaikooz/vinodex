@@ -50,22 +50,95 @@ describe('reduced motion', () => {
     expect(reducedMotionBlock().length).toBeGreaterThan(100);
   });
 
-  it('names every animation class the stylesheet drives', () => {
-    // Not "some rule exists" — each animated class has to be accounted for,
-    // so adding a ninth keyframe and forgetting it fails here.
+  /**
+   * The rules in the block, as selector -> declarations.
+   *
+   * Parsing rather than substring-matching, because "the name appears in the
+   * block" is what let a *wrong* rule count as handled (M5): U7 applied
+   * `translate(-50%, -50%) scale(1.18)` to five selectors when it was correct
+   * for one, and a `block.includes(className)` check was satisfied by all
+   * five.
+   */
+  const rules = (): { selectors: string[]; body: string }[] => {
     const block = reducedMotionBlock();
-    const drivenClasses = [
-      'animate-blink',
-      'lcd-pulse',
-      'dot-pulse-red',
-      'dot-pulse-yellow',
-      'dot-pulse-green',
-      'chassis-glow',
-      'slide-in-from-top-2',
-      'terminal-marquee',
-    ];
-    const missing = drivenClasses.filter(c => !block.includes(c));
+    // Comments stripped first, or a `/* ... */` before a rule is captured as
+    // part of its selector list and the selector is never found.
+    const inner = block
+      .slice(block.indexOf('{') + 1, block.lastIndexOf('}'))
+      .replace(/\/\*[\s\S]*?\*\//g, '');
+    const out: { selectors: string[]; body: string }[] = [];
+    const re = /([^{}]+)\{([^{}]*)\}/g;
+    let m: RegExpExecArray | null;
+    while ((m = re.exec(inner)) !== null) {
+      const selectors = m[1]!.split(',').map(t => t.trim()).filter(Boolean);
+      out.push({ selectors, body: m[2]!.trim() });
+    }
+    return out;
+  };
+
+  const ruleFor = (selector: string) =>
+    rules().find(r => r.selectors.includes(selector));
+
+  /**
+   * Classes whose animation the stylesheet drives, and what "stopped" means
+   * for each. Stated per class rather than assumed uniform: an animation is
+   * held at the state it would have ended in, and that state is a property of
+   * the individual animation.
+   */
+  const HANDLED: { selector: string; mustContain: string[]; mustNotContain?: string[] }[] = [
+    // Held visible rather than mid-blink.
+    { selector: '.animate-blink', mustContain: ['animation: none', 'opacity: 1'] },
+    // The bright stop of `chassis-throb`, which includes the centre translate
+    // the element is positioned with. The ONLY selector for which that
+    // translate is correct.
+    {
+      selector: '.chassis-glow',
+      mustContain: ['animation: none', 'opacity: 0.8', 'translate(-50%, -50%)', 'scale(1.18)'],
+    },
+    // Parked at the start of the scroll, not frozen mid-slide.
+    {
+      selector: '.terminal-marquee',
+      mustContain: ['animation: none', 'translateX(0)'],
+    },
+    // Arrives in place.
+    { selector: '.animate-in.slide-in-from-top-2', mustContain: ['animation: none'] },
+  ];
+
+  it('handles every animation class the stylesheet drives', () => {
+    const missing = HANDLED.map(h => h.selector).filter(sel => !ruleFor(sel));
     expect(missing, `not handled under reduced motion: ${missing.join(', ')}`).toEqual([]);
+  });
+
+  it('holds each animation at its own end state, not at a shared one', () => {
+    // The M5 assertion. A rule that merely mentions the class is not enough:
+    // it has to say the right thing for THAT animation.
+    for (const h of HANDLED) {
+      const rule = ruleFor(h.selector)!;
+      for (const decl of h.mustContain) {
+        expect(
+          rule.body.replace(/\s+/g, ' '),
+          `${h.selector}'s reduced-motion rule is missing "${decl}"`,
+        ).toContain(decl);
+      }
+      for (const decl of h.mustNotContain ?? []) {
+        expect(rule.body, `${h.selector}'s rule must not contain "${decl}"`).not.toContain(decl);
+      }
+    }
+  });
+
+  it('never applies a centre translate to a selector that is not centred', () => {
+    // The exact defect: `translate(-50%, -50%)` is part of `chassis-throb`'s
+    // own keyframes and belongs only to the element positioned with it.
+    // Anything else picking it up is displaced by half its own size.
+    const CENTRED = ['.chassis-glow'];
+    for (const rule of rules()) {
+      if (!rule.body.includes('translate(-50%')) continue;
+      const wrong = rule.selectors.filter(sel => !CENTRED.includes(sel));
+      expect(
+        wrong,
+        `these are not centre-positioned and must not be given a centre translate: ${wrong.join(', ')}`,
+      ).toEqual([]);
+    }
   });
 
   it('carries a catch-all so a future animation is covered by default', () => {
@@ -81,13 +154,13 @@ describe('reduced motion', () => {
     // do — but a keyframe with no class at all is dead CSS, and a keyframe
     // whose class is missing above is the real hazard. This asserts the count
     // is what the block was written against, so a new one is a red test.
+    // Four fewer than U7 recorded: `lcd-pulse` and the three `dot-pulse-*`
+    // were the pre-skin lamp glows with their colours baked into the
+    // keyframes, superseded by `chassis-throb` and referenced by nothing.
+    // Deleted in M5 rather than given a second, correct reduced-motion rule.
     expect(keyframeNames().sort()).toEqual([
       'blink',
       'chassis-throb',
-      'dot-pulse-green',
-      'dot-pulse-red',
-      'dot-pulse-yellow',
-      'lcd-pulse',
       'slide-in-from-top',
       'terminal-marquee',
     ]);

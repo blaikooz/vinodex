@@ -31,6 +31,38 @@ describe('release blockers', () => {
     }
   });
 
+  it('points each blocker at a file that exists and names the constant', () => {
+    // The registry that keeps placeholders honest was stale on its first
+    // entry (L5): `contact-address` pointed at `supportContact.ts` while the
+    // constant had moved to `brand.ts` during the same commit. A pointer
+    // nobody checks is the failure this whole module exists to prevent, one
+    // level up.
+    //
+    // The `where` field is "<path> - <IDENTIFIER>", so both halves are
+    // checkable.
+    for (const b of RELEASE_BLOCKERS) {
+      const [rel, ident] = b.where.split(/\s+[-—]\s+/);
+      expect(rel, `${b.id}'s where has no path`).toBeTruthy();
+      expect(ident, `${b.id}'s where names no identifier`).toBeTruthy();
+
+      const abs = path.resolve(WEB_ROOT, '..', rel!.trim());
+      expect(fs.existsSync(abs), `${b.id} points at a file that does not exist: ${rel}`).toBe(true);
+
+      // **Declares**, not merely mentions. The first version of this check
+      // used `toContain(ident)` and passed against the stale path it was
+      // written to catch, because `supportContact.ts` re-exports
+      // CONTACT_ADDRESS and therefore names it. "Where the constant lives"
+      // means where it is declared -- that is the file somebody has to edit.
+      // A plain substring, not a regex: `const NAME` matches both
+      // `const NAME` and `export const NAME`, and does not match
+      // `import { NAME } from ...`, which is the whole distinction.
+      expect(
+        fs.readFileSync(abs, 'utf8').includes(`const ${ident!.trim()}`),
+        `${b.id} points at ${rel}, which does not DECLARE ${ident} (it may only import it)`,
+      ).toBe(true);
+    }
+  });
+
   describe('contact-address', () => {
     const entry = RELEASE_BLOCKERS.find(b => b.id === 'contact-address');
 

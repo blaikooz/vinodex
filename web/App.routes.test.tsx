@@ -1,5 +1,5 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import { cleanup, render, screen, waitFor } from '@testing-library/react';
+import { act, cleanup, render, screen, waitFor } from '@testing-library/react';
 import { MemoryRouter } from 'react-router-dom';
 import React from 'react';
 
@@ -35,18 +35,27 @@ import React from 'react';
  */
 
 let detailMounts = 0;
+let detailRenders = 0;
 let listMounts = 0;
+let listRenders = 0;
 
 // Named, and capitalised, so `react-hooks/rules-of-hooks` can see these for
 // what they are — an anonymous `default:` arrow reads to the linter as a
 // plain function calling a hook.
+// Both counters live in effects, never in the render body: an empty dep array
+// runs once per *mount*, no dep array runs once per *render*, and neither
+// mutates anything during rendering — which `react-hooks/globals` flags, and
+// rightly, since a counter incremented during render double-counts under
+// StrictMode and concurrent replay.
 const DetailStub: React.FC = () => {
   React.useEffect(() => { detailMounts += 1; }, []);
+  React.useEffect(() => { detailRenders += 1; });
   return <div data-testid="detail-stub" />;
 };
 
 const ListStub: React.FC = () => {
   React.useEffect(() => { listMounts += 1; }, []);
+  React.useEffect(() => { listRenders += 1; });
   return <div data-testid="list-stub" />;
 };
 
@@ -81,9 +90,22 @@ const seedPastFirstRun = () => {
  * snapshot, `App` never re-renders, and a remount assertion would pass for
  * entirely the wrong reason. Draining first is what makes the poke real.
  */
-const professorSpeaks = () => {
-  clearVino();
-  presentVinoLine({ trigger: 'firstLaunch', line: 'TESTING.', expression: 'neutral' });
+const professorSpeaks = async () => {
+  // Drained first, and **awaited between the two writes**.
+  //
+  // `App` re-renders on the queue's *snapshot* going empty -> non-empty.
+  // Arriving at a route fires its own lines, so the queue is usually already
+  // occupied and enqueuing behind it changes no snapshot. Draining fixes
+  // that — but `clearVino()` and `presentVinoLine()` in one tick are batched
+  // by React, and a snapshot that leaves `false` and returns to `false` is
+  // no change at all, so the pair netted to a silent no-op. The render
+  // counter is what caught it; the awaited flush is what fixes it.
+  await act(async () => {
+    clearVino();
+  });
+  await act(async () => {
+    presentVinoLine({ trigger: 'firstLaunch', line: 'TESTING.', expression: 'neutral' });
+  });
 };
 
 describe('App route components keep their identity across re-renders (W1)', () => {
@@ -93,7 +115,9 @@ describe('App route components keep their identity across re-renders (W1)', () =
     seedPastFirstRun();
     resetVinoForTests();
     detailMounts = 0;
+    detailRenders = 0;
     listMounts = 0;
+    listRenders = 0;
   });
 
   afterEach(() => {
@@ -111,12 +135,23 @@ describe('App route components keep their identity across re-renders (W1)', () =
     await waitFor(() => expect(screen.getByTestId('detail-stub')).toBeTruthy());
     expect(detailMounts).toBe(1);
 
-    professorSpeaks();
+    const rendersBefore = detailRenders;
+    await professorSpeaks();
 
-    // The re-render has to have actually happened, or the assertion below is
-    // vacuous: the bubble is rendered by `App` off the same subscription.
-    await waitFor(() => expect(screen.getByText('TESTING.')).toBeTruthy());
-
+    // **The re-render is proved on the subtree itself, not on the bubble.**
+    //
+    // The first version waited for `VinoBubble`'s text and called that the
+    // non-vacuity guard. It is not one: `VinoBubble` subscribes to the
+    // presenter directly, so its text appearing says the *store* changed and
+    // says nothing about whether `App` re-rendered. The test happened to be
+    // correct only because `vinoIdle` sits in `App` today — and `vinoIdle`
+    // renders nothing, so memoising the Routes subtree would have made this
+    // pass while testing nothing at all.
+    //
+    // Counting renders of the routed leaf is exactly the property: it must
+    // re-render (so the poke reached it) and must not remount (so it kept its
+    // identity). Neither half can pass for the wrong reason.
+    await waitFor(() => expect(detailRenders).toBeGreaterThan(rendersBefore));
     expect(detailMounts).toBe(1);
   });
 
@@ -130,9 +165,9 @@ describe('App route components keep their identity across re-renders (W1)', () =
     await waitFor(() => expect(screen.getByTestId('list-stub')).toBeTruthy());
     expect(listMounts).toBe(1);
 
-    professorSpeaks();
-    await waitFor(() => expect(screen.getByText('TESTING.')).toBeTruthy());
-
+    const rendersBefore = listRenders;
+    await professorSpeaks();
+    await waitFor(() => expect(listRenders).toBeGreaterThan(rendersBefore));
     expect(listMounts).toBe(1);
   });
 });

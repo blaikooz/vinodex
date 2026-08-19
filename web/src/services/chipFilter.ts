@@ -1,11 +1,11 @@
 import {
   WineEntry,
-  isCountryGateEntry,
   isFlavorEntry,
   isGrapeEntry,
   isRegionEntry,
   isStyleEntry,
 } from '@/shared/types';
+import { entryOrigin } from './entryOrigin';
 import { normalizeLabel, getStyleClassType, getStyleColorType } from '@/shared/services/entryUtils';
 import { shelfIds } from './bookmarks';
 
@@ -88,19 +88,9 @@ export type ChipFilter = Partial<Record<ChipFacet, string[]>>;
 
 const label = normalizeLabel;
 
-/**
- * The country an entry belongs to, across the categories that spell it
- * differently — a grape's own `grapeCountryOfOrigin`, everything else's
- * `details.origin`. The `??` chain is preserved exactly, including the grape
- * falling through to its own `details.origin` when the top-level field is
- * empty; narrowing that away moved two seeded quiz papers in the sibling
- * module, which is the warning this comment exists to carry.
- */
-const entryOrigin = (e: WineEntry): string => {
-  if (isGrapeEntry(e)) return e.grapeCountryOfOrigin || e.details.origin || '';
-  if (isRegionEntry(e) || isStyleEntry(e) || isCountryGateEntry(e)) return e.details.origin ?? '';
-  return '';
-};
+// `entryOrigin` is imported — one accessor for the whole app since L1. This
+// module's copy used `||` where the pre-narrowing code used `??`, which is a
+// different function on an empty-string field.
 
 /** RARITY is declared on GRAPES and STYLES and nowhere else. */
 const entryRarity = (e: WineEntry): string | undefined =>

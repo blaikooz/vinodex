@@ -26,6 +26,37 @@ interface UnlockScreenProps {
  */
 const KEYS = ['1', '2', '3', '4', '5', '6', '7', '8', '9'];
 
+/**
+ * One keypad key.
+ *
+ * **At module scope, and that is the whole point (M3).** This was declared
+ * inside `UnlockScreen`'s render body, which is W1's defect at a smaller
+ * scale — a component declared there is a new function identity every render,
+ * and React compares element types by identity, so it unmounts and rebuilds.
+ *
+ * Smaller scale, but *not* smaller effect, and the lint baseline was wrong to
+ * file it beside `MoonDialScreen`'s `Row` on that basis. `Row` is
+ * non-interactive and stateless, so remounting it costs a little work and
+ * nothing else. `Key` renders a `<button>`, and every press calls `setCode` —
+ * so all twelve keys were torn down and rebuilt after **every digit**, and
+ * keyboard focus was lost from the key the user had just pressed. Entering a
+ * code by keyboard meant re-finding your place four times.
+ */
+const Key: React.FC<{ label: React.ReactNode; onClick: () => void; ariaLabel: string }> = ({
+  label,
+  onClick,
+  ariaLabel,
+}) => (
+  <button
+    type="button"
+    onClick={onClick}
+    aria-label={ariaLabel}
+    className="aspect-square rounded-xl bg-stone-900 border-2 border-green-700 flex items-center justify-center font-retro text-lg sm:text-xl text-green-300 transition-all active:translate-y-0.5 hover:bg-stone-800"
+  >
+    {label}
+  </button>
+);
+
 const UnlockScreen: React.FC<UnlockScreenProps> = ({ onUnlocked, onBack, onHome }) => {
   const [code, setCode] = useState('');
   const [error, setError] = useState(false);
@@ -60,21 +91,6 @@ const UnlockScreen: React.FC<UnlockScreenProps> = ({ onUnlocked, onBack, onHome 
     window.addEventListener('keydown', onKey);
     return () => window.removeEventListener('keydown', onKey);
   }, [push, backspace]);
-
-  const Key: React.FC<{ label: React.ReactNode; onClick: () => void; ariaLabel: string }> = ({
-    label,
-    onClick,
-    ariaLabel,
-  }) => (
-    <button
-      type="button"
-      onClick={onClick}
-      aria-label={ariaLabel}
-      className="aspect-square rounded-xl bg-stone-900 border-2 border-green-700 flex items-center justify-center font-retro text-lg sm:text-xl text-green-300 transition-all active:translate-y-0.5 hover:bg-stone-800"
-    >
-      {label}
-    </button>
-  );
 
   return (
     <DeviceLayout

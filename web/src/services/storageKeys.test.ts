@@ -80,9 +80,17 @@ const localKeysIn = (src: string): { keys: Set<string>; unresolved: Set<string> 
     if (ident) {
       const resolved = consts.get(ident[1]!);
       if (resolved) keys.add(resolved);
-      // A bare parameter named `key`/`k` is a helper taking the key from its
-      // caller; the caller's own literal is what gets registered, and it is
-      // found by one of the branches above.
+      // A bare parameter named `key`/`k`/`storageKey` is a helper taking the
+      // key from its caller.
+      //
+      // **This whitelist was a hole and `keepAwakeEnabled` fell through it.**
+      // The premise was "the caller's own literal is found by one of the
+      // branches above", which holds only when the caller writes
+      // `setItem('literal')`. `savedDataArchive.ts` calls
+      // `put('field', 'storageKey', value)` and `put`'s body is
+      // `storage.setItem(storageKey, value)` — so the scan saw a whitelisted
+      // identifier here and never saw the literal anywhere, and a real key
+      // survived CLEAR ALL SAVED DATA. `putKeysIn` below closes it.
       else if (!/^(key|k|storageKey|name)$/.test(ident[1]!)) unresolved.add(ident[1]!);
       continue;
     }
@@ -94,6 +102,22 @@ const localKeysIn = (src: string): { keys: Set<string>; unresolved: Set<string> 
     unresolved.add(arg);
   }
   return { keys, unresolved };
+};
+
+/**
+ * Storage keys passed as the second argument to `put(...)`.
+ *
+ * The exact shape that defeated `localKeysIn`: an indirection whose literal
+ * never reaches a `setItem` call site. Kept narrow on purpose — this matches
+ * `put(` specifically rather than trying to trace every helper in the repo,
+ * because a general call-graph walk in a test is a second program to get
+ * wrong. If a third indirection appears, the `unresolved` check above will
+ * report it and it gets its own extractor, exactly like this one.
+ */
+const putKeysIn = (src: string): Set<string> => {
+  const keys = new Set<string>();
+  for (const m of src.matchAll(/[^\w$.]put\(\s*'[^']*'\s*,\s*'([^']+)'/g)) keys.add(m[1]!);
+  return keys;
 };
 
 describe('the storage-key registry', () => {
@@ -112,7 +136,8 @@ describe('the storage-key registry', () => {
       const src = fs.readFileSync(file, 'utf8');
       // The registry itself lists every key by definition.
       if (file.endsWith('storageKeys.ts')) continue;
-      for (const key of localKeysIn(src).keys) {
+      const found = new Set([...localKeysIn(src).keys, ...putKeysIn(src)]);
+      for (const key of found) {
         if (!registered.has(key)) missing.push(`${key}  (${path.relative(WEB_ROOT, file)})`);
       }
     }

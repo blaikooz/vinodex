@@ -57,7 +57,7 @@ export const RELEASE_BLOCKERS: readonly ReleaseBlocker[] = [
   {
     id: 'contact-address',
     what: 'The contact/support email address is a placeholder on an unregistered domain.',
-    where: 'web/src/services/supportContact.ts — CONTACT_ADDRESS',
+    where: 'web/src/services/brand.ts — CONTACT_ADDRESS',
     resolution:
       'Decide the domain (vinodex.app and vinodex.com were both in the tree, neither owned), '
       + 'register it, point MX at a real inbox, and replace the one constant.',

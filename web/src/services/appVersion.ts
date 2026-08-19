@@ -18,8 +18,8 @@
  * - They are no longer the same feature set, on purpose. There is no paywall
  *   and no `tiers.json` here (see `access.ts`), the scanner walks a flat
  *   country list where iOS walks the globe, there are no haptics, and the
- *   splash/website branch — `SplashScreen`, `WebsiteMenu`, `OurAppsScreen`,
- *   `WhoWeAreScreen`, `ContactScreen` — has no Swift counterpart at all.
+ *   splash/website branch — `SplashScreen` and everything `WebsitePortal`
+ *   builds — has no Swift counterpart at all.
  *
  * The mirroring had already failed before it was dropped: this repo held
  * 0.4.1.7 here and 0.4.1.5 in the frozen `ios/` copy while the live phone was

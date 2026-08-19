@@ -106,6 +106,16 @@ export const STORAGE_KEYS: readonly StorageKeySpec[] = [
   { key: 'uiScale', disposition: 'wipe', note: 'chassis furniture size' },
   { key: 'hapticsEnabled', disposition: 'wipe', note: 'haptics preference' },
   { key: 'soundsEnabled', disposition: 'wipe', note: 'tap-sound preference' },
+  {
+    key: 'keepAwakeEnabled',
+    disposition: 'wipe',
+    note:
+      'keep-the-screen-awake preference. Written on restore by savedDataArchive '
+      + 'and never by anything else, which is why it was missed: the drift scan '
+      + 'saw a put() call rather than a setItem with a literal. iOS carries it '
+      + 'as a SavedDataKey case and its allCases loop removes it, so leaving it '
+      + 'behind broke parity as well as the rule this registry states.',
+  },
 
   // --- One-shot ledgers. Every one of these would, if it survived, open a
   // fresh start with its celebration already spent — on the single run where

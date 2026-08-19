@@ -10,7 +10,7 @@
  * render pins in W3/W20.
  *
  * Each stub is the **minimum honest shape**, never a lie about behaviour:
- * an `IntersectionObserver` that never reports an intersection is a真 browser
+ * an `IntersectionObserver` that never reports an intersection is a real browser
  * on a page nothing has scrolled, and that is exactly the initial state a
  * mount test wants. A stub that faked visibility would make
  * `useScreenAnchor`'s tests pass for the wrong reason.

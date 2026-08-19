@@ -132,9 +132,14 @@ test('the BIOS boots once a session and hands the device over', async ({ page, c
 test('the BIOS runs alone on a genuinely fresh device', async ({ page, consoleErrors }) => {
   void consoleErrors;
   // Nothing seeded but the unlock: no `booted`, no triggers, no coachmark.
-  await page.addInitScript(() => {
-    window.localStorage.setItem('unlockedAppIDs', JSON.stringify(['vinodex']));
-  });
+  //
+  // Through `seedFreshDevice` since L6. This test hand-rolled its own init
+  // script, and W20 then added a *second*, weaker first-run test alongside it
+  // purely to give the new fixture a caller — asserting only that the body was
+  // non-empty and that two chassis buttons existed, both of which this test
+  // and every other test already cover. The duplicate is deleted and the
+  // fixture serves the test that actually checks first run.
+  await seedFreshDevice(page);
   await page.goto('/dex');
 
   // While the POST is up, nothing may cover it.
@@ -205,32 +210,4 @@ for (const [id, name] of DETAIL_IDS) {
   });
 }
 
-/**
- * First run, end to end, on a device that has never been used (W20).
- *
- * Every other test in this file seeds past the BIOS, the professor and the
- * walkthrough offer — which is right for testing the screen behind them, and
- * means first run was untested by construction. It is also where this app
- * keeps hiding bugs: the BIOS layering fault and the W1 remount both live in
- * this window, and the hole that hid the first was that each existing test
- * seeded past the thing the other was testing.
- */
-test('a genuinely fresh device boots, greets, and hands over', async ({ page, consoleErrors }) => {
-  void consoleErrors;
-  await seedFreshDevice(page);
-  await page.goto('/dex');
 
-  // The BIOS owns the device first.
-  await page.waitForTimeout(1200);
-  await expect(page.locator('body')).not.toBeEmpty();
-
-  // Any tap clears it, and the device is usable afterwards.
-  await page.locator('body').click({ position: { x: 200, y: 400 } });
-  await page.waitForTimeout(1500);
-
-  // The chassis is up: its four moulded controls carry accessible names, and
-  // they are the surface that proves the app rather than the boot is on
-  // screen.
-  await expect(page.getByLabel('Home').first()).toBeVisible();
-  await expect(page.getByLabel('Settings').first()).toBeVisible();
-});

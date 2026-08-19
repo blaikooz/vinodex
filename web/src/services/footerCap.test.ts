@@ -1,10 +1,12 @@
-import { describe, expect, it } from 'vitest';
+import { beforeEach, describe, expect, it } from 'vitest';
 import {
   CHASSIS_SKINS,
   FOOTER_CAP_KINDS,
+  applyTheme,
   footerCap,
+  readTheme,
+  setSkin,
   type ChassisSkinId,
-  type FooterCapKind,
 } from './theme';
 
 /**
@@ -165,21 +167,77 @@ describe('footerCap', () => {
     );
     expect(forked.sort()).toEqual([...LIVERIES].sort());
   });
+
+  it('gives no two shells the same footer band', () => {
+    // The shape of the defect as a user met it, rather than as the code
+    // expressed it: every per-skin assertion in this file would have passed
+    // on the broken tree, because the table itself was uniform.
+    //
+    // Moved here from the Playwright suite (L10). It touches no browser, and
+    // it was costing a Chromium launch on the slowest gate to compare strings.
+    const seen = new Map<string, ChassisSkinId>();
+    for (const skin of ALL_SKINS) {
+      const band = FOOTER_CAP_KINDS.map(k => JSON.stringify(footerCap(skin, k))).join('|');
+      const clash = seen.get(band);
+      expect(clash, `${skin} and ${clash} have identical footer bands`).toBeUndefined();
+      seen.set(band, skin);
+    }
+    expect(seen.size).toBe(ALL_SKINS.length);
+  });
 });
 
-describe('the cap tokens', () => {
-  it('writes four properties per kind', () => {
-    // The names DeviceLayout's `capStyle` builds. A rename on either side
-    // silently un-paints the band, since a missing custom property just
-    // resolves to nothing.
-    const expected: string[] = [];
-    for (const kind of FOOTER_CAP_KINDS as FooterCapKind[]) {
-      for (const stop of ['top', 'bottom', 'edge', 'glyph']) {
-        expected.push(`--cap-${kind}-${stop}`);
+describe('the cap tokens reach the document', () => {
+  /**
+   * `applyTheme()` is exercised, and the properties are read back off
+   * `:root`.
+   *
+   * The first version of this block built its `expected` array from
+   * `FOOTER_CAP_KINDS` and then asserted things about that array -- a
+   * tautology that would have passed with `applyTheme` deleted (L7). The
+   * whole risk here is a **name mismatch between the writer and the reader**:
+   * CSS resolves a missing `var()` to nothing, so a renamed token does not
+   * throw, it silently un-paints the band. Only actually writing and actually
+   * reading can see that.
+   *
+   * jsdom implements `style.setProperty` and `getPropertyValue` on inline
+   * styles, which is exactly the mechanism `applyTheme` uses
+   * (`root.style.setProperty`), so this is a real round trip rather than a
+   * simulation of one.
+   */
+  const readToken = (name: string) =>
+    document.documentElement.style.getPropertyValue(name).trim();
+
+  beforeEach(() => {
+    window.localStorage.clear();
+    document.documentElement.removeAttribute('style');
+  });
+
+  it('writes all sixteen, matching footerCap, for the default skin', () => {
+    applyTheme();
+    const skin = readTheme().skin;
+    for (const kind of FOOTER_CAP_KINDS) {
+      const cap = footerCap(skin, kind);
+      for (const [stop, value] of Object.entries(cap)) {
+        const token = `--cap-${kind}-${stop}`;
+        expect(readToken(token), `${token} was never written`).not.toBe('');
+        expect(readToken(token), token).toBe(value);
       }
     }
-    expect(expected).toHaveLength(16);
-    expect(expected).toContain('--cap-home-top');
-    expect(expected).toContain('--cap-settings-glyph');
+  });
+
+  it('repaints the whole band when the skin changes', () => {
+    // The property a user actually experiences, and the one a per-skin unit
+    // test of the table cannot show: choosing a shell moves the buttons.
+    applyTheme();
+    const before = FOOTER_CAP_KINDS.map(k => readToken(`--cap-${k}-top`));
+
+    setSkin('W64');
+    applyTheme();
+    const after = FOOTER_CAP_KINDS.map(k => readToken(`--cap-${k}-top`));
+
+    expect(after).not.toEqual(before);
+    for (const [i, kind] of FOOTER_CAP_KINDS.entries()) {
+      expect(after[i], `--cap-${kind}-top after switching to W64`).toBe(footerCap('W64', kind).top);
+    }
   });
 });
