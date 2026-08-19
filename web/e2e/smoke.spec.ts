@@ -211,3 +211,90 @@ for (const [id, name] of DETAIL_IDS) {
 }
 
 
+
+/**
+ * The lamp chooser's modality, proved rather than declared (W-1).
+ *
+ * `aria-modal="true"` is a **claim about the surroundings**: it tells assistive
+ * technology that everything outside the dialog is inert. The chooser's scrim
+ * only covers the LCD, so before `inert` was threaded through the chassis the
+ * claim was false in a way a pointer could disprove in two clicks — the review
+ * opened the chooser, pressed the SETTINGS cap and navigated away from
+ * underneath it, then pressed the other lamp and navigated again.
+ *
+ * jsdom does not implement `inert`, so this has to be a browser test. It
+ * asserts the two exact routes that were reachable.
+ */
+test('nothing outside the lamp chooser answers a pointer', async ({ page, consoleErrors }) => {
+  void consoleErrors;
+  await seedDevice(page, { chassisSkin: 'CLASSIC' });
+  await page.goto('/dex');
+  await page.waitForTimeout(700);
+
+  const lamps = page.locator('.lamp-hit');
+  await lamps.first().click({ button: 'right' });
+  await expect(page.getByRole('dialog')).toBeVisible();
+
+  // The cap that used to navigate to /settings. Scoped to the footer, because
+  // with the chooser open there is also a SETTINGS chip inside it — and that
+  // one is supposed to work. `force`, because the whole point is that a real
+  // user's click lands on an inert element; Playwright's actionability checks
+  // would otherwise refuse and the test would pass for the wrong reason.
+  const settingsCap = page.locator('footer').getByRole('button', { name: 'Settings' });
+  await settingsCap.click({ force: true });
+  await page.waitForTimeout(400);
+  await expect(page).toHaveURL(/\/dex$/);
+  await expect(page.getByRole('dialog')).toBeVisible();
+
+  // The other lamp, which used to navigate to /settings/CUSTOMIZE.
+  await lamps.nth(1).click({ force: true });
+  await page.waitForTimeout(400);
+  await expect(page).toHaveURL(/\/dex$/);
+  await expect(page.getByRole('dialog')).toBeVisible();
+
+  // And the island's orb, the third surface outside the LCD.
+  await expect(page.locator('.island-strip')).toHaveAttribute('inert', '');
+
+  // Closing gives the device back, and returns focus to the lamp that raised
+  // it — a dialog that leaves focus on <body> puts a keyboard user at the top
+  // of the document with no idea where the lamp went.
+  await page.keyboard.press('Escape');
+  await page.waitForTimeout(300);
+  await expect(page.getByRole('dialog')).toHaveCount(0);
+  expect(await page.evaluate(() => document.activeElement?.getAttribute('aria-label'))).toBe('TOOLS');
+  await settingsCap.click();
+  await page.waitForTimeout(500);
+  await expect(page).toHaveURL(/\/settings$/);
+});
+
+/**
+ * The engraved legend keeps iOS's floor as well as its cap (W-6).
+ *
+ * `LampLegend.size` clamps to `max(min(bandPillLabel, fitted), 6)`. The web had
+ * the cap and not the floor, and measured 6.28px at a 320px viewport with
+ * nothing to stop it going further. Below the floor iOS truncates rather than
+ * shrinking — "a visible failure rather than the silent per-label refitting
+ * that was the bug" — so the clip is checked with it.
+ */
+test('the lamp legend never shrinks below its floor', async ({ page, consoleErrors }) => {
+  void consoleErrors;
+  await page.setViewportSize({ width: 320, height: 720 });
+  await seedDevice(page, { chassisSkin: 'CLASSIC' });
+  await page.goto('/dex');
+  await page.waitForTimeout(700);
+
+  const legends = page.locator('.lamp-legend');
+  await expect(legends).toHaveCount(2);
+  const sizes = await legends.evaluateAll(ns =>
+    ns.map(n => ({
+      size: parseFloat(getComputedStyle(n).fontSize),
+      overflow: getComputedStyle(n).overflow,
+    })),
+  );
+  for (const { size, overflow } of sizes) {
+    expect(size, 'the legend fell through iOS 6pt floor').toBeGreaterThanOrEqual(6);
+    expect(overflow, 'nothing clips the legend, so it spills instead of truncating').toBe('hidden');
+  }
+  // D1 still holds at the floor: both lamps wear one size.
+  expect(sizes[0]!.size).toBe(sizes[1]!.size);
+});

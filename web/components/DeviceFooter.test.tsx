@@ -2,7 +2,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { cleanup, render, screen } from '@testing-library/react';
 import { MemoryRouter } from 'react-router-dom';
 import DeviceFooter from './DeviceFooter';
-import { DEFAULTS, pinRoute } from '../src/services/quickPins';
+import { DEFAULTS, MARQUEE_PINS, pinRoute } from '../src/services/quickPins';
 
 /**
  * The button band, and the one rule the lamps could quietly break.
@@ -60,15 +60,22 @@ describe('<DeviceFooter />', () => {
   });
 
   it('puts no dex destination on a portal screen', () => {
-    // Stated from the routes rather than from the labels: every pin lands in
-    // the dex, so a portal band offering ANY of them is the leak.
+    // Stated over the WHOLE vocabulary, not just the shipped pair. The header
+    // above promised "a sixth pin pointing somewhere new cannot slip past" and
+    // an earlier draft iterated `DEFAULTS` — two of the five — which is a test
+    // that would have passed while a portal band offered SETTINGS, DATA or
+    // ACCESS. `MARQUEE_PINS` is the set a lamp can actually hold.
     mount(false);
-    const dexRoutes = new Set(DEFAULTS.map(pinRoute));
-    expect([...dexRoutes].every(r => r.startsWith('/minigames') || r.startsWith('/settings'))).toBe(true);
+    for (const route of MARQUEE_PINS.map(pinRoute)) {
+      expect(
+        route.startsWith('/minigames') || route.startsWith('/settings'),
+        `${route} is not a dex route — this test's premise has moved`,
+      ).toBe(true);
+    }
 
     const named = [...document.querySelectorAll('button')]
       .map(b => (b.getAttribute('aria-label') ?? b.textContent ?? '').trim());
-    for (const pin of DEFAULTS) {
+    for (const pin of MARQUEE_PINS) {
       expect(named, `${pin} reached a portal screen`).not.toContain(pin);
     }
   });

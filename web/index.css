@@ -483,9 +483,17 @@ body {
 
      `--lamp-halo` is iOS's `ventDot` shadow: `.shadow(color: red500.opacity(0.8),
      radius: size * 0.26)`, which is "a lamp that is lit throws light on the
-     plastic around it". SwiftUI's shadow radius is roughly half a CSS blur, so
-     0.26 there is 0.52 here. It resolves to `transparent` at zero blur on every
-     lamp that does not set it, so the pulsing ones cost nothing. */
+     plastic around it". It resolves to `transparent` at zero blur on every lamp
+     that does not set it, so the pulsing ones cost nothing.
+
+     **Why 0.26 becomes 0.52 here, while `.chassis-glow` takes iOS's number
+     1:1.** The two are not the same quantity and the difference is not a
+     judgement call. A SwiftUI `.shadow(radius:)` is a Gaussian sigma; a CSS
+     `box-shadow` blur length is roughly TWICE the sigma it corresponds to, so a
+     shadow radius crossing the border doubles. `PulseGlow.maxRadius`, though, is
+     handed to `.blur(radius:)` on a filled shape -- and CSS `filter: blur()`
+     takes a sigma too, so that one crosses unchanged. Shadow radius doubles,
+     filter radius does not; see `ChassisLamp`, which is the other site. */
   box-shadow:
     0 calc(var(--lamp-size, 12px) * 0.06) calc(var(--lamp-size, 12px) * 0.12) rgba(0, 0, 0, 0.45),
     0 0 calc(var(--lamp-size, 12px) * 0.52) var(--lamp-halo, transparent);
@@ -570,10 +578,26 @@ body {
    Press Start 2P is drawn on a 1em advance, so `advance` is 1 and drops out.
    `inset` is iOS's 7pt of clearance at each end. */
 .lamp-legend {
-  font-size: min(
-    calc(var(--band-pill) * 0.42),
-    calc((100cqw - 0.875rem) / var(--legend-chars, 9) - 0.03125rem)
+  /* `max(6px, ...)` is iOS's floor and it is half the rule, not a safety net.
+     `LampLegend.size` clamps to `max(min(bandPillLabel, fitted), 6)`: the cap
+     stops the type growing past the cap it is cut into, and the FLOOR stops it
+     collapsing to nothing on a narrow device. Measured before this: 6.28px at a
+     320px viewport, heading for illegible and with nothing to stop it.
+
+     Below the floor the word is TRUNCATED rather than shrunk further, which is
+     also iOS's call and its reasoning is worth keeping: `lineLimit(1)` "guards
+     the arithmetic, and it truncates rather than shrinking -- a visible failure
+     rather than the silent per-label refitting that was the bug". So the clip
+     lives here, with the floor that makes it reachable. */
+  font-size: max(
+    0.375rem,
+    min(
+      calc(var(--band-pill) * 0.42),
+      calc((100cqw - 0.875rem) / var(--legend-chars, 9) - 0.03125rem)
+    )
   );
+  overflow: hidden;
+  max-width: 100%;
   letter-spacing: 0.03125rem;
   /* Engraved, not dropped: a highlight BELOW the letters and a shade ABOVE
      them is what an incised legend on a lit cap looks like, and it is the

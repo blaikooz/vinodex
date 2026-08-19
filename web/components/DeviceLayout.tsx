@@ -60,6 +60,24 @@ const DeviceLayout: React.FC<DeviceLayoutProps> = ({
   // exactly this reason.
   const [lampSlot, setLampSlot] = useState<number | null>(null);
 
+  /**
+   * Everything that is not the chooser, while the chooser is up (W-1).
+   *
+   * `aria-modal="true"` is a **claim about the surroundings**, not a styling
+   * hint: it tells assistive technology that everything outside the dialog is
+   * inert. The chooser's scrim only covers the LCD, so before this the claim
+   * was false in a way a pointer could prove — with the chooser open you could
+   * still click the SETTINGS cap and navigate away, or press the other lamp.
+   * A screen reader was being told one thing while the device did another.
+   *
+   * Making it true beats withdrawing it: `inert` removes the subtree from hit
+   * testing, from focus and from the accessibility tree in one attribute, so
+   * the three surfaces outside the card — the island, the band, and the LCD
+   * content behind the scrim — now behave the way the dialog says they do.
+   * React 19 takes it as a boolean prop.
+   */
+  const behindChooser = lampSlot !== null;
+
   // Taller than the old single-row band: the footer now stacks two controls in
   // each side well (iOS v0.6.9 button band), so it reserves room for a pair.
   const footerHeight = '8.5rem';
@@ -106,7 +124,7 @@ const DeviceLayout: React.FC<DeviceLayoutProps> = ({
           >
             <div className="flex h-full flex-col">
         
-        {!hideHeader && <ChassisIsland onTitleTap={onTitleTap} />}
+        {!hideHeader && <ChassisIsland onTitleTap={onTitleTap} inert={behindChooser} />}
 
         {/* Screen Container */}
         <div
@@ -182,7 +200,10 @@ const DeviceLayout: React.FC<DeviceLayoutProps> = ({
 
               {/* Content. `lcd-themed` scopes the screen-mode palette remap to
                   the LCD — see index.css; the chassis must not follow it. */}
-              <div className="lcd-themed relative z-0 h-full w-full overflow-hidden flex flex-col uppercase">
+              <div
+                className="lcd-themed relative z-0 h-full w-full overflow-hidden flex flex-col uppercase"
+                inert={behindChooser}
+              >
                 {children}
               </div>
 
@@ -257,6 +278,7 @@ const DeviceLayout: React.FC<DeviceLayoutProps> = ({
         </div>
 
         <DeviceFooter
+          inert={behindChooser}
           onReassignLamp={setLampSlot}
           title={title}
           footerCenter={footerCenter}

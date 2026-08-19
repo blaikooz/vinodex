@@ -1,6 +1,6 @@
 import React, { useCallback, useEffect, useRef } from 'react';
 import ChassisLamp from './ChassisLamp';
-import { MARQUEE_PINS, type MarqueePin } from '../src/services/quickPins';
+import { MARQUEE_PINS, pinDisplayName, type MarqueePin } from '../src/services/quickPins';
 
 /**
  * One marquee lamp button: its pin's name, its pin's destination, and a
@@ -16,13 +16,21 @@ import { MARQUEE_PINS, type MarqueePin } from '../src/services/quickPins';
  * action, because a screen reader cannot perform a long press and without it
  * "the whole of A1's customisation is unreachable".
  *
- * The web keeps the primary action and the hold, and adds the **context
- * menu** as the secondary gesture. That is a deliberate improvement, not a
- * drift, and it is one line's worth of reasoning: `contextmenu` is the one
- * event a browser already raises for a right-click, for the Menu key **and**
- * for Shift+F10, so a single handler gives a mouse, a keyboard and a screen
- * reader the same second action without inventing a shortcut for any of them.
- * A long press is retained for touch, where it is the gesture iOS taught.
+ * The web keeps the primary action and reaches the second one three ways,
+ * because no single one of them covers every device:
+ *
+ * 1. **`contextmenu`** — a right-click, and on Windows and Linux the Menu key
+ *    and Shift+F10 as well. One handler, one event the browser already raises.
+ * 2. **Alt+Enter**, declared in `aria-keyshortcuts`. **A macOS keyboard has
+ *    neither a Menu key nor Shift+F10**, so on that platform `contextmenu` is
+ *    a pointer-only event and a keyboard-only user would have had no way to
+ *    reassign at all. This is that way. It is not a flourish; without it the
+ *    claim "a mouse, a keyboard and a screen reader get the same second
+ *    action" is false on one of the three major desktops.
+ * 3. **A long press**, for touch — the gesture iOS taught. Guarded to
+ *    non-mouse pointers: a slow left-click is a click, and letting a 700ms
+ *    press swallow the navigation would make the primary action feel broken
+ *    on the one device that already has a right button.
  *
  * ## The moulding survives the semantics
  *
@@ -67,7 +75,7 @@ const HOLD_MS = 450;
  * of silently overflowing a cap. This is `LampLegend.longest`, and the
  * arithmetic it feeds lives in `.lamp-legend` in index.css.
  */
-export const LEGEND_CHARS = Math.max(...MARQUEE_PINS.map(p => p.length));
+export const LEGEND_CHARS = Math.max(...MARQUEE_PINS.map(p => pinDisplayName(p).length));
 
 const MarqueeLampButton: React.FC<MarqueeLampButtonProps> = ({
   slot,
@@ -94,9 +102,15 @@ const MarqueeLampButton: React.FC<MarqueeLampButtonProps> = ({
 
   useEffect(() => clearHold, [clearHold]);
 
-  const beginHold = useCallback(() => {
+  const beginHold = useCallback((e: React.PointerEvent) => {
     held.current = false;
     clearHold();
+    // **Touch and pen only.** `pointerdown` does not care what pressed it, so
+    // an unguarded hold turns a slow left-click into a reassign AND eats the
+    // navigation the click was going to do. A mouse has a right button and
+    // reaches the chooser through `contextmenu`; it does not need the gesture
+    // that exists because a finger has no second button.
+    if (e.pointerType === 'mouse') return;
     holdTimer.current = window.setTimeout(() => {
       holdTimer.current = null;
       held.current = true;
@@ -110,12 +124,26 @@ const MarqueeLampButton: React.FC<MarqueeLampButtonProps> = ({
       // The pin's name is the accessible name, exactly as iOS's
       // `accessibilityLabel(pin.displayName)` — the control means whatever it
       // was last pointed at, so anything more permanent would be a lie.
-      aria-label={pin}
+      aria-label={pinDisplayName(pin)}
       aria-describedby={hintId}
-      title={`${pin} — right-click or hold to point this button somewhere else`}
+      // The one binding that is true on every desktop. Declared rather than
+      // only implemented, so a screen reader can announce it.
+      aria-keyshortcuts="Alt+Enter"
+      title={`${pinDisplayName(pin)} — right-click or Alt+Enter to point this button somewhere else`}
       onClick={() => {
         if (held.current) { held.current = false; return; }
         onActivate();
+      }}
+      onKeyDown={e => {
+        // macOS has no Menu key and no Shift+F10, so `contextmenu` never fires
+        // from a keyboard there. Without this, reassigning is unreachable for a
+        // macOS keyboard-only user — the same hole iOS's named VoiceOver action
+        // exists to close, in the one place the web's own answer did not reach.
+        if (e.altKey && (e.key === 'Enter' || e.key === ' ')) {
+          e.preventDefault();
+          clearHold();
+          onReassign();
+        }
       }}
       onPointerDown={beginHold}
       onPointerUp={clearHold}
@@ -147,7 +175,7 @@ const MarqueeLampButton: React.FC<MarqueeLampButtonProps> = ({
           className="lamp-legend font-retro leading-none whitespace-nowrap select-none pointer-events-none"
           style={{ color: ink, '--legend-chars': LEGEND_CHARS } as React.CSSProperties}
         >
-          {pin}
+          {pinDisplayName(pin)}
         </span>
       </ChassisLamp>
       {/* The slot, for the chooser's own copy and for the render pins. Never

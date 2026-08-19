@@ -44,6 +44,12 @@ export interface DeviceFooterProps {
    * reassignable, which is what the splash wants.
    */
   onReassignLamp?: (slot: number) => void;
+  /**
+   * Out of reach while the lamp chooser is up (W-1). The band is the surface
+   * that made `aria-modal` a false claim: with the chooser open you could
+   * still press the SETTINGS cap and navigate away from underneath it.
+   */
+  inert?: boolean;
 }
 
 /**
@@ -165,6 +171,7 @@ const DeviceFooter: React.FC<DeviceFooterProps> = ({
   onHome,
   showSystemButtons = true,
   onReassignLamp,
+  inert = false,
 }) => {
   const navigate = useNavigate();
   // The lamps repaint when a pin moves, without a provider threaded through
@@ -205,6 +212,7 @@ const DeviceFooter: React.FC<DeviceFooterProps> = ({
 
   return (
     <footer
+      inert={inert}
       className="absolute inset-x-0 bottom-0 px-2 pt-1 flex items-start justify-between gap-2"
       style={{
         backgroundColor: 'var(--chassis-footer)',
@@ -303,7 +311,8 @@ const DeviceFooter: React.FC<DeviceFooterProps> = ({
               both `aria-describedby` at, rather than the same string twice. */}
           {showSystemButtons && (
             <span id="lamp-hint" className="sr-only">
-              Right-click, or press and hold, to point this button somewhere else.
+              Right-click, press Alt plus Enter, or press and hold, to point this
+              button somewhere else.
             </span>
           )}
           {showSystemButtons ? [0, 1].map(slot => {

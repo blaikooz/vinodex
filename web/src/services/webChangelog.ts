@@ -71,7 +71,7 @@ const CURRENT: WebRelease = {
   headline: 'THE LAMPS BECOME BUTTONS',
   notes: [
     'The two lamps over the marquee are buttons now -- press one to go where it points.',
-    'Point them anywhere: right-click or hold a lamp to choose TOOLS, CUSTOMIZE, SETTINGS, DATA or SHOP.',
+    'Point them anywhere: right-click or hold a lamp to choose TOOLS, CUSTOMIZE, SETTINGS, DATA or ACCESS.',
     'Each lamp wears its destination as a word cut into the cap, and remembers it.',
     'The island orb and its lamp trio are a matched pair again -- same length, same height.',
     'The lamps on the screen housing are lit rather than printed, and throw light on the plastic.',

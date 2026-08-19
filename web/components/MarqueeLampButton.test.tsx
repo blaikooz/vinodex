@@ -65,13 +65,13 @@ describe('<MarqueeLampButton />', () => {
     vi.useFakeTimers();
     try {
       const { onActivate, onReassign, button } = mount();
-      fireEvent.pointerDown(button);
+      fireEvent.pointerDown(button, { pointerType: 'touch' });
       vi.advanceTimersByTime(500);
       expect(onReassign).toHaveBeenCalledTimes(1);
       // The click the browser synthesises when the finger comes up must not
       // ALSO fire the primary action: the two gestures do different things and
       // exactly one of them should happen.
-      fireEvent.pointerUp(button);
+      fireEvent.pointerUp(button, { pointerType: 'touch' });
       fireEvent.click(button);
       expect(onActivate).not.toHaveBeenCalled();
     } finally {
@@ -83,15 +83,51 @@ describe('<MarqueeLampButton />', () => {
     vi.useFakeTimers();
     try {
       const { onActivate, onReassign, button } = mount();
-      fireEvent.pointerDown(button);
+      fireEvent.pointerDown(button, { pointerType: 'touch' });
       vi.advanceTimersByTime(200);
-      fireEvent.pointerUp(button);
+      fireEvent.pointerUp(button, { pointerType: 'touch' });
       fireEvent.click(button);
       expect(onReassign).not.toHaveBeenCalled();
       expect(onActivate).toHaveBeenCalledTimes(1);
     } finally {
       vi.useRealTimers();
     }
+  });
+
+  it('lets a slow mouse click stay a click (W-2)', () => {
+    // `pointerdown` does not care what pressed it. Unguarded, a 700ms
+    // left-click opened the chooser AND swallowed the navigation — on the one
+    // device that already reaches the chooser by its second button.
+    vi.useFakeTimers();
+    try {
+      const { onActivate, onReassign, button } = mount();
+      fireEvent.pointerDown(button, { pointerType: 'mouse' });
+      vi.advanceTimersByTime(700);
+      expect(onReassign).not.toHaveBeenCalled();
+      fireEvent.pointerUp(button, { pointerType: 'mouse' });
+      fireEvent.click(button);
+      expect(onActivate).toHaveBeenCalledTimes(1);
+    } finally {
+      vi.useRealTimers();
+    }
+  });
+
+  it('reassigns from the keyboard on every desktop (W-3)', () => {
+    // macOS keyboards have neither a Menu key nor Shift+F10, so `contextmenu`
+    // never fires from a keyboard there and this binding is the only reassign
+    // path a macOS keyboard-only user has. Declared as well as implemented, so
+    // a screen reader can say what it is.
+    const { onActivate, onReassign, button } = mount();
+    expect(button.getAttribute('aria-keyshortcuts')).toBe('Alt+Enter');
+    fireEvent.keyDown(button, { key: 'Enter', altKey: true });
+    expect(onReassign).toHaveBeenCalledTimes(1);
+    expect(onActivate).not.toHaveBeenCalled();
+  });
+
+  it('leaves a plain Enter to the primary action', () => {
+    const { onReassign, button } = mount();
+    fireEvent.keyDown(button, { key: 'Enter' });
+    expect(onReassign).not.toHaveBeenCalled();
   });
 
   it('points at the shared hint rather than restating it', () => {

@@ -149,6 +149,21 @@ describe('assignPin', () => {
     expect(beats).toBe(1);
   });
 
+  it('removes the key when the lamps are back at the factory pair (W-9)', async () => {
+    // iOS's `persist()` does this, on the principle that a stored value equal
+    // to the default and no stored value must not be two different states.
+    // Nothing on the web can currently tell them apart — `decodePins('')`
+    // returns DEFAULTS and every reader goes through it — but the two stores
+    // are answerable to one description, and a never-customised device should
+    // look like one in storage.
+    const m = await fresh();
+    m.assignPin('DATA', 0);
+    expect(window.localStorage.getItem(QUICK_PINS_KEY)).toBe('DATA,CUSTOMIZE');
+    m.assignPin('TOOLS', 0);
+    expect(m.pins()).toEqual(['TOOLS', 'CUSTOMIZE']);
+    expect(window.localStorage.getItem(QUICK_PINS_KEY)).toBeNull();
+  });
+
   it('reads a stored pair back on the next load', async () => {
     window.localStorage.setItem(QUICK_PINS_KEY, 'ACCESS,DATA');
     const m = await fresh();

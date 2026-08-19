@@ -5,6 +5,7 @@ import {
   MARQUEE_PINS,
   assignPin,
   pinAt,
+  pinDisplayName,
   pinSection,
   pins,
   pinsRevision,
@@ -93,12 +94,23 @@ const MarqueeLampChooser: React.FC<MarqueeLampChooserProps> = ({ slot, onClose }
     return () => opener.current?.focus?.();
   }, []);
 
-  const onKeyDown = useCallback((e: React.KeyboardEvent) => {
-    if (e.key === 'Escape') {
+  // **Escape is bound on the document, not on the card.** It was on the card,
+  // which works for as long as focus is inside it and silently stops working
+  // the moment anything moves focus elsewhere — and "the dialog is open but
+  // Escape does nothing" is a trap, not a dialog. The trap below keeps Tab
+  // inside the card; this makes the way out independent of where the caret
+  // happens to be.
+  useEffect(() => {
+    const onEscape = (e: KeyboardEvent) => {
+      if (e.key !== 'Escape') return;
       e.stopPropagation();
       onClose();
-      return;
-    }
+    };
+    document.addEventListener('keydown', onEscape, true);
+    return () => document.removeEventListener('keydown', onEscape, true);
+  }, [onClose]);
+
+  const onKeyDown = useCallback((e: React.KeyboardEvent) => {
     if (e.key !== 'Tab') return;
     // The trap. A dialog a keyboard can tab out of is a dialog that is modal
     // for a mouse and not for anything else.
@@ -113,7 +125,7 @@ const MarqueeLampChooser: React.FC<MarqueeLampChooserProps> = ({ slot, onClose }
       e.preventDefault();
       first.focus();
     }
-  }, [onClose]);
+  }, []);
 
   const choose = (pin: MarqueePin) => {
     assignPin(pin, slot);
@@ -135,7 +147,7 @@ const MarqueeLampChooser: React.FC<MarqueeLampChooserProps> = ({ slot, onClose }
       {/* eslint-disable-next-line jsx-a11y/no-noninteractive-element-interactions --
           a dialog is a container rather than a widget, so the rule sees the
           handler as misplaced; but Escape-to-close and a Tab trap on the
-          dialog root are precisely the documented pattern, and the alternative
+          dialog root is precisely the documented pattern, and the alternative
           the rule wants (a handler on each of the seven buttons inside) is the
           same behaviour written seven times. */}
       <div
@@ -143,9 +155,9 @@ const MarqueeLampChooser: React.FC<MarqueeLampChooserProps> = ({ slot, onClose }
         role="dialog"
         aria-modal="true"
         aria-labelledby="lamp-chooser-title"
-        // Escape and the Tab trap live on the card rather than on the scrim's
-        // parent: focus starts inside it and the trap keeps it there, so every
-        // key this dialog cares about bubbles to exactly here.
+        // The Tab trap. Scoped to the card because that is exactly the region
+        // it wraps within; Escape is on the document, above, for the opposite
+        // reason.
         onKeyDown={onKeyDown}
         className="relative m-1.5 rounded-[0.875rem] border-2 p-3.5 flex flex-col gap-3 overflow-hidden"
         style={{
@@ -218,7 +230,7 @@ const MarqueeLampChooser: React.FC<MarqueeLampChooserProps> = ({ slot, onClose }
                   {pinGlyph(pin)}
                 </span>
                 <span className="font-retro text-[0.625rem] tracking-[0.03em] text-center leading-tight">
-                  {pin}
+                  {pinDisplayName(pin)}
                 </span>
                 {isMine && (
                   <Check

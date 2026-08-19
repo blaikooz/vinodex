@@ -94,6 +94,13 @@ export function pinRoute(pin: MarqueePin): string {
  * The five ids are the words the tiles and the panel headers already show, so
  * there is nothing to translate — which is the same property iOS relies on to
  * make ACCESS read as its own name without this file knowing about a rename.
+ *
+ * **It is an identity function and it is still called** (`MarqueeLampButton`
+ * for the accessible name, the engraved legend and the fitting width;
+ * `MarqueeLampChooser` for the chip). That is the point of it: iOS's rule is
+ * that a pin's label is never restated, and a seam every caller bypasses
+ * documents an invariant it does not enforce. When one of these five stops
+ * being the word on screen, this is the one place that changes.
  */
 export function pinDisplayName(pin: MarqueePin): string {
   return pin;
@@ -193,7 +200,21 @@ export function assignPin(pin: MarqueePin, slot: number): void {
   next[slot] = pin;
   cache = next;
   try {
-    window.localStorage.setItem(QUICK_PINS_KEY, next.join(','));
+    // **Back at the factory pair, the key goes away** — iOS's `persist()` does
+    // the same, on the principle that a stored value equal to the default and
+    // no stored value must not be two different states. Nothing on the web can
+    // currently tell them apart, because `decodePins('')` returns `DEFAULTS`
+    // and every reader goes through it; mirroring it anyway is cheap and it
+    // keeps the two stores answerable to one description. It also means
+    // `storageKeys.test.ts` sees a device that has never been customised look
+    // like one, which is what a wipe leaves behind.
+    const atDefaults =
+      next.length === DEFAULTS.length && next.every((p, i) => p === DEFAULTS[i]);
+    if (atDefaults) {
+      window.localStorage.removeItem(QUICK_PINS_KEY);
+    } else {
+      window.localStorage.setItem(QUICK_PINS_KEY, next.join(','));
+    }
   } catch {
     // A device with storage disabled still gets working lamps for the
     // session; only the memory of the choice is lost.

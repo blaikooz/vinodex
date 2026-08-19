@@ -23,9 +23,15 @@ import ChassisLamp from './ChassisLamp';
 export interface ChassisIslandProps {
   /** Hold the orb to flip the device. Absent disables the orb entirely. */
   onTitleTap?: () => void;
+  /**
+   * Out of reach while the lamp chooser is up (W-1), so the dialog's
+   * `aria-modal` is a true statement about the device rather than a claim a
+   * pointer can disprove.
+   */
+  inert?: boolean;
 }
 
-const ChassisIsland: React.FC<ChassisIslandProps> = ({ onTitleTap }) => {
+const ChassisIsland: React.FC<ChassisIslandProps> = ({ onTitleTap, inert = false }) => {
   const [orbHeld, setOrbHeld] = useState(false);
   const holdTimer = useRef<number | null>(null);
 
@@ -51,7 +57,10 @@ const ChassisIsland: React.FC<ChassisIslandProps> = ({ onTitleTap }) => {
   useEffect(() => cancelOrbHold, [cancelOrbHold]);
 
   return (
-    <div className="island-strip shrink-0 flex items-start justify-between px-5 pt-2.5 pb-1">
+    <div
+      className="island-strip shrink-0 flex items-start justify-between px-5 pt-2.5 pb-1"
+      inert={inert}
+    >
       {/*
         Hold the orb to flip the device — a deliberate easter egg. The orb
         depresses under the finger so the feedback arrives before the flip.

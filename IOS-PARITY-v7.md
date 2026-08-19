@@ -56,9 +56,12 @@ enforced by nothing (L2).
   decomposition, unblocked as promised) and **S7b done** (the marquee lamps
   are the quick pins, on the ruling relayed this pass), plus four chassis
   geometry gaps the lamp survey turned up, plus one separation defect the
-  feature would have introduced (L8). Gates at close: lint 22/22 · typecheck
-  clean · **610 tests / 53 files** · build OK · check:refs zero dangling ·
-  **playwright 107 passed**. Version **v0.2.1**.
+  feature would have introduced (L8). A **pre-tag review** then found nine
+  more on the released feature — a false `aria-modal`, a mouse-hold that ate
+  the navigation, a macOS keyboard with no reassign path, and six smaller —
+  all landed (§8, "Pre-tag review"). Gates at close: lint 22/22 · typecheck
+  clean · **614 tests / 53 files** · build OK · check:refs zero dangling ·
+  **playwright 109 passed**. Version **v0.2.1**.
 
 ### Commits
 
@@ -658,6 +661,36 @@ Where the web could not follow, said plainly rather than approximated:
   the LCD accent. Inventing a token would be a colour the panel below does not
   wear.
 
+### Pre-tag review (cleanbot, 2026-08-19)
+
+Nine findings on the released feature, all landed before the tag. Ids are the
+review's own, cited qualified as `v7#W-1`.
+
+| id | item | outcome |
+|---|---|---|
+| **v7#W-8** | The 0.2.1 release note said the chips read "TOOLS, CUSTOMIZE, SETTINGS, DATA or **SHOP**". They read **ACCESS**; SHOP exists only as Professor Vino's substitution (`vinoDialogue.ts:86`). Player-facing copy on the FIRMWARE screen. | **Done.** One word. |
+| **v7#W-1** | `aria-modal="true"` was a **false claim**. The scrim covers only the LCD, so with the chooser open the review pressed the SETTINGS cap (went to `/settings`) and the other lamp (went to `/settings/CUSTOMIZE`). AT was told the surroundings were inert while a pointer proved otherwise. | **Done, by making it true rather than withdrawing it.** `inert` is threaded to the three surfaces outside the card — the island, the band, and the LCD content behind the scrim — from one `behindChooser` term in `DeviceLayout`. It removes a subtree from hit testing, focus and the accessibility tree in one attribute. Proved in Chromium on the two exact routes that were reachable; jsdom does not implement `inert`, so this had to be a browser test. |
+| **v7#W-2** | `onPointerDown` is pointer-type-agnostic, so a 700ms **left-click** opened the chooser and swallowed the navigation — on the one device that already has a right button. | **Done.** Guarded to non-mouse pointers. The hold exists because a finger has no second button; a mouse does not need it. |
+| **v7#W-3** | The keyboard-reassign claim was true on Windows and Linux and **false on macOS**, which has neither a Menu key nor Shift+F10 — so a macOS keyboard-only user had no reassign path at all, which is the exact hole iOS's named VoiceOver action exists to close. | **Done, by adding the binding rather than qualifying the claim.** **Alt+Enter**, declared in `aria-keyshortcuts` so a screen reader can announce it, and named in the shared hint. |
+| **v7#W-4** | `DeviceFooter.test.tsx`'s header promised it was written from the route table "so a sixth pin pointing somewhere new cannot slip past", then iterated `DEFAULTS` — two of the five. It would have passed while a portal band offered SETTINGS, DATA or ACCESS. | **Done.** `MARQUEE_PINS` throughout. The test now enforces what it says. |
+| **v7#W-5** | Two Swift→CSS radius conversions sixty lines apart, one doubled and one not, with no note saying why. | **Done.** They are not the same quantity: a SwiftUI `.shadow(radius:)` is a Gaussian sigma and a CSS `box-shadow` blur length is about twice its sigma, so it doubles; `PulseGlow.maxRadius` goes to `.blur(radius:)` and CSS `filter: blur()` takes a sigma too, so it crosses 1:1. Written down at both sites. |
+| **v7#W-6** | `.lamp-legend` had iOS's `min()` cap but not its `max(…, 6)` **floor**, and `whitespace-nowrap` with no clip. Measured 6.28px at a 320px viewport with nothing to stop it going further. | **Done.** Floor added, plus `overflow: hidden` — because iOS truncates rather than shrinking on purpose: "a visible failure rather than the silent per-label refitting that was the bug". Pinned at 320px, including that D1's one-size rule still holds at the floor. |
+| **v7#W-7** | `pinDisplayName` was exported, documented as the rule that stops a lamp wearing one name and landing on another, tested — and **called by nothing**. A dead seam documenting an invariant it does not enforce. | **Done, by calling it.** Three sites in `MarqueeLampButton` (accessible name, engraved legend, and the `LEGEND_CHARS` fitting width) and one in `MarqueeLampChooser`. |
+| **v7#W-9** | `assignPin` never removed the key at defaults, where iOS's `persist()` does — on the stated principle that a stored value equal to the default and no stored value must not be two different states. | **Done, mirrored.** No observable difference on the web today, because `decodePins('')` returns `DEFAULTS` and every reader goes through it; mirrored anyway so the two stores answer to one description and a never-customised device looks like one in storage. Safe through profiles: restore clears every app-state key before writing a snapshot (`userProfiles.ts:186`), so an absent key restores to the factory pair. |
+
+**One fragility found while proving W-1, and fixed with it.** Escape was bound
+on the card, which works only while focus is inside it — and "the dialog is
+open but Escape does nothing" is a trap, not a dialog. It is a capture-phase
+document listener now; the Tab trap stays on the card, which is exactly the
+region it wraps.
+
+**Ledger note, not a fix.** The pins are correctly absent from SAVE/RESTORE —
+iOS's `SavedDataKey` has no case for them either — but **profiles do carry
+them**, because `userProfiles.ts:66` snapshots every app-state key rather than
+an enumerated list. Worth stating plainly, since the release note says each
+lamp "remembers it": switching profiles moves the lamps, and that is the
+profile system working as designed rather than the pins leaking.
+
 ### Leftovers: closed, and deliberately left
 
 | leftover | outcome |
@@ -676,7 +709,8 @@ Where the web could not follow, said plainly rather than approximated:
 | 15 | `66313ca` feat: the quick-pin store, ported from iOS QuickPinStore | L5, store half |
 | 16 | `bd9655b` fix: the island derivation, and the lamps A6 never reached | L2, L4 |
 | 17 | `0e2c91e` feat: the marquee lamps become the quick pins | L5, L3, L6 |
-| 18 | *(this commit)* docs(parity): v0.2.1, the lamps section, and the portal fix | L8, this section, the bump |
+| 18 | `234bb9e` docs(parity): v0.2.1, the lamps section, and the portal fix | L8, this section, the bump |
+| 19 | *(this commit)* fix: the pre-tag review | W-1 … W-9 |
 
 ---
 
@@ -714,12 +748,15 @@ Unchanged from `IOS-PARITY.md` and v6 — **none re-raised above**:
 
 **Added in the v0.2.1 pass (§8):**
 
-- **The marquee lamps' second action is `contextmenu`, not a long press
-  alone.** iOS uses press-and-hold plus a named VoiceOver action; the web uses
-  the one event a browser already raises for right-click, the Menu key and
-  Shift+F10, and keeps the hold for touch. A deliberate improvement on
-  interaction, under the standing rule that chassis *geometry* matches iOS
-  while affordances may not.
+- **The marquee lamps' second action is reached three ways, not by a long
+  press alone.** iOS uses press-and-hold plus a named VoiceOver action. The web
+  uses `contextmenu` (right-click, and the Menu key / Shift+F10 on Windows and
+  Linux), **Alt+Enter** declared in `aria-keyshortcuts` — because a macOS
+  keyboard has neither of those keys, and without it the "a mouse, a keyboard
+  and a screen reader all reach it" claim is false on one of the three major
+  desktops (v7#W-3) — and a long press on touch only, since a mouse already has
+  a second button (v7#W-2). A deliberate improvement on interaction, under the
+  standing rule that chassis *geometry* matches iOS while affordances may not.
 - **The chooser's top hairline is the LCD accent, not the shell's marquee
   phosphor.** The web has no per-skin marquee text colour to read — its
   marquee letters are one green on all twenty-two shells — so the token iOS
