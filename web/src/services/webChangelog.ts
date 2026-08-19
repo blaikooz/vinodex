@@ -66,18 +66,41 @@ export interface WebRelease {
  * assertion. It also gives the thing you edit a name.
  */
 const CURRENT: WebRelease = {
-  version: '0.1.0',
-  date: '2026-07-29',
-  headline: 'FIRST WEB RELEASE',
+  version: '0.2.0',
+  date: '2026-08-18',
+  headline: 'THE PARITY PUSH',
   notes: [
-    'The web app counts on its own line: three-part semver, its own tag, no longer mirroring the phone.',
-    'The encyclopedia, the scanner, the daily challenge and the saved shelves, in the retro chassis.',
-    'The company portal shares the chassis and hides the in-app controls.',
+    'WINE EXAM on the shared question bank, with tiers, a pass streak and a paper that survives a trip Back.',
+    'FIRMWARE HISTORY, TOOLS, YOU MIGHT LIKE, SUPPORT and the cheat console are all real screens now.',
+    'BLIND TASTING and MASTER SEARCH: the scanner walks a deduction, the orb opens a twelve-facet filter.',
+    'GRAPE LINEAGE: walk a grape back through its parents, and open any of them.',
+    'PASSPORT ranks and stamps, announced once each, at the moment you earn them.',
+    'Professor Vino arrives -- six expressions, a bank of first-time lines, and a guided walkthrough.',
+    'SAVE and RESTORE everything: shelves, ratings, streaks and settings, as one file you keep.',
+    'Five profile slots, a demo attract loop, a screensaver, and an INSIGHT panel on the entry readout.',
+    'A BIOS power-on test, a share funnel with real link previews, and an install banner.',
+    'The device is drawn now: 22 chassis shells, marquee panels, passport stamps and skin stickers.',
+    'The four footer buttons are drawn art, re-inked per shell -- so every skin has its own moulded caps.',
+    'The chassis gains its keyed corner, seated lamps, a stadium orb, and NOCTURNE glows in the dark.',
+    'Reduced motion is honoured everywhere, and the whole app is linted and render-tested on every change.',
+    'CLEAR ALL SAVED DATA now clears the profile slots too.',
+    'The SHOP stays out of scope, LABEL SCAN stays COMING SOON, and there are still no notifications.',
   ],
 };
 
 /** Newest first. A new release is prepended by promoting `CURRENT`. */
-const PREVIOUS: WebRelease[] = [];
+const PREVIOUS: WebRelease[] = [
+  {
+    version: '0.1.0',
+    date: '2026-07-29',
+    headline: 'FIRST WEB RELEASE',
+    notes: [
+      'The web app counts on its own line: three-part semver, its own tag, no longer mirroring the phone.',
+      'The encyclopedia, the scanner, the daily challenge and the saved shelves, in the retro chassis.',
+      'The company portal shares the chassis and hides the in-app controls.',
+    ],
+  },
+];
 
 export const WEB_RELEASES: WebRelease[] = [CURRENT, ...PREVIOUS];
 

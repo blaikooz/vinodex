@@ -19,12 +19,14 @@ system that does not exist here)._
 ## Status — both stages executed and green (2026-08-18, on `testing`)
 
 Gates at close of pass, run in full after every commit:
-**lint clean · typecheck clean · 563 tests / 49 files · build OK ·
-check:refs zero dangling · playwright 86 passed.**
+**lint clean (cap 22) · typecheck clean · 569 tests / 49 files · build OK ·
+check:refs zero dangling · playwright 84 passed.**
 
-Test count moved 506 → 563 across the pass; file count 41 → 49. Lint warnings
-63 → 27, all of them standing downgrades with stated reasons rather than
-deferred defects.
+Test count moved 506 → 569 across the pass; file count 41 → 49. Lint warnings
+63 → 22, all of them standing downgrades with stated reasons rather than
+deferred defects — and the count is now a **cap** (`--max-warnings=22`),
+because `eslint .` exits 0 on warnings and the baseline had been a contract
+enforced by nothing (L2).
 
 - **Stage 1 — foundation and correctness. Done:** W2 (the linter), W1 (the
   route-remount bug), W3 + W20 (the safety nets), W4 (orphan deletion), W14 /
@@ -38,8 +40,14 @@ deferred defects.
 - **Deliberately not started:** cleanbot's **W7** (DeviceLayout decomposition)
   — sequenced after the chassis work, and it would have collided with every
   commit in Stage 2.
+- **Round-six review fixes — done:** M1 (the wipe rule's `put(...)` hole),
+  M2 (a failed cap PNG left a button with no glyph), M3 (`UnlockScreen`'s
+  `Key`, wrongly baselined), M4 (the W1 test's non-vacuity guard), M5 (the
+  reduced-motion rule was wrong for four of five selectors), L1–L10.
+- **Rulings landed:** the **COLLECTION** button label; the bump to
+  **v0.2.0** with its authored entry; and **FIRMWARE HISTORY now narrates the
+  web's releases**.
 - **Open, carried forward:** S5, S6, S7b, U1–U6, U8–U10. See "Still open".
-- **Owed at the end of this programme:** **one version bump.** See "Versioning".
 
 ### Commits
 
@@ -55,6 +63,9 @@ deferred defects.
 | 8 | `1cf4b0f` feat: the footer caps are painted by the skin | S1, S8 |
 | 9 | `a81d23b` feat: the drawn moulded caps arrive, baked per skin | cap pipeline |
 | 10 | `feb993b` feat: the chassis geometry catches up | S2, S3, S4, S7a |
+| 11 | `f385c5b` docs(parity): v7 | this document |
+| 12 | `2b49a8e` fix: cleanbot round six, and the COLLECTION label ruling | M1–M5, L1–L10, label ruling |
+| 13 | *(this commit)* feat: v0.2.0, and the firmware log becomes the web's | rulings 1 and 2 |
 
 ---
 
@@ -325,10 +336,20 @@ indicators, not a skin surface.
 
 ## 4 · Versioning
 
-**Ruling 1 — do NOT bump yet. Honoured.** `APP_VERSION` stays `0.1.0`
-throughout this pass. **One bump is owed** covering the whole programme, at
-its end. This is flagged here because it is exactly how 102 commits
-accumulated behind the `v0.1.0` tag in the first place.
+**Ruling 1 — superseded: bumped to `v0.2.0`.** The earlier "do not bump yet"
+held for most of the pass; the bump then landed as its own act rather than
+drifting, which is the whole point of the discipline. `APP_VERSION` and
+`package.json` both move (`appVersion.test.ts` already held the three
+spellings equal), and `0.1.0` is promoted into `PREVIOUS`.
+
+The entry covers the **whole programme**, not the last pass — written from
+the running note below rather than reconstructed from `git log`. Fifteen
+notes: the v6 parity sweep, the bundle merge, the rulings, the drawn art and
+22 shells, the cap colour model and 88 baked caps, the chassis geometry, and
+the foundation work. It passed the gate it was written for.
+
+**Not tagged here.** The annotated `v0.2.0` tag is created at push time, per
+the convention that git tags are the real release record.
 
 **Ruling 2 — a changelog the version is tied to. Done.**
 `web/src/services/webChangelog.ts` plus `webChangelog.test.ts`: the shipped
@@ -343,10 +364,11 @@ the *device's* line, shared with iOS, and is what `FirmwareHistoryScreen`
 prints; this is the *web shell's* own line, on its own clock. A test asserts
 the two share no version, so a later edit cannot quietly merge them.
 
-### Running note for the eventual bump
+### Running note — now spent on 0.2.0
 
-Kept as it is earned, per the design note, rather than reconstructed from
-`git log` at the end:
+Kept as it was earned rather than reconstructed at the end, and this is what
+the `0.2.0` entry was written from. **It restarts empty from here**; the
+COLLECTION rename and the cap work are both in the entry above.
 
 - **v6 parity push** — WINE EXAM on the shared bank, FIRMWARE, BLIND TASTING,
   MASTER SEARCH, recommendations, SUPPORT, the cheat console, stored-data
@@ -362,9 +384,57 @@ Kept as it is earned, per the design note, rather than reconstructed from
   storage-key registry (profiles are wiped now), reduced motion, one contact
   constant, the release-blocker registry, and the changelog gate itself.
 
-**Release shape when it comes:** one edit to `APP_VERSION`, one new entry in
-`webChangelog.ts`, one `v<version>` git tag. The tag is the real record, as on
-the iOS side.
+**Release shape, as performed:** one edit to `APP_VERSION`, one to
+`package.json`, one new entry in `webChangelog.ts`, one `v<version>` git tag
+at push time. The tag is the real record, as on the iOS side.
+
+---
+
+## 4a · Ruling 2 — the FIRMWARE screen narrates the web
+
+**Decision: the screen reads `webChangelog.ts`. Nothing on the web renders
+iOS's device-firmware line any more.**
+
+The reasoning, since the ruling asked for it rather than for a swap:
+
+**The app was contradicting itself, and the disclaimer was the tell.**
+`VinodexBoot`'s POST has always printed `FIRMWARE: <APP_VERSION_DISPLAY>` —
+the *web's* number — so the device's own power-on self-description already
+said the firmware is the web's. `FirmwareHistoryScreen` said it was iOS's
+v0.9.2 and then carried a line of copy explaining the discrepancy: *"Device
+firmware, shared with the iOS build. This web shell is v0.1.0 — see the back
+plate."* A page that has to tell you why it disagrees with the machine it is
+running on is answering the wrong question, and that sentence was the
+evidence rather than the fix.
+
+**The reader settles it.** A web visitor has no phone. iOS's notes describe
+builds they cannot install, behind an App Store listing that is not live, at
+version numbers that will never match anything they see. That is noise dressed
+as a changelog.
+
+**What I did NOT strip.** The BIOS POST keeps its `FIRMWARE` row and is
+unchanged — it was already correct, and it is the one place the shared *device
+fiction* is stated. The fiction stays coherent because the device the player
+is holding **is** the web app: one number, printed at power-on, engraved on
+the back plate, and now headlining the firmware log.
+
+**Knock-ons checked before committing.** Every consumer of
+`FIRMWARE_RELEASES`/`FIRMWARE_VERSION` was enumerated: the screen, the DEV
+panel's FIRMWARE LOG health row (now counts web releases), and one test. No
+other copy anywhere drew the distinction. `shared/data/firmware.ts` is
+**untouched** — it is iOS's authored line and not the web's to edit.
+
+**The one remaining reference is deliberate**: `webChangelog.test.ts` still
+imports `FIRMWARE_RELEASES` to assert the two release lines never share a
+version. It is a test, so it is not bundled, and it is the fiction stated as a
+check.
+
+**A side benefit, measured.** Dropping the two runtime importers let Rollup
+tree-shake iOS's 35.6 KB firmware table out of the eager chunk entirely:
+`index-*.js` went **827,428 → 806,118 raw** and **250,924 → 243,086 gzipped**.
+That is a slice of v7#U3 falling out of a correctness change.
+
+**Supersedes v6#9**, which recorded the screen as reading the shared catalog.
 
 ---
 
@@ -413,7 +483,6 @@ visible as deferred twice.
 | **v7#U9** | `SettingsSectionPanel` is a 697-line switch with 7 `useState` | Its primitives are good; the switch is the monolith. Section-title order is now pinned, which is what makes the split checkable. |
 | **v7#U10** | `EntryDetail.tsx` is 1,549 lines | **Recommend not scheduling alone** — let it fall out of U1 + U8, which must pass through it. A standalone refactor with no functional goal is the silent refactor the brief forbids. |
 | **v7#W7** | `DeviceLayout` decomposition | Explicitly deferred by the coordinator; would have collided with every Stage 2 commit. Now unblocked. |
-| — | The USER/SAVED/COLLECTION button label | `MoonDialScreen.test.tsx` caught an accidental rename during S1. iOS renamed its equivalent to "User" in 0.8.5 because the page holds three shelves and the old label named one — true here too, since `/saved` is titled COLLECTION. But COLLECTION is a deliberate deviation, so the right web label is neither iOS's word nor the current one. **Reverted; needs a naming decision.** |
 
 ---
 
@@ -438,6 +507,16 @@ Unchanged from `IOS-PARITY.md` and v6 — **none re-raised above**:
   the lucide glyph on purpose (v7#W3).
 - **The re-ink algorithm exists in two languages**, Swift and Python, with a
   hash gate between them (v7#S-caps). Knowingly accepted.
+- **The saved-shelves chassis button is labelled COLLECTION**, where iOS
+  labels it **User** (0.8.5, A1). By ruling. iOS renamed it off "Saved
+  entries" because the page behind it holds three shelves and the label named
+  one of them — true here too. The web follows neither word, because it does
+  not follow iOS's page *title* either: COLLECTION rather than SAVED is a
+  long-standing deviation, and a chassis control announcing a name the page
+  does not use is that deviation half applied.
+- **FIRMWARE HISTORY narrates the web's releases, not the device firmware
+  line** (ruling, §4a). iOS's `shared/data/firmware.ts` is untouched and
+  unread by anything the web bundles.
 
 Carried open from v5 as *skipped*, still portable if wanted:
 

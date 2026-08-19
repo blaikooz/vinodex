@@ -62,7 +62,7 @@ import {
 } from '../src/services/userProfiles';
 import { DEMO_STOPS, demoCycleSeconds, startDemo } from '../src/services/demoMode';
 import { lineageIndexFor } from '../src/services/grapeLineage';
-import { FIRMWARE_RELEASES } from '@/shared/constants';
+import { WEB_RELEASES } from '../src/services/webChangelog';
 import { WIPE_KEYS } from '../src/services/storageKeys';
 
 
@@ -1079,8 +1079,8 @@ export const SettingsSectionPanel: React.FC<{
               />
               <HealthRow
                 label="FIRMWARE LOG"
-                ok={FIRMWARE_RELEASES.length > 0}
-                detail={`${FIRMWARE_RELEASES.length} RELEASES`}
+                ok={WEB_RELEASES.length > 0}
+                detail={`${WEB_RELEASES.length} RELEASES`}
               />
             </Section>
           </>
