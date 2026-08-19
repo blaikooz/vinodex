@@ -107,6 +107,16 @@ export const STORAGE_KEYS: readonly StorageKeySpec[] = [
   { key: 'hapticsEnabled', disposition: 'wipe', note: 'haptics preference' },
   { key: 'soundsEnabled', disposition: 'wipe', note: 'tap-sound preference' },
   {
+    key: 'marqueeQuickPins',
+    disposition: 'wipe',
+    note:
+      'where the two marquee lamp buttons point. iOS carries it as a '
+      + 'UserDefaults key under this exact spelling (QuickPinStore.storageKey); '
+      + 'wiped with the rest of the preferences, and a wiped device decodes '
+      + "'' back to the shipped TOOLS/CUSTOMIZE pair rather than to two dark "
+      + 'lamps.',
+  },
+  {
     key: 'keepAwakeEnabled',
     disposition: 'wipe',
     note:
