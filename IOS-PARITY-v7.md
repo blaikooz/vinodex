@@ -16,7 +16,7 @@ system that does not exist here)._
 
 ---
 
-## Status — both stages executed and green (2026-08-18, on `testing`)
+## Status — three passes executed and green (last: 2026-08-20, on `testing`)
 
 Gates at close of pass, run in full after every commit:
 **lint clean (cap 22) · typecheck clean · 569 tests / 49 files · build OK ·
@@ -62,6 +62,22 @@ enforced by nothing (L2).
   all landed (§8, "Pre-tag review"). Gates at close: lint 22/22 · typecheck
   clean · **614 tests / 53 files** · build OK · check:refs zero dangling ·
   **playwright 109 passed**. Version **v0.2.1**.
+- **v0.2.2 pass (2026-08-20), §9 below:** a **user fix batch from browser
+  testing of the deployed build**, and the desktop sweep it opened. The two
+  reported faults were the same mistake twice — the BIOS (`D1`) and the
+  chassis height (`D2`) both written in viewport coordinates where they meant
+  the device — and sweeping for that mistake found three more (`D3`–`D5`) plus
+  the tutorial card (`D6`). **Done:** D1–D6 (all five overlays and the frame
+  now share `deviceFrame.ts`), D7 (**the gate runs at three viewports and
+  asserts**, proved non-vacuous by reverting both fixes), D9 (a source-scan
+  guard against a fifth instance). **Arrived already closed:** D8, the install
+  banner — cleanbot's H2, fixed in v0.2.0, and dormant for everyone besides;
+  a test was written so the next report can be answered by pointing at one.
+  **Deliberate (not changed):** the scrolling marquee's overflow, named as a
+  non-bug by the user's own batch. **Left by ruling:** the App Store
+  placeholder and the contact route. Gates at close: lint 22/22 · typecheck
+  clean · **624 tests / 55 files** · build OK · check:refs zero dangling ·
+  **playwright 118 passed**. Version **v0.2.2**.
 
 ### Commits
 
@@ -714,6 +730,120 @@ profile system working as designed rather than the pins leaking.
 
 ---
 
+## 9 · v0.2.2 — the device fits the desk (2026-08-20)
+
+A third execution pass on this ledger, opened by a **user fix batch produced
+from browser testing of the deployed build**. Ids are this section's, cited
+qualified as `v7#D1`. Same iOS reference as §8, iOS **v0.9.2**
+(`vinodex-ios` @ `c0532a6`); on `testing` from `470242c` (= `master` = `v0.2.1`).
+
+### The finding that shaped the pass
+
+**Every gate this repo has runs at 420×900, where the browser window and the
+device are the same rectangle — and that is the one shape in which this whole
+class of bug cannot occur.**
+
+Both faults the user found are the same mistake wearing two hats: code that
+means "the device" and says "the viewport". On a phone the two are equal, so
+the app was correct by coincidence for its entire life. On a 1280×800 desktop
+window they are a 522px column inside a 1280px page, and the coincidence ends:
+
+- the BIOS drew its dotted POST leaders across the full 1280px, left aligned,
+  next to the machine it was booting;
+- the chassis was a flat `md:h-[850px]` inside an `overflow-hidden` shell, so
+  on an ~800px-tall window its bottom 50px — the entire footer band — was
+  clipped and unreachable. **Measured before the fix: frame `top: 0`,
+  `bottom: 850` in an 800px window; the COLLECTION and SETTINGS caps at
+  y 773→829; the marquee at 765→794; `document.scrollHeight` 866 with no
+  scroll possible.** The quick-pin lamps shipped one release earlier were
+  invisible at a common desktop size.
+
+Three more instances of the same mistake were sitting beside them, found by
+sweeping for it rather than by waiting for a second report (`v7#D3`–`v7#D6`).
+
+### Items
+
+| id | item | severity | outcome |
+|---|---|---|---|
+| **v7#D1** | The BIOS was fixed to the viewport, not the device | **moderate** | **Done.** `VinodexBoot.tsx:60` was `fixed inset-0`, mounted at `App.tsx:559` outside every `DeviceLayout`. The layer stays fixed — it must cover the window so nothing behind it is clickable — and the POST is now drawn in a `DEVICE_FRAME_BOX` the stage centres, so it occupies the device screen at every size. The click/key handler stays on the outer layer: "any tap advances it" is the promise, and on desktop the surround is still part of the machine. The `!booting` gates on `showIntroCard` and the coachmark auto-start, and `setSuspended(booting, 'boot')`, are untouched — the mount point did not move, only what it paints. Both v0.2.0 regression tests still pass. |
+| **v7#D2** | The chassis was 850px tall regardless of the window | **moderate** | **Done, on the ruling: shrink to fit.** `--device-frame-h: min(850px, calc(100dvh - 2rem))` in `index.css`, read by `DEVICE_FRAME_BOX`. **Only the screen area gives.** The caps, the island's `3×22 + 2×6.72 = 79.44` derivation (v7#L2), `.recessed-lamp`, the band pill and the vent strips are all fixed-height and are not rescaled by a single pixel; the LCD is the one `flex-1` in the stack, so a shorter frame is a shorter *display*. Measured after: 1280×800 → frame 768px, `top: 8`, `bottom: 776`; 1280×700 → 668px, `top: 8`, `bottom: 676`; **zero elements painting outside the window and zero controls off screen at either size.** `md:` only — the sub-breakpoint phone path is still `w-full h-full` in an `h-screen` stage, so the `dvh`/URL-bar behaviour that renders correctly today is not touched. |
+| **v7#D3** | The screensaver blanked the browser, not the screen | **minor** | **Done.** `ScreensaverOverlay.tsx:69` was `fixed inset-0 bg-black`, and `boxRef` — the box the closed-form bounce is computed against — was that same viewport rect. So the mark toured a 1280×800 desktop at 28% of 1280px. `boxRef` is the device box now and `MARK_FRACTION` means what it says again. |
+| **v7#D4** | Professor Vino spoke from below the device | **minor** | **Done.** `VinoBubble.tsx:35` was `fixed inset-x-0 bottom-3`. On a window taller than the chassis his bubble floated on the neutral backdrop under the machine. Clamped to the frame's lower edge. |
+| **v7#D5** | The intro card's scrim covered the desktop | **cosmetic** | **Done.** `VinoIntroCard.tsx:45`'s `bg-black/85` dimmed the whole browser window, which reads as something the *browser* put up. iOS states the rule for its own overlays at `DeviceChassis.swift:1156` — "every overlay in this app is confined to the display". The layer still covers the viewport for hit-testing; the ink is on the device. |
+| **v7#D6** | The tutorial card pointed at a control several hundred pixels above it | **minor** | **Done.** `CoachmarkOverlay.tsx:93`'s card sat at `bottom-4` of the *window*. The four dim panels and the spotlight hole are computed from `getBoundingClientRect` — viewport space — so those are correctly viewport-anchored and were deliberately left alone. Only the card moved. |
+| **v7#D7** | The gate could not see any of the above | **moderate, test** | **Done.** `web/e2e/viewports.spec.ts`: mobile 420×900 (kept), desktop 1280×800 and short 1280×700, nine cases. It **asserts rather than photographs** — the 850px chassis produced a handsome picture of a device missing its bottom 50px and nothing knew. Per size: no element paints outside the window (marquee excepted, see below), the frame ends inside it, all four caps and both quick-pin lamps are on screen, SETTINGS actually navigates from there, and the BIOS is never wider than the device. **Proved non-vacuous by reverting both fixes and re-running: 3 failed with "chassis runs past the bottom of the window", "Collection cap is below the fold", "the BIOS is not inside a device-frame box".** |
+| **v7#D8** | The install banner overlapping the device top (user batch item) | — | **Arrived already closed.** This was cleanbot's H2, fixed in v0.2.0: the bar publishes `--install-banner-h` and the shell pads down by exactly that, back to zero on dismiss (`InstallBanner.tsx:36`, `App.tsx:557`). It additionally early-returns for everyone while `APP_STORE_LISTING_IS_LIVE` is false (`shareLink.ts:30` — the App Store id is still `id0000000000`), so it renders for nobody in the shipped build. The batch was written against an older deploy. **What was missing was a test**, which is why the report could not be answered by pointing at one: `InstallBanner.test.tsx` now pins the dormancy, the published height, the withdrawal on dismiss, the sticky dismissal, and the fact that the shell reads the same variable name the bar writes. |
+| **v7#D9** | The rule, guarded | minor, craft | **Done.** `deviceFrame.test.ts` reads the component sources and fails on a **fifth** instance: any `web/components/*.tsx` that draws `fixed inset-*` without importing `deviceFrame`, or that restates `md:w-[522px]` / `md:h-[850px]`. One allowlisted exception, `InstallBanner` — it is a bar *about* the browser, and it pays for its viewport anchoring by publishing its height. A source scan is blunt; the failure mode is a class string, and the alternative is finding the next one in a user's browser again. |
+
+### The ruling, and what it cost
+
+Three ways to make a fixed-height device fit a short window were costed before
+the ruling came back. Recorded because the rejected two are the ones somebody
+will propose again:
+
+| approach | cost | what it does to the moulding |
+|---|---|---|
+| **Cap the height** *(taken)* | One custom property and one class. Content area shrinks; every screen already scrolls its LCD, so nothing new has to. | **Nothing.** Every moulded figure is a fixed height and stays exactly as authored; the LCD is the only `flex-1`. |
+| CSS `transform: scale(k)` | Preserves the designed proportions exactly, but has to compose into the same `transform` string as the `rotateY` flip — and that string is *transitioned*, so a window resize mid-flip animates the scale. Non-integer scales soften the pixel type this device is built out of. At 800px it is a 0.9× app: every glyph, cap and lamp 10% small. | Rescales **everything**, which is precisely what the ruling forbids. |
+| Let the page scroll | Cheapest change; worst product. A handheld that scrolls off the top of the window is not a handheld, the footer band is still below the fold on arrival (the actual complaint), and every viewport-fixed overlay immediately disagrees with a scrolled device. | Untouched, but the object stops reading as an object. |
+
+**What iOS does: nothing, because it has never had to.** `DeviceChassis` is
+`.frame(maxWidth: .infinity, maxHeight: .infinity).ignoresSafeArea()`
+(`DeviceChassis.swift:432`) — the chassis *is* the screen, always, and there is
+no compact form and no scale-to-fit anywhere in the file. It absorbs a shorter
+phone the same way this fix absorbs a shorter window: the furniture keeps its
+points and the page takes the loss, with `PageRoom.growth(pageHeight:step:)`
+(`TypeScale.swift:264`) handing a measured slack factor to pages that can use
+it, floored at 340 text-units so "the layout 0.6.9 verified is untouched in the
+case it was verified in".
+
+**`DexTheme`'s SMALL/LARGE is not a size class and must not be read as one.**
+`UIScale` (`ScreenMode.swift:38`) scales the *furniture* — footer controls,
+marquee band, vents, icon wells — at 1.0 / 1.15, and `TextScale`
+(`TypeScale.swift:36`) scales type. Both are **user settings**, persisted
+rawValues, with no viewport input at all. The web mirrors them already
+(`theme.ts:503`, `--ui-scale`). Neither is a response to how much room there
+is, so neither was available as an answer here.
+
+### The desktop sweep
+
+Twenty routes at 1280×800 and 1280×700, checked for anything painting outside
+the window and for page errors. **No further viewport-anchoring faults.** The
+five in `v7#D1`–`v7#D6` were the whole population; the remaining reports are
+scrolling LCD content extending past the fold, which is the LCD doing its job
+(`/list/GRAPES` reports a 16,218px list, and means nothing by it). That is why
+the gate's overflow assertion runs on `/dex` and only on `/dex` — the one
+surface whose content fits, which is what makes a stray on it a real fault.
+
+**The marquee is excluded by name, not by loosening the assertion.**
+`terminal-marquee` is `whitespace-nowrap` and animates; it is *supposed* to
+overhang its clip. The user's batch names it explicitly as a non-bug and it is
+carried into the deliberate list below.
+
+### Left for the multi-track push, not acted on
+
+- **A `Modal` primitive with focus trapping is now clearly owed.** This pass
+  put four overlays through the same clamp and left each one's focus behaviour
+  exactly as it was — `VinoIntroCard` claims `aria-modal="true"` with no focus
+  trap and no restore, the same shape of claim-versus-behaviour gap that
+  `v7#W-1` closed for the lamp chooser with `inert`. `deviceFrame.ts` is the
+  natural place for a shared shell to stand on. **Recorded, not started.**
+- **`EntryDetail` decomposition** is untouched by this pass; nothing here
+  changed its seams.
+- **Release blockers stay open by ruling** — the App Store id remains the
+  placeholder (so the install bar stays dormant) and the contact route is
+  unchanged. Registered, not fixed.
+
+### Commits
+
+| # | Commit | Items |
+|---|---|---|
+| 20 | *(this pass)* fix: the device frame, and the overlays that ignored it | D1–D6, D9 |
+| 21 | *(this pass)* test: the viewport gate, and the install banner's offset | D7, D8 |
+| 22 | *(this pass)* docs(parity): v0.2.2 and this section | the bump, §9 |
+
+---
+
 ## Deliberate deviations (carried forward, re-checked this sweep)
 
 Unchanged from `IOS-PARITY.md` and v6 — **none re-raised above**:
@@ -745,6 +875,21 @@ Unchanged from `IOS-PARITY.md` and v6 — **none re-raised above**:
 - **FIRMWARE HISTORY narrates the web's releases, not the device firmware
   line** (ruling, §4a). iOS's `shared/data/firmware.ts` is untouched and
   unread by anything the web bundles.
+
+**Added in the v0.2.2 pass (§9):**
+
+- **The marquee is wider than the screen that clips it, and animates.**
+  `terminal-marquee` is `whitespace-nowrap` by design — the scroll is the
+  point, and its parent does the clipping. Named as a non-bug in the user's
+  own v0.2.2 batch, and excluded **by class** from the new viewport gate's
+  overflow assertion rather than by loosening the assertion, so the intent
+  stays legible to whoever reads the failure next.
+- **The chassis shrinks; the moulding does not.** On a window shorter than
+  850px the device caps to `100dvh - 2rem` and the **LCD** absorbs every pixel
+  of it. iOS never faces this — its chassis is the whole screen — so there is
+  no counterpart behaviour to match, and the rule chosen is iOS's own logic
+  transposed: the furniture keeps its authored figures and the page takes the
+  loss (`PageRoom`). A web-only response to a web-only situation.
 
 **Added in the v0.2.1 pass (§8):**
 

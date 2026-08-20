@@ -66,20 +66,32 @@ export interface WebRelease {
  * assertion. It also gives the thing you edit a name.
  */
 const CURRENT: WebRelease = {
-  version: '0.2.1',
-  date: '2026-08-19',
-  headline: 'THE LAMPS BECOME BUTTONS',
+  version: '0.2.2',
+  date: '2026-08-20',
+  headline: 'THE DEVICE FITS THE DESK',
   notes: [
-    'The two lamps over the marquee are buttons now -- press one to go where it points.',
-    'Point them anywhere: right-click or hold a lamp to choose TOOLS, CUSTOMIZE, SETTINGS, DATA or ACCESS.',
-    'Each lamp wears its destination as a word cut into the cap, and remembers it.',
-    'The island orb and its lamp trio are a matched pair again -- same length, same height.',
-    'The lamps on the screen housing are lit rather than printed, and throw light on the plastic.',
+    'The device shrinks to fit a short window, so the buttons under the screen are always reachable.',
+    'The quick-pin lamps shipped in 0.2.1 were below the fold on a common desktop window. They are not now.',
+    'The power-on test boots on the device screen instead of across the whole browser window.',
+    'The screensaver, the professor and his introduction all stay on the device at any window size.',
+    'The render gate now checks a desktop and a short window as well as a phone.',
   ],
 };
 
 /** Newest first. A new release is prepended by promoting `CURRENT`. */
 const PREVIOUS: WebRelease[] = [
+  {
+    version: '0.2.1',
+    date: '2026-08-19',
+    headline: 'THE LAMPS BECOME BUTTONS',
+    notes: [
+      'The two lamps over the marquee are buttons now -- press one to go where it points.',
+      'Point them anywhere: right-click or hold a lamp to choose TOOLS, CUSTOMIZE, SETTINGS, DATA or ACCESS.',
+      'Each lamp wears its destination as a word cut into the cap, and remembers it.',
+      'The island orb and its lamp trio are a matched pair again -- same length, same height.',
+      'The lamps on the screen housing are lit rather than printed, and throw light on the plastic.',
+    ],
+  },
   {
     version: '0.2.0',
     date: '2026-08-18',
