@@ -66,25 +66,44 @@ export interface WebRelease {
  * assertion. It also gives the thing you edit a name.
  */
 const CURRENT: WebRelease = {
-  version: '0.2.2',
+  version: '0.3.0',
   date: '2026-08-20',
-  headline: 'THE DESK AND THE VINES',
+  headline: 'THE SITE IS THE DOOR',
   notes: [
-    'The device shrinks to fit a short window, so the buttons under the screen are always reachable.',
-    'The quick-pin lamps shipped in 0.2.1 were below the fold on a common desktop window. They are not now.',
-    'The power-on test boots on the device screen instead of across the whole browser window.',
-    'The screensaver, the professor and his introduction all stay on the device at any window size.',
-    'Grape stat bars mean something now: all 177 are written down rather than guessed from the description.',
-    'COLOUR runs from teinturiers like Alicante Bouschet and Saperavi down to Poulsard, not one shade per red.',
-    'AROMATICS runs from Muscat and Gewurztraminer down to Trebbiano, instead of near-full marks for everyone.',
-    'White grapes no longer show phantom tannin. Only the Georgian amber varieties keep any, and they should.',
-    'Cabernet Pfeffer is French, one unsourced parentage link is gone, and some descriptions read better.',
-    'The render gate now checks a desktop and a short window as well as a phone.',
+    'Horizon/Godot is the front door now. The DEX / WEBSITE fork is gone, and the site is what you land on.',
+    'Vinodex is an app you open from inside it: OUR WORK, then VINODEX, then OPEN VINODEX.',
+    'The power-on test runs every time you open the app, and never on the site.',
+    'A shared entry link still opens straight onto the entry -- a link to a page is not an app launch.',
+    'No access code. The keypad withheld nothing, and the tile opens the app on a press.',
+    'On the site the device is always the red Vinodex CLASSIC shell, whatever skin you picked for the app.',
+    'Your chosen skin is untouched by that, and is back on the device the moment you are in the dex.',
+    'The wordmark under the screen reads HORIZON/GODOT on the site and VINODEX in the app.',
+    'The marquee panel simply says WELCOME on the site; the greeting script stays in the app.',
+    'The screensaver stays in the app. The site does not go to sleep while you are reading it.',
+    'Back from the dex menu returns to the site, and SYSTEM now offers EXIT TO SITE.',
+    'Every old /website link still works, so nothing shared or bookmarked breaks.',
   ],
 };
 
 /** Newest first. A new release is prepended by promoting `CURRENT`. */
 const PREVIOUS: WebRelease[] = [
+  {
+    version: '0.2.2',
+    date: '2026-08-20',
+    headline: 'THE DESK AND THE VINES',
+    notes: [
+      'The device shrinks to fit a short window, so the buttons under the screen are always reachable.',
+      'The quick-pin lamps shipped in 0.2.1 were below the fold on a common desktop window. They are not now.',
+      'The power-on test boots on the device screen instead of across the whole browser window.',
+      'The screensaver, the professor and his introduction all stay on the device at any window size.',
+      'Grape stat bars mean something now: all 177 are written down rather than guessed from the description.',
+      'COLOUR runs from teinturiers like Alicante Bouschet and Saperavi down to Poulsard, not one shade per red.',
+      'AROMATICS runs from Muscat and Gewurztraminer down to Trebbiano, instead of near-full marks for everyone.',
+      'White grapes no longer show phantom tannin. Only the Georgian amber varieties keep any, and they should.',
+      'Cabernet Pfeffer is French, one unsourced parentage link is gone, and some descriptions read better.',
+      'The render gate now checks a desktop and a short window as well as a phone.',
+    ],
+  },
   {
     version: '0.2.1',
     date: '2026-08-19',

@@ -45,15 +45,21 @@ wrapped in a plastic shell you can re-skin five different ways.
 | **Moon dial** | The biodynamic day — fruit, root, leaf or flower — for anyone who plans a tasting around it. |
 | **Saved** | Bookmark anything. Stored as ids, so a data update never leaves you looking at stale text. |
 | **Five chassis skins** | Vinodex Classic, Côte de Nuits, Blanc de Blancs, Burgundy Velour, Electric Riesling. Plus a light screen mode and two text sizes. |
-| **The website** | `/` forks into the dex and a four-page site wearing the same chassis: OUR APPS, WHO WE ARE, CONTACT US, and the DATA readout. Vinodex is handed over from the app shelf behind a code. |
+| **The website** | `/` **is** Horizon/Godot: a four-page site wearing the same chassis — OUR WORK, WHO WE ARE, CONTACT US, and the DATA readout. Vinodex is an app you open from inside it, and the device boots when you do. |
 
-Every entry is unlocked. There is no account, no paywall and no tracking; your
-saved entries and your chosen skin live in your own browser's storage.
+Every entry is unlocked. There is no account, no paywall, no access code and no
+tracking; your saved entries and your chosen skin live in your own browser's
+storage.
 
-The one gate is the code the website's app shelf asks for before it opens
-Vinodex, and it is a doorman rather than a lock — the code lives in the client
-bundle, and `/dex` is still reachable directly from the splash. It exists so the
-app is handed over rather than stumbled into.
+There used to be a code in front of the app. It was removed in v0.3.0: it lived
+in the client bundle and `/dex` was reachable directly anyway, so it withheld
+nothing and cost every visitor four taps to find that out. The BIOS does the job
+it was really there for — pressing OPEN VINODEX powers the device on, so the app
+is handed over rather than stumbled into.
+
+On the site the chassis is always the red Vinodex CLASSIC shell and the wordmark
+under the screen reads HORIZON/GODOT; in the app it is whichever skin you chose,
+and it reads VINODEX.
 
 ## The iOS app is the sibling, not the source
 
@@ -83,8 +89,8 @@ when the two disagree.
 >
 > `shared/` is here because the web app imports it — 7 files under
 > `web/src/services/`, plus `web/data/flagImages.ts` for the flags — and it
-> still will: `/` is a splash that forks to the dex and a coming-soon website
-> page, so the encyclopedia stays rather than being replaced by a landing page.
+> still will: `/` is the company site and the encyclopedia opens from inside it,
+> so the catalogue stays rather than being replaced by a landing page.
 > It is **mirrored, not frozen**: `sync-shared.ps1` overwrites this copy from
 > the master, so an edit made here is lost on the next sync. The `generate:ios`
 > / `icons:ios` scripts are gone, so **an iOS data change is made in
@@ -133,9 +139,11 @@ watcher.
 
 Vercel, configured by [`vercel.json`](vercel.json):
 
-- **SPA rewrite** so `/dex` and `/detail/<id>` resolve on a cold load instead
-  of 404ing. Anything with a file extension, plus `assets/` and `icons/`, is
-  left alone and served statically.
+- **SPA rewrite** so `/dex`, `/detail/<id>` and the site's own pages (`/apps`,
+  `/who-we-are`, `/contact`, `/project/<id>`) resolve on a cold load instead of
+  404ing — as do the v0.2.x `/website/...` URLs, which the router redirects.
+  Anything with a file extension, plus `assets/` and `icons/`, is left alone and
+  served statically.
 - **Immutable caching** on hashed assets; **no-cache** on `sw.js` and
   `manifest.webmanifest`, so a returning browser picks up a new build rather
   than serving yesterday's shell forever.
