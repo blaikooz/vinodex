@@ -6,6 +6,15 @@ import { EntryCategory } from '@/shared/types';
 
 interface MainMenuProps {
   onNavigate: (category: EntryCategory) => void;
+  /**
+   * Backing out past the menu (v8#9).
+   *
+   * The menu had no Back at all, because under the old model there was nothing
+   * above it worth returning to — Back would have landed on a DEX / WEBSITE
+   * fork nobody wanted to see twice. The site is what the app sits on now, so
+   * the top of the app has somewhere to go: out of it.
+   */
+  onExit: () => void;
 }
 
 /**
@@ -67,14 +76,15 @@ const DialTile: React.FC<{
   </button>
 );
 
-const MainMenu: React.FC<MainMenuProps> = ({ onNavigate }) => {
+const MainMenu: React.FC<MainMenuProps> = ({ onNavigate, onExit }) => {
   const [isFlipped, setIsFlipped] = useState(false);
 
   return (
     <DeviceLayout
       title="VINODEX"
       subtitle=""
-      showBack={false}
+      showBack
+      onBack={onExit}
       onHome={() => {}}
       isFlipped={isFlipped}
       onTitleTap={() => setIsFlipped(true)}

@@ -18,8 +18,9 @@
  * - They are no longer the same feature set, on purpose. There is no paywall
  *   and no `tiers.json` here (see `access.ts`), the scanner walks a flat
  *   country list where iOS walks the globe, there are no haptics, and the
- *   splash/website branch — `SplashScreen` and everything `WebsitePortal`
- *   builds — has no Swift counterpart at all.
+ *   company site — everything `WebsitePortal` builds, which since v0.3.0 is
+ *   the landing experience the app opens from — has no Swift counterpart at
+ *   all.
  *
  * The mirroring had already failed before it was dropped: this repo held
  * 0.4.1.7 here and 0.4.1.5 in the frozen `ios/` copy while the live phone was
@@ -30,7 +31,7 @@
  */
 
 /** Bump on release. The single source of truth for the web app's version. */
-export const APP_VERSION = '0.2.2';
+export const APP_VERSION = '0.3.0';
 
 /** Display form, e.g. `v0.2.0`. */
 export const APP_VERSION_DISPLAY = `v${APP_VERSION}`;

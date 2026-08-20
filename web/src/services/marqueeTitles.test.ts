@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest';
 import { readFileSync, readdirSync, statSync } from 'node:fs';
 import path from 'node:path';
 import { MARQUEE_ART } from './marqueeArt';
+import { SITE_MARQUEE_TITLE } from './appRoutes';
 
 /**
  * Every screen title resolves to a marquee panel, or is an accepted fallback
@@ -16,10 +17,10 @@ import { MARQUEE_ART } from './marqueeArt';
  * A title with no panel and no lucide case falls through to the wineglass. On
  * a dex screen that is a silent downgrade — a screen that should carry its own
  * drawn panel quietly showing the app's generic mark, discoverable only by
- * looking at it. On a **portal** screen it is correct and deliberate: the
- * `/website` fork is a different product that shares the chassis, and giving
- * the company site its own set of dex marquee panels would be exactly the
- * leakage the separation rule forbids.
+ * looking at it. On a **company-site** screen it is correct and deliberate:
+ * the site is a different product that shares the chassis, and giving it its
+ * own set of dex marquee panels would be exactly the leakage the separation
+ * rule forbids.
  *
  * So the fallback list is explicit and small, and every member of it is a
  * portal title. A dex title arriving without a panel fails here.
@@ -43,16 +44,20 @@ const APP = path.resolve(__dirname, '../../App.tsx');
 /**
  * Titles that deliberately have no drawn panel.
  *
- * Every one is a `/website` portal screen. The portal reuses `DeviceLayout`
- * and the tile styling on purpose, so the two products read as one brand —
- * and stops there. Marquee panels are dex chrome.
+ * Every one is a company-site screen. The site reuses `DeviceLayout` and the
+ * tile styling on purpose, so the two products read as one brand — and stops
+ * there. Marquee panels are dex chrome.
+ *
+ * UNLOCK and UNLOCK VINODEX left this list in v0.3.0 with the screens they
+ * named: the access code is gone (v8#3), and the honesty check below is what
+ * forced the removal rather than letting two dead names sit here looking
+ * deliberate.
  */
 const ACCEPTED_FALLBACKS = new Set([
-  'OUR WORK',        // the OUR APPS list
+  'OUR WORK',        // the OUR WORK list
   'CONTACT US',
-  'UNLOCK',          // the in-app unlock keypad
-  'UNLOCK VINODEX',  // the portal's unlock door
-  'HORIZON/GODOT',   // a project splash
+  'HORIZON/GODOT',   // the site's front page
+  SITE_MARQUEE_TITLE.toUpperCase(), // WELCOME — see `siteMarquee` below
 ]);
 
 /** Literal `title=` props on `<DeviceLayout>`, with the file that carries them. */
@@ -89,8 +94,23 @@ const literalTitles = (): { title: string; file: string }[] => {
   return out;
 };
 
+/**
+ * The site's marquee override, which is not a `title=` prop (v8#8).
+ *
+ * `DeviceLayout` passes `SITE_MARQUEE_TITLE` to the band on every site screen,
+ * so it is a string this app puts on that panel — and it would have been
+ * invisible to a scan that only reads `<DeviceLayout title="...">`. Folding it
+ * in keeps the gate's claim true: *every* title the panel can show is either
+ * mapped or listed. Without this the override would be the one string on the
+ * marquee that nothing checked.
+ */
+const siteMarquee = (): { title: string; file: string } => ({
+  title: SITE_MARQUEE_TITLE,
+  file: 'appRoutes.ts',
+});
+
 describe('marquee titles', () => {
-  const titles = literalTitles();
+  const titles = [...literalTitles(), siteMarquee()];
 
   it('finds the screens it is meant to be checking', () => {
     // Guards the guard: a regex that matched nothing would make every
@@ -107,12 +127,12 @@ describe('marquee titles', () => {
       missing,
       'these titles fall through to the generic wineglass:\n'
       + `${missing.join('\n')}\n`
-      + 'Either map the title in MARQUEE_ART, or — if it is a /website portal screen — '
+      + 'Either map the title in MARQUEE_ART, or — if it is a company-site screen — '
       + 'add it to ACCEPTED_FALLBACKS with the reason.',
     ).toEqual([]);
   });
 
-  it('keeps the fallback list to portal screens, and keeps it honest', () => {
+  it('keeps the fallback list to site screens, and keeps it honest', () => {
     // A fallback that has since gained a panel should leave the list, or the
     // list stops meaning "deliberately without one".
     const stale = [...ACCEPTED_FALLBACKS].filter(t => MARQUEE_ART[t]);

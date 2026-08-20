@@ -143,10 +143,17 @@ describe('<SettingsSectionPanel />', () => {
   });
 
   describe('ACCESS', () => {
-    it('renders both tier sections', async () => {
+    it('renders the tier section, and no longer a website gate', async () => {
+      // **The pin narrowed with the panel (v8#3).** It used to demand *both*
+      // WEBSITE ACCESS and FREE TIER. The access code is gone — the site hands
+      // the app over on a button press — so the first section was deleted, and
+      // this asserts its absence rather than dropping the mention: a WEBSITE
+      // ACCESS heading reappearing would mean the door came back without the
+      // ruling being revisited, which is exactly the change worth catching.
       renderSection('ACCESS');
-      await waitFor(() => expect(sectionTitles()).toContain('WEBSITE ACCESS'));
-      expect(sectionTitles()).toContain('FREE TIER');
+      await waitFor(() => expect(sectionTitles()).toContain('FREE TIER'));
+      expect(sectionTitles()).not.toContain('WEBSITE ACCESS');
+      expect(screen.queryByRole('button', { name: /RE-LOCK/i })).toBeNull();
     });
   });
 });

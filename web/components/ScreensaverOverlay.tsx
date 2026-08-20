@@ -22,9 +22,11 @@ const MARK_FRACTION = 0.28;
  * still: a screensaver's job is to mark idleness, and a static mark does that
  * without the motion.
  *
- * The mark is the splash's PNG wordmark — the iOS drawn `ScreensaverMarkArt`
- * is part of the art-transport ruling (v6#2); the PNG is the web's existing
- * mark and stands in without a new asset.
+ * The mark is `/vinodex-logo.png` — the iOS drawn `ScreensaverMarkArt` is part
+ * of the art-transport ruling (v6#2); the PNG is the web's existing mark and
+ * stands in without a new asset. (It was described here as "the splash's
+ * wordmark"; the splash is gone with the fork, and the PNG is not — it is also
+ * the favicon, the PWA icon and the OG image.)
  */
 const ScreensaverOverlay: React.FC<ScreensaverOverlayProps> = ({ onDismiss }) => {
   const boxRef = useRef<HTMLDivElement>(null);

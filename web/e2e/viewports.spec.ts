@@ -1,4 +1,4 @@
-import { test, expect, seedDevice } from './fixtures';
+import { test, expect, enterDex, seedDevice } from './fixtures';
 import type { Page } from '@playwright/test';
 
 /**
@@ -81,7 +81,7 @@ for (const [name, width, height] of SIZES) {
     test('the device fits the window', async ({ page, consoleErrors }, testInfo) => {
       void consoleErrors;
       await seedDevice(page);
-      await page.goto('/dex');
+      await enterDex(page, '/dex');
       await page.waitForTimeout(900);
 
       const shot = await page.screenshot();
@@ -113,7 +113,7 @@ for (const [name, width, height] of SIZES) {
     test('the footer band is on screen and clickable', async ({ page, consoleErrors }) => {
       void consoleErrors;
       await seedDevice(page);
-      await page.goto('/dex');
+      await enterDex(page, '/dex');
       await page.waitForTimeout(900);
 
       const vh = (await page.evaluate(() => window.innerHeight)) as number;
@@ -152,11 +152,10 @@ for (const [name, width, height] of SIZES) {
      */
     test('the BIOS boots inside the device', async ({ page, consoleErrors }, testInfo) => {
       void consoleErrors;
-      await page.addInitScript(() => {
-        window.localStorage.setItem('unlockedAppIDs', JSON.stringify(['vinodex']));
-        window.localStorage.setItem('firstTimeTriggersSeen', 'firstLaunch,firstLaunchNamed');
-        window.localStorage.setItem('coachmarkOffered', 'true');
-      });
+      // Seeded past the professor but NOT past the boot -- and there is no
+      // longer a flag that could have skipped it, so this is now simply what a
+      // cold arrival on a dex route does (v8#2).
+      await seedDevice(page);
       await page.goto('/dex');
 
       const post = page.getByText(/VINODEX BIOS/);

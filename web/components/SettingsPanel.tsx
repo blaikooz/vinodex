@@ -43,8 +43,6 @@ import {
 import { useAccess } from '../src/services/useAccess';
 import { removeEverything } from '../src/services/bookmarks';
 import iconManifest from '../src/data/iconManifest.json';
-import { isAppUnlocked, lockApp } from '../src/services/appUnlock';
-import { useAppUnlock } from '../src/services/useAppUnlock';
 import {
   SavedDataArchive,
   applyArchive,
@@ -229,10 +227,10 @@ export const SettingsGrid: React.FC<{
   onSection: (id: SettingsSectionId) => void;
   onMinigames: () => void;
   onFirmware: () => void;
-  onExitToSplash: () => void;
+  onExitToSite: () => void;
   onBack: () => void;
   onHome: () => void;
-}> = ({ onSection, onMinigames, onFirmware, onExitToSplash, onBack, onHome }) => {
+}> = ({ onSection, onMinigames, onFirmware, onExitToSite, onBack, onHome }) => {
   const theme = useTheme();
   const isLight = LCD_MODES[theme.lcd].isLight;
   return (
@@ -254,18 +252,19 @@ export const SettingsGrid: React.FC<{
       </div>
 
       {/*
-        The way out of the app entirely, back to the DEX / WEBSITE fork. Home
-        goes to the dex menu by design, so without this the splash was
-        unreachable once you had entered — you had to edit the URL.
+        The way out of the app entirely, back to the company site the app sits
+        on top of (v8#9). Home goes to the dex menu by design, and Back only
+        reaches the site from the menu itself, so this is the one control that
+        closes the app from wherever you happen to be.
       */}
       <button
-        onClick={onExitToSplash}
+        onClick={onExitToSite}
         className="w-full mt-3 flex items-center justify-center gap-2 py-4 rounded-xl border-2 transition-all active:translate-y-0.5"
         style={{ backgroundColor: 'var(--lcd-surface)', borderColor: 'var(--lcd-surface-edge)' }}
       >
         <LogOut size={18} style={{ color: 'var(--lcd-subtext)' }} />
         <span className="font-retro text-[0.6rem] tracking-widest" style={{ color: 'var(--lcd-text)' }}>
-          EXIT TO SPLASH
+          EXIT TO SITE
         </span>
       </button>
 
@@ -573,9 +572,6 @@ export const SettingsSectionPanel: React.FC<{
 
   useAccess();
   const locked = starterOnly();
-
-  useAppUnlock();
-  const vinodexUnlocked = isAppUnlocked('vinodex');
 
   const countIn = (category: string) => allEntries.filter(e => e.category === category).length;
 
@@ -960,30 +956,17 @@ export const SettingsSectionPanel: React.FC<{
         return (
           <>
             {/*
-              The website's app gate. It sat under DATA — reachable, but filed
-              with the database readout rather than with the other things that
-              decide what opens. ACCESS is the panel about being let in, so it
-              belongs here even though it is a different mechanism from the
-              paywall harness below: that models which bundles someone owns,
-              this models whether the site hands the app over at all. They never
-              consult each other — see `appUnlock`.
-            */}
-            <Section title="WEBSITE ACCESS">
-              <StatRow label="VINODEX" value={vinodexUnlocked ? 'UNLOCKED' : 'LOCKED'} />
-              {vinodexUnlocked && (
-                <button
-                  onClick={() => lockApp('vinodex')}
-                  className="w-full mt-2 py-3 rounded border-2 border-red-800 font-retro text-[0.6rem] tracking-widest text-red-400 hover:bg-red-950 transition-colors"
-                >
-                  RE-LOCK VINODEX
-                </button>
-              )}
-              <p className="font-mono text-sm leading-relaxed normal-case mt-2" style={{ color: 'var(--lcd-subtext)' }}>
-                The code the website asks for before it hands over the app.
-                Unlocking is remembered in this browser; re-locking asks again.
-              </p>
-            </Section>
+              The WEBSITE ACCESS section stood here and is gone (v8#3). It read
+              out whether the access code had been entered and offered to
+              re-lock the app. There is no code and no lock: the site hands the
+              app over on a button press, so a readout of a permission nobody
+              grants would be a control that lies about the product.
 
+              ACCESS keeps its name and its remaining section. The panel is
+              about what opens, and the paywall harness below is still exactly
+              that — it models which bundles someone owns, which is a different
+              question from the one the door used to ask and the only one left.
+            */}
             <Section title="FREE TIER">
               <IconToggleRow
                 icon={locked ? <Lock size={20} /> : <LockOpen size={20} />}

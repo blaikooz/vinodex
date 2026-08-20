@@ -1,4 +1,4 @@
-import { test, expect, seedDevice, seedFreshDevice } from './fixtures';
+import { test, expect, ALL_TRIGGERS_SEEN, enterDex, seedDevice, seedFreshDevice } from './fixtures';
 import type { Page } from '@playwright/test';
 
 /**
@@ -12,8 +12,10 @@ import type { Page } from '@playwright/test';
  * Playwright only builds a fixture a test asks for.
  */
 
-/** The dex is behind an unlock code that persists; set it before first paint. */
-const unlock = (page: Page) => seedDevice(page);
+/** Past the professor and the walkthrough offer, so the screen under test is
+ *  the thing on screen. The BIOS is walked through by `enterDex`, not seeded
+ *  past (v8#2). */
+const seed = (page: Page) => seedDevice(page);
 
 const routes: [string, string][] = [
   ['/dex', 'the main menu'],
@@ -36,8 +38,8 @@ const routes: [string, string][] = [
 for (const [route, name] of routes) {
   test(`renders ${name} (${route})`, async ({ page, consoleErrors }) => {
     void consoleErrors;
-    await unlock(page);
-    await page.goto(route);
+    await seed(page);
+    await enterDex(page, route);
     // The chassis always paints something; an empty body is a dead screen.
     await expect(page.locator('body')).not.toBeEmpty();
     await page.waitForTimeout(600);
@@ -46,8 +48,8 @@ for (const [route, name] of routes) {
 
 test('a grape entry and its lineage render', async ({ page, consoleErrors }) => {
     void consoleErrors;
-  await unlock(page);
-  await page.goto('/list/GRAPES');
+  await seed(page);
+  await enterDex(page, '/list/GRAPES');
   await page.waitForTimeout(800);
   const firstRow = page.locator('[data-coachmark="listingRow"] button').first();
   await firstRow.click();
@@ -61,8 +63,8 @@ test('a grape entry and its lineage render', async ({ page, consoleErrors }) => 
 
 test('the tools shelf is the fixed six', async ({ page, consoleErrors }) => {
     void consoleErrors;
-  await unlock(page);
-  await page.goto('/minigames');
+  await seed(page);
+  await enterDex(page, '/minigames');
   await page.waitForTimeout(600);
   const tiles = page.locator('.grid > button');
   await expect(tiles).toHaveCount(6);
@@ -72,12 +74,10 @@ test('the tools shelf is the fixed six', async ({ page, consoleErrors }) => {
 
 test('the professor greets a fresh device and takes a name', async ({ page, consoleErrors }) => {
     void consoleErrors;
-  // Deliberately NOT unlocked-past: this is the first-run flow.
-  await page.addInitScript(() => {
-    window.localStorage.setItem('unlockedAppIDs', JSON.stringify(['vinodex']));
-    window.sessionStorage.setItem('booted', '1');
-  });
-  await page.goto('/dex');
+  // Deliberately NOT seeded past first run: this is the first-run flow. The
+  // BIOS is walked rather than seeded away (v8#2) -- it runs on every entry
+  // now, and pressing past it is what a player does.
+  await enterDex(page, '/dex');
   await page.waitForTimeout(900);
   const card = page.getByRole('dialog', { name: /introduces himself/i });
   await expect(card).toBeVisible();
@@ -89,8 +89,8 @@ test('the professor greets a fresh device and takes a name', async ({ page, cons
 
 test('the stored-data dialogs open and refuse a foreign file', async ({ page, consoleErrors }) => {
     void consoleErrors;
-  await unlock(page);
-  await page.goto('/settings/SETTINGS');
+  await seed(page);
+  await enterDex(page, '/settings/SETTINGS');
   await page.waitForTimeout(600);
   await page.getByRole('button', { name: /CLEAR SAVED DATA/ }).click();
   await expect(page.getByText('CLEAR SAVED DATA?')).toBeVisible();
@@ -104,23 +104,105 @@ test('the stored-data dialogs open and refuse a foreign file', async ({ page, co
   await expect(page.getByText(/Not a Vinodex backup/)).toBeVisible({ timeout: 5000 });
 });
 
-test('the BIOS boots once a session and hands the device over', async ({ page, consoleErrors }) => {
+/**
+ * The BIOS runs every time the app is opened, and never on the site (v8#2).
+ *
+ * **This replaces "the BIOS boots once a session".** That test's second half
+ * navigated to `/passport` and asserted the boot did *not* run, which was the
+ * `sessionStorage 'booted'` contract stated as a browser test. The contract is
+ * gone: boot is no longer a session fact, it is what happens when you open the
+ * app. Rewritten rather than deleted, and the new assertions are the harder
+ * ones -- the old test could not tell "booted once" from "booted never again",
+ * and could say nothing at all about the site, which is where the ruling's
+ * other half lives.
+ *
+ * Three things, in the order a visitor meets them: the site does not boot, the
+ * crossing into the app does, and moving around inside the app does not.
+ */
+test('the BIOS runs on entering the app, and never on the site', async ({ page, consoleErrors }) => {
     void consoleErrors;
-  await page.addInitScript(() => {
-    window.localStorage.setItem('unlockedAppIDs', JSON.stringify(['vinodex']));
-    window.localStorage.setItem('firstTimeTriggersSeen', 'firstLaunch,firstLaunchNamed');
-    window.localStorage.setItem('coachmarkOffered', 'true');
-  });
-  await page.goto('/dex');
+  await seedDevice(page);
+  const post = page.getByText(/VINODEX BIOS/);
+
+  // 1. The company site is the landing, and nothing powers on there.
+  await page.goto('/');
+  await page.waitForTimeout(700);
+  await expect(post).toHaveCount(0);
+  await expect(page.getByRole('heading', { name: 'HORIZON/GODOT' })).toBeVisible();
+
+  // 2. OUR WORK -> VINODEX -> OPEN VINODEX, with no keypad in the way (v8#3).
+  await page.getByRole('button', { name: 'OUR WORK' }).click();
+  await page.getByRole('button', { name: /VINODEX/ }).first().click();
+  await expect(page).toHaveURL(/\/project\/vinodex$/);
+  await page.getByRole('button', { name: /OPEN VINODEX/ }).click();
+
   // The POST states what the device actually carries: the web ships
   // COUNTRY_GATE rows as entries, so its number is its own, not iOS's.
-  await expect(page.getByText(/VINODEX BIOS/)).toBeVisible();
+  await expect(post).toBeVisible();
   await expect(page.getByText(/\d+ ENTRIES/)).toBeVisible();
-  // And it gets out of the way.
-  await expect(page.getByText(/VINODEX BIOS/)).toBeHidden({ timeout: 20_000 });
-  // Second visit in the same session goes straight through.
+  await expect(post).toBeHidden({ timeout: 20_000 });
+  await expect(page).toHaveURL(/\/dex$/);
+
+  // 3. Inside the app, nothing power-cycles under you.
   await page.goto('/passport');
-  await expect(page.getByText(/VINODEX BIOS/)).toHaveCount(0);
+  await page.waitForTimeout(700);
+  await expect(post).toHaveCount(0);
+});
+
+/**
+ * And it runs *again* on the next entry -- the half of the ruling that the old
+ * once-per-session model made impossible to state (v8#2).
+ */
+test('the BIOS runs again the second time you open the app', async ({ page, consoleErrors }) => {
+    void consoleErrors;
+  await seedDevice(page);
+  const post = page.getByText(/VINODEX BIOS/);
+
+  await enterDex(page, '/dex');
+  await expect(post).toHaveCount(0);
+
+  // Back out past the menu: the site is what the app sits on (v8#9).
+  await page.getByRole('button', { name: 'Back', exact: true }).first().click();
+  await page.waitForTimeout(400);
+  expect(new URL(page.url()).pathname).toBe('/');
+  await expect(post).toHaveCount(0);
+
+  // In again. A session flag would have suppressed this; nothing does.
+  await page.getByRole('button', { name: 'OUR WORK' }).click();
+  await page.getByRole('button', { name: /VINODEX/ }).first().click();
+  await page.getByRole('button', { name: /OPEN VINODEX/ }).click();
+  await expect(post).toBeVisible();
+  await expect(post).toBeHidden({ timeout: 20_000 });
+});
+
+/**
+ * A shared link opens the page, not the app (v8#2).
+ *
+ * The one deep-link exception, and the reason for it: `/detail/:id` is the
+ * share surface -- 440 prerendered OG pages exist for exactly these URLs -- so
+ * a stranger who taps one gets the entry rather than a power-on test in front
+ * of it. And nothing power-cycles under them afterwards, which is what the
+ * second half checks: opening a related screen from there is in-app
+ * navigation.
+ */
+test('a shared entry link does not boot the device', async ({ page, consoleErrors }) => {
+    void consoleErrors;
+  // Past every line: the second half presses Home, and the professor's
+  // `firstGrapeViewed` bubble covers the band -- see `ALL_TRIGGERS_SEEN`.
+  await seedDevice(page, ALL_TRIGGERS_SEEN);
+  const post = page.getByText(/VINODEX BIOS/);
+
+  await page.goto('/detail/G001');
+  await page.waitForTimeout(700);
+  await expect(post).toHaveCount(0);
+  await expect(page).toHaveURL(/\/detail\/G001$/);
+
+  // Home takes them into the app proper, and still does not power-cycle:
+  // they are already inside the device.
+  await page.getByRole('button', { name: 'Home', exact: true }).first().click();
+  await expect(page).toHaveURL(/\/dex$/);
+  await page.waitForTimeout(700);
+  await expect(post).toHaveCount(0);
 });
 
 /**
@@ -131,7 +213,9 @@ test('the BIOS boots once a session and hands the device over', async ({ page, c
  */
 test('the BIOS runs alone on a genuinely fresh device', async ({ page, consoleErrors }) => {
   void consoleErrors;
-  // Nothing seeded but the unlock: no `booted`, no triggers, no coachmark.
+  // Nothing seeded at all: no triggers, no coachmark, and -- since v0.3.0 --
+  // nothing else either, because the two seeds that used to be left out named
+  // facts that no longer exist (v8#2, v8#3).
   //
   // Through `seedFreshDevice` since L6. This test hand-rolled its own init
   // script, and W20 then added a *second*, weaker first-run test alongside it
@@ -139,6 +223,12 @@ test('the BIOS runs alone on a genuinely fresh device', async ({ page, consoleEr
   // non-empty and that two chassis buttons existed, both of which this test
   // and every other test already cover. The duplicate is deleted and the
   // fixture serves the test that actually checks first run.
+  //
+  // `page.goto` rather than `enterDex`, and that is the point: this is the one
+  // test that must *watch* the boot rather than press past it. A cold arrival
+  // on a dex route is a launch, so it boots (v8#2) -- the same window the old
+  // `booted`-absent seed opened, reached through the model instead of around
+  // it.
   await seedFreshDevice(page);
   await page.goto('/dex');
 
@@ -155,8 +245,9 @@ test('the BIOS runs alone on a genuinely fresh device', async ({ page, consoleEr
 test('a returning untoured player is not spotlit over the BIOS', async ({ page, consoleErrors }) => {
   void consoleErrors;
   await page.addInitScript(() => {
-    window.localStorage.setItem('unlockedAppIDs', JSON.stringify(['vinodex']));
-    // Met the professor, never took the tour: the auto-start path.
+    // Met the professor, never took the tour: the auto-start path. There is no
+    // `booted` to leave out any more -- a cold arrival on a dex route boots by
+    // the model (v8#2), which is exactly the window this test needs.
     window.localStorage.setItem('firstTimeTriggersSeen', 'firstLaunch,firstLaunchNamed');
   });
   await page.goto('/dex');
@@ -199,8 +290,8 @@ const DETAIL_IDS: [string, string][] = [
 for (const [id, name] of DETAIL_IDS) {
   test(`renders the detail readout for ${name} (/detail/${id})`, async ({ page, consoleErrors }) => {
     void consoleErrors;
-    await unlock(page);
-    await page.goto(`/detail/${id}`);
+    await seed(page);
+    await enterDex(page, `/detail/${id}`);
     await page.waitForTimeout(700);
     // An unknown id redirects to /dex, so staying on the route is the check
     // that the fixture id is real — a silent redirect would make this test
@@ -228,7 +319,7 @@ for (const [id, name] of DETAIL_IDS) {
 test('nothing outside the lamp chooser answers a pointer', async ({ page, consoleErrors }) => {
   void consoleErrors;
   await seedDevice(page, { chassisSkin: 'CLASSIC' });
-  await page.goto('/dex');
+  await enterDex(page, '/dex');
   await page.waitForTimeout(700);
 
   const lamps = page.locator('.lamp-hit');
@@ -280,7 +371,7 @@ test('the lamp legend never shrinks below its floor', async ({ page, consoleErro
   void consoleErrors;
   await page.setViewportSize({ width: 320, height: 720 });
   await seedDevice(page, { chassisSkin: 'CLASSIC' });
-  await page.goto('/dex');
+  await enterDex(page, '/dex');
   await page.waitForTimeout(700);
 
   const legends = page.locator('.lamp-legend');

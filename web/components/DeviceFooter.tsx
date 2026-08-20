@@ -2,7 +2,6 @@ import React, { useEffect, useState, useSyncExternalStore } from 'react';
 import { Home, CircleUser, Settings } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import type { ChassisSkinId, FooterCapKind } from '../src/services/theme';
-import { useTheme } from '../src/services/useTheme';
 import { useMarqueeScript } from '../src/services/useMarqueeScript';
 import { marqueeGlyph } from '../src/services/marqueeArt';
 import { pinAt, pinRoute, pinsRevision, subscribeToPins } from '../src/services/quickPins';
@@ -26,12 +25,36 @@ import ChassisLamp from './ChassisLamp';
 export interface DeviceFooterProps {
   /** The screen's own name. Feeds the marquee panel and its glyph. */
   title: string;
+  /**
+   * What the marquee panel reads, when that is not the screen's own name.
+   *
+   * The company site passes one constant (v8#8): the dex's greeting script —
+   * WELCOME! for a beat, then MENU, then the nine toasts once the device has
+   * been ignored for a minute — is a *dex* behaviour, and `useMarqueeScript`
+   * arms its clock only on the main menu. Overriding the *text* rather than
+   * teaching the script a second mode is what keeps the state machine
+   * untouched: the site never enters it, so it cannot consume the once-per-
+   * launch WELCOME! that a player is owed when they open the app.
+   *
+   * Absent means "the screen's own name", which is every dex screen.
+   */
+  marqueeTitle?: string;
+  /**
+   * The shell to draw, which is not always the stored one.
+   *
+   * The colours arrive as inherited custom properties (`skinCssVars`), but the
+   * drawn caps are an image URL and a URL cannot inherit — so the effective
+   * skin id comes down as a value. `DeviceLayout` decides it; on the company
+   * site it is always CLASSIC (v8#4).
+   */
+  skin: ChassisSkinId;
   /** Replaces the marquee panel outright, for screens that draw their own. */
   footerCenter?: React.ReactNode;
   onBack?: () => void;
   showBack?: boolean;
   onHome?: () => void;
-  /** SAVED and SETTINGS. The splash turns them off; see `DeviceLayoutProps`. */
+  /** SAVED and SETTINGS. Every company-site screen turns them off; see
+   *  `DeviceLayoutProps`. */
   showSystemButtons?: boolean;
   /**
    * Raise the lamp chooser for a slot.
@@ -41,7 +64,7 @@ export interface DeviceFooterProps {
    * on the chassis is the surface with the strongest claim to sit outside the
    * display and the strongest reason not to. So the band asks and
    * `DeviceLayout` mounts. Absent leaves the lamps navigable and not
-   * reassignable, which is what the splash wants.
+   * reassignable.
    */
   onReassignLamp?: (slot: number) => void;
   /**
@@ -165,6 +188,8 @@ const CapFace: React.FC<{
 
 const DeviceFooter: React.FC<DeviceFooterProps> = ({
   title,
+  marqueeTitle,
+  skin,
   footerCenter,
   onBack,
   showBack = false,
@@ -177,11 +202,14 @@ const DeviceFooter: React.FC<DeviceFooterProps> = ({
   // The lamps repaint when a pin moves, without a provider threaded through
   // the chassis — the same external store the collection buttons use.
   useSyncExternalStore(subscribeToPins, pinsRevision, pinsRevision);
-  // The active shell, for the drawn caps. `useTheme` is the same external
-  // store the rest of the chassis reads, so a skin change repaints the band
-  // without a reload.
-  const theme = useTheme();
-  const footerTitle = useMarqueeScript(title);
+  // The script still runs on `title`, so the hook's "is this the main screen"
+  // test is unchanged and the state machine is untouched; the site's override
+  // replaces only what is *printed*.
+  const scriptTitle = useMarqueeScript(title);
+  const footerTitle = marqueeTitle ?? scriptTitle;
+  // The glyph follows whatever the panel says, so the two halves of the banner
+  // never name two different screens.
+  const glyphTitle = marqueeTitle ?? title;
   const backEnabled = showBack && !!onBack;
   // One size: the marquee never says VINODEX any more (the script replaced
   // the wordmark loop), so the old big-wordmark branch was dead (review I3).
@@ -196,7 +224,7 @@ const DeviceFooter: React.FC<DeviceFooterProps> = ({
           >
             {footerTitle}
           </span>
-          <span className="pr-6 flex items-center">{marqueeGlyph(title, 22)}</span>
+          <span className="pr-6 flex items-center">{marqueeGlyph(glyphTitle, 22)}</span>
           <span
             aria-hidden="true"
             className={`inline-block font-retro ${footerTitleSize} italic tracking-[-0.08em] transform -skew-x-12 leading-none text-green-500 pr-6`}
@@ -204,7 +232,7 @@ const DeviceFooter: React.FC<DeviceFooterProps> = ({
           >
             {footerTitle}
           </span>
-          <span aria-hidden="true" className="pr-6 flex items-center">{marqueeGlyph(title, 22)}</span>
+          <span aria-hidden="true" className="pr-6 flex items-center">{marqueeGlyph(glyphTitle, 22)}</span>
         </div>
       </div>
     </div>
@@ -236,7 +264,7 @@ const DeviceFooter: React.FC<DeviceFooterProps> = ({
           {/* The drawn cap, with the coloured circle behind it as its own
               fallback. `currentColor` on the glyph so that fallback is
               legible on the pale skins, where a hardcoded white was not. */}
-          <CapFace kind="back" skin={theme.skin}>
+          <CapFace kind="back" skin={skin}>
             <svg viewBox="0 0 24 24" className="w-8 h-8 pointer-events-none" fill="none" stroke="currentColor" strokeWidth={4} strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
               <path d="M15 5L7 12l8 7" />
             </svg>
@@ -262,7 +290,7 @@ const DeviceFooter: React.FC<DeviceFooterProps> = ({
             className={`${CAP_CLASS} hover:scale-[1.02]`}
             style={capStyle('user')}
           >
-            <CapFace kind="user" skin={theme.skin}>
+            <CapFace kind="user" skin={skin}>
               <CircleUser className="w-7 h-7 pointer-events-none" strokeWidth={2} aria-hidden="true" />
             </CapFace>
           </button>
@@ -336,7 +364,7 @@ const DeviceFooter: React.FC<DeviceFooterProps> = ({
             );
           }) : (
             /* **The portal gets the parts and not the controls.**
-               `showSystemButtons` is off on every `/website` screen, and it is
+               `showSystemButtons` is off on every company-site screen, and is
                off for exactly this reason: SAVED and SETTINGS are in-app
                controls, and so are these — every pin resolves to `/minigames`
                or `/settings/*`, which are dex routes. Two moulded lamps on a
@@ -391,7 +419,7 @@ const DeviceFooter: React.FC<DeviceFooterProps> = ({
           className={`${CAP_CLASS} ${onHome ? 'hover:scale-[1.02]' : 'opacity-35 cursor-default'}`}
           style={capStyle('home')}
         >
-          <CapFace kind="home" skin={theme.skin}>
+          <CapFace kind="home" skin={skin}>
             <Home size={28} className="pointer-events-none" aria-hidden="true" />
           </CapFace>
         </button>
@@ -403,7 +431,7 @@ const DeviceFooter: React.FC<DeviceFooterProps> = ({
             className={`${CAP_CLASS} hover:scale-[1.02]`}
             style={capStyle('settings')}
           >
-            <CapFace kind="settings" skin={theme.skin}>
+            <CapFace kind="settings" skin={skin}>
               <Settings
                 className="w-[50%] h-[50%] pointer-events-none"
                 aria-hidden="true"

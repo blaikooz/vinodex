@@ -46,9 +46,13 @@ export default defineConfig({
         background_color: '#232323',
         display: 'standalone',
         orientation: 'portrait',
-        // An installed PWA opens the app, not the splash. Someone who has
-        // added Vinodex to their home screen has already made the choice the
-        // splash exists to offer.
+        // An installed PWA opens the app, not the studio site. Someone who
+        // added Vinodex to their home screen installed *the app*; "/" is
+        // Horizon/Godot's front page and there is no longer a splash asking
+        // which they meant (v8#1).
+        //
+        // This is a cold arrival on a dex route, so it boots — which is right:
+        // tapping the icon is the clearest "open Vinodex" there is (v8#2).
         start_url: '/dex',
         icons: [
           {

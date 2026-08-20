@@ -187,11 +187,32 @@ describe('the storage-key registry', () => {
     }
   });
 
-  it('keeps exactly the two keys the rule allows', () => {
-    // The rule: everything the device remembers about you goes; what stays is
-    // the grant that let you in, and one browser-chrome preference. Any third
+  it('keeps exactly the one key the rule allows', () => {
+    // The rule, in v0.3.0's wording: everything the device remembers about you
+    // goes, and what stays is only what is not about you at all. Any second
     // `keep` is a decision, not an edit, and should fail here first.
-    expect(KEEP_KEYS.map(s => s.key).sort()).toEqual(['installNudgeDismissed', 'unlockedAppIDs']);
+    //
+    // **Stricter than the pin it replaces, not weaker.** That one allowed two
+    // keys and named `unlockedAppIDs` as the second. The access door is gone
+    // (v8#3), so the grant records nothing; the list is now one key long and
+    // the exemption cannot be quietly re-added.
+    expect(KEEP_KEYS.map(s => s.key).sort()).toEqual(['installNudgeDismissed']);
+  });
+
+  it('registers no access grant, now that there is no door', () => {
+    // The specific regression: re-introducing `unlockedAppIDs` under any
+    // disposition would mean the gate came back without the ruling being
+    // revisited. Stated over both stores, since a `keep` and a session flag
+    // would both do it.
+    expect(ALL_REGISTERED_KEYS).not.toContain('unlockedAppIDs');
+  });
+
+  it('registers no session flag for the boot', () => {
+    // `booted` made the BIOS a once-per-session event. It runs on every entry
+    // into the app now (v8#2), so a flag reappearing here would be the old
+    // model creeping back in.
+    expect(SESSION_KEYS.map(s => s.key)).toEqual([]);
+    expect(ALL_REGISTERED_KEYS).not.toContain('booted');
   });
 
   it('wipes the profile index and every slot — the W25 defect', () => {

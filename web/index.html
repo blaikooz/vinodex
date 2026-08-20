@@ -5,27 +5,38 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
-    <title>VINODEX</title>
-    <meta name="application-name" content="VINODEX" />
-    <meta name="description" content="A retro wine field guide for exploring grapes, regions, styles, and tasting profiles." />
+    <!--
+      The shell's own card describes what is at "/", and as of v0.3.0 that is
+      the studio site rather than a DEX / WEBSITE splash (v8#1). Only "/" and
+      the non-prerendered routes ever unfurl with these: every /detail/:id page
+      gets its own <title>, description, canonical and OG tags written into a
+      copy of this file at build time (scripts/prerender-og.ts), so the 440
+      share cards are untouched by this change.
+
+      The PWA keeps naming itself VINODEX below, and so does the manifest: the
+      installed app IS Vinodex (start_url is /dex). The site is the studio.
+    -->
+    <title>HORIZON/GODOT</title>
+    <meta name="application-name" content="HORIZON/GODOT" />
+    <meta name="description" content="Horizon/Godot is a two-person studio in New York. Home of VINODEX, a retro wine field guide for exploring grapes, regions, styles, and tasting profiles." />
     <meta name="theme-color" content="#DC0A2D" />
     <link rel="icon" type="image/png" href="/vinodex-logo.png" />
     <link rel="apple-touch-icon" href="/vinodex-logo.png" />
     <meta name="apple-mobile-web-app-title" content="VINODEX" />
     <meta property="og:type" content="website" />
-    <meta property="og:site_name" content="Vinodex" />
+    <meta property="og:site_name" content="Horizon/Godot" />
     <meta property="og:url" content="https://vinodex.vercel.app/" />
     <!-- Per-entry <title>/OG/Twitter tags are injected at build time for
          /detail/:id pages so shared cards unfurl with the entry — see
          scripts/prerender-og.ts. Add the smart app banner here once the App
          Store listing is live: <meta name="apple-itunes-app" content="app-id=…"> -->
-    <meta property="og:title" content="VINODEX" />
-    <meta property="og:description" content="A retro wine field guide for exploring grapes, regions, styles, and tasting profiles." />
+    <meta property="og:title" content="HORIZON/GODOT" />
+    <meta property="og:description" content="A two-person studio in New York. Home of VINODEX, a retro wine field guide for exploring grapes, regions, styles, and tasting profiles." />
     <meta property="og:image" content="/vinodex-logo.png" />
     <meta property="og:image:alt" content="VINODEX logo" />
     <meta name="twitter:card" content="summary_large_image" />
-    <meta name="twitter:title" content="VINODEX" />
-    <meta name="twitter:description" content="A retro wine field guide for exploring grapes, regions, styles, and tasting profiles." />
+    <meta name="twitter:title" content="HORIZON/GODOT" />
+    <meta name="twitter:description" content="A two-person studio in New York. Home of VINODEX, a retro wine field guide for exploring grapes, regions, styles, and tasting profiles." />
     <meta name="twitter:image" content="/vinodex-logo.png" />
     <meta name="twitter:image:alt" content="VINODEX logo" />
   </head>

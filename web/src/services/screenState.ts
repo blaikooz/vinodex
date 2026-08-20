@@ -89,7 +89,9 @@ export function toggleFlag(key: string, flag: string): void {
 
 /**
  * Wired to the Home action only. Back must NOT clear — restoring on Back is the
- * whole point — and entering or leaving the splash must not clear either.
+ * whole point. Leaving the app for the company site *does* clear, because
+ * re-entering the dex should not resume mid-page — `handleExitToSite` and the
+ * Home action are the two callers (v8#9).
  */
 export function clear(): void {
   anchors.clear();

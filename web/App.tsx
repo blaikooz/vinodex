@@ -10,8 +10,7 @@ import {
   useSearchParams,
 } from 'react-router-dom';
 import MainMenu from './components/MainMenu';
-import SplashScreen from './components/SplashScreen';
-import { PortalHome, OurAppsList, ProjectSplash, UnlockVinodex, WhoWeAre, ContactUs, getProject } from './components/WebsitePortal';
+import { PortalHome, OurAppsList, ProjectSplash, WhoWeAre, ContactUs, getProject } from './components/WebsitePortal';
 import EncyclopediaList from './components/EncyclopediaList';
 import EntryDetail from './components/EntryDetail';
 import RegionMapScreen from './components/RegionMapScreen';
@@ -45,6 +44,7 @@ import VinoIntroCard from './components/VinoIntroCard';
 import CoachmarkOverlay from './components/CoachmarkOverlay';
 import { IDLE_ACTIVITY_EVENTS, IDLE_SCREENSAVER_SECONDS } from './src/services/screensaver';
 import ScreensaverOverlay from './components/ScreensaverOverlay';
+import { bootDecision, isDexPath } from './src/services/appRoutes';
 
 const RetroGlobeScreen = lazy(() => import('./components/RetroGlobeScreen'));
 const MoonDialScreen = lazy(() => import('./components/MoonDialScreen'));
@@ -105,7 +105,7 @@ const ScreenLoading: React.FC<{ label: string; subtitle?: string; onBack: () => 
 
 /*
  * ---------------------------------------------------------------------------
- * The five route components (W1)
+ * The routed leaf components (W1)
  * ---------------------------------------------------------------------------
  *
  * **These live at module scope, and that is load-bearing.** All five were
@@ -138,8 +138,8 @@ interface RouteChrome {
 }
 
 /** `/list/:category`. An unknown category is a stale in-app link, so it falls
- *  back to the dex menu rather than the splash — see the catch-all route for
- *  the difference. */
+ *  back to the dex menu rather than to the company site — see the catch-all
+ *  route for the difference. */
 const ListRoute: React.FC<RouteChrome & { onSelect: (entry: WineEntry) => void }> = ({
   onSelect,
   onBack,
@@ -260,14 +260,30 @@ const DetailRoute: React.FC<RouteChrome & {
   );
 };
 
-/** `/website/project/:id` — the in-app splash for a Substack project. An
+/** `/project/:id` — the in-app splash for one of the studio's projects. An
  *  unknown id is a stale link, so it falls back to the OUR WORK list rather
- *  than the top-level splash. */
-const ProjectRoute: React.FC<RouteChrome & { onUnlock: () => void }> = ({ onBack, onHome, onUnlock }) => {
+ *  than to the site's front page. */
+const ProjectRoute: React.FC<RouteChrome & { onOpenApp: () => void }> = ({ onBack, onHome, onOpenApp }) => {
   const { id } = useParams<{ id: string }>();
   const project = getProject(id);
-  if (!project) return <Navigate to="/website/apps" replace />;
-  return <ProjectSplash project={project} onBack={onBack} onHome={onHome} onUnlock={onUnlock} />;
+  if (!project) return <Navigate to="/apps" replace />;
+  return <ProjectSplash project={project} onBack={onBack} onHome={onHome} onOpenApp={onOpenApp} />;
+};
+
+/**
+ * The v0.2.x `/website/*` URLs, kept alive (v8#1).
+ *
+ * The portal moved up to `/`, and **nothing already linked, bookmarked or
+ * shared may break** — so every old spelling still resolves, by redirect,
+ * to wherever its screen went. `:id` is carried across rather than dropped,
+ * which a flat `<Navigate to="/apps">` would have done silently.
+ *
+ * `replace` on all of them: a redirect that pushed would put the dead URL in
+ * the history, so Back would bounce off it forever.
+ */
+const LegacyProjectRedirect: React.FC = () => {
+  const { id } = useParams<{ id: string }>();
+  return <Navigate to={`/project/${id ?? ''}`} replace />;
 };
 
 
@@ -276,22 +292,38 @@ const App: React.FC = () => {
   const location = useLocation();
   const allEntries = useMemo(() => getAllEntries(), []);
 
-  // The BIOS boot: once per browser session, and skipped on a deep-link arrival
-  // (/detail, /website) so a shared-link visitor plays instantly. Any tap or the
-  // auto-advance clears it.
-  const [booting, setBooting] = useState(() => {
-    try {
-      const p = window.location.pathname;
-      const fresh = !window.sessionStorage.getItem('booted');
-      return fresh && !p.startsWith('/detail/') && !p.startsWith('/website');
-    } catch {
-      return false;
-    }
-  });
-  const finishBoot = () => {
-    try { window.sessionStorage.setItem('booted', '1'); } catch { /* ignore */ }
-    setBooting(false);
-  };
+  /*
+   * The BIOS boot (v8#2).
+   *
+   * **The premise inverted in v0.3.0.** It used to be a once-per-browser-
+   * session event keyed on a `sessionStorage 'booted'` flag, fired on arrival
+   * and suppressed for `/detail/` and `/website`. That made sense while `/`
+   * was a fork: booting was something that happened to you when you showed up.
+   *
+   * Now the site is the landing and Vinodex is an app you open from inside it,
+   * so the boot is not about the session at all — **it is what happens when you
+   * open the app**. Every entry into the dex boots; nothing on the site ever
+   * does; navigation inside the dex never re-boots. Two trips in and out in one
+   * page-load boot twice, which is the point. The flag is gone, not defaulted:
+   * there is no longer a fact for it to remember.
+   *
+   * `bootDecision` holds the whole rule, including the one deep-link
+   * exception and its reasoning — see `appRoutes.ts`.
+   */
+  const [booting, setBooting] = useState(() => bootDecision(null, location.pathname));
+  // The path the last decision was made against. `null` until the first effect
+  // runs, which is how the mount case tells itself apart from a navigation —
+  // and why StrictMode's double-invoke cannot fire a second boot: the second
+  // pass sees `from === to`, and a dex-to-dex move never boots.
+  const bootFrom = useRef<string | null>(null);
+  useEffect(() => {
+    const from = bootFrom.current;
+    bootFrom.current = location.pathname;
+    // The mount decision was made in `useState` above, with `from = null`.
+    if (from === null || from === location.pathname) return;
+    if (bootDecision(from, location.pathname)) setBooting(true);
+  }, [location.pathname]);
+  const finishBoot = () => setBooting(false);
   // While the boot screen owns the device, the professor holds his tongue —
   // the same suspension seam the in-screen prompts claim.
   useEffect(() => { setSuspended(booting, 'boot'); }, [booting]);
@@ -333,9 +365,22 @@ const App: React.FC = () => {
   // The screensaver (v6#33): one authored threshold (60 s, iOS 0.8.0 H).
   // Any activity resets the clock; raising it while the demo loop runs would
   // kill the attract loop's point, so the demo suppresses it.
+  //
+  // **Dex only (v8#5).** A screensaver is the device idling, and on the site
+  // the device is a thing on a desk that a visitor is reading *around* — a
+  // bouncing mark taking over the studio's front page after a minute is the
+  // app's behaviour appearing on a page that is not the app. It is also the
+  // exact class of leak the separation rule exists to stop, arriving through
+  // the shared chassis rather than through an import.
+  //
+  // The marquee's idle clock is the other half of the unified reckoning
+  // (v0.2.0, review L4) and needs nothing here: `useMarqueeScript` arms its
+  // timers only on the main menu, so it has never run on the site, and the
+  // site's panel is now a constant (v8#8) rather than a script.
   const [saverUp, setSaverUp] = React.useState(false);
+  const inDex = isDexPath(location.pathname);
   useEffect(() => {
-    if (demoActive) {
+    if (demoActive || !inDex) {
       setSaverUp(false);
       return;
     }
@@ -353,7 +398,7 @@ const App: React.FC = () => {
       events.forEach(e => window.removeEventListener(e, activity, { capture: true }));
       clearInterval(poll);
     };
-  }, [demoActive]);
+  }, [demoActive, inDex]);
 
   // Professor Vino + the coachmarks (v6#23/#26). Seed both ledgers once per
   // launch — the three history-derived triggers for an existing shelf, and
@@ -418,25 +463,47 @@ const App: React.FC = () => {
   const showIntroCard =
     location.pathname === '/dex' && !booting && !hasFired('firstLaunch') && !isVinoSilenced() && !introDone && !demoActive;
 
-  // Home is an in-app control, so it lands on the dex menu — never the splash.
-  // The splash is where a fresh visit starts, not a screen to bounce back to.
+  // Home is an in-app control, so it lands on the dex menu — never the site.
+  // The site is what the app sits on top of, not a screen to bounce back to.
   //
   // Home is also the reset: it drops every stored scroll position, so
   // re-entering a country from the menu opens at the top. Back deliberately
-  // does not clear — restoring on Back is the point — and the splash does not
-  // clear on the way in or out either.
+  // does not clear — restoring on Back is the point — and leaving the app for
+  // the site does clear, for the same reason Home does (`handleExitToSite`).
   const handleHome = () => {
     clearScreenState();
     navigate('/dex');
   };
 
-  // `location.key === 'default'` means there is no history to pop — a deep link
+  // `location.key === 'default'` means there is no history to pop — a URL
   // opened cold. Back then falls back to the dex menu for the same reason Home
-  // does: the user is inside the app, and dropping them on the splash would
-  // make them click DEX to get back to where Back should have taken them.
+  // does: the user is inside the app, and dropping them on the studio site
+  // would make them walk back in.
+  //
+  // Unchanged by v0.3.0, deliberately. Leaving the app is not Back's job —
+  // see `handleExitToSite`, which the menu's own Back cap uses.
   const handleBack = () => {
     if (location.key === 'default') navigate('/dex');
     else navigate(-1);
+  };
+
+  /**
+   * Out of the app, onto the site underneath it (v8#9).
+   *
+   * The menu's Back cap and SYSTEM's EXIT TO SITE are the same act and share
+   * this handler. **A fixed destination rather than `navigate(-1)`**, and that
+   * is the ruling read literally: "backing out past the menu returns to the
+   * website". A history pop would land wherever you happened to come from, so
+   * `/passport` → Home → Back would go *back into* `/passport` — the menu's
+   * Back would sometimes leave the app and sometimes re-enter it, depending on
+   * a history the player cannot see. One destination, always.
+   *
+   * Clears screen state for the same reason Home does: re-entering the dex
+   * should not resume mid-page.
+   */
+  const handleExitToSite = () => {
+    clearScreenState();
+    navigate('/');
   };
 
   const buildListUrl = (
@@ -559,66 +626,69 @@ const App: React.FC = () => {
       {booting && <VinodexBoot entries={allEntries.length} onDone={finishBoot} />}
       <Routes>
         {/*
-          "/" is the splash: a fresh visit forks between the dex and the
-          coming-soon website. The dex menu, which used to live here, is at
-          "/dex" — a real route, so browser Back from it reaches the splash.
+          "/" is the company site, and the site is the landing experience
+          (v8#1). There is no DEX / WEBSITE fork any more: Horizon/Godot is what
+          a visitor arrives at, and Vinodex is an app they open from inside it
+          — OUR WORK → VINODEX → BIOS → the dex. The chassis carries all of it,
+          so the site reads as the studio's device sitting on the desk and
+          opening the app boots it.
+
+          Every portal screen hides the in-app chassis buttons
+          (`showSystemButtons={false}`) and offers Back instead.
         */}
         <Route
           path="/"
           element={
-            <SplashScreen
-              onEnterDex={() => navigate('/dex')}
-              onEnterWebsite={() => navigate('/website')}
-            />
-          }
-        />
-
-        {/* The WEBSITE fork — the company portal. Mirrors the dex's look; its
-            screens hide the in-app chassis buttons and offer Back instead. */}
-        <Route
-          path="/website"
-          element={
             <PortalHome
               onBack={handleBack}
-              onHome={() => navigate('/website')}
-              onOpenApps={() => navigate('/website/apps')}
-              onWhoWeAre={() => navigate('/website/who-we-are')}
-              onContactUs={() => navigate('/website/contact')}
+              onHome={() => navigate('/')}
+              onOpenApps={() => navigate('/apps')}
+              onWhoWeAre={() => navigate('/who-we-are')}
+              onContactUs={() => navigate('/contact')}
               onData={() => navigate('/settings/DATA')}
             />
           }
         />
         <Route
-          path="/website/apps"
+          path="/apps"
           element={
             <OurAppsList
               onBack={handleBack}
-              onHome={() => navigate('/website')}
-              onSelectProject={id => navigate(`/website/project/${id}`)}
+              onHome={() => navigate('/')}
+              onSelectProject={id => navigate(`/project/${id}`)}
             />
           }
         />
         <Route
-          path="/website/project/:id"
+          path="/project/:id"
           element={
             <ProjectRoute
               onBack={handleBack}
-              onHome={() => navigate('/website')}
-              onUnlock={() => navigate('/website/unlock')}
+              onHome={() => navigate('/')}
+              // No keypad in front of it any more (v8#3): OPEN VINODEX is the
+              // door, and the device boots on the other side of it.
+              onOpenApp={() => navigate('/dex')}
             />
           }
         />
-        <Route
-          path="/website/unlock"
-          element={<UnlockVinodex onBack={handleBack} onHome={() => navigate('/website')} onUnlocked={() => navigate('/dex')} />}
-        />
-        <Route path="/website/who-we-are" element={<WhoWeAre onBack={handleBack} onHome={() => navigate('/website')} />} />
-        <Route path="/website/contact" element={<ContactUs onBack={handleBack} onHome={() => navigate('/website')} />} />
+        <Route path="/who-we-are" element={<WhoWeAre onBack={handleBack} onHome={() => navigate('/')} />} />
+        <Route path="/contact" element={<ContactUs onBack={handleBack} onHome={() => navigate('/')} />} />
+
+        {/* The v0.2.x spellings. Redirects, so nothing shared or bookmarked
+            breaks — see `LegacyProjectRedirect`. `/website/unlock` was the
+            access-code door; the door is gone, and the link's whole purpose was
+            to get into the app, so it goes there. */}
+        <Route path="/website" element={<Navigate to="/" replace />} />
+        <Route path="/website/apps" element={<Navigate to="/apps" replace />} />
+        <Route path="/website/project/:id" element={<LegacyProjectRedirect />} />
+        <Route path="/website/who-we-are" element={<Navigate to="/who-we-are" replace />} />
+        <Route path="/website/contact" element={<Navigate to="/contact" replace />} />
+        <Route path="/website/unlock" element={<Navigate to="/dex" replace />} />
 
         <Route
           path="/dex"
           element={
-            <MainMenu onNavigate={handleNavigateToCategory} />
+            <MainMenu onNavigate={handleNavigateToCategory} onExit={handleExitToSite} />
           }
         />
         <Route
@@ -766,12 +836,7 @@ const App: React.FC = () => {
                 onSection={id => navigate(`/settings/${id}`)}
                 onMinigames={() => navigate('/minigames')}
                 onFirmware={() => navigate('/firmware')}
-                // Leaving the app clears screen state for the same reason Home
-                // does — re-entering the dex should not resume mid-page.
-                onExitToSplash={() => {
-                  clearScreenState();
-                  navigate('/');
-                }}
+                onExitToSite={handleExitToSite}
                 onBack={handleBack}
                 onHome={handleHome}
               />
@@ -858,7 +923,9 @@ const App: React.FC = () => {
           }
         />
         {/* A URL that matches nothing is an outside arrival, so it lands on the
-            splash — unlike the in-app fallbacks above, which go to "/dex". */}
+            company site — unlike the in-app fallbacks above, which go to
+            "/dex". Nothing boots on the way through: an unknown path is in
+            neither product's list, so `bootDecision` declines it (v8#2). */}
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
     </div>

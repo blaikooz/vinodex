@@ -17,8 +17,17 @@
  *
  * ## The rule, stated once
  *
- * **Everything the device remembers about *you* goes. The one thing that
- * stays is the grant that let you through the door.**
+ * **Everything the device remembers about *you* goes. What stays is only what
+ * is not about you at all.**
+ *
+ * That wording is v0.3.0's (v8#3). It used to read "the one thing that stays
+ * is the grant that let you through the door", and the grant was
+ * `unlockedAppIDs`. **There is no door any more** — the access code is gone,
+ * the site hands the app over on a button press, and a key recording a
+ * permission nothing asks for is not a `keep` with a stale note, it is a key
+ * with nothing to record. It is deleted rather than re-justified. The one
+ * survivor left is `installNudgeDismissed`, and it survives because it is a
+ * fact about this *browser* rather than about the player.
  *
  * That settles the inconsistency the audit flagged: `textScale`, `uiScale`
  * and `chassisSkin` were wiped while `hapticsEnabled` and `soundsEnabled`
@@ -26,14 +35,6 @@
  * five — every one of them is a `SavedDataKey` case and `wipeAll` is built on
  * "no key survives a wipe" — so the web follows, and the preferences go with
  * the rest.
- *
- * `unlockedAppIDs` is the single `keep`, and it is a deliberate divergence
- * from iOS rather than an oversight: iOS has no such key because it has no
- * door. On the web, wiping it would log you out of the dex and drop you back
- * at the company portal — which reads as a bug rather than as a reset, and is
- * a *different* destructive act from the one the button offers. It is also
- * not user data: it is an access grant, and the code that produces it is
- * documented as a doorman rather than a lock.
  *
  * ## Why a registry rather than a longer array
  *
@@ -154,14 +155,14 @@ export const STORAGE_KEYS: readonly StorageKeySpec[] = [
     note: `profile slot ${i + 1} — a full snapshot of a device, wiped with it`,
   })),
 
-  // --- Kept, and the only one.
-  {
-    key: 'unlockedAppIDs',
-    disposition: 'keep',
-    note: 'the access grant that let you through the portal door. Wiping it would log you out of the dex and drop you at the company portal — a different destructive act from the one this button offers. Not user data; the code that grants it is a doorman, not a lock. iOS has no counterpart because iOS has no door.',
-  },
-
-  // --- Kept: not user data at all.
+  // --- Kept, and the only one: not user data at all.
+  //
+  // `unlockedAppIDs` used to sit here, keeping the grant that let you through
+  // the portal door. The door is gone (v8#3), so the key records nothing and
+  // is not registered at all — neither wiped nor kept. Anything still in a
+  // returning visitor's localStorage under that name is simply inert; it is
+  // not read, and a wipe leaving it is the same non-event as a wipe leaving
+  // any other site's data.
   {
     key: 'installNudgeDismissed',
     disposition: 'keep',
@@ -183,15 +184,19 @@ export const KEEP_KEYS: readonly StorageKeySpec[] = STORAGE_KEYS.filter(s => s.d
  * registered so the drift test can tell "known and out of scope" from
  * "somebody added a key and told nobody".
  *
- * There is exactly one. The in-flight exam paper, quiz session and chip
- * filter look like session storage from their call sites (`ssQuery`), and are
- * not: `screenState.ts` is a module-level `Map`, deliberately, so a cold load
- * starts clean and a scroll handler never triggers a render. Nothing to
- * register and nothing to wipe.
+ * **There are none, as of v0.3.0.** The single entry was `booted`, the flag
+ * that made the BIOS a once-per-session event. The BIOS is not a session fact
+ * any more — it runs every time you open the app (v8#2, `appRoutes.ts`) — so
+ * there is nothing left to remember. The list stays rather than the concept
+ * being deleted: a session key added later still has to be declared, and the
+ * drift scan still has somewhere to check it against.
+ *
+ * The in-flight exam paper, quiz session and chip filter look like session
+ * storage from their call sites (`ssQuery`), and are not: `screenState.ts` is
+ * a module-level `Map`, deliberately, so a cold load starts clean and a scroll
+ * handler never triggers a render. Nothing to register and nothing to wipe.
  */
-export const SESSION_KEYS: readonly StorageKeySpec[] = [
-  { key: 'booted', disposition: 'keep', note: 'the BIOS has run this session' },
-] as const;
+export const SESSION_KEYS: readonly StorageKeySpec[] = [] as const;
 
 /** Every registered key, local and session. */
 export const ALL_REGISTERED_KEYS: readonly string[] = [

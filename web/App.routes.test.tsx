@@ -73,11 +73,22 @@ const someGrapeId = () => {
   return entry.id;
 };
 
+/**
+ * A device that is past its first run, so the professor and the walkthrough
+ * stay out of the way of the property under test.
+ *
+ * **Two seeds left in v0.3.0** and neither was replaced, because neither key
+ * exists any more: `unlockedAppIDs` (there is no access door — v8#3) and the
+ * `booted` session flag (the BIOS is not a session fact — v8#2). Nothing is
+ * needed in their place here: both tests below mount a route under
+ * `/detail/...` or `/list/...`, and only the first of those is a cold arrival
+ * the boot declines. `/list/GRAPES` *does* boot, which is fine — the boot is an
+ * overlay above the routed subtree and this suite counts mounts of the leaf
+ * underneath it, which is unaffected either way.
+ */
 const seedPastFirstRun = () => {
-  window.localStorage.setItem('unlockedAppIDs', JSON.stringify(['vinodex']));
   window.localStorage.setItem('firstTimeTriggersSeen', 'firstLaunch,firstLaunchNamed');
   window.localStorage.setItem('coachmarkOffered', 'true');
-  window.sessionStorage.setItem('booted', '1');
 };
 
 /**

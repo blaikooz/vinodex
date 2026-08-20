@@ -786,6 +786,68 @@ export function footerCap(skin: ChassisSkinId, kind: FooterCapKind): ChassisCap 
   return SKIN_CAP_SET[skin]?.[kind] ?? SKIN_CAP[skin];
 }
 
+/**
+ * One skin's chassis tokens, as an inline style object (v8#4).
+ *
+ * **Why this exists.** On the company site the device is always the red
+ * Vinodex CLASSIC shell, whatever colourway the player picked for the app — a
+ * visitor who chose NOCTURNE sees NOCTURNE in the dex and CLASSIC on the site.
+ * The obvious implementations are both wrong: writing CLASSIC through
+ * `setSkin` would *destroy the user's choice*, and writing the `:root`
+ * properties directly on entry and putting them back on exit is the same
+ * destruction with a race in it — a reload on a site page would strand the
+ * override as the stored value's worth of paint.
+ *
+ * Custom properties inherit, so an element that declares them shadows `:root`
+ * for its own subtree and for nothing else. `DeviceLayout` puts this object on
+ * the chassis stage; `applyTheme` goes on writing the player's real skin to
+ * `:root`, untouched, and the dex keeps reading it. Nothing is stored, nothing
+ * is restored, and there is no state to get out of step.
+ *
+ * **Chassis only, deliberately.** The LCD palette, the text scale and the UI
+ * scale are *not* here. Those are not the shell — a player who reads at LARGE
+ * text or in a monochrome screen mode chose that for their eyes, and the
+ * device's colour is the only thing this ruling is about.
+ *
+ * The `--cap-*` tokens ride along because the four moulded caps are part of
+ * the shell's paint (S1). The drawn cap *sprites* are a separate seam — they
+ * are an image URL rather than a colour, so `DeviceFooter` takes the effective
+ * skin id as well.
+ */
+export function skinCssVars(skin: ChassisSkinId): Record<string, string> {
+  const s = CHASSIS_SKINS[skin];
+  const lights = SKIN_LIGHTS[skin];
+  const vars: Record<string, string> = {
+    '--chassis-body': s.body,
+    '--chassis-footer': s.footerWash,
+    '--chassis-panel': s.panel,
+    '--chassis-panel-edge': s.panelEdge,
+    '--chassis-grill': s.grill,
+    '--chassis-on-body': s.onBody,
+    '--chassis-on-body-shadow': s.onBodyShadow,
+    '--chassis-pattern': s.bodyPattern ? `url(/chassis/${s.bodyPattern}.png)` : 'none',
+    '--chassis-rim-glow': s.rimGlow ?? 'transparent',
+    '--chassis-orb': lights.orb,
+    '--chassis-orb-glow': lights.orbGlow,
+  };
+  for (const kind of FOOTER_CAP_KINDS) {
+    const cap = footerCap(skin, kind);
+    vars[`--cap-${kind}-top`] = cap.top;
+    vars[`--cap-${kind}-bottom`] = cap.bottom;
+    vars[`--cap-${kind}-edge`] = cap.edge;
+    vars[`--cap-${kind}-glyph`] = cap.glyph;
+  }
+  lights.lamps.forEach((lamp, i) => {
+    vars[`--chassis-lamp${i + 1}`] = lamp[0];
+    vars[`--chassis-lamp${i + 1}-edge`] = lamp[1];
+    vars[`--chassis-lamp${i + 1}-ink`] = lampInk(lamp[1]);
+  });
+  return vars;
+}
+
+/** The shell the company site always wears (v8#4). */
+export const SITE_SKIN: ChassisSkinId = 'CLASSIC';
+
 export function applyTheme(): void {
   if (typeof document === 'undefined') return;
   const { skin, lcd, scale, uiScale } = readTheme();

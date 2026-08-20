@@ -1,4 +1,4 @@
-import { test, expect, seedDevice } from './fixtures';
+import { test, expect, enterDex, seedDevice } from './fixtures';
 import {
   CHASSIS_SKINS,
   ChassisSkinId,
@@ -10,6 +10,15 @@ import {
 
 /**
  * The screenshot gate, in both screen modes.
+ *
+ * **Every case below reads `:root` and every case below is a dex route, and
+ * those two facts belong together (v8#4).** The company site draws the chassis
+ * in CLASSIC by shadowing the same custom properties on the device stage
+ * rather than by writing them to `:root` -- which is precisely what leaves the
+ * player's stored skin intact. So `getComputedStyle(document.documentElement)`
+ * remains the right probe here, on the app, where the stored skin *is* the one
+ * on screen. The site's own override is checked where it lives, on the painted
+ * element, in `site.spec.ts`.
  *
  * v6#19-geometry was declined for four passes on exactly this: the chassis
  * item's own approval names a screenshot gate in both modes, and there was
@@ -63,7 +72,7 @@ for (const [modeName, mode] of MODES) {
         lcdMode: mode,
         triedEntryIDs: JSON.stringify(['G001', 'G002', 'G003', 'G004', 'G005', 'G006']),
       });
-      await page.goto(route);
+      await enterDex(page, route);
       await page.waitForTimeout(900);
 
       // The mode actually took: the LCD page variable is the one every
@@ -92,7 +101,7 @@ for (const skin of ALL_SKINS) {
   test(`the ${skin} shell renders its own colour`, async ({ page, consoleErrors }, testInfo) => {
     void consoleErrors;
     await seedDevice(page, { chassisSkin: skin });
-    await page.goto('/dex');
+    await enterDex(page, '/dex');
     await page.waitForTimeout(600);
 
     const expected = CHASSIS_SKINS[skin].body;
@@ -147,7 +156,7 @@ for (const skin of ALL_SKINS) {
   test(`the ${skin} footer caps are painted by the skin`, async ({ page, consoleErrors }, testInfo) => {
     void consoleErrors;
     await seedDevice(page, { chassisSkin: skin });
-    await page.goto('/dex');
+    await enterDex(page, '/dex');
     await page.waitForTimeout(600);
 
     const tokens = await capTokens(page);
@@ -214,7 +223,7 @@ for (const skin of ALL_SKINS) {
   test(`the ${skin} lamps are painted by the skin`, async ({ page, consoleErrors }, testInfo) => {
     void consoleErrors;
     await seedDevice(page, { chassisSkin: skin });
-    await page.goto('/dex');
+    await enterDex(page, '/dex');
     await page.waitForTimeout(600);
 
     const tokens = await lampTokens(page);
@@ -262,7 +271,7 @@ for (const skin of ALL_SKINS) {
 test('the orb is the trio long and one lamp tall', async ({ page, consoleErrors }) => {
   void consoleErrors;
   await seedDevice(page, { chassisSkin: 'CLASSIC' });
-  await page.goto('/dex');
+  await enterDex(page, '/dex');
   await page.waitForTimeout(600);
 
   const m = await page.evaluate(() => {

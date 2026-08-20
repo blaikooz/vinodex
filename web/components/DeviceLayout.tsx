@@ -1,9 +1,13 @@
 
-import React, { useState } from 'react';
+import React, { useMemo, useState } from 'react';
+import { useLocation } from 'react-router-dom';
 import ChassisIsland from './ChassisIsland';
 import DeviceFooter from './DeviceFooter';
 import MarqueeLampChooser from './MarqueeLampChooser';
 import { DEVICE_FRAME_BOX, DEVICE_FRAME_STAGE } from '../src/services/deviceFrame';
+import { SITE_MARQUEE_TITLE, isSitePath } from '../src/services/appRoutes';
+import { SITE_SKIN, skinCssVars } from '../src/services/theme';
+import { useTheme } from '../src/services/useTheme';
 
 interface DeviceLayoutProps {
   children: React.ReactNode;
@@ -21,18 +25,10 @@ interface DeviceLayoutProps {
   /**
    * SAVED and SETTINGS sit on the chassis itself, matching iOS `DeviceChassis`,
    * so they are reachable from every screen without each one wiring them up.
-   * The splash turns them off — there is no app behind it yet.
+   * Every company-site screen turns them off — they are in-app controls, and
+   * the site is not the app.
    */
   showSystemButtons?: boolean;
-  /**
-   * Shows the VINODEX wordmark in the island's right slot, where the settings
-   * cog otherwise sits. Splash only: iOS dropped the wordmark from the chassis
-   * because a logo reads as decoration next to real controls, and that
-   * reasoning holds everywhere the cog is present — but the splash has no cog
-   * and no app behind it yet, so the wordmark is the only thing naming the
-   * product on the first screen anyone sees.
-   */
-  showWordmark?: boolean;
 }
 
 
@@ -50,16 +46,41 @@ const DeviceLayout: React.FC<DeviceLayoutProps> = ({
   backFace,
   onTitleTap,
   showSystemButtons = true,
-  // The top wordmark is retired (iOS v0.6.9): the device's one wordmark is now
-  // moulded into the bottom strip of the screen housing, so the splash gets it
-  // there like every other screen. Prop kept for call-site compatibility.
-  showWordmark: _showWordmark = false,
+  // `showWordmark` used to sit here, dead since iOS v0.6.9 retired the island
+  // wordmark and kept only as call-site compatibility for the splash. The
+  // splash is gone with the fork (v8#1) and it was that prop's only caller, so
+  // the prop is gone with it rather than left as a switch that does nothing.
 }) => {
   // Which lamp is being pointed, or null. State lives here rather than in the
   // band because the chooser is drawn in the LCD and the button that raises it
   // is on the chassis — iOS holds `lampBeingAssigned` at exactly this level for
   // exactly this reason.
   const [lampSlot, setLampSlot] = useState<number | null>(null);
+
+  /*
+   * Which product is drawing the device right now (v8#4, #7, #8).
+   *
+   * **Read from the route rather than taken as a prop, deliberately.** Three
+   * separate things about the shell differ between the company site and the
+   * app — the skin, the bezel wordmark and the marquee panel — and a prop for
+   * each is three chances for a new site screen to forget one and render as a
+   * half-dex. The route already knows, `appRoutes.ts` already answers, and the
+   * answer cannot be got wrong at a call site that does not exist.
+   *
+   * `showSystemButtons` stays a prop: it predates this, every site screen
+   * already passes it, and it is the flag `DeviceFooter`'s separation tests are
+   * written against.
+   */
+  const { pathname } = useLocation();
+  const onSite = isSitePath(pathname);
+
+  // The player's own shell, so the dex repaints when they pick a new one.
+  const theme = useTheme();
+  const skin = onSite ? SITE_SKIN : theme.skin;
+  // Nothing on the site, where the tokens are shadowed on the stage below;
+  // nothing in the dex either, where `:root` already carries the same values.
+  // Recomputed only when the shell changes.
+  const skinVars = useMemo(() => (onSite ? skinCssVars(SITE_SKIN) : undefined), [onSite]);
 
   /**
    * Everything that is not the chooser, while the chooser is up (W-1).
@@ -92,6 +113,10 @@ const DeviceLayout: React.FC<DeviceLayoutProps> = ({
         paddingLeft: 'env(safe-area-inset-left)',
         paddingRight: 'env(safe-area-inset-right)',
         perspective: '2000px',
+        // The site's CLASSIC override (v8#4). Custom properties inherit, so
+        // declaring them here shadows `:root` for this subtree and for nothing
+        // else — the stored skin is never written to, and survives untouched.
+        ...skinVars,
       }}
     >
       {/* 3D flip container — wraps both faces of the device */}
@@ -236,8 +261,15 @@ const DeviceLayout: React.FC<DeviceLayoutProps> = ({
           </div>
 
           {/* Bottom strip (iOS v0.6.7+ `bottomVents`): the lone red lamp, the
-              stretched VINODEX wordmark — the device's one wordmark, moulded
-              into the strip in the grille's own colour — and the grille slats. */}
+              stretched wordmark — the device's one wordmark, moulded into the
+              strip in the grille's own colour — and the grille slats.
+
+              **Whose device it is (v8#7).** On the company site the moulding
+              reads HORIZON/GODOT, because there the device is the studio's own
+              hardware sitting on the desk and the app has not been opened yet.
+              Inside the dex it reads VINODEX, as it always has. One wordmark,
+              two owners, and the wordmark is how you can tell at a glance
+              which one you are holding. */}
           <div className="shrink-0 relative flex items-center gap-3 px-4 h-7">
             {/* `bottomVentDot` (0.75rem), a shade over the pair on the bezel
                 above: iOS's G3 makes them the same bulb at two sizes, and the
@@ -252,9 +284,15 @@ const DeviceLayout: React.FC<DeviceLayoutProps> = ({
               } as React.CSSProperties}
             />
             <div className="flex-1 min-w-0 flex justify-center overflow-hidden">
+              {/* `bezel-wordmark` is a stable hook for the render gate, in the
+                  house style of `.lamp-hit` / `.band-pills` / `.island-strip`.
+                  The wordmark is `aria-hidden` moulding, so there is no
+                  accessible name to select it by, and finding it in the span
+                  soup by its `scaleX` transform is a selector that breaks the
+                  first time anything else on the bezel is stretched. */}
               <span
                 aria-hidden="true"
-                className="font-retro leading-none select-none whitespace-nowrap"
+                className="bezel-wordmark font-retro leading-none select-none whitespace-nowrap"
                 style={{
                   color: 'var(--chassis-grill)',
                   opacity: 0.85,
@@ -264,7 +302,7 @@ const DeviceLayout: React.FC<DeviceLayoutProps> = ({
                   display: 'inline-block',
                 }}
               >
-                VINODEX
+                {onSite ? 'HORIZON/GODOT' : 'VINODEX'}
               </span>
             </div>
             <div className="flex flex-col gap-0.5 opacity-50 shrink-0">
@@ -282,6 +320,12 @@ const DeviceLayout: React.FC<DeviceLayoutProps> = ({
           inert={behindChooser}
           onReassignLamp={setLampSlot}
           title={title}
+          // The site's panel is one word (v8#8). The dex's rotating script —
+          // WELCOME! once per launch, MENU at rest, the nine toasts after a
+          // minute idle — is a dex behaviour and stays entirely in
+          // `marqueeScript.ts`, armed only on the main menu.
+          marqueeTitle={onSite ? SITE_MARQUEE_TITLE : undefined}
+          skin={skin}
           footerCenter={footerCenter}
           onBack={onBack}
           showBack={showBack}
