@@ -1,6 +1,17 @@
 @import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&family=VT323&display=swap');
 @import "tailwindcss";
 
+/* Documentation must not be able to change the stylesheet (R8).
+   Tailwind v4 auto-detects sources from the git root, markdown included, and
+   its extractor cannot tell a class name being *used* from one being
+   *described*. `IOS-PARITY-v7.md` names the retired fixed-height class while
+   explaining why it was retired, and that alone kept regenerating the dead
+   rule in the shipped bundle -- so the removed class stayed greppable in the
+   CSS, which is exactly the evidence the next reader would trust.
+   Excluding prose is the fix rather than rewording the record: the ledger has
+   to be able to name what it changed. */
+@source not "../**/*.md";
+
 /* Custom Theme Extensions */
 @theme {
   --font-mono: 'VT323', monospace;

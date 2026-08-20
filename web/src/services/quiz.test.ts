@@ -301,15 +301,22 @@ describe('quiz progress ladder', () => {
 // enough to name the lines. Regenerated from the dataset, then each half of
 // the move isolated by reverting one data file at a time:
 //
-//   * **All five region questions moved, and only the region questions.**
-//     `regionQuestion` picks its subject from `grapeNamesFrom(regions, ...)`,
-//     which is a *sorted* list of every grape some region names. The batch
-//     added "Manto Negro" to R120 Mallorca's `notableGrapes` -- one line in
-//     `regions.ts`, and the only line it changed -- which inserts a name into
-//     that sorted list and shifts `names[mod(seed + step, names.length)]` for
-//     every seed. Reverting that single line restores all five old answers
-//     exactly, and moves nothing else.
-//   * **One grape option set moved**, seed 777 q4. Its answer G080 Fer
+//   * **Five of the six region questions moved.** `regionQuestion` picks its
+//     subject from
+//     `grapeNamesFrom(regions, ...)`, which is a *sorted* list of every grape
+//     some region names. The batch added "Manto Negro" to R120 Mallorca's
+//     `notableGrapes` -- one line in `regions.ts`, and the only line it
+//     changed -- which inserts a name into that sorted list and shifts
+//     `names[mod(seed + step, names.length)]` for every seed. Reverting that
+//     single line restores those five old answers exactly, and moves nothing
+//     else.
+//
+//     The sixth is seed 777's index 7, R107 with options R124/R017/R107/R034,
+//     which is byte-identical across the change. A shifted subject can still
+//     land on the same answer and the same distractor walk; nothing about the
+//     mechanism promises every slot moves, and an earlier draft of this note
+//     said "all five" on a miscount. Six exist. Five moved.
+//   * **One grape option set moved**, seed 777 index 3. Its answer G080 Fer
 //     Servadou is a medium-bodied French red, and Cabernet Pfeffer's origin
 //     was corrected USA -> France, so G154 crossed from `others` into
 //     `matching` and shifted the distractor walk by one.

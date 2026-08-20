@@ -21,6 +21,24 @@ import { DEVICE_FRAME_BOX, DEVICE_FRAME_STAGE, DEVICE_FRAME_OVERLAY_STYLE } from
 const COMPONENTS = resolve(process.cwd(), 'web/components');
 
 /**
+ * The retired fixed-height class, assembled rather than written out (R8).
+ *
+ * Tailwind scans this file like any other source under `web/`, and its
+ * extractor reads a complete class name as a *use* — including inside a
+ * regex, and including the backslash-escaped spelling, which is the form
+ * Tailwind's own generated CSS uses for a bracketed utility. Writing the class
+ * out here put the dead `height: 850px` rule back into the stylesheet, so the
+ * class the v0.2.2 chassis fix removed was still greppable in the bundle — the
+ * evidence the next reader would trust. Built from fragments, it never appears
+ * as a candidate. Compared with `includes` rather than a regex, so no
+ * bracket in either needle has to be escaped into meaning a character class.
+ */
+const RETIRED_HEIGHT = `md:h-[${850}px]`;
+
+/** The live width class. Written out because it is genuinely in use. */
+const FRAME_WIDTH = 'md:w-[522px]';
+
+/**
  * Layers that genuinely belong to the browser window rather than the device.
  *
  * `InstallBanner` is the only one: it is a bar *about* the browser — "you are
@@ -43,7 +61,7 @@ describe('the device frame', () => {
     // respectively. A component that restates either has forked the geometry,
     // which is how the boot and the chassis came to disagree in the first place.
     const offenders = sources()
-      .filter(([, src]) => /md:w-\[522px\]|md:h-\[850px\]/.test(src))
+      .filter(([, src]) => src.includes(FRAME_WIDTH) || src.includes(RETIRED_HEIGHT))
       .map(([f]) => f);
     expect(offenders, 'chassis dimensions hardcoded outside deviceFrame.ts').toEqual([]);
   });
@@ -69,7 +87,7 @@ describe('the device frame', () => {
     // already correct — completely alone.
     expect(DEVICE_FRAME_BOX).toContain('w-full h-full');
     expect(DEVICE_FRAME_BOX).toContain('md:h-[var(--device-frame-h)]');
-    expect(DEVICE_FRAME_BOX).not.toMatch(/(?<!md:)h-\[850px\]/);
+    expect(DEVICE_FRAME_BOX).not.toContain(RETIRED_HEIGHT);
 
     const css = readFileSync(resolve(process.cwd(), 'web/index.css'), 'utf8');
     expect(css).toMatch(/--device-frame-h:\s*min\(850px,\s*calc\(100dvh - 2rem\)\)/);

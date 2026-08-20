@@ -40,10 +40,17 @@ export const DEVICE_FRAME_STAGE = 'flex justify-center items-center p-0 md:p-4';
  *
  * `--device-frame-h` (see `index.css`) is `min(850px, 100dvh - 2rem)`: the
  * device shrinks to fit a short window rather than hanging past the fold. It
- * was a flat `md:h-[850px]`, which on an ~800px-tall desktop window pushed the
+ * was a flat 850 pixels at this breakpoint, which on an ~800px-tall window
+ * pushed the
  * entire footer band — the back/home/user/settings caps, the marquee and the
  * v0.2.1 quick-pin lamps — below the viewport with `overflow-hidden` above it,
  * so the feature shipped in v0.2.1 was unreachable at a common desktop size.
+ *
+ * The retired class is spelled out in words rather than as a Tailwind literal
+ * on purpose (R8): Tailwind scans this file, so writing it verbatim in a
+ * comment put a dead `height: 850px` rule back into the shipped stylesheet —
+ * which costs 30 bytes and misleads the next person who greps the bundle for
+ * it.
  *
  * **Only the screen area gives.** Every moulded figure is untouched: the caps,
  * the island's `3x22 + 2x6.72 = 79.44` derivation, `.recessed-lamp`, the band

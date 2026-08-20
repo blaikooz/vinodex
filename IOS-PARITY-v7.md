@@ -97,6 +97,23 @@ enforced by nothing (L2).
   `MainMenu`'s non-scrolling 2×2 tile grid being cropped by the LCD — a
   long-standing short-LCD limit, newly reachable on desktop. Known, with the
   user for a ruling.
+- **Pre-tag review (cleanbot, 2026-08-20):** verdict **safe to tag**, no
+  blocking finding; the mirror verified at 482 files and the `v7#C4` quiz
+  reasoning re-derived from the algorithm rather than taken on trust.
+  **Done:** **R1** (the coachmark's frame box sat 8px below the chassis — the
+  one overlay given the box without the insets, which falsified
+  `deviceFrame.ts`'s own promise), R2 and R3 (two overstated claims in the
+  documents of record, corrected with the measurements behind them), R7 (the
+  `types.ts` blank line re-synced from master; mirror re-verified 482/0/0),
+  R8 (a dead `height: 850px` rule that Tailwind was regenerating from two
+  *comments*). **Plus the evidence that was owed:** R1 was found by
+  arithmetic because no screenshot of the four clamped overlays at a desktop
+  size existed — all four are now captured at 1280×800 and agree with the
+  chassis to the pixel. **Recorded, not actioned:** R5 (the authored
+  `aromatics` also moves RECOMMENDED), R6 (G154's tags contradict its own
+  corrected entry — sommbot's, in the master), **R10 (the catalogue is fixed
+  on the web and still stale in `vinodex-ios`; 0.2.2 must not be read later as
+  “fixed everywhere”)**.
 
 ### Commits
 
@@ -870,9 +887,9 @@ deliberate temporary edit described in `v7#C3`.
 | id | item | severity | outcome |
 |---|---|---|---|
 | **v7#C1** | `coverage.test.ts`'s Cabernet pin was stale | minor, test | **Done, and strengthened.** `aromatics` moved 5 -> 3 and `colorIntensity` is now pinned too. The move *is* the batch: the old value was `min(notes, 3) + 2`, which scored 5 on 174 of 177 grapes and really measured whether three tasting notes had been authored. Cabernet Sauvignon is aromatic; it is not Gewurztraminer. |
-| **v7#C2** | One grape's numbers is the wrong shape of test for this defect | **moderate, test** | **Done.** A formula produces perfectly plausible numbers for any *single* variety -- what it cannot produce is variety. `colorIntensity` was `red ? 4 : 2` and therefore took **two** distinct values across 177 grapes; `aromatics` took three with 174 on one of them. Both would have passed a single-grape pin. Three new assertions: each authored bar uses all five levels, no level covers more than 60% of the catalogue, and the proof cases separate by name -- four teinturiers at 5 against Pinot Noir at 2 and Poulsard/Brancellao at 1, three aromatic whites at 5 against Trebbiano/Airen/Palomino at 1. A fourth pins the tannin correction *by name*: whites carry none, except Rkatsiteli, Kisi and Mtsvane, which are the Georgian qvevri amber varieties fermented on their skins and keep it on purpose. Named rather than range-checked, so a fourth cannot appear silently. |
+| **v7#C2** | One grape's numbers is the wrong shape of test for this defect | **moderate, test** | **Done.** A formula produces perfectly plausible numbers for any *single* variety -- what it cannot produce is variety. Both retired derivations were re-run over the current records to check this test would actually have caught them: old `colorIntensity` (`red ? 4 : 2`) gives `{2:81, 4:96}`, commonest **54.24%**; old `aromatics` (`min(notes, 3) + 2`) gives `{4:3, 5:174}`, commonest **98.31%**. Two levels each, and both would have passed a single-grape pin. **Which assertion catches which matters and is now written down (R3):** `aromatics` fails both, but `colorIntensity` slips under the 60% cap — a red/white split is close to even — so **`levels.size === 5` is the one that catches it**, and the cap earns its place against the other failure, a derivation that uses the whole scale but parks nearly everything on one step. Both kept, both explained, so the next person to loosen either knows which. Three new assertions: each authored bar uses all five levels, no level covers more than 60% of the catalogue, and the proof cases separate by name -- four teinturiers at 5 against Pinot Noir at 2 and Poulsard/Brancellao at 1, three aromatic whites at 5 against Trebbiano/Airen/Palomino at 1. A fourth pins the tannin correction *by name*: whites carry none, except Rkatsiteli, Kisi and Mtsvane, which are the Georgian qvevri amber varieties fermented on their skins and keep it on purpose. Named rather than range-checked, so a fourth cannot appear silently. |
 | **v7#C3** | The `??` merge is one "simplification" from a silent data loss | minor, craft | **Verified present, and now pinned.** `grapeCards.ts:92-107` merges with `??` as the field's doc comment requires. No grape authors **0** today, so `||` would ship green and surface the first time somebody wrote one down. `grapeCards.test.ts` pins it two ways, because neither is sufficient alone: behaviourally, five cases where the authored value and the derivation *disagree* (a teinturier at 5 where `red ? 4 : 2` says 4, Trebbiano at 1 where it says 2); and by reading the source, since no dataset can demonstrate the 0 case. The source assertion anchors on the literal prefix `authored.<bar> ?? ` rather than "the line contains `??`" -- too weak (`a \|\| b ?? c` passes) and too strong, because `aromatics`' own fallback legitimately contains a `\|\|` in `tastingProfile.length \|\| 1`. **Proved non-vacuous** by flipping `colorIntensity`'s operator to `\|\|` in a scratch copy: red, named, restored. |
-| **v7#C4** | Both quiz goldens moved | minor, test | **Regenerated from the dataset, never hand-edited**, then each half of the move isolated by reverting one data file at a time -- which makes the tell exact enough to name the lines. **All five region questions moved and only they**: `regionQuestion` draws its subject from `grapeNamesFrom(regions, ...)`, a *sorted* list of every grape some region names, and the batch added "Manto Negro" to R120 Mallorca's `notableGrapes` -- one line, the only line `regions.ts` changed -- which inserts a name into that sorted list and shifts `names[mod(seed + step, names.length)]` for every seed. Reverting that single line restores all five old answers exactly and moves nothing else. **One grape option set moved**, seed 777 q4: its answer G080 Fer Servadou is a medium-bodied French red, and G154 Cabernet Pfeffer's origin correction USA -> France moved it from `others` into `matching`, shifting the distractor walk by one. **No style question moved at all.** The three kinds share `assemble`, so an algorithm change moves all three; only the kinds whose *inputs* changed did. The authored bars themselves moved nothing -- the bank draws on body, origin and notable-grape links, not on characteristics. |
+| **v7#C4** | Both quiz goldens moved | minor, test | **Regenerated from the dataset, never hand-edited**, then each half of the move isolated by reverting one data file at a time -- which makes the tell exact enough to name the lines. **Five of the six region questions moved**: `regionQuestion` draws its subject from `grapeNamesFrom(regions, ...)`, a *sorted* list of every grape some region names, and the batch added "Manto Negro" to R120 Mallorca's `notableGrapes` -- one line, the only line `regions.ts` changed -- which inserts a name into that sorted list and shifts `names[mod(seed + step, names.length)]` for every seed. Reverting that single line restores those five old answers exactly and moves nothing else. **The sixth did not move (R2):** seed 777 index 7, R107 with options R124/R017/R107/R034, is byte-identical across the change — a shifted subject can still land on the same answer and the same distractor walk, and nothing in the mechanism promises every slot moves. An earlier draft of this row, of `quiz.test.ts:304` and of commit `5081cc7` all said "all five" on a miscount; six exist. **One grape option set moved**, seed 777 q4: its answer G080 Fer Servadou is a medium-bodied French red, and G154 Cabernet Pfeffer's origin correction USA -> France moved it from `others` into `matching`, shifting the distractor walk by one. **No style question moved at all.** The three kinds share `assemble`, so an algorithm change moves all three; only the kinds whose *inputs* changed did. The authored bars themselves moved nothing -- the bank draws on body, origin and notable-grape links, not on characteristics. |
 | **v7#C5** | Does the authored data actually render? | — | **Verified in a real browser**, not just in the data. Bar segments read back off the DOM at `/detail/*`: Alicante Bouschet COLOR 5, Pinot Noir 2, Poulsard 1; Gewurztraminer AROMATICS 5, Trebbiano 1; both whites TANNIN 0. Every value matches the dataset exactly, so the merge, the entry build and `EntryDetail.tsx:797` all carry it through. Screenshots taken. |
 | **v7#C6** | The changelog described only the desktop half | minor | **Done.** Headline `THE DESK AND THE VINES`; five catalogue notes added in player terms -- the bars are written down rather than guessed, COLOUR and AROMATICS each named with their two poles, phantom white tannin gone with the Georgian exception stated, and the Cabernet Pfeffer / parentage corrections. This is FIRMWARE HISTORY copy, so ASCII only and it passes the shape gate. |
 
@@ -924,6 +941,62 @@ LCD like every other screen already does. **With the user for a ruling; not
 scheduled.** The viewport gate deliberately does not assert at these heights,
 so it pins the fixed behaviour without freezing the open question.
 
+### Pre-tag review (cleanbot, 2026-08-20)
+
+Verdict: safe to tag. The mirror was checked at **482 files** against
+`HGapps\shared`, all 177 grape records structurally diffed with
+`characteristics` masked (19 changed beyond the new field, each accounted
+for), the `types.ts` fix confirmed three ways, and the `v7#C4` quiz reasoning
+re-derived from the algorithm rather than taken on trust.
+
+| id | finding | severity | outcome |
+|---|---|---|---|
+| **v7#R1** | The coachmark's frame box sat **8px below the chassis** on desktop | **moderate** | **Done, and it falsified `deviceFrame.ts`'s own promise.** `DeviceLayout.tsx:91` overrides `md:p-4`'s top padding with an inline `env(safe-area-inset-top)`, which resolves to 0 on a desktop, so the chassis centres inside `100vh - 16px` and lands at y=8. The four overlays that carry `DEVICE_FRAME_OVERLAY_STYLE` replicate that; the coachmark's wrapper was given `DEVICE_FRAME_BOX` **without** the insets, so it centred inside `100vh - 32px` and landed at y=16. Measured at 1280x800 before the fix: chassis top 8, the overlay's own box top 8, the coachmark's box top **16**, card bottom 768 against the chassis's 776. The style is on the stage now, with a comment saying it is load-bearing rather than decoration. **Found by arithmetic, not by looking** — which is exactly why the screenshots below were owed. |
+| **v7#R2** | "All five region questions moved" — there are six | minor, doc | **Done.** Five of the six moved; seed 777 index 7 (R107, options R124/R017/R107/R034) is byte-identical across the change. The substantive conclusion is untouched and was independently re-derived, but three documents of record carried the miscount — `quiz.test.ts`, `v7#C4` above, and commit `5081cc7`, which is immutable and is corrected here instead. |
+| **v7#R3** | The distribution guard's claim was half right | minor, doc | **Done, and it changed which assertion is load-bearing.** Simulated over the current records: old `colorIntensity` is `{2:81, 4:96}` at **54.24%** and **passes** the 60% cap; old `aromatics` is `{4:3, 5:174}` at 98.31% and fails it. Only `levels.size === 5` catches both. The test comment and `v7#C2` now say so, with the numbers, so the cap is not mistaken for the thing that catches the defect the test is named after. |
+| **v7#R7** | A stray blank line inside `GrapeEntry` | cosmetic | **Fixed in the master by the coordinator; re-synced here.** `shared/types.ts` copied from `HGapps\shared`. Mirror re-verified: **482 files compared, 0 drifted, 0 only-in-mirror.** |
+| **v7#R8** | A dead `height: 850px` rule still shipped | cosmetic | **Done, and the root cause turned out to be wider than the two comments.** Tailwind v4 auto-detects sources from the git root and its extractor cannot tell a class name being *used* from one being *described*, so the retired class was being regenerated from **prose**. Rewording the two doc blocks that named it (`deviceFrame.ts`, `viewports.spec.ts`) and assembling it from fragments in `deviceFrame.test.ts` was not enough: the remaining source was **`IOS-PARITY-v7.md` itself**, this document, which has to be able to name what it changed. So the fix is `@source not "../**/*.md";` in `index.css` — documentation must not be able to change the stylesheet. **It removed more than the one rule:** `.bg-dex-red`, `.bg-dex-ui`, `.from-amber-100`, `.to-amber-400` and `.z-80` were all phantoms generated from parity prose, with zero uses in `web/` or `shared/` (the app's spotlight is `z-[80]`, not `z-80`). CSS 80,863 → 79,251 bytes, **five selectors dropped and none gained**, verified by diffing the selector sets of the two builds.
+
+**Recorded, no action this release:**
+
+- **v7#R5 — the authored `aromatics` also moves the RECOMMENDED screen.**
+  `recommendations.ts:143,190` read that bar, so re-authoring it changes what
+  the screen offers. Intended, and a wider reach than the changelog notes
+  claim; nothing observes it either way because the recommendation tests
+  assert *properties* rather than ordering. Worth a deliberate look the next
+  time that screen is touched, not a same-day change to a release already
+  reviewed.
+- **v7#R6 — G154 Cabernet Pfeffer now contradicts itself.** Its `origin` is
+  `"France"` while its `tags` still read `["California", "Mystery"]` and the
+  rewritten description says the identity is settled. **A master-data fix and
+  sommbot's beat**, not a web one — the web must not edit `shared/`, and a
+  tag list is catalogue content. Carried for the next data pass.
+- **v7#R10 — 0.2.2 fixes the catalogue on the web only.** The corrected
+  `types.ts`, `grapes.ts`, `grapeCards.ts` and `regions.ts` are in
+  `HGapps\shared` (master) and in this mirror; **`vinodex-ios` has not been
+  re-synced and is stale in exactly those four files.** Nothing in this
+  release makes the phone correct, and this row exists so 0.2.2 cannot be read
+  later as "fixed everywhere". The iOS leg is `sync-shared.ps1` plus
+  `npm run generate` in `vinodex-ios`, and it is **dexbot's**, not this
+  repo's.
+
+### The screenshots nobody had taken
+
+`v7#R1` was found by arithmetic because no image of the four clamped overlays
+at a desktop size existed — `v7#D3`–`D6` had been argued and measured but
+never *seen*. Captured at 1280x800 after the `R1` fix, and each one's frame box
+compared against the chassis rect in the same page:
+
+| overlay | frame box | chassis | reads as |
+|---|---|---|---|
+| screensaver (`D3`) | top 8, 522x768 | top 8, 522x768 | the device's screen blanked, on the neutral field |
+| Professor Vino's bubble (`D4`) | top 8, 522x768 | top 8, 522x768 | seated on the LCD's lower edge |
+| the intro card (`D5`) | top 8, 522x768 | top 8, 522x768 | the device dimmed, not the browser |
+| the tutorial card (`D6`) | top 8, 522x768 | top 8, 522x768 | inside the chassis, over the control it spotlights |
+
+All four now agree with the chassis to the pixel. Before `R1` the tutorial card
+was the one that did not.
+
 ### Commits
 
 | # | Commit | Items |
@@ -933,7 +1006,8 @@ so it pins the fixed behaviour without freezing the open question.
 | 22 | `d883e0e` docs(parity): v0.2.2, and the desktop pass | the bump, §9 |
 | 23 | *(this pass)* chore(shared): sync canonical shared/ | the catalogue batch |
 | 24 | *(this pass)* test: re-pin the catalogue, and guard the authored bars | C1–C5 |
-| 25 | *(this pass)* docs(parity): the catalogue half, and the floor question | C6, §9a |
+| 25 | `0b2f20a` docs(parity): the catalogue half, and the floor question | C6, §9a |
+| 26 | *(this pass)* fix: the pre-tag review, and the overlay evidence | R1, R2, R3, R7, R8 |
 
 ---
 

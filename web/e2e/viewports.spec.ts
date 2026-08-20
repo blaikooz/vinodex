@@ -10,9 +10,12 @@ import type { Page } from '@playwright/test';
  * - the BIOS drew `fixed inset-0` to the *viewport*, so on a 1280px window its
  *   dotted POST leaders ran the full width, left aligned, beside a centred
  *   522px chassis (v7#D1);
- * - the chassis was a flat `md:h-[850px]`, so on an ~800px-tall window the
- *   entire footer band — the caps, the marquee and the v0.2.1 quick-pin lamps —
- *   sat below the fold with `overflow-hidden` above it, unreachable (v7#D2).
+ * - the chassis was a flat 850 pixels tall above the `md` breakpoint, so on an
+ *   ~800px-tall window the entire footer band — the caps, the marquee and the
+ *   v0.2.1 quick-pin lamps — sat below the fold with `overflow-hidden` above
+ *   it, unreachable (v7#D2). (Spelled out rather than written as the Tailwind
+ *   class it was: this file is scanned, and the literal resurrected the dead
+ *   rule in the bundle — R8.)
  *
  * Both were invisible because the suite ran at exactly one viewport, 420x900,
  * where the browser window and the device are the same rectangle. That is the

@@ -11,7 +11,7 @@ import {
 } from '../src/services/coachmarks';
 import { isSuspendedOtherThan, setSuspended, subscribeToVino } from '../src/services/vinoPresenter';
 import { displayName } from '../src/services/profile';
-import { DEVICE_FRAME_BOX, DEVICE_FRAME_STAGE } from '../src/services/deviceFrame';
+import { DEVICE_FRAME_BOX, DEVICE_FRAME_OVERLAY_STYLE, DEVICE_FRAME_STAGE } from '../src/services/deviceFrame';
 
 /**
  * The spotlight, ported from
@@ -100,8 +100,17 @@ const CoachmarkOverlay: React.FC = () => {
         `absolute inset-x-0 bottom-4` it sat at the foot of the *browser*, and
         on a tall desktop window that is below the chassis, on the neutral
         backdrop, pointing at a control several hundred pixels above it.
+
+        `DEVICE_FRAME_OVERLAY_STYLE` on the stage is **not decoration** (R1).
+        `DeviceLayout` overrides `md:p-4`'s top padding with an inline
+        `env(safe-area-inset-top)`, which is 0 on a desktop, so the chassis
+        centres inside `100vh - 16px` and lands at y=8. A stage that keeps the
+        full `p-4` centres inside `100vh - 32px` and lands at y=16 — the card
+        sat **8px above where the device was**, on the one overlay that was
+        given the box but not the insets. Measured, not assumed: 16 against
+        the chassis's 8 at 1280x800, before this line.
       */}
-      <div className={`absolute inset-0 ${DEVICE_FRAME_STAGE}`}>
+      <div className={`absolute inset-0 ${DEVICE_FRAME_STAGE}`} style={DEVICE_FRAME_OVERLAY_STYLE}>
         <div className={`relative ${DEVICE_FRAME_BOX} flex items-end justify-center px-4 pb-4`}>
           <div className="pointer-events-auto w-full max-w-sm rounded-2xl border-2 border-amber-500 bg-stone-900/95 p-3.5 flex flex-col gap-2.5 shadow-[0_4px_0_rgba(0,0,0,0.5)]">
             <div className="flex items-start gap-3">

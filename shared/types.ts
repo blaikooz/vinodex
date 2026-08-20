@@ -120,7 +120,6 @@ export interface GrapeEntry extends BaseEntry {
    * missing 60% is shown instead of an empty tree.
    */
   lineage?: GrapeLineage;
-
 }
 
 export interface RegionDetails {

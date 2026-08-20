@@ -218,15 +218,25 @@ describe('dataset coverage', () => {
    *
    * Pinning one grape's five numbers is a weak guard against the failure that
    * actually happened, because a formula produces perfectly plausible numbers
-   * for any single variety. What it cannot produce is variety: `colorIntensity`
-   * was `red ? 4 : 2` and therefore took **two** distinct values across 177
-   * grapes, and `aromatics` took three, with 174 of them on the same one. Both
-   * would have passed a single-grape pin and both were wrong.
+   * for any single variety. What it cannot produce is variety.
    *
-   * So this asserts the shape of the data rather than a value in it: five
-   * distinct levels used on each authored bar, and no single level swallowing
-   * the catalogue. A regression to any derivation-from-prose fails here, which
-   * is the guard the batch is actually buying.
+   * **Both retired derivations were re-run over the current records to check
+   * that this test would actually have caught them**, and the answer decides
+   * which of the two assertions below is load-bearing:
+   *
+   *     old colorIntensity  `red ? 4 : 2`        {2:81, 4:96}    54.24%
+   *     old aromatics       `min(notes, 3) + 2`  {4:3, 5:174}    98.31%
+   *
+   * Two levels each. `aromatics` fails both assertions — 98% on one level is
+   * exactly the shape the cap is looking for. **`colorIntensity` fails only
+   * the five-level one:** at 54.24% its commonest level slips under the 60%
+   * cap, because a red/white split is genuinely close to even. So the cap is
+   * not what catches the defect this test is named after; `levels.size === 5`
+   * is, and the cap earns its place against the *other* failure — a derivation
+   * that does use the whole scale but parks nearly everything on one step.
+   *
+   * Both are kept for that reason, and the numbers are written down so the
+   * next person to loosen either knows which one they are loosening.
    */
   it('gives the authored bars a real spread, not a formula', () => {
     const grapes = all.filter(isGrapeEntry);
@@ -235,12 +245,14 @@ describe('dataset coverage', () => {
     for (const bar of ['colorIntensity', 'aromatics'] as const) {
       const values = grapes.map(g => g.grapeCharacteristics[bar]);
       const levels = new Set(values);
-      // The 1–5 scale, all of it. Two was the defect; three is a formula with
-      // one exception in it.
+      // The 1–5 scale, all of it. **This is the assertion that catches both
+      // retired formulas** — each took exactly two levels — and the only one
+      // that catches `colorIntensity`.
       expect(levels.size, `${bar} uses only ${[...levels].sort().join('/')}`).toBe(5);
 
-      // And no level is doing 90% of the work, which is how `aromatics` hid:
-      // 174 of 177 grapes scored 5 and the bar still "had three values".
+      // And no level swallows the catalogue. This is what old `aromatics`
+      // failed on, at 174 of 177 grapes scoring 5; old `colorIntensity` passed
+      // it at 54.24%, so this is a second net rather than the same one.
       const commonest = Math.max(...[...levels].map(l => values.filter(v => v === l).length));
       expect(
         commonest / values.length,
