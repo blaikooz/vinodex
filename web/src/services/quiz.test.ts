@@ -296,14 +296,38 @@ describe('quiz progress ladder', () => {
 // previous pins were taken, so the picker cannot have drawn them under the
 // old catalog. Derived by running `quizQuestion` over the current catalog,
 // not by copying the assertion diff.
+//
+// Re-pinned for the 0.2.2 catalogue batch, and this time the tell is exact
+// enough to name the lines. Regenerated from the dataset, then each half of
+// the move isolated by reverting one data file at a time:
+//
+//   * **All five region questions moved, and only the region questions.**
+//     `regionQuestion` picks its subject from `grapeNamesFrom(regions, ...)`,
+//     which is a *sorted* list of every grape some region names. The batch
+//     added "Manto Negro" to R120 Mallorca's `notableGrapes` -- one line in
+//     `regions.ts`, and the only line it changed -- which inserts a name into
+//     that sorted list and shifts `names[mod(seed + step, names.length)]` for
+//     every seed. Reverting that single line restores all five old answers
+//     exactly, and moves nothing else.
+//   * **One grape option set moved**, seed 777 q4. Its answer G080 Fer
+//     Servadou is a medium-bodied French red, and Cabernet Pfeffer's origin
+//     was corrected USA -> France, so G154 crossed from `others` into
+//     `matching` and shifted the distractor walk by one.
+//   * **No style question moved at all**, either seed. The three kinds share
+//     `assemble`, so an algorithm change moves all three; only the kinds whose
+//     *inputs* changed did.
+//
+// That is what says this is the catalogue and not the picker. The authored
+// `characteristics` do not enter here -- the bank draws on body, origin and
+// notable-grape links -- so the bars themselves moved nothing.
 describe('quiz determinism golden', () => {
   const GOLDEN: Record<string, ({ k: string; a: string; o: string[] } | null)[]> = {
     '777': [
       { k: 'grapes', a: 'G007', o: ['G086', 'G007', 'G103', 'G120'] },
-      { k: 'region', a: 'R047', o: ['R047', 'R035', 'R053', 'R071'] },
+      { k: 'region', a: 'R022', o: ['R022', 'R088', 'R105', 'R122'] },
       { k: 'style', a: 'S004', o: ['S009', 'S026', 'S011', 'S004'] },
-      { k: 'grapes', a: 'G080', o: ['G164', 'G003', 'G080', 'G022'] },
-      { k: 'region', a: 'R115', o: ['R105', 'R115', 'R123', 'R016'] },
+      { k: 'grapes', a: 'G080', o: ['G143', 'G162', 'G080', 'G001'] },
+      { k: 'region', a: 'R029', o: ['R106', 'R029', 'R123', 'R016'] },
       { k: 'style', a: 'S030', o: ['S030', 'S021', 'S006', 'S023'] },
       { k: 'grapes', a: 'G022', o: ['G135', 'G153', 'G170', 'G022'] },
       { k: 'region', a: 'R107', o: ['R124', 'R017', 'R107', 'R034'] },
@@ -313,13 +337,13 @@ describe('quiz determinism golden', () => {
     '-13': [
       { k: 'style', a: 'S033', o: ['S020', 'S005', 'S022', 'S033'] },
       { k: 'grapes', a: 'G113', o: ['G078', 'G096', 'G113', 'G114'] },
-      { k: 'region', a: 'R119', o: ['R082', 'R119', 'R099', 'R116'] },
+      { k: 'region', a: 'R020', o: ['R109', 'R020', 'R003', 'R022'] },
       { k: 'style', a: 'S005', o: ['S005', 'S001', 'S019', 'S003'] },
       { k: 'grapes', a: 'G094', o: ['G162', 'G001', 'G019', 'G094'] },
-      { k: 'region', a: 'R072', o: ['R101', 'R118', 'R072', 'R011'] },
+      { k: 'region', a: 'R060', o: ['R101', 'R118', 'R060', 'R011'] },
       { k: 'style', a: 'S025', o: ['S011', 'S025', 'S029', 'S014'] },
       { k: 'grapes', a: 'G157', o: ['G157', 'G018', 'G036', 'G057'] },
-      { k: 'region', a: 'R058', o: ['R119', 'R012', 'R029', 'R058'] },
+      { k: 'region', a: 'R074', o: ['R022', 'R040', 'R057', 'R074'] },
       { k: 'style', a: 'S026', o: ['S028', 'S012', 'S026', 'S030'] },
     ],
   };

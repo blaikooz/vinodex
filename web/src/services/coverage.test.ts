@@ -186,6 +186,17 @@ describe('dataset coverage', () => {
    * Grape stat bars must carry the authored values, not values re-derived from
    * descriptive text — an earlier skeleton invented these
    * (`aromatics = tastingProfile.count + 2`). This pins the real ones.
+   *
+   * **Re-pinned for the 0.2.2 catalogue batch.** `aromatics` was 5 here and is
+   * 3, and that is the whole point of the batch rather than a drift: the old
+   * value was `min(notes, 3) + 2`, which scored 5 on 174 of 177 grapes and
+   * really only measured whether three tasting notes had been authored.
+   * Cabernet Sauvignon is aromatic but it is not Gewürztraminer, and 3 is what
+   * a human wrote down. `colorIntensity` is now authored too — it was
+   * `type === 'red' ? 4 : 2` with no exceptions — and Cabernet keeps 4 by
+   * agreement rather than by formula, which is exactly why one grape's numbers
+   * are no longer a sufficient test on their own. See the distribution guard
+   * below.
    */
   it('keeps Cabernet Sauvignon characteristics authored', () => {
     const cab = entryNamed(all, 'Cabernet Sauvignon');
@@ -195,10 +206,100 @@ describe('dataset coverage', () => {
 
     expect(cab.grapeCharacteristics.tannin).toBe(4);
     expect(cab.grapeCharacteristics.acid).toBe(4);
-    expect(cab.grapeCharacteristics.aromatics).toBe(5);
+    expect(cab.grapeCharacteristics.colorIntensity).toBe(4);
+    expect(cab.grapeCharacteristics.aromatics).toBe(3);
     expect(cab.grapeCharacteristics.body).toBe(5);
     expect(cab.rarity).toBe('NOBLE');
     expect(cab.grapeBodyClass).toBe('Full');
+  });
+
+  /**
+   * The bars have a spread — the assertion the old defect would have failed.
+   *
+   * Pinning one grape's five numbers is a weak guard against the failure that
+   * actually happened, because a formula produces perfectly plausible numbers
+   * for any single variety. What it cannot produce is variety: `colorIntensity`
+   * was `red ? 4 : 2` and therefore took **two** distinct values across 177
+   * grapes, and `aromatics` took three, with 174 of them on the same one. Both
+   * would have passed a single-grape pin and both were wrong.
+   *
+   * So this asserts the shape of the data rather than a value in it: five
+   * distinct levels used on each authored bar, and no single level swallowing
+   * the catalogue. A regression to any derivation-from-prose fails here, which
+   * is the guard the batch is actually buying.
+   */
+  it('gives the authored bars a real spread, not a formula', () => {
+    const grapes = all.filter(isGrapeEntry);
+    expect(grapes.length).toBe(177);
+
+    for (const bar of ['colorIntensity', 'aromatics'] as const) {
+      const values = grapes.map(g => g.grapeCharacteristics[bar]);
+      const levels = new Set(values);
+      // The 1–5 scale, all of it. Two was the defect; three is a formula with
+      // one exception in it.
+      expect(levels.size, `${bar} uses only ${[...levels].sort().join('/')}`).toBe(5);
+
+      // And no level is doing 90% of the work, which is how `aromatics` hid:
+      // 174 of 177 grapes scored 5 and the bar still "had three values".
+      const commonest = Math.max(...[...levels].map(l => values.filter(v => v === l).length));
+      expect(
+        commonest / values.length,
+        `${bar}'s commonest level covers ${commonest}/${values.length} grapes`,
+      ).toBeLessThan(0.6);
+    }
+  });
+
+  /**
+   * The authored values say something true, spot-checked at both ends.
+   *
+   * A spread can be broad and still be noise. These are the cases the batch
+   * exists for: teinturiers — the varieties with red *flesh*, not just red
+   * skin — against the two palest reds in the catalogue, and the aromatic
+   * whites against the neutral ones. Under the old `red ? 4 : 2` rule every
+   * grape in the first row and both in the second scored identically.
+   */
+  it('separates the grapes the authored bars exist to separate', () => {
+    const bar = (name: string, k: 'colorIntensity' | 'aromatics') => {
+      const e = entryNamed(all, name);
+      expect(e, `${name} is missing from the catalogue`).toBeDefined();
+      if (!isGrapeEntry(e!)) throw new Error(`${name} is not a grape entry`);
+      return e.grapeCharacteristics[k];
+    };
+
+    for (const teinturier of ['Alicante Bouschet', 'Colorino', 'Vinhão', 'Saperavi']) {
+      expect(bar(teinturier, 'colorIntensity'), `${teinturier} should be opaque`).toBe(5);
+    }
+    // Pinot Noir is the reference pale red; Poulsard and Brancellao are paler
+    // still. All three read 4 under the old rule.
+    expect(bar('Pinot Noir', 'colorIntensity')).toBe(2);
+    expect(bar('Poulsard', 'colorIntensity')).toBe(1);
+    expect(bar('Brancellao', 'colorIntensity')).toBe(1);
+
+    for (const aromatic of ['Muscat Blanc à Petits Grains', 'Gewürztraminer', 'Torrontés']) {
+      expect(bar(aromatic, 'aromatics'), `${aromatic} should be loud`).toBe(5);
+    }
+    for (const neutral of ['Trebbiano', 'Airén', 'Palomino']) {
+      expect(bar(neutral, 'aromatics'), `${neutral} should be quiet`).toBe(1);
+    }
+  });
+
+  /**
+   * White grapes carry no tannin, with three named exceptions.
+   *
+   * 14 whites were showing phantom tannin off the prose derivation. The three
+   * that keep it are Georgian and keep it on purpose — Rkatsiteli, Kisi and
+   * Mtsvane are the qvevri amber varieties, fermented on their skins, where
+   * tannin is the defining feature rather than a parsing accident. Named
+   * rather than range-checked, so a fourth cannot appear silently.
+   */
+  it('leaves white grapes untannic, apart from the three amber varieties', () => {
+    const tannic = all
+      .filter(isGrapeEntry)
+      .filter(g => g.grapeType === 'white')
+      .filter(g => g.grapeCharacteristics.tannin > 0)
+      .map(g => g.name)
+      .sort();
+    expect(tannic).toEqual(['Kisi', 'Mtsvane', 'Rkatsiteli']);
   });
 
   /**
