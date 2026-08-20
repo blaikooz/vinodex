@@ -76,8 +76,27 @@ enforced by nothing (L2).
   **Deliberate (not changed):** the scrolling marquee's overflow, named as a
   non-bug by the user's own batch. **Left by ruling:** the App Store
   placeholder and the contact route. Gates at close: lint 22/22 · typecheck
-  clean · **624 tests / 55 files** · build OK · check:refs zero dangling ·
+  clean · **630 tests / 56 files** · build OK · check:refs zero dangling ·
   **playwright 118 passed**. Version **v0.2.2**.
+- **v0.2.2, catalogue half (2026-08-20), §9a below:** the user folded
+  sommbot's catalogue batch into the same release, so 0.2.2 carries two
+  unrelated halves. `HGapps\shared` synced into the web mirror by the
+  coordinator; **`vinodex-ios` untouched, and nothing here writes to
+  `shared/`**. 177 grapes gain authored `characteristics`, 14 white tannins
+  corrected to None, Cabernet Pfeffer USA → France, one unsourced lineage edge
+  dropped. **Done:** C1 (the Cabernet pin re-pinned to the authored values),
+  **C2** (the pin *strengthened* — a single grape's numbers could never have
+  caught the original defect, so the distribution and the proof cases are
+  asserted too), C3 (the `??` merge verified and pinned two ways, proved
+  non-vacuous), C4 (both quiz goldens **regenerated**, never hand-edited, with
+  each half of the move isolated to the exact data line that caused it), C5
+  (the bars verified rendering in a real browser, not only in the data), C6
+  (the changelog extended to name both halves). **Deliberate, recorded:** the
+  chassis has no lower bound. Measured down to 1280×400: **every chassis
+  control stays on screen at every height**, and what gives out at ~520px is
+  `MainMenu`'s non-scrolling 2×2 tile grid being cropped by the LCD — a
+  long-standing short-LCD limit, newly reachable on desktop. Known, with the
+  user for a ruling.
 
 ### Commits
 
@@ -834,13 +853,87 @@ carried into the deliberate list below.
   placeholder (so the install bar stays dormant) and the contact route is
   unchanged. Registered, not fixed.
 
+### 9a · The catalogue half, folded into the same release
+
+The user's ruling folded sommbot's catalogue batch into 0.2.2 rather than
+shipping it separately, so the release carries two unrelated halves and the
+changelog says both. `HGapps\shared` was synced into the web mirror by the
+coordinator; **`vinodex-ios` is untouched and nothing here writes to
+`shared/`**. What arrived: 177 grapes gain authored `characteristics`, 14
+white-grape tannins corrected to None, Cabernet Pfeffer's origin USA -> France,
+one unsourced lineage edge dropped, plus description and synonym fixes.
+
+The mirror was verified byte-identical to `HGapps\shared` after the pass
+(line endings excepted -- the repo is `autocrlf`), including after the
+deliberate temporary edit described in `v7#C3`.
+
+| id | item | severity | outcome |
+|---|---|---|---|
+| **v7#C1** | `coverage.test.ts`'s Cabernet pin was stale | minor, test | **Done, and strengthened.** `aromatics` moved 5 -> 3 and `colorIntensity` is now pinned too. The move *is* the batch: the old value was `min(notes, 3) + 2`, which scored 5 on 174 of 177 grapes and really measured whether three tasting notes had been authored. Cabernet Sauvignon is aromatic; it is not Gewurztraminer. |
+| **v7#C2** | One grape's numbers is the wrong shape of test for this defect | **moderate, test** | **Done.** A formula produces perfectly plausible numbers for any *single* variety -- what it cannot produce is variety. `colorIntensity` was `red ? 4 : 2` and therefore took **two** distinct values across 177 grapes; `aromatics` took three with 174 on one of them. Both would have passed a single-grape pin. Three new assertions: each authored bar uses all five levels, no level covers more than 60% of the catalogue, and the proof cases separate by name -- four teinturiers at 5 against Pinot Noir at 2 and Poulsard/Brancellao at 1, three aromatic whites at 5 against Trebbiano/Airen/Palomino at 1. A fourth pins the tannin correction *by name*: whites carry none, except Rkatsiteli, Kisi and Mtsvane, which are the Georgian qvevri amber varieties fermented on their skins and keep it on purpose. Named rather than range-checked, so a fourth cannot appear silently. |
+| **v7#C3** | The `??` merge is one "simplification" from a silent data loss | minor, craft | **Verified present, and now pinned.** `grapeCards.ts:92-107` merges with `??` as the field's doc comment requires. No grape authors **0** today, so `||` would ship green and surface the first time somebody wrote one down. `grapeCards.test.ts` pins it two ways, because neither is sufficient alone: behaviourally, five cases where the authored value and the derivation *disagree* (a teinturier at 5 where `red ? 4 : 2` says 4, Trebbiano at 1 where it says 2); and by reading the source, since no dataset can demonstrate the 0 case. The source assertion anchors on the literal prefix `authored.<bar> ?? ` rather than "the line contains `??`" -- too weak (`a \|\| b ?? c` passes) and too strong, because `aromatics`' own fallback legitimately contains a `\|\|` in `tastingProfile.length \|\| 1`. **Proved non-vacuous** by flipping `colorIntensity`'s operator to `\|\|` in a scratch copy: red, named, restored. |
+| **v7#C4** | Both quiz goldens moved | minor, test | **Regenerated from the dataset, never hand-edited**, then each half of the move isolated by reverting one data file at a time -- which makes the tell exact enough to name the lines. **All five region questions moved and only they**: `regionQuestion` draws its subject from `grapeNamesFrom(regions, ...)`, a *sorted* list of every grape some region names, and the batch added "Manto Negro" to R120 Mallorca's `notableGrapes` -- one line, the only line `regions.ts` changed -- which inserts a name into that sorted list and shifts `names[mod(seed + step, names.length)]` for every seed. Reverting that single line restores all five old answers exactly and moves nothing else. **One grape option set moved**, seed 777 q4: its answer G080 Fer Servadou is a medium-bodied French red, and G154 Cabernet Pfeffer's origin correction USA -> France moved it from `others` into `matching`, shifting the distractor walk by one. **No style question moved at all.** The three kinds share `assemble`, so an algorithm change moves all three; only the kinds whose *inputs* changed did. The authored bars themselves moved nothing -- the bank draws on body, origin and notable-grape links, not on characteristics. |
+| **v7#C5** | Does the authored data actually render? | — | **Verified in a real browser**, not just in the data. Bar segments read back off the DOM at `/detail/*`: Alicante Bouschet COLOR 5, Pinot Noir 2, Poulsard 1; Gewurztraminer AROMATICS 5, Trebbiano 1; both whites TANNIN 0. Every value matches the dataset exactly, so the merge, the entry build and `EntryDetail.tsx:797` all carry it through. Screenshots taken. |
+| **v7#C6** | The changelog described only the desktop half | minor | **Done.** Headline `THE DESK AND THE VINES`; five catalogue notes added in player terms -- the bars are written down rather than guessed, COLOUR and AROMATICS each named with their two poles, phantom white tannin gone with the Georgian exception stated, and the Cabernet Pfeffer / parentage corrections. This is FIRMWARE HISTORY copy, so ASCII only and it passes the shape gate. |
+
+**One defect fixed in the master before the sync, by the coordinator, and
+recorded here because it is the kind that recurs:** sommbot added
+`characteristics?: Partial<GrapeCharacteristics>` to the `GrapeEntry`
+interface, but `shared/data/grapes.ts` is annotated `LegacyGrapeRecord[]`, so
+typecheck failed on all 177 records. The field moved to `LegacyGrapeRecord`.
+Sommbot could not have caught it -- it is correctly barred from
+`vinodex-web`, so it had no typecheck to run. **The structural note: the only
+`tsc` that sees `shared/` is this repo's.** A shared-data authoring pass has
+no type gate of its own, and the web pass immediately after it is where that
+gate lives.
+
+### The floor question, recorded
+
+The chassis caps at the top only: `min(850px, 100dvh - 2rem)` has no lower
+bound, so on a very short window the LCD keeps giving while the chrome keeps
+its authored height -- the island, vent strips, band and caps are exactly the
+pieces `v7#D2` refuses to rescale. **Measured at 1280 wide, `/dex`:**
+
+| window | frame | LCD | chassis controls off screen | LCD content clipped |
+|---|---|---|---|---|
+| 800 | 768 | 484 | none | none |
+| 700 | 668 | 416 | none | none |
+| 520 | 488 | 236 | none | none |
+| 500 | 468 | 216 | none | **GRAPES, REGIONS** |
+| 450 | 418 | 166 | none | GRAPES, REGIONS |
+| 400 | 368 | 116 | none | GRAPES, REGIONS |
+
+**The chassis half holds all the way down.** All four caps, both quick-pin
+lamps and the marquee stay on screen and clickable at every height tested,
+which is the property `v7#D2` was for.
+
+**What gives out at ~520px is the menu, not the device.** `MainMenu`'s 2x2
+tile grid is centred and does not scroll, so below that height it is taller
+than the LCD and the LCD's own `overflow-hidden` crops it -- the tile labels
+go first. The device still reads correctly; the page inside it is cut off.
+That is a `MainMenu` layout limit that has always existed on a short LCD and
+was simply unreachable on desktop while the frame was a fixed 850px.
+
+**Known and deliberate for 0.2.2, and not fixed here.** No floor was invented,
+because a floor reintroduces the clipping the cap exists to prevent -- below
+it the footer band goes back under the fold, which is the original fault. The
+honest options if one is wanted are a floor plus page scroll below it, or a
+floor plus the `scale(k)` that `v7#D2` rejected for the normal case; the
+third, and probably the right one, is to make the menu grid behave on a short
+LCD like every other screen already does. **With the user for a ruling; not
+scheduled.** The viewport gate deliberately does not assert at these heights,
+so it pins the fixed behaviour without freezing the open question.
+
 ### Commits
 
 | # | Commit | Items |
 |---|---|---|
-| 20 | *(this pass)* fix: the device frame, and the overlays that ignored it | D1–D6, D9 |
-| 21 | *(this pass)* test: the viewport gate, and the install banner's offset | D7, D8 |
-| 22 | *(this pass)* docs(parity): v0.2.2 and this section | the bump, §9 |
+| 20 | `5ce2229` fix: the device frame, and the overlays that ignored it | D1–D6, D9 |
+| 21 | `262eef4` test: the viewport gate, and the install banner's offset | D7, D8 |
+| 22 | `d883e0e` docs(parity): v0.2.2, and the desktop pass | the bump, §9 |
+| 23 | *(this pass)* chore(shared): sync canonical shared/ | the catalogue batch |
+| 24 | *(this pass)* test: re-pin the catalogue, and guard the authored bars | C1–C5 |
+| 25 | *(this pass)* docs(parity): the catalogue half, and the floor question | C6, §9a |
 
 ---
 
@@ -889,7 +982,14 @@ Unchanged from `IOS-PARITY.md` and v6 — **none re-raised above**:
   of it. iOS never faces this — its chassis is the whole screen — so there is
   no counterpart behaviour to match, and the rule chosen is iOS's own logic
   transposed: the furniture keeps its authored figures and the page takes the
-  loss (`PageRoom`). A web-only response to a web-only situation.
+  loss (`PageRoom`). A web-only response to a web-only situation. **There is
+  no lower bound**, by decision — see "The floor question" in §9.
+- **The three Georgian whites keep their tannin.** The 0.2.2 batch cleared
+  phantom tannin off 14 white grapes; Rkatsiteli, Kisi and Mtsvane keep theirs
+  because they are the qvevri amber varieties, fermented on their skins, where
+  tannin is the defining feature rather than a parsing accident. Pinned by
+  name in `coverage.test.ts` so a fourth cannot appear silently, and so the
+  three are never "cleaned up" as leftovers of the defect.
 
 **Added in the v0.2.1 pass (§8):**
 

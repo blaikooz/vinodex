@@ -68,12 +68,17 @@ export interface WebRelease {
 const CURRENT: WebRelease = {
   version: '0.2.2',
   date: '2026-08-20',
-  headline: 'THE DEVICE FITS THE DESK',
+  headline: 'THE DESK AND THE VINES',
   notes: [
     'The device shrinks to fit a short window, so the buttons under the screen are always reachable.',
     'The quick-pin lamps shipped in 0.2.1 were below the fold on a common desktop window. They are not now.',
     'The power-on test boots on the device screen instead of across the whole browser window.',
     'The screensaver, the professor and his introduction all stay on the device at any window size.',
+    'Grape stat bars mean something now: all 177 are written down rather than guessed from the description.',
+    'COLOUR runs from teinturiers like Alicante Bouschet and Saperavi down to Poulsard, not one shade per red.',
+    'AROMATICS runs from Muscat and Gewurztraminer down to Trebbiano, instead of near-full marks for everyone.',
+    'White grapes no longer show phantom tannin. Only the Georgian amber varieties keep any, and they should.',
+    'Cabernet Pfeffer is French, one unsourced parentage link is gone, and some descriptions read better.',
     'The render gate now checks a desktop and a short window as well as a phone.',
   ],
 };
