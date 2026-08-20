@@ -3,6 +3,7 @@ import React, { useState } from 'react';
 import ChassisIsland from './ChassisIsland';
 import DeviceFooter from './DeviceFooter';
 import MarqueeLampChooser from './MarqueeLampChooser';
+import { DEVICE_FRAME_BOX, DEVICE_FRAME_STAGE } from '../src/services/deviceFrame';
 
 interface DeviceLayoutProps {
   children: React.ReactNode;
@@ -85,7 +86,7 @@ const DeviceLayout: React.FC<DeviceLayoutProps> = ({
 
   return (
     <div
-      className="flex justify-center items-center min-h-screen bg-neutral-900 p-0 md:p-4 font-mono h-screen md:h-auto overflow-hidden rounded-[2rem]"
+      className={`${DEVICE_FRAME_STAGE} min-h-screen bg-neutral-900 font-mono h-screen md:h-auto overflow-hidden rounded-[2rem]`}
       style={{
         paddingTop: 'env(safe-area-inset-top)',
         paddingLeft: 'env(safe-area-inset-left)',
@@ -95,7 +96,7 @@ const DeviceLayout: React.FC<DeviceLayoutProps> = ({
     >
       {/* 3D flip container — wraps both faces of the device */}
       <div
-        className="relative w-full h-full md:h-[850px] md:w-[522px]"
+        className={`relative ${DEVICE_FRAME_BOX}`}
         style={{
           transformStyle: 'preserve-3d',
           transition: 'transform 700ms cubic-bezier(0.4, 0, 0.2, 1)',

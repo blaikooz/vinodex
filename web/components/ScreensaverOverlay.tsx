@@ -4,6 +4,7 @@ import {
   bouncePosition,
   randomStart,
 } from '../src/services/screensaver';
+import { DEVICE_FRAME_BOX, DEVICE_FRAME_OVERLAY_STYLE, DEVICE_FRAME_STAGE } from '../src/services/deviceFrame';
 
 interface ScreensaverOverlayProps {
   onDismiss: () => void;
@@ -60,27 +61,41 @@ const ScreensaverOverlay: React.FC<ScreensaverOverlayProps> = ({ onDismiss }) =>
     // wakes the device — but the overlay itself is also directly tappable so
     // assistive tech has an obvious way out.
     <div
-      ref={boxRef}
       role="button"
       aria-label="Screensaver — touch to wake"
       tabIndex={0}
       onClick={onDismiss}
       onKeyDown={onDismiss}
-      className="fixed inset-0 z-[90] bg-black cursor-pointer overflow-hidden"
+      className={`fixed inset-0 z-[90] ${DEVICE_FRAME_STAGE} bg-neutral-900 cursor-pointer overflow-hidden`}
+      style={DEVICE_FRAME_OVERLAY_STYLE}
     >
-      {reduced ? (
-        <div className="w-full h-full flex items-center justify-center">
-          <img src="/vinodex-logo.png" alt="" className="w-[28%] rounded-[18%] opacity-80" />
-        </div>
-      ) : (
-        <img
-          ref={markRef}
-          src="/vinodex-logo.png"
-          alt=""
-          className="absolute top-0 left-0 rounded-[18%] opacity-80 will-change-transform"
-          style={{ width: `${MARK_FRACTION * 100}%` }}
-        />
-      )}
+      {/*
+        `boxRef` is the *device* box, not the viewport (v7#D3).
+        The bounce is a closed form over the box it is given, so a layer fixed
+        to a 1280x800 window sent the mark on a lap of the desktop at 28% of
+        1280px — a screen blanker blanking the browser instead of the screen.
+        Clamped to `DEVICE_FRAME_BOX`, the same one `DeviceLayout` centres, the
+        mark bounces inside the machine it belongs to and `MARK_FRACTION` means
+        what it says again.
+      */}
+      <div
+        ref={boxRef}
+        className={`relative ${DEVICE_FRAME_BOX} bg-black overflow-hidden md:rounded-[2.5rem]`}
+      >
+        {reduced ? (
+          <div className="w-full h-full flex items-center justify-center">
+            <img src="/vinodex-logo.png" alt="" className="w-[28%] rounded-[18%] opacity-80" />
+          </div>
+        ) : (
+          <img
+            ref={markRef}
+            src="/vinodex-logo.png"
+            alt=""
+            className="absolute top-0 left-0 rounded-[18%] opacity-80 will-change-transform"
+            style={{ width: `${MARK_FRACTION * 100}%` }}
+          />
+        )}
+      </div>
     </div>
   );
 };

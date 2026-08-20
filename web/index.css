@@ -19,6 +19,17 @@
   --animate-blink: blink 1s step-end infinite;
 }
 
+/* The device frame's height cap (v7#D2).
+   Read by `DEVICE_FRAME_BOX` in `web/src/services/deviceFrame.ts`, which is the
+   only thing that should reference it — see the note there for why the device
+   shrinks instead of overhanging the fold, and why only the LCD gives.
+   `2rem` is the stage's `md:p-4` on both edges. `dvh` rather than `vh` so a
+   tablet with a retracting URL bar caps against the room it actually has; the
+   sub-`md` phone path never reaches this value at all. */
+:root {
+  --device-frame-h: min(850px, calc(100dvh - 2rem));
+}
+
 /* Base styles */
 body {
   background-color: #111;

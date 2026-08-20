@@ -11,6 +11,7 @@ import {
 } from '../src/services/coachmarks';
 import { isSuspendedOtherThan, setSuspended, subscribeToVino } from '../src/services/vinoPresenter';
 import { displayName } from '../src/services/profile';
+import { DEVICE_FRAME_BOX, DEVICE_FRAME_STAGE } from '../src/services/deviceFrame';
 
 /**
  * The spotlight, ported from
@@ -91,34 +92,45 @@ const CoachmarkOverlay: React.FC = () => {
         />
       )}
 
-      <div className="absolute inset-x-0 bottom-4 flex justify-center px-4">
-        <div className="pointer-events-auto w-full max-w-sm rounded-2xl border-2 border-amber-500 bg-stone-900/95 p-3.5 flex flex-col gap-2.5 shadow-[0_4px_0_rgba(0,0,0,0.5)]">
-          <div className="flex items-start gap-3">
-            <span className="shrink-0 w-10 h-10 rounded-full border-2 border-amber-500 bg-stone-800 flex items-center justify-center overflow-hidden">
-              <VinoPortrait expression={step.expression} size={34} />
-            </span>
-            <div className="flex-1 min-w-0">
-              <p className="font-retro text-[0.5rem] tracking-widest text-amber-400">
-                TUTORIAL {position}/{COACHMARK_STEPS.length}
-              </p>
-              <p className="font-mono text-sm text-stone-100 normal-case leading-snug mt-1">{text}</p>
+      {/*
+        The spotlight stays on the viewport; the card comes back to the device
+        (v7#D6). The four dim panels and the hole are drawn from
+        `getBoundingClientRect`, which is viewport space, so `fixed inset-0` is
+        exactly right for them and they are left alone. The card was not — at
+        `absolute inset-x-0 bottom-4` it sat at the foot of the *browser*, and
+        on a tall desktop window that is below the chassis, on the neutral
+        backdrop, pointing at a control several hundred pixels above it.
+      */}
+      <div className={`absolute inset-0 ${DEVICE_FRAME_STAGE}`}>
+        <div className={`relative ${DEVICE_FRAME_BOX} flex items-end justify-center px-4 pb-4`}>
+          <div className="pointer-events-auto w-full max-w-sm rounded-2xl border-2 border-amber-500 bg-stone-900/95 p-3.5 flex flex-col gap-2.5 shadow-[0_4px_0_rgba(0,0,0,0.5)]">
+            <div className="flex items-start gap-3">
+              <span className="shrink-0 w-10 h-10 rounded-full border-2 border-amber-500 bg-stone-800 flex items-center justify-center overflow-hidden">
+                <VinoPortrait expression={step.expression} size={34} />
+              </span>
+              <div className="flex-1 min-w-0">
+                <p className="font-retro text-[0.5rem] tracking-widest text-amber-400">
+                  TUTORIAL {position}/{COACHMARK_STEPS.length}
+                </p>
+                <p className="font-mono text-sm text-stone-100 normal-case leading-snug mt-1">{text}</p>
+              </div>
             </div>
-          </div>
-          <div className="flex gap-2.5">
-            <button
-              onClick={skipCoachmarks}
-              className="flex-1 font-retro text-[0.55rem] tracking-widest text-stone-400 border-2 border-stone-700 rounded-lg py-2.5"
-            >
-              SKIP
-            </button>
-            {step.advancesOn === 'acknowledged' && (
+            <div className="flex gap-2.5">
               <button
-                onClick={() => reportCoachmark('acknowledged')}
-                className="flex-1 font-retro text-[0.55rem] tracking-widest text-black bg-amber-400 border-b-4 border-amber-600 rounded-lg py-2.5 active:translate-y-0.5"
+                onClick={skipCoachmarks}
+                className="flex-1 font-retro text-[0.55rem] tracking-widest text-stone-400 border-2 border-stone-700 rounded-lg py-2.5"
               >
-                CONTINUE
+                SKIP
               </button>
-            )}
+              {step.advancesOn === 'acknowledged' && (
+                <button
+                  onClick={() => reportCoachmark('acknowledged')}
+                  className="flex-1 font-retro text-[0.55rem] tracking-widest text-black bg-amber-400 border-b-4 border-amber-600 rounded-lg py-2.5 active:translate-y-0.5"
+                >
+                  CONTINUE
+                </button>
+              )}
+            </div>
           </div>
         </div>
       </div>
