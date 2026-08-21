@@ -68,7 +68,9 @@ const ScreensaverOverlay: React.FC<ScreensaverOverlayProps> = ({ onDismiss }) =>
       tabIndex={0}
       onClick={onDismiss}
       onKeyDown={onDismiss}
-      className={`fixed inset-0 z-[90] ${DEVICE_FRAME_STAGE} bg-neutral-900 cursor-pointer overflow-hidden`}
+      // `device-stage`, like the chassis and the boot: a device going to
+      // sleep on the stage should not also switch the room's lights off.
+      className={`fixed inset-0 z-[90] ${DEVICE_FRAME_STAGE} device-stage cursor-pointer overflow-hidden`}
       style={DEVICE_FRAME_OVERLAY_STYLE}
     >
       {/*

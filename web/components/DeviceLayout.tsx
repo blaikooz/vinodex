@@ -111,8 +111,14 @@ const DeviceLayout: React.FC<DeviceLayoutProps> = ({
   const footerBottomPad = DEVICE_FOOTER_BOTTOM_PAD;
 
   return (
+    // `device-stage` (index.css) is the desktop backdrop — key light,
+    // vignette, floor sheen, all as background layers so nothing can sit in
+    // front of the frame or catch a click. Below `md` it is the flat
+    // neutral-900 it replaced. The corner rounding comes off at `md`: a
+    // stage is not a card, and the 2rem clip was showing the page background
+    // through the window's corners.
     <div
-      className={`${DEVICE_FRAME_STAGE} min-h-screen bg-neutral-900 font-mono h-screen md:h-auto overflow-hidden rounded-[2rem]`}
+      className={`${DEVICE_FRAME_STAGE} min-h-screen device-stage font-mono h-screen md:h-auto overflow-hidden rounded-[2rem] md:rounded-none`}
       style={{
         paddingTop: 'env(safe-area-inset-top)',
         paddingLeft: 'env(safe-area-inset-left)',

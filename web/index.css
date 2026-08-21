@@ -229,6 +229,59 @@
   --device-frame-h: min(850px, calc(100dvh - 2rem));
 }
 
+/* ---------------------------------------------------------------------------
+   THE DESKTOP STAGE (stage 3, v9#s5)
+
+   On a phone the viewport IS the device, so the surround never shows. On a
+   1280px window the device is a centred 522px column and everything around it
+   was a flat #171717 void — a UI screenshot, not a product. This class is the
+   stage it sits on: a soft key light behind the machine, tinted by the shell
+   itself (`--chassis-body`, so CLASSIC warms the room red, NOCTURNE hardly at
+   all, and the company site's CLASSIC override tints its own stage because
+   the custom property is read where the class is painted); a vignette that
+   falls off toward the window's edges; and a faint sheen rising from the
+   floor so there is a surface under the device rather than empty black.
+
+   **Backgrounds only, no elements, on purpose.** The viewport gate
+   (`viewports.spec.ts`) fails anything whose border box paints outside the
+   window, and `getBoundingClientRect` does not care about `overflow: hidden`
+   — so a blurred decoration div larger than the window is a red gate even
+   when clipped invisible. Background layers have no box, cannot intercept a
+   click, and sit behind the frame by construction. A literal floor
+   reflection was considered and dropped for the same reason plus a plainer
+   one: at the gate's own 1280x800 the frame ends 16px above the window edge,
+   so there is no floor to reflect into.
+
+   Below `md` the class is exactly the `bg-neutral-900` it replaced — the
+   mobile surround (the sliver behind safe-area insets) is untouched.
+
+   Shared by the three layers that paint a surround — `DeviceLayout`, the
+   BIOS (`VinodexBoot`) and the screensaver — so the hand-off between boot,
+   app and sleep never jumps from a lit stage to a void and back. The
+   `--chassis-body` fallback is CLASSIC's red: the boot can paint a frame
+   before `applyTheme` has written the tokens, and an unresolvable `var()`
+   inside `color-mix` would otherwise invalidate the whole background-image
+   declaration.
+   --------------------------------------------------------------------------- */
+.device-stage {
+  background-color: #171717;
+}
+
+@media (min-width: 768px) {
+  .device-stage {
+    background-color: #101013;
+    background-image:
+      /* The vignette. Centred a little above the middle, where the light is. */
+      radial-gradient(115% 90% at 50% 44%, rgba(0, 0, 0, 0) 55%, rgba(0, 0, 0, 0.55) 100%),
+      /* The key light, in the shell's own plastic. 30%/oklab measured against
+         the darkest shell in the table (NOCTURNE) as the least that still
+         reads as light from the machine rather than a grey haze. */
+      radial-gradient(60% 70% at 50% 46%, color-mix(in oklab, var(--chassis-body, #DC0A2D) 30%, transparent) 0%, transparent 74%),
+      /* The floor sheen: enough light at the bottom edge to read as a surface. */
+      linear-gradient(to top, rgba(255, 255, 255, 0.045) 0%, rgba(255, 255, 255, 0) 26%);
+  }
+}
+
 /* ===========================================================================
    THE DESIGN FOUNDATION (v0.4.0, m2)
 

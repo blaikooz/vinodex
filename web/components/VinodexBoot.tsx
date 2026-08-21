@@ -72,7 +72,10 @@ const VinodexBoot: React.FC<Props> = ({ entries, onDone }) => {
       still a tap on the machine.
     */
     <div
-      className={`fixed inset-0 z-[70] ${DEVICE_FRAME_STAGE} bg-neutral-900 select-none cursor-pointer overflow-hidden`}
+      // `device-stage` rather than a flat fill, so the surround does not jump
+      // when the boot hands the device over (the BIOS's own palette note is
+      // about the LCD, not the room the machine is standing in).
+      className={`fixed inset-0 z-[70] ${DEVICE_FRAME_STAGE} device-stage select-none cursor-pointer overflow-hidden`}
       style={DEVICE_FRAME_OVERLAY_STYLE}
       onClick={finish}
       onKeyDown={finish}
