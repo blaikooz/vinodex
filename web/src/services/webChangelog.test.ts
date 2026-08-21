@@ -72,7 +72,9 @@ describe('the web changelog', () => {
     // shipped is still on it. **When a release lands, raise the floor to the
     // new length** — the log only grows, and a shrink is a deletion someone
     // has to explain here rather than a diff nobody reads.
-    expect(WEB_RELEASES.length, 'the changelog shrank — a release was deleted, not promoted').toBeGreaterThanOrEqual(2);
+    // Raised to 6 by v0.4.0's own landing, which is the discipline this note
+    // describes: the log grows by one per release and the floor follows it.
+    expect(WEB_RELEASES.length, 'the changelog shrank — a release was deleted, not promoted').toBeGreaterThanOrEqual(6);
     expect(releaseFor('0.1.0'), 'the first web release fell off the log').toBeDefined();
   });
 
