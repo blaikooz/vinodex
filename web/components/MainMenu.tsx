@@ -1,7 +1,10 @@
 import React, { useState } from 'react';
 import { Grip, Globe, Leaf, Search, Wine } from 'lucide-react';
+import type { LucideIcon } from 'lucide-react';
 import DeviceLayout from './DeviceLayout';
 import DeviceBackPanel from './DeviceBackPanel';
+import { Tile } from './Card';
+import type { Livery } from './Card';
 import { EntryCategory } from '@/shared/types';
 
 interface MainMenuProps {
@@ -54,27 +57,31 @@ const tileMask = (q: Quadrant): React.CSSProperties => {
   };
 };
 
-const DialTile: React.FC<{
-  quadrant: Quadrant;
-  label: string;
-  icon: React.ReactNode;
-  face: string;
-  shadow: string;
-  onClick: () => void;
-  /** Walkthrough anchor: the spotlight cuts its hole from this tile's rect. */
-  coachmark?: string;
-}> = ({ quadrant, label, icon, face, shadow, onClick, coachmark }) => (
-  <button
-    onClick={onClick}
-    data-coachmark={coachmark}
-    className="relative flex flex-col items-center justify-center group overflow-hidden transition-[filter,transform] active:brightness-90"
-    style={{ backgroundColor: face, boxShadow: `inset 0 -5px 0 ${shadow}`, ...tileMask(quadrant) }}
-  >
-    <span className="absolute inset-0 bg-gradient-to-br from-white/10 to-transparent pointer-events-none" />
-    <span className="text-white mb-2 group-hover:scale-110 transition-transform drop-shadow-md">{icon}</span>
-    <span className="font-retro text-sm sm:text-lg text-white tracking-widest drop-shadow-md">{label}</span>
-  </button>
-);
+/**
+ * The four categories, as one table (v0.4.0, m5).
+ *
+ * The liveries are `DexTileLivery`'s and the assignment is iOS's own
+ * (`MainMenuScreen.swift:113-131`): GRAPES violet, REGIONS green, STYLES
+ * orange, FLAVORS emerald. The *concept* is shared and stays shared; only
+ * the drawing splits.
+ *
+ * What the table replaces is eight hexes spelled across four call sites --
+ * `face="#a855f7" shadow="#6b21a8"` and three more -- with no light-mode
+ * value anywhere, which is why this screen drew dark-mode faces on all five
+ * pale screen modes. The livery names resolve through `index.css`, which
+ * carries both halves.
+ *
+ * REGIONS green and FLAVORS emerald are two greens next to each other, and
+ * they are two greens on the phone too. Left as iOS has it rather than
+ * quietly re-hued: the assignment is one of the shared ideas, and changing it
+ * is a product decision, not a presentation one. Flagged in the ledger.
+ */
+const DIAL: { quadrant: Quadrant; label: string; livery: Livery; icon: LucideIcon; category: EntryCategory }[] = [
+  { quadrant: 'tl', label: 'GRAPES', livery: 'violet', icon: Grip, category: 'GRAPES' },
+  { quadrant: 'tr', label: 'REGIONS', livery: 'green', icon: Globe, category: 'REGIONS' },
+  { quadrant: 'bl', label: 'STYLES', livery: 'orange', icon: Wine, category: 'STYLES' },
+  { quadrant: 'br', label: 'FLAVORS', livery: 'emerald', icon: Leaf, category: 'FLAVORS' },
+];
 
 const MainMenu: React.FC<MainMenuProps> = ({ onNavigate, onExit }) => {
   const [isFlipped, setIsFlipped] = useState(false);
@@ -90,26 +97,37 @@ const MainMenu: React.FC<MainMenuProps> = ({ onNavigate, onExit }) => {
       onTitleTap={() => setIsFlipped(true)}
       backFace={<DeviceBackPanel onReturn={() => setIsFlipped(false)} />}
     >
-      <div className="flex-1 min-h-0 w-full flex items-center justify-center bg-[var(--lcd-page)] relative overflow-hidden p-4">
-        {/* Retro grid background */}
+      <div className="flex-1 min-h-0 w-full flex items-center justify-center bg-[var(--surface-base)] relative overflow-hidden p-[var(--pad-screen)]">
+        {/* The grid wash, from the mode's own accent rather than a fixed
+            phosphor green -- see the same note in `WebsitePortal`, which keeps
+            its own copy because the site and the dex share a chassis and
+            nothing else. */}
         <div
-          className="absolute inset-0 opacity-10 pointer-events-none"
+          className="absolute inset-0 opacity-[0.07] pointer-events-none"
           style={{
             backgroundImage:
-              'linear-gradient(rgba(50, 255, 50, 0.3) 1px, transparent 1px), linear-gradient(90deg, rgba(50, 255, 50, 0.3) 1px, transparent 1px)',
-            backgroundSize: '30px 30px',
+              'linear-gradient(color-mix(in oklab, var(--lcd-accent) 55%, transparent) 1px, transparent 1px), '
+              + 'linear-gradient(90deg, color-mix(in oklab, var(--lcd-accent) 55%, transparent) 1px, transparent 1px)',
+            backgroundSize: '32px 32px',
           }}
         />
 
-        {/* The moulded housing the four tiles are set into. */}
+        {/* The moulded housing the four tiles are set into.
+
+            The housing keeps its own corner (`--dial-corner`) and its
+            geometry: the dial is one of the shared *ideas*, and the scoops
+            being concentric with the button is a fact about the shape, not a
+            style. What changed is its materials -- the hairline is the
+            surface ramp's own line colour instead of `black/35`, and the drop
+            is `--shadow-elev-2` instead of a hand-written `0 6px 14px`. */}
         <div
-          className="relative z-10 rounded-[2.4rem] border-2 border-black/35 shadow-[0_6px_14px_rgba(0,0,0,0.35)]"
+          className="relative z-10 rounded-[2.4rem] border border-[var(--surface-line)] shadow-elev-2"
           style={
             {
               width: 'min(92%, 26rem)',
               aspectRatio: '1',
               padding: 'var(--dial-inset)',
-              backgroundColor: 'color-mix(in srgb, var(--lcd-page) 55%, transparent)',
+              backgroundColor: 'var(--surface-sunken)',
               // Dial geometry — one set of numbers so the scoops and the button
               // stay concentric (iOS: channel 9, centre 116, scoop = centre/2 + channel).
               '--dial-channel': '8px',
@@ -125,21 +143,54 @@ const MainMenu: React.FC<MainMenuProps> = ({ onNavigate, onExit }) => {
             className="grid h-full w-full"
             style={{ gridTemplateColumns: '1fr 1fr', gridTemplateRows: '1fr 1fr', gap: 'var(--dial-channel)' }}
           >
-            <DialTile coachmark="menuTile" quadrant="tl" label="GRAPES" face="#a855f7" shadow="#6b21a8" icon={<Grip className="w-11 h-11 sm:w-14 sm:h-14" />} onClick={() => onNavigate('GRAPES')} />
-            <DialTile quadrant="tr" label="REGIONS" face="#22c55e" shadow="#15803d" icon={<Globe className="w-11 h-11 sm:w-14 sm:h-14" />} onClick={() => onNavigate('REGIONS')} />
-            <DialTile quadrant="bl" label="STYLES" face="#f97316" shadow="#9a3412" icon={<Wine className="w-11 h-11 sm:w-14 sm:h-14" />} onClick={() => onNavigate('STYLES')} />
-            <DialTile quadrant="br" label="FLAVORS" face="#10b981" shadow="#065f46" icon={<Leaf className="w-11 h-11 sm:w-14 sm:h-14" />} onClick={() => onNavigate('FLAVORS')} />
+            {DIAL.map(t => (
+              <Tile
+                key={t.label}
+                coachmark={t.quadrant === 'tl' ? 'menuTile' : undefined}
+                livery={t.livery}
+                label={t.label}
+                onClick={() => onNavigate(t.category)}
+                icon={<t.icon className="w-8 h-8 sm:w-10 sm:h-10" aria-hidden="true" />}
+                // The quadrant supplies its own outer radius and its concave
+                // inner scoop, so the card's rectangle and hairline would both
+                // fight the shape. Elevation goes too: a tile set INTO a
+                // housing does not cast a shadow onto it.
+                bordered={false}
+                elevation={0}
+                style={tileMask(t.quadrant)}
+              />
+            ))}
           </div>
 
-          {/* The search hub, over the centre and concentric with the scoops. */}
+          {/* The search hub, over the centre and concentric with the scoops.
+
+              Same construction as a tile's icon chip -- amber well, ink glyph
+              -- so the dial reads as one system rather than four tiles plus a
+              button from somewhere else. It is the primary action, so it gets
+              the one saturated ring on the screen and the overlay elevation.
+
+              The `animate-pulse` white wash it used to wear is gone. An
+              infinite pulse on a control that is always available says
+              "something is happening here" when nothing is, and it was one of
+              the two things on this screen that moved on their own. */}
           <button
+            type="button"
             onClick={() => onNavigate('MASTER_SEARCH')}
             aria-label="Search"
-            className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 rounded-full bg-dex-yellow border-[6px] border-yellow-600 shadow-[0_0_25px_rgba(250,204,21,0.4)] flex items-center justify-center active:scale-95 active:border-yellow-700 transition-all overflow-hidden group hover:bg-yellow-300 z-20"
-            style={{ width: 'var(--dial-center)', height: 'var(--dial-center)' }}
+            className={
+              'dex-tint dex-pressable absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 '
+              + 'rounded-full border-[3px] border-[var(--tint-solid)] bg-[var(--tint-subtle)] '
+              + 'text-[var(--tint-ink)] shadow-elev-3 flex items-center justify-center group z-20'
+            }
+            style={
+              {
+                width: 'var(--dial-center)',
+                height: 'var(--dial-center)',
+                '--tint': 'var(--livery-amber)',
+              } as React.CSSProperties
+            }
           >
-            <span className="absolute inset-0 bg-white/20 animate-pulse rounded-full" />
-            <Search className="text-yellow-900 relative z-10 group-hover:scale-110 transition-transform w-2/5 h-2/5" />
+            <Search aria-hidden="true" className="w-2/5 h-2/5 transition-transform duration-200 group-hover:scale-110" />
           </button>
         </div>
       </div>
