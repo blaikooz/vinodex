@@ -124,7 +124,6 @@ const RetroGrid: React.FC = () => (
 // ---------------------------------------------------------------------------
 
 interface PortalHomeProps {
-  onBack: () => void;
   onHome: () => void;
   onOpenApps: () => void;
   onWhoWeAre: () => void;
@@ -135,8 +134,13 @@ interface PortalHomeProps {
 const tileBase =
   'flex-1 rounded-xl shadow-lg active:translate-y-1 active:border-b-0 transition-all flex flex-col items-center justify-center group relative overflow-hidden';
 
-export const PortalHome: React.FC<PortalHomeProps> = ({ onBack, onHome, onOpenApps, onWhoWeAre, onContactUs, onData }) => (
-  <DeviceLayout title="HORIZON/GODOT" subtitle="" showBack onBack={onBack} onHome={onHome} showSystemButtons={false}>
+export const PortalHome: React.FC<PortalHomeProps> = ({ onHome, onOpenApps, onWhoWeAre, onContactUs, onData }) => (
+  // **No Back cap (v8#12).** `/` is the top of the site: there is nothing above
+  // it, so a Back here could only be a no-op or a lie. It was the latter until
+  // this release -- the cold-start fallback launched the dex from the front
+  // page. The cap stays moulded into the shell and inert, which is the same
+  // answer the band already gives for SAVED and SETTINGS on a site screen.
+  <DeviceLayout title="HORIZON/GODOT" subtitle="" showBack={false} onHome={onHome} showSystemButtons={false}>
     <div className="flex-1 min-h-0 w-full flex flex-col items-center bg-dex-screen relative overflow-hidden">
       <RetroGrid />
       <div className="relative w-full h-full z-10 flex flex-col p-6 gap-4">

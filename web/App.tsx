@@ -44,7 +44,7 @@ import VinoIntroCard from './components/VinoIntroCard';
 import CoachmarkOverlay from './components/CoachmarkOverlay';
 import { IDLE_ACTIVITY_EVENTS, IDLE_SCREENSAVER_SECONDS } from './src/services/screensaver';
 import ScreensaverOverlay from './components/ScreensaverOverlay';
-import { bootDecision, isDexPath } from './src/services/appRoutes';
+import { bootDecision, isDexPath, isSitePath } from './src/services/appRoutes';
 
 const RetroGlobeScreen = lazy(() => import('./components/RetroGlobeScreen'));
 const MoonDialScreen = lazy(() => import('./components/MoonDialScreen'));
@@ -475,16 +475,39 @@ const App: React.FC = () => {
     navigate('/dex');
   };
 
-  // `location.key === 'default'` means there is no history to pop — a URL
-  // opened cold. Back then falls back to the dex menu for the same reason Home
-  // does: the user is inside the app, and dropping them on the studio site
-  // would make them walk back in.
-  //
-  // Unchanged by v0.3.0, deliberately. Leaving the app is not Back's job —
-  // see `handleExitToSite`, which the menu's own Back cap uses.
+  /**
+   * Back, and the fallback that has to know which product it is in (v8#12).
+   *
+   * `location.key === 'default'` means there is no history to pop — a URL
+   * opened cold. Back then falls back to a fixed destination, and **which one
+   * depends on which product the screen belongs to.**
+   *
+   * **The release blocker this closes.** The fallback was a flat
+   * `navigate('/dex')`, carried unchanged out of v0.2.x with a comment that
+   * said "the user is inside the app". That premise stopped being true the
+   * moment `/` became the company site: this handler is wired to five *site*
+   * routes, so on the release whose whole thesis is "Vinodex is something you
+   * open from inside the site", pressing Back on the front page **launched the
+   * encyclopedia, BIOS and all**. Worse than a cold-start edge: React Router
+   * keeps `key === 'default'` on the initial history entry, so popping back
+   * onto `/` restores the cold branch — there was no sequence in which Back on
+   * the landing did anything else.
+   *
+   * It is the one behaviour the rework did not route through `appRoutes.ts`,
+   * which is exactly why it slipped: every other site/dex difference in this
+   * release asks the classifier, and this one remembered instead. It asks now.
+   *
+   * `replace` on the fallback: there is nothing to pop, so this is a move *up*
+   * rather than back, and leaving the abandoned URL in the history would let
+   * the browser's own Back drop the visitor straight into the screen they just
+   * left.
+   */
   const handleBack = () => {
-    if (location.key === 'default') navigate('/dex');
-    else navigate(-1);
+    if (location.key !== 'default') {
+      navigate(-1);
+      return;
+    }
+    navigate(isSitePath(location.pathname) ? '/' : '/dex', { replace: true });
   };
 
   /**
@@ -640,7 +663,6 @@ const App: React.FC = () => {
           path="/"
           element={
             <PortalHome
-              onBack={handleBack}
               onHome={() => navigate('/')}
               onOpenApps={() => navigate('/apps')}
               onWhoWeAre={() => navigate('/who-we-are')}

@@ -1,5 +1,6 @@
 import { test, expect, enterDex, seedDevice } from './fixtures';
 import { CHASSIS_SKINS } from '../src/services/theme';
+import { SITE_MARK_TITLE, WEB_MARQUEE_ART } from '../src/services/marqueeArt';
 
 /**
  * The company site is the landing, and it is the studio's device — not the
@@ -224,4 +225,128 @@ test('backing out past the menu returns to the site', async ({ page, consoleErro
   await page.getByRole('button', { name: /EXIT TO SITE/ }).click();
   await page.waitForTimeout(400);
   expect(new URL(page.url()).pathname).toBe('/');
+});
+
+/**
+ * Back on the site never launches the app (v8#12).
+ *
+ * **The release blocker.** `handleBack`'s no-history fallback was a flat
+ * `navigate('/dex')` — carried out of v0.2.x, when it was true that "the user
+ * is inside the app". It is wired to five *site* routes now, so on the release
+ * whose thesis is that Vinodex is something you open from inside the site,
+ * Back on the front page booted the encyclopedia.
+ *
+ * Both halves are covered, because the warm one is the subtle half: React
+ * Router keeps `key === 'default'` on the initial history entry, so popping
+ * back onto `/` puts you on the cold branch again. A test that only walked
+ * forwards would have missed that and called the fix proved.
+ */
+test('Back on the site goes up the site, never into the app', async ({ page, consoleErrors }) => {
+  void consoleErrors;
+  await seedDevice(page);
+  const post = page.getByText(/VINODEX BIOS/);
+  const back = page.getByRole('button', { name: 'Back', exact: true }).first();
+
+  // 1. The landing has no Back to press. `/` is the top of the site, so the
+  //    cap is moulded and inert rather than offering a destination that would
+  //    have to be invented.
+  await page.goto('/');
+  await expect(back).toBeDisabled();
+  await expect(post).toHaveCount(0);
+
+  // 2. COLD on a site sub-page: no history to pop, so the fallback decides —
+  //    and it must decide "up the site", not "into the app".
+  await page.goto('/who-we-are');
+  await back.click();
+  await page.waitForTimeout(400);
+  expect(new URL(page.url()).pathname, 'cold Back on a site page left the site').toBe('/');
+  await expect(post, 'cold Back on a site page booted the device').toHaveCount(0);
+
+  // 3. WARM, and then warm-popped-back-onto-the-landing. Walking in and out
+  //    puts `/` back on the initial history entry, which is where the cold
+  //    branch lives again.
+  await page.getByRole('button', { name: 'OUR WORK' }).click();
+  await expect(page).toHaveURL(/\/apps$/);
+  await back.click();
+  await page.waitForTimeout(400);
+  expect(new URL(page.url()).pathname).toBe('/');
+  // Back on the landing again — still nothing to press, still no launch.
+  await expect(back).toBeDisabled();
+  await page.waitForTimeout(500);
+  await expect(post, 'the device booted from the landing page').toHaveCount(0);
+});
+
+/**
+ * The other half of v8#12's fallback, in its own test.
+ *
+ * It was the fourth step of the test above until the full suite ran it: five
+ * navigations plus a real power-on walk tipped a single case past the 45s
+ * budget under parallel load, while passing comfortably in isolation. Two
+ * claims, two tests — which is what it should have been anyway, since "the
+ * site's fallback goes up the site" and "the dex's fallback is untouched" are
+ * different statements about different products.
+ */
+test('Back inside the app still falls back to the dex menu', async ({ page, consoleErrors }) => {
+  void consoleErrors;
+  await seedDevice(page);
+
+  // Cold-opened, so there is no history and the fallback decides — the same
+  // branch as above, answering the other way because the classifier says the
+  // path is the app's.
+  await enterDex(page, '/passport');
+  await page.getByRole('button', { name: 'Back', exact: true }).first().click();
+  await page.waitForTimeout(400);
+  expect(new URL(page.url()).pathname, 'the dex fallback stopped landing on the menu').toBe('/dex');
+});
+
+/**
+ * The site stamps its own mark, asserted on the rendered `img` (v8#10, W3).
+ *
+ * **What this closes.** `DeviceLayout`'s `marqueeMark={onSite ? ... }` was the
+ * one branch holding v8#10 up, and nothing pinned it: deleting the ternary
+ * left every site screen quietly back on the encyclopedia's wineglass with all
+ * 625 vitest and 127 Playwright tests green. The `consoleErrors` fixture
+ * cannot see it either — the fallback is an inline lucide SVG, so there is no
+ * 404 to catch. That is precisely the silent downgrade v8#10 existed to fix,
+ * guarded by nothing.
+ *
+ * Asserted on **two** screens, deliberately. The landing and a sub-page reach
+ * the mark by different routes through `glyphTitle` (the landing's own title
+ * *is* `HORIZON/GODOT`, and only its WELCOME text override stops it resolving
+ * by accident), so one of them alone could pass while the branch was broken
+ * for the other.
+ *
+ * The expected `src` comes from `WEB_MARQUEE_ART` rather than being written
+ * out, so a renamed or re-foldered asset fails here rather than 404-ing in a
+ * browser somebody happens to open.
+ */
+test('the site marquee stamps the studio mark, not the wineglass', async ({ page, consoleErrors }) => {
+  void consoleErrors;
+  await seedDevice(page);
+  const expected = WEB_MARQUEE_ART[SITE_MARK_TITLE]!;
+  expect(expected, 'the site mark is not in WEB_MARQUEE_ART').toBeTruthy();
+
+  for (const [route, label] of [['/', 'the landing'], ['/apps', 'OUR WORK']] as const) {
+    await page.goto(route);
+    await page.waitForTimeout(800);
+    const marks = await page.evaluate(() =>
+      [...document.querySelectorAll('.terminal-marquee img')].map(i => new URL((i as HTMLImageElement).src).pathname),
+    );
+    expect(marks.length, `${label} has no marquee mark at all`).toBeGreaterThan(0);
+    for (const src of marks) expect(src, `${label} stamps the wrong mark`).toBe(expected);
+    // And nothing fell through to a lucide glyph beside it.
+    const svgs = await page.locator('.terminal-marquee svg').count();
+    expect(svgs, `${label} still draws a lucide fallback in the marquee`).toBe(0);
+  }
+
+  // The other side of the claim: the dex is unaffected and keeps its own
+  // mirrored panel, so this pin cannot be satisfied by stamping the site mark
+  // everywhere.
+  await enterDex(page, '/dex');
+  await page.waitForTimeout(600);
+  const dexMarks = await page.evaluate(() =>
+    [...document.querySelectorAll('.terminal-marquee img')].map(i => new URL((i as HTMLImageElement).src).pathname),
+  );
+  expect(dexMarks.length).toBeGreaterThan(0);
+  for (const src of dexMarks) expect(src, 'the site mark reached a dex screen').toMatch(/^\/art\/marquee\//);
 });
