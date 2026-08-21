@@ -16,9 +16,10 @@ _Severity words are unchanged from v5–v7: **cosmetic** (a glyph/word), **minor
 
 > **A new document rather than a v7 section.** v7 is eleven sections and 1,100
 > lines of parity execution against iOS v0.9.2, and its Status block is a
-> record of that. This changes what `/` *is*, retires two files, deletes a
-> persisted key and rewrites nine pins; filing it as v7 §10 would bury a
-> product ruling inside a parity sweep. Ids are per-document — cite them
+> record of that. This changes what `/` *is*, retires six files, deletes a
+> persisted key, draws the repo's first web-authored asset and rewrites eleven
+> pins; filing it as v7 §10 would bury a product ruling inside a parity sweep.
+> Ids are per-document — cite them
 > qualified (`v8#2`), and carried-forward ids keep their old spelling in
 > parentheses.
 
@@ -26,30 +27,42 @@ _Severity words are unchanged from v5–v7: **cosmetic** (a glyph/word), **minor
 
 ## Status — one pass, executed and green (2026-08-20, on `testing`)
 
-Gates, run in full on the committed tree:
-**lint 21 warnings (cap 22) · typecheck clean · 616 tests / 55 files · build OK
-(440 OG pages, 420 precache entries / 5,220 KiB) · check:refs zero dangling ·
+Gates, run in full on the committed tree, after both rounds:
+**lint 21 warnings (cap 22) · typecheck clean · 625 tests / 56 files · build OK
+(440 OG pages, 420 precache entries / 5,222 KiB) · check:refs zero dangling ·
 playwright 127 passed.**
 
-Vitest file count went 56 → 55: `UnlockScreen.test.tsx` and `appUnlock.test.ts`
-deleted with the door they tested, `appRoutes.test.ts` added. Playwright gained
-`site.spec.ts` (seven tests) and traded one BIOS test for three.
+Vitest file count: `UnlockScreen.test.tsx` and `appUnlock.test.ts` deleted with
+the door they tested; `appRoutes.test.ts` and `siteMarquee.test.ts` added.
+Playwright gained `site.spec.ts` (seven tests) and traded one BIOS test for
+three. The precache is unchanged at 420 entries: `globIgnores: ['**/art/**']`
+keeps every drawn asset out of it, so the site's 404-byte mark is runtime-cached
+by the existing `/art/*.png` CacheFirst rule like the 36 mirrored panels beside
+it — which is the arrangement the caps already use, and one less thing for the
+service-worker config to have an opinion about.
 
-- **Done — all nine rulings:** v8#1 (the site becomes `/`, with redirects),
+- **Done — all rulings:** v8#1 (the site becomes `/`, with redirects),
   v8#2 (the BIOS runs on every app entry), v8#3 (the access code is deleted),
   v8#4 (CLASSIC on the site), v8#5 (no screensaver on the site), v8#6 (the
-  strapline goes), v8#7 (the bezel wordmark), v8#8 (the site marquee reads
-  WELCOME), v8#9 (backing out returns to the site).
+  strapline goes), v8#7 (the bezel wordmark), v8#8 (the **landing** greets with
+  WELCOME; every other site screen names itself), v8#9 (backing out returns to
+  the site), v8#10 (the site's own marquee mark — **the first web-authored art
+  in the repo**), v8#11 (the professor's bubble, and the walkthrough card, off
+  the button band).
 - **Deleted, properly:** `SplashScreen.tsx`, `UnlockScreen.tsx` +
   `UnlockScreen.test.tsx`, `appUnlock.ts` + `appUnlock.test.ts`,
   `useAppUnlock.ts`, the `unlockedAppIDs` storage key and its `keep`
   justification, the `booted` session key, the WEBSITE ACCESS settings section,
-  `UNLOCK_CODE`, and `DeviceLayout`'s dead `showWordmark` prop.
+  `UNLOCK_CODE`, `DeviceLayout`'s dead `showWordmark` prop, the
+  `ACCEPTED_FALLBACKS` allow-list, the `ALL_TRIGGERS_SEEN` fixture, and the
+  duplicate `web/vinodex-logo.png` outside `public/`.
 - **Added:** `web/src/services/appRoutes.ts` (+ its test),
   `web/e2e/site.spec.ts`, `enterDex` in the e2e fixtures,
-  `theme.skinCssVars` / `SITE_SKIN`.
-- **Pins rewritten, not relaxed:** nine. Each is listed in §5 with why the new
-  one is at least as strong.
+  `theme.skinCssVars` / `SITE_SKIN`, `scripts/draw-site-marquee.py` +
+  `web/public/art/site/` + `siteMarquee.test.ts`, and
+  `deviceFrame.DEVICE_BAND_CLEARANCE` + its two pins.
+- **Pins rewritten, not relaxed:** eleven. Each is listed in §4 with why the
+  new one is at least as strong.
 - **Version:** **v0.3.0**, with an authored changelog entry; 0.2.2 promoted to
   `PREVIOUS`. Minor rather than patch because the entry model changed.
 - **Not done, deliberately:** §6.
@@ -82,19 +95,24 @@ it is on neither side, or on both, or if a classified prefix names no route.
 
 ---
 
-## 2 · The nine rulings, as executed
+## 2 · The rulings, as executed
 
 | # | Ruling | Severity | Landed in |
 |---|---|---|---|
-| v8#1 | Portal moves to `/`; `/website/*` keeps working | **structural** | `App.tsx:566-620`, `WebsitePortal.tsx`, `appRoutes.ts` |
-| v8#2 | BIOS on every dex entry, never on the site | **structural** | `App.tsx:282-310`, `appRoutes.ts:bootDecision` |
+| v8#1 | Portal moves to `/`; `/website/*` keeps working | **structural** | `App.tsx`, `WebsitePortal.tsx`, `appRoutes.ts` |
+| v8#2 | BIOS on every dex entry, never on the site | **structural** | `App.tsx`, `appRoutes.ts:bootDecision` |
 | v8#3 | Drop the access code; keep the Vinodex tile | **structural** | `WebsitePortal.tsx`, `storageKeys.ts`, `SettingsPanel.tsx`, 5 files deleted |
-| v8#4 | The site is always CLASSIC | **moderate** | `theme.ts:skinCssVars`, `DeviceLayout.tsx:83-92` |
-| v8#5 | No screensaver on the site | **moderate** | `App.tsx:369-400` |
-| v8#6 | No strapline under the studio title | **cosmetic** | `WebsitePortal.tsx:151` |
-| v8#7 | Bezel reads `HORIZON/GODOT` on the site | **cosmetic** | `DeviceLayout.tsx:286-306` |
-| v8#8 | Site marquee reads `WELCOME` | **minor** | `DeviceFooter.tsx`, `DeviceLayout.tsx` |
-| v8#9 | Back past the menu returns to the site | **minor** | `App.tsx:handleBack`, `MainMenu.tsx` |
+| v8#4 | The site is always CLASSIC | **moderate** | `theme.ts:skinCssVars`, `DeviceLayout.tsx` |
+| v8#5 | No screensaver on the site | **moderate** | `App.tsx` |
+| v8#6 | No strapline under the studio title | **cosmetic** | `WebsitePortal.tsx` |
+| v8#7 | Bezel reads `HORIZON/GODOT` on the site | **cosmetic** | `DeviceLayout.tsx` |
+| v8#8 | The site's **landing** marquee reads `WELCOME` | **minor** | `DeviceFooter.tsx`, `DeviceLayout.tsx`, `appRoutes.ts` |
+| v8#9 | Back past the menu returns to the site | **minor** | `App.tsx:handleExitToSite`, `MainMenu.tsx` |
+| v8#10 | The site gets its own marquee mark | **moderate** | `scripts/draw-site-marquee.py`, `marqueeArt.tsx`, `sync-shared.ps1` |
+| v8#11 | The bubble and the tutorial card clear the band | **moderate** | `deviceFrame.ts`, `VinoBubble.tsx`, `CoachmarkOverlay.tsx` |
+
+v8#8 was narrowed and v8#10/#11 were added by a second round of rulings after
+the first pass reported. The three are written up in §2a.
 
 ### v8#1 — the site becomes `/`
 
@@ -281,6 +299,118 @@ twice. SETTINGS' **EXIT TO SPLASH** is **EXIT TO SITE**.
 
 ---
 
+## 2a · The second round — v8#8 narrowed, v8#10, v8#11
+
+### v8#8 — narrowed: the landing greets, the rest name themselves
+
+The first pass read *"on the website the marquee reads WELCOME"* as covering
+every site screen. **Ruled the other way**, and the narrower reading is the
+better one: WELCOME is a greeting, and a greeting repeated on the fourth page
+you open has stopped being a greeting and become a label that means nothing.
+`/` says WELCOME; OUR WORK, WHO WE ARE, CONTACT US and the project splashes
+name themselves on the panel, which is the same rule every dex screen but the
+main menu already follows.
+
+`isSiteLanding(path)` joins `appRoutes.ts` beside `isSitePath`. The narrowing
+made `marqueeTitle` and the *mark* two different questions, which is what §v8#10
+is built on: the text says which page you are on, the mark says whose device
+you are holding.
+
+### v8#10 — the site's own mark, and the sync trap it had to dodge
+
+Every site screen fell through `MARQUEE_ART` to `marqueeGlyph`'s `default:
+<Wine>`. **That wineglass is a leak** — the encyclopedia's own mark on the
+studio's front page — and it is the kind the separation rule cannot catch,
+because it arrives through a fallback branch rather than through an import.
+
+So the site gets a drawn mark of its own: a sun over a horizon, with two
+receding rules beneath it and two dashes of light either side. Horizon/Godot's
+name, drawn.
+
+**The trap, which is the interesting half.** `sync-shared.ps1`'s art leg runs
+`robocopy <ios Resources>\MarqueeArt <web public/art>\marquee *.png /MIR`, and
+`/MIR` mirrors *deletions*. A web-authored PNG dropped into
+`web/public/art/marquee/` is removed by the very next sync — silently, with no
+build failure and no console error, because the glyph simply falls back to the
+wineglass again. The script's own comment records this hazard for the 88 baked
+footer caps; this is the same hazard from the other side.
+
+The answer is the caps' answer: **write where the leg cannot reach.**
+
+- The art lives in `web/public/art/site/`, deliberately not one of the five
+  `$WebArt` targets.
+- `WEB_MARQUEE_ART` in `marqueeArt.tsx` holds a **full `src`** rather than a
+  stem, because the stems resolve under the mirrored `/art/marquee/` by
+  construction. It is consulted *before* `MARQUEE_ART`, so a title that later
+  gains an iOS panel cannot silently displace a mark drawn here.
+- `siteMarquee.test.ts` pins it two ways, and the second is the one that
+  matters: it **reads `sync-shared.ps1`** and fails if `site` is ever added to
+  the table, exactly as `capsManifest.test.ts` does for `caps` (v7#L9 — a
+  contents check is a proxy that stays green until somebody else's next sync).
+  It also fails if the explanatory note disappears from the script.
+- `sync-shared.ps1` carries that note, naming the file and the reason, so the
+  next person editing the table meets the argument before they meet the test.
+  (ASCII-clean, verified byte-wise.)
+
+**Authoring.** `scripts/draw-site-marquee.py`, committed with its output and a
+hash manifest — the footer caps' arrangement, for the footer caps' reason:
+committed art plus no gate running the generator means stale art renders
+perfectly and is simply wrong. A generator rather than a binary dropped in also
+makes the drawing reviewable as source.
+
+It is styled to stand beside the mirrored panels rather than beside a logo, and
+that was measured rather than guessed: the shipped panels are **single-colour
+silhouettes** — `marquee-menu`, `marquee-tools` and `marquee-data` each resolve
+to exactly one RGB, `#FAF4C8`, with a graded alpha — drawn on a coarse pixel
+grid, 111–161px wide, rendered at 22px with `image-rendering: pixelated`. The
+mark is one colour, the same one, on a 36 x 36 grid at 4x. Checked side by side
+against `marquee-menu` at render size before committing.
+
+### v8#11 — the professor off the button band (and the tutorial with him)
+
+**Found by this pass's own render gate**, twice, before it was looked for: two
+v0.3.0 navigation tests could not press Home. `VinoBubble` drew at `items-end
+... pb-3` inside `DEVICE_FRAME_BOX` — the bottom of the *device*, which is the
+button band. Its stage is `pointer-events-none` but the card is not and must
+not be (it is tap-to-dismiss), so **while the professor was speaking, a click
+aimed at Home or SETTINGS landed on him.** Shipped in every release since
+v0.2.0.
+
+`CoachmarkOverlay` has the identical geometry and is fixed with it. Not
+opportunism — it is the same defect in the region the ruling names, its card is
+`pointer-events-auto` and carries SKIP and GOT IT, and it is *worse* there:
+`passportButton` is one of the walkthrough's own targets and it is the
+Collection cap, **on the band**, so the card was covering the very control its
+step was pointing at, spotlight ring and all. Fixing one and leaving its twin
+would be the ruling half-applied.
+
+`DEVICE_BAND_CLEARANCE` joins `deviceFrame.ts` — the module that exists so the
+device's footprint is stated once — built from the same two constants
+`DeviceLayout` reserves the LCD's space with, which moved there with it.
+**Scaled by `--ui-scale`, unlike `DeviceLayout`'s own reservation**: the band
+carries `zoom: var(--ui-scale)`, so at LARGE furniture it is genuinely taller,
+and an overlay that must *never* overlap it cannot use the unscaled number or
+the fault returns for exactly the players who chose the biggest buttons.
+
+**Measured after, at three viewports.** Card bottom vs band top: desktop
+624/637, mobile 748/777, short 524/537. No overlap with any cap or with either
+quick-pin lamp, at any size. A hit-test at the Collection cap's centre returns
+the cap.
+
+**The collision check the ruling asked for, done rather than assumed.** The
+stamp celebration and the rating prompt are `absolute inset-0 z-50` centred in
+the LCD, and at 1280x700 the bubble's new box and the celebration's box overlap
+by 25px on paper — so the question was real. They cannot co-occur: `EntryDetail`
+already claims `setSuspended(modalUp, 'entryDetailPrompt')` for both, which is
+the seam `vinoPresenter`'s own header names ("a first-run card, the stamp
+celebration, the rating prompt, the coachmark spotlight"). Verified in a
+browser rather than read: on arrival the bubble is up and the celebration is
+not; on marking TRIED the celebration is up and the bubble is gone; after NICE
+the rating prompt holds it. The coachmark is the same story from both ends — it
+claims `'coachmark'` and stands down on `isSuspendedOtherThan`.
+
+---
+
 ## 3 · What was deleted, and what was checked before deleting it
 
 | File | Checked |
@@ -290,10 +420,13 @@ twice. SETTINGS' **EXIT TO SPLASH** is **EXIT TO SITE**.
 | `services/appUnlock.ts`, `.test.ts`, `useAppUnlock.ts` | Consumers were `SettingsPanel`'s WEBSITE ACCESS section (deleted) and the two test fixtures (rewritten). |
 | `WebsitePortal.UnlockVinodex`, `UNLOCK_CODE` | The `/website/unlock` route, now a redirect. |
 | `DeviceLayout.showWordmark` | Dead since iOS v0.6.9 retired the island wordmark; the splash was its only caller. |
+| `web/vinodex-logo.png` | Byte-identical duplicate of `web/public/vinodex-logo.png` (same MD5), sitting in the Vite root where nothing can reach it. All fourteen references resolve through `/` or `web/public/` — the favicon, the apple-touch-icon, the PWA icon, the OG image, the site's project rows, the screensaver mark and the README. |
+| `marqueeTitles.ACCEPTED_FALLBACKS` | The allow-list of site titles permitted to show the wineglass. Deleted rather than shortened — v8#10 gives them all a real mark, so there is nothing left to grandfather. |
+| `e2e.ALL_TRIGGERS_SEEN` | Lived for one commit. It seeded past the professor so two tests could press the chassis; v8#11 fixed the reason, so the helper left with the defect it was written around. |
 
 ---
 
-## 4 · The pins that were rewritten — nine, and why each is at least as strong
+## 4 · The pins that were rewritten — eleven, and why each is at least as strong
 
 **None was relaxed, and none was deleted outright.** Where a pin asserted a
 property of something that no longer exists, it was replaced by the property
@@ -352,20 +485,47 @@ that survives — in every case a strictly narrower claim.
    than dropping the mention. A heading reappearing would mean the door came
    back without the ruling being revisited.
 
-8. **`marqueeTitles.test.ts`** — `UNLOCK` and `UNLOCK VINODEX` left
-   `ACCEPTED_FALLBACKS` with the screens they named (the suite's own honesty
-   check forced it, which is the check working), and `SITE_MARQUEE_TITLE` was
-   folded into the scanned set. The gate's claim — *every* title the panel can
-   show is mapped or listed — was previously false for the one string that is
-   not a `title=` literal.
+8. **`marqueeTitles.test.ts` — the allow-list is gone, not shortened.** The
+   first round removed `UNLOCK` and `UNLOCK VINODEX` from `ACCEPTED_FALLBACKS`
+   with the screens they named (the suite's own honesty check forced it, which
+   is the check working). v8#10 then removed the *list*: with the site stamping
+   a real mark, no title is allowed to fall through to the wineglass, so the
+   gate is now "every title resolves to a drawn panel" with no exemptions and
+   nothing to add a sixth entry to. Which side a title is on is read from the
+   file it is declared in — a fact about the source rather than a name somebody
+   maintained. Two assertions were added with it: no site title may resolve to
+   a *dex* panel (the DATA collision is live and would have borrowed one
+   silently), and no title may hold both a web-authored mark and a mirrored
+   one. `SITE_MARQUEE_TITLE` is still folded into the scanned set, since it is
+   the one string on that panel which is not a `title=` literal.
 
-9. **e2e fixtures** — `seedDevice` lost `unlockedAppIDs` and `booted`;
+9. **`deviceFrame.test.ts` gained the band-clearance rule (v8#11).** Stated as
+   a source scan rather than as two named files: any component anchoring a card
+   to the bottom of `DEVICE_FRAME_BOX` must import `DEVICE_ABOVE_BAND_STYLE`.
+   The failure mode is a Tailwind `pb-*` on an `items-end` row, which a type
+   cannot see and a scan can. It carries its own non-vacuity guard — the scan
+   must find exactly the two overlays that anchor this way — so a renamed
+   constant cannot empty it into passing. A second assertion holds the clearance
+   to the same two constants `DeviceLayout` reserves the LCD with, and requires
+   the `--ui-scale` factor, which is the half a naive copy would drop.
+
+10. **e2e fixtures** — `seedDevice` lost `unlockedAppIDs` and `booted`;
    `seedFreshDevice` lost `unlockedAppIDs` and is now genuinely empty. The
    replacement for the `booted` seed is **`enterDex(page, route)`, which
    presses the real skip**. This is a strengthening and worth being explicit
    about: the old seed meant ~40 specs never rendered the BIOS at all, which
    is half of why the v0.2.0 layering fault could hide. Every one of those
    specs now walks through a real power-on on its way in.
+
+11. **The two tests that stepped around v8#11 now assert it.** They briefly
+    seeded `ALL_TRIGGERS_SEEN` so the professor would not eat the click they
+    needed — a fixture written around a bug. With the bug fixed, both go back
+    to the plain seed, so `/detail/G001` fires `firstGrapeViewed` and
+    `/passport` fires `firstPassport`, and each presses Home **with him
+    mid-sentence**. Each asserts the bubble is visible *first*, so a bubble
+    that stopped appearing could not make the press succeed for the wrong
+    reason. A test that documented a defect is now the test that prevents it,
+    and the helper was deleted so nobody reads it as a fact about the app.
 
 **Pins deliberately left exactly as they were:** the 22-skin screenshot gate,
 the footer-cap gate and the lamp gate all read `:root` and all run on `/dex`.
@@ -376,38 +536,36 @@ against the element the chassis actually paints. `deviceFrame.test.ts`, the
 viewport gate's geometry assertions and `App.routes.test.tsx`'s mount-count
 property are untouched in substance; only their seeds moved.
 
-**New coverage:** `appRoutes.test.ts` (24 assertions over classification and
-the boot decision, plus the `App.tsx` route-table scan) and `site.spec.ts`
-(seven browser tests covering v8#1, #3, #4, #5, #6, #7, #8, #9).
+**New coverage:** `appRoutes.test.ts` (classification, the boot decision, and a
+scan holding both against `App.tsx`'s route table), `site.spec.ts` (seven
+browser tests over v8#1, #3, #4, #5, #6, #7, #8, #9), and `siteMarquee.test.ts`
+(the mark's hash, its grid and ink, and the two-sided proof that it is out of
+the sync leg's reach).
 
 ---
 
 ## 5 · Craft debt found and not fixed this pass
 
-Recorded, not opportunistically rewritten:
+Three of the five items this section carried after the first round were then
+ruled on and fixed — the stray logo (deleted, §3), the site's wineglass
+(v8#10) and the professor on the button band (v8#11). What is left:
 
-- **`web/vinodex-logo.png` sits outside `public/`** and appears to be
-  unreferenced — `/vinodex-logo.png` resolves from `web/public/`. A duplicate
-  650×650 PNG in the Vite root. Not deleted here because deleting an asset in
-  a pass about routing is the kind of unrelated change that makes a diff hard
-  to review.
-- **The site marquee's glyph is the generic wineglass**, because `WELCOME` has
-  no `MARQUEE_ART` entry and the lucide fallback is `<Wine>`. This is not a
-  regression — `HORIZON/GODOT` fell through to the same glyph before — but a
-  wineglass on the studio's front page is dex iconography on a site screen, and
-  a small deliberate mark (or none) would be better. Needs a ruling on what
-  the site's own glyph should be; recording rather than inventing one.
-- **The professor's bubble covers the button band.** Found by this pass's own
-  render gate, not looked for: `VinoBubble` draws a viewport-fixed layer whose
-  container is `pointer-events-none` but whose *card* is not, and the card
-  overlaps the footer caps — so while he is speaking, a click aimed at Home or
-  SETTINGS lands on the bubble. Two new browser tests hit it before their
-  first assertion, which is how it surfaced. It is a real usability fault (a
-  chassis control that stops answering for the duration of a line) and it
-  predates this pass entirely. Not fixed here: it is `VinoBubble`'s geometry,
-  it is nothing to do with the entry model, and the fix has a choice in it
-  (move the card off the band, or let clicks through and dismiss on the way).
-  The two tests seed past every trigger via `ALL_TRIGGERS_SEEN` and say why.
+- **The bubble and the tutorial card overhang the screen housing's lower
+  bezel.** Having cleared the band (v8#11) they now end a few pixels over the
+  moulded strip that carries the wordmark and the vent lamp, rather than
+  exactly on the LCD's edge. It is moulding, not a control, and iOS draws him
+  at the foot of the screen too — so this is a look, not a fault. Raising them
+  further starts covering the content they are talking about, which is a worse
+  trade. Recorded because it is visible in the v0.3.0 screenshots and somebody
+  will notice.
+- **`DeviceLayout`'s LCD reservation does not scale with `--ui-scale`, but the
+  band does.** The band carries `zoom: var(--ui-scale)`; the padding that
+  reserves room for it is a flat `8.5rem`. At LARGE furniture the band is
+  taller than its reservation and eats a little of the LCD's bottom edge.
+  Pre-existing, and v8#11 deliberately did *not* fix it — changing that padding
+  moves the screen on every device at every size, which is not a change to
+  smuggle into a routing pass. The overlay clearance scales, so the v8#11 fault
+  cannot return through this door; the LCD's own edge is the remaining part.
 - **The `PROJECTS` array still carries `TODO(Harrison): confirm the two
   Substack URLs`** from v6. Unchanged.
 - **`web/data/encyclopedia/source/`** — the standing 4.5 MB copyrighted-text
@@ -420,6 +578,13 @@ Recorded, not opportunistically rewritten:
 - **The site is still one page of tiles.** The rework moved it to `/` and gave
   it its own shell; it did not write it any new content. WHO WE ARE and
   CONTACT US are the copy v6 wrote.
+- **The site's marquee mark is one drawing, not a set.** Every site screen
+  stamps the same sun-over-horizon; there are no per-screen site panels, and
+  there should not be — those are dex chrome, drawn by iOS for iOS's routes,
+  and giving the company site 36 of its own would be the leakage the separation
+  rule forbids arriving from the other direction. If a second web-authored mark
+  is ever wanted, `WEB_MARQUEE_ART` is a map and `siteMarquee.test.ts` already
+  iterates the manifest, so it is a line in each.
 - **No `document.title` per route.** The shell's static title now says
   HORIZON/GODOT, which is right for `/` and for a crawler, and stale in the
   tab once you are three screens into the dex. Fixing it properly means a
@@ -448,6 +613,18 @@ live:
   this *more* coherent rather than less: with the access door gone, the ACCESS
   panel now contains only the tier switch, which is the one thing on it that
   was ever about entitlements.
+- **The site's marquee mark is web-authored — the only art in this repo that
+  is (NEW, v8#10).** Every other piece of drawn chrome is mirrored one-way out
+  of `vinodex-ios` by `sync-shared.ps1`'s art leg, under the v6#2 ruling: iOS
+  owns it, the web consumes it, and ownership does not move. This one has no
+  upstream to mirror, because iOS has no company site and will not have one, so
+  it is drawn here by `scripts/draw-site-marquee.py` and lives in
+  `web/public/art/site/` — outside every folder the leg touches. It does not
+  weaken the ruling: nothing was copied in either direction, no folder was
+  added to the leg, and the exception is the narrow one the ruling could not
+  have covered. **If iOS ever gains a company-site screen, this is the item to
+  revisit** — the mark should move upstream and the web should consume it like
+  everything else.
 - **The web-only splash** — this one is now **retired rather than deviating**.
   It was listed as a deliberate deviation from v5 onward ("iOS has no splash
   because iOS has no second product"). The web no longer has one either. iOS
@@ -475,8 +652,14 @@ Carried open from v7:
 ## Notes
 
 - **iOS is untouched and was not read for this pass.** There was nothing to
-  read: none of the nine rulings has a Swift counterpart. `vinodex-ios` remains
+  read: none of the rulings has a Swift counterpart. `vinodex-ios` remains
   read-only and unmodified.
+- **`sync-shared.ps1` was edited** — one comment block, naming
+  `web\public\art\site\` and why it is not in the `$WebArt` table. It is the
+  only file outside `vinodex-web` this pass touched, it changes no behaviour,
+  and it was verified byte-clean ASCII with CRLF endings preserved, per the
+  house rule for HGapps `.ps1` files. `siteMarquee.test.ts` fails if the note
+  is removed.
 - **`shared/` is untouched.** No data moved, and `coverage.test.ts`'s pinned
   totals are unchanged — the build still reports 177 grapes / 124 regions / 33
   styles / 106 flavors / 30 countries, and `check:refs` still reports zero
