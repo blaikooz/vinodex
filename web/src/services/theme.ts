@@ -917,6 +917,23 @@ export function applyTheme(): void {
   root.dataset.lcd = lcd.toLowerCase();
   root.dataset.skin = skin.toLowerCase();
   root.dataset.mono = l.monochromeTint ? 'on' : 'off';
+
+  /**
+   * The mode's own `isLight` flag, as an attribute (v0.4.0, m2).
+   *
+   * `data-lcd` alone cannot answer "is this a pale page": five of the nine
+   * modes are light and only one of them is called LIGHT. `index.css` already
+   * carried a rule keyed on `[data-lcd="light"]` that softens the grid wash
+   * so it does not read as dirt on a white page -- and that rule therefore
+   * does nothing on VINTAGE, WINE.OS or GRUNERBOY, which have exactly the
+   * same problem. Rather than repeat the mistake for the v0.4.0 tile
+   * liveries, whose light half is a seven-row table, the flag that already
+   * decides this in TypeScript is published for CSS to branch on.
+   *
+   * Written as a string because that is what `dataset` stores; the selector
+   * is `[data-lcd-light='true']`.
+   */
+  root.dataset.lcdLight = String(l.isLight);
 }
 
 export function subscribeToTheme(onChange: () => void): () => void {

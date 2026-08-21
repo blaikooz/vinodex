@@ -16,6 +16,27 @@
       The PWA keeps naming itself VINODEX below, and so does the manifest: the
       installed app IS Vinodex (start_url is /dex). The site is the studio.
     -->
+    <!--
+      The three faces, preloaded (v0.4.0, m1).
+
+      They were fetched from Google through an `@import` inside index.css,
+      which is the longest possible path to a glyph: the browser cannot even
+      ask for the font until it has downloaded and parsed two stylesheets on
+      two other origins. They are self-hosted now (`web/public/fonts/`, and
+      see the long note at the top of index.css for why), so the request can
+      start with the first HTML byte instead.
+
+      Only the `latin` subsets are preloaded. `latin-ext` exists for the
+      handful of Tokaji, Czech and Romanian entries in the catalogue and is
+      gated behind `unicode-range`, so preloading it would pull 111 KB that
+      almost every page never draws a character from.
+
+      `crossorigin` is required even same-origin: fonts are fetched in CORS
+      mode, and a preload without it is a second, wasted request.
+    -->
+    <link rel="preload" href="/fonts/inter-latin.woff2" as="font" type="font/woff2" crossorigin />
+    <link rel="preload" href="/fonts/press-start-2p-latin.woff2" as="font" type="font/woff2" crossorigin />
+    <link rel="preload" href="/fonts/vt323-latin.woff2" as="font" type="font/woff2" crossorigin />
     <title>HORIZON/GODOT</title>
     <meta name="application-name" content="HORIZON/GODOT" />
     <meta name="description" content="Horizon/Godot is a two-person studio in New York. Home of VINODEX, a retro wine field guide for exploring grapes, regions, styles, and tasting profiles." />

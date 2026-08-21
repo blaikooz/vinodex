@@ -1,4 +1,3 @@
-@import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&family=VT323&display=swap');
 @import "tailwindcss";
 
 /* Documentation must not be able to change the stylesheet (R8).
@@ -11,6 +10,104 @@
    Excluding prose is the fix rather than rewording the record: the ledger has
    to be able to name what it changed. */
 @source not "../**/*.md";
+/* ---------------------------------------------------------------------------
+   THE TYPEFACES, SELF-HOSTED (v0.4.0, m1)
+
+   These were three `@font-face` families fetched from Google at runtime, via
+   a single `@import url('https://fonts.googleapis.com/...')` on line 1. That
+   line is gone and the files are in `web/public/fonts/`. Four reasons, in
+   descending order of how much they cost:
+
+   1. **`@import` of a third-party stylesheet is the worst possible critical
+      path.** The browser cannot discover the font until it has parsed this
+      file, cannot request the font until it has fetched and parsed *Google's*
+      file, and so pays two extra round trips to two extra origins before a
+      glyph exists. On the primary surface -- a phone -- that is the FOUT.
+      Self-hosted, the woff2 is same-origin and `<link rel=preload>`-able from
+      `index.html`, so it is in flight with the first HTML byte.
+   2. **This app is offline-first and the fonts were not.** The service worker
+      precaches 420 entries so the shell runs with no network; the fonts sat
+      outside that, in a runtime `CacheFirst` rule that only fills after a
+      successful *online* fetch. An install that never happened to be online
+      on the right screen rendered the whole product in a fallback face.
+      `globPatterns` already names `woff2`, so moving the files into
+      `public/` precaches them with everything else -- +190 KB on a 5.2 MB
+      precache, and the typography is now as offline as the catalogue is.
+   3. **The render gates could not be trusted while a third party was in the
+      loop.** `web/e2e/fixtures.ts` fails a spec on any `requestfailed`, so
+      every screenshot test had a dependency on fonts.googleapis.com
+      resolving. A visual gate that flakes on somebody else's DNS is not a
+      gate.
+   4. No third-party request means no third-party log of who read the site.
+
+   **Provenance, so this is reproducible rather than a mystery blob.** Each
+   file is the exact subset Google serves, downloaded 2026-08-20 from the URLs
+   in `css2?family=Inter:wght@400..700&family=Press+Start+2P&family=VT323`:
+   Inter v20 (variable, 400-700 on one axis), Press Start 2P v16, VT323 v18.
+   The `unicode-range` values are Google's own and are what keeps `latin-ext`
+   off the wire for a page that has no `ű` in it. All three faces are SIL
+   OFL 1.1; the licences ship beside them (`OFL-*.txt`), which is what the
+   licence asks for.
+
+   **Why latin-ext at all.** The catalogue contains `ű`, `š`, `ć`, `ř`, `ō`
+   and `ă` (Tokaji, Czech and Romanian entries). Without the ext subset those
+   six characters fall back per-glyph to the system sans in the middle of an
+   Inter word, which looks like a bug and is one.
+   --------------------------------------------------------------------------- */
+
+@font-face {
+  font-family: 'Inter';
+  font-style: normal;
+  font-weight: 400 700;
+  font-display: swap;
+  src: url('/fonts/inter-latin.woff2') format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+
+@font-face {
+  font-family: 'Inter';
+  font-style: normal;
+  font-weight: 400 700;
+  font-display: swap;
+  src: url('/fonts/inter-latin-ext.woff2') format('woff2');
+  unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+
+@font-face {
+  font-family: 'Press Start 2P';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url('/fonts/press-start-2p-latin.woff2') format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+
+@font-face {
+  font-family: 'Press Start 2P';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url('/fonts/press-start-2p-latin-ext.woff2') format('woff2');
+  unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+
+@font-face {
+  font-family: 'VT323';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url('/fonts/vt323-latin.woff2') format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+
+@font-face {
+  font-family: 'VT323';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url('/fonts/vt323-latin-ext.woff2') format('woff2');
+  unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
 
 /* Custom Theme Extensions */
 @theme {
@@ -28,6 +125,97 @@
   
   --animate-pulse-fast: pulse 1.5s cubic-bezier(0.4, 0, 0.6, 1) infinite;
   --animate-blink: blink 1s step-end infinite;
+
+  /* -------------------------------------------------------------------------
+     THE DESIGN FOUNDATION (v0.4.0, m2). Read the long note under `:root` below
+     for the reasoning; this half is only the part Tailwind has to know about,
+     because a `@theme` key is what makes `text-body`, `rounded-card` and
+     `shadow-elev-2` exist as utilities.
+
+     **These are in `web/`, deliberately, and must never move to `shared/`.**
+     `shared/` is the cross-repo master that `sync-shared.ps1` mirrors into
+     BOTH apps; a web type scale pushed through it would land in vinodex-ios
+     and undo the split this release exists to draw. Data and ideas are shared.
+     Presentation is not. If a token ever genuinely belongs to both apps, that
+     is an argument to make out loud, not a default.
+     ------------------------------------------------------------------------- */
+
+  /* THE READING FACE. Inter, variable 400-700, self-hosted above.
+
+     Not wired to `body` yet, and that is the scope line: v0.4.0 ships the
+     scale and puts it on two screens. `body` still says VT323, so every
+     screen not yet converted looks exactly as it did. Flipping the default is
+     stage 4's first act, once the rollout has actually reached the screens
+     that would inherit it. */
+  --font-sans: 'Inter', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif;
+
+  /* THE TYPE SCALE. Six steps with their own line-heights, tracking and
+     weights, so a call site picks a ROLE and not a number.
+
+     Every size is multiplied by `--text-scale`, which `applyTheme` writes to
+     `:root` from the SMALL/LARGE setting. That closes a real hole rather than
+     inventing one: `.lcd-themed { font-size: calc(1em * var(--text-scale)) }`
+     only ever reached text with no explicit size, and the app sizes almost
+     everything with rem utilities -- so the accessibility control did close to
+     nothing on the screens people actually read. A `calc()` on the token means
+     the new scale honours it by construction, with no compounding, because
+     each value is absolute rather than relative to its parent. */
+  --text-display: calc(1.75rem * var(--text-scale, 1));
+  --text-display--line-height: 1.1;
+  --text-display--letter-spacing: -0.02em;
+  --text-display--font-weight: 700;
+
+  --text-title: calc(1.375rem * var(--text-scale, 1));
+  --text-title--line-height: 1.2;
+  --text-title--letter-spacing: -0.01em;
+  --text-title--font-weight: 650;
+
+  --text-heading: calc(1.0625rem * var(--text-scale, 1));
+  --text-heading--line-height: 1.3;
+  --text-heading--font-weight: 600;
+
+  --text-body: calc(0.9375rem * var(--text-scale, 1));
+  --text-body--line-height: 1.55;
+
+  --text-label: calc(0.8125rem * var(--text-scale, 1));
+  --text-label--line-height: 1.15;
+  --text-label--letter-spacing: 0.01em;
+  --text-label--font-weight: 600;
+
+  --text-caption: calc(0.6875rem * var(--text-scale, 1));
+  --text-caption--line-height: 1.35;
+  --text-caption--letter-spacing: 0.03em;
+  --text-caption--font-weight: 500;
+
+  /* RADII, three of them, named for what they wrap.
+
+     The app had eleven distinct corner values in components (`rounded-xl`,
+     `rounded-2xl`, `rounded-[18%]`, `rounded-[2.4rem]`, `rounded-[1.9rem]`...)
+     and no rule for which to reach for. Three is the whole vocabulary:
+     something you press, something that holds content, something that is the
+     ground under both. The chassis keeps its own moulded corners -- those are
+     ported iOS metrics (`--panel-corner`, `--dial-corner`) and are furniture,
+     not UI. */
+  --radius-control: 0.625rem;
+  --radius-card: 1rem;
+  --radius-surface: 1.5rem;
+
+  /* ELEVATION, three tiers, layered rather than offset.
+
+     What is being replaced: `retro-shadow` (a single hard `4px 4px 0`) and a
+     scatter of `shadow-lg`. A hard offset shadow is a sticker; two layered
+     shadows -- a tight contact shadow plus a wide ambient one -- is an object
+     sitting on a surface with light above it. That difference is most of what
+     "premium" means when people say a UI looks premium.
+
+     Black at low alpha in both screen modes rather than a themed shadow
+     colour: a shadow is the absence of light, and tinting it to the page is
+     how you get the grey halo that makes a light UI look dirty. The alphas are
+     tuned so tier 1 is barely perceptible on the dark LCD and still visible on
+     the paper-white one. */
+  --shadow-elev-1: 0 1px 1px -0.5px rgb(0 0 0 / 0.16), 0 1px 3px -1px rgb(0 0 0 / 0.14);
+  --shadow-elev-2: 0 2px 4px -2px rgb(0 0 0 / 0.2), 0 6px 14px -6px rgb(0 0 0 / 0.22);
+  --shadow-elev-3: 0 4px 8px -4px rgb(0 0 0 / 0.24), 0 16px 32px -12px rgb(0 0 0 / 0.32);
 }
 
 /* The device frame's height cap (v7#D2).
@@ -39,6 +227,291 @@
    sub-`md` phone path never reaches this value at all. */
 :root {
   --device-frame-h: min(850px, calc(100dvh - 2rem));
+}
+
+/* ===========================================================================
+   THE DESIGN FOUNDATION (v0.4.0, m2)
+
+   ## What this is, and what changed to allow it
+
+   Until v0.3.0 the web's presentation was held to the iOS app's: a visual
+   difference was debt, recorded in the parity ledgers and scheduled. **That
+   rule ended here.** The ruling, verbatim: *"web and ios split here, but keep
+   the same internal data and ideas. we want web updated to match the feel but
+   keep its uniqueness to new web capabilities."*
+
+   So the line now runs:
+
+     SHARED  the catalogue, the systems, the concepts -- passport, lineage,
+             exam, the professor, quick pins, the skin table, the LCD modes.
+             `shared/` stays canonical and mirrored, and a data fix still goes
+             to `HGapps\shared` and comes back through `sync-shared.ps1`.
+     SPLIT   how any of it looks. Web is no longer required to match iOS's
+             visual execution. It must still read as Vinodex -- same identity,
+             same product -- expressed with what the web actually has: hover,
+             `:focus-visible`, `color-mix`, container queries, `linear()`
+             easings, variable fonts, a pointer and a keyboard.
+
+   A future session must not "fix" the divergence back. `IOS-PARITY-v9.md`
+   carries the ruling in full.
+
+   ## Why the tokens live HERE and not in `shared/`
+
+   The plan this implements proposed "a `shared/` design-token module".
+   `shared/` is the cross-repo master mirrored into BOTH repos; a web-only
+   type scale placed there is a type scale shipped to vinodex-ios on the next
+   sync. That is precisely the split the ruling above just drew. Web's design
+   language is `web/`'s. The half of it Tailwind needs is in the `@theme`
+   block above; the half that has to switch per screen mode is here, because
+   `@theme` values are static and these are not.
+
+   ## The rule these replace
+
+   Nothing. There was no rule -- that is the finding. Colour was full-chroma
+   Tailwind literals inline at the call site, depth was a 4px hard offset or
+   `shadow-lg`, and type was `text-xs`/`text-sm`/`text-lg` in a pixel face
+   that cannot set body copy. Every value below exists so a component can name
+   an intent instead of picking a number.
+   =========================================================================== */
+
+:root {
+  /* -------------------------------------------------------------------------
+     MOTION -- the four named curves from `DexMotion` (DexTheme.swift:1430),
+     ported honestly rather than approximated.
+
+     iOS's four are `overlay` (easeOut 0.15), `crossfade` (easeInOut 0.55),
+     `settle` (spring response 0.28 / damping 0.82) and `press` (spring
+     response 0.24 / damping 0.66). The first two are CSS's own easings and
+     cross unchanged. The springs do not: SwiftUI's `response` is the period
+     of the undamped oscillation, so the physical curve is
+
+        x(t) = 1 - e^(-zeta*wn*t) * (cos(wd*t) + (zeta*wn/wd) * sin(wd*t))
+        wn = 2*pi/response,  wd = wn*sqrt(1 - zeta^2)
+
+     which OVERSHOOTS -- 6.3% for press, 1.1% for settle -- and no
+     `cubic-bezier` fits it, because a bezier cannot both overshoot and settle
+     back. CSS's `linear()` can, so the stops below are that equation sampled
+     at 26 points, and the durations are where the response stays inside 0.2%
+     of its target for good (373ms and 361ms). Both are the real settling
+     time; the movement is perceptually over in a third of it, which is
+     exactly how the iOS original feels.
+
+     `linear()` is Baseline-available (Chrome 113, Safari 17.2, Firefox 112).
+     A browser without it drops the declaration and falls back to `ease`,
+     which is a worse spring and not a broken page.
+
+     iOS deliberately does NOT fold Reduce Motion into these, and neither do
+     we, for the same stated reason: whether a movement should happen at all
+     is a per-movement judgement. The catch-all at the foot of this file
+     handles it for transitions. */
+  --motion-overlay: 150ms;
+  --ease-overlay: cubic-bezier(0, 0, 0.58, 1);
+
+  --motion-crossfade: 550ms;
+  --ease-crossfade: cubic-bezier(0.42, 0, 0.58, 1);
+
+  --motion-press: 373ms;
+  --ease-press: linear(0, 0.0595, 0.1991, 0.3722, 0.5467, 0.7027, 0.8305, 0.9269, 0.9937, 1.0351, 1.0564, 1.0632, 1.0604, 1.0521, 1.0412, 1.0301, 1.02, 1.0117, 1.0053, 1.0009, 0.998, 0.9965, 0.996, 0.9961, 0.9966, 0.9973, 1);
+
+  --motion-settle: 361ms;
+  --ease-settle: linear(0, 0.0409, 0.1378, 0.2609, 0.3905, 0.5142, 0.625, 0.7198, 0.7978, 0.8598, 0.9076, 0.9432, 0.9689, 0.9866, 0.9983, 1.0054, 1.0093, 1.0109, 1.011, 1.0103, 1.0091, 1.0077, 1.0062, 1.0049, 1.0037, 1.0028, 1);
+
+  /* How far a control moves when pressed. iOS has two and says why they are
+     not one: `DexPressStyle` 0.96 for things on the screen, `ChassisPress`
+     0.88 for moulded parts. Only the screen one is needed here -- the chassis
+     already writes its own inline. */
+  --press-scale: 0.96;
+
+  /* -------------------------------------------------------------------------
+     LAYOUT -- semantic, not a second scale.
+
+     Tailwind v4 already ships a 4px `--spacing` ramp and generates `p-3`,
+     `gap-4` and the rest from it, so authoring a parallel numeric scale would
+     be two scales, not one. What was actually missing is agreement on which
+     step a given job takes, so these four name the jobs. Everything else keeps
+     using Tailwind's ramp directly. */
+  --pad-screen: 1rem;      /* the gutter between LCD edge and content */
+  --pad-card: 0.875rem;    /* inside a card */
+  --gap-grid: 0.75rem;     /* between cards in a grid */
+  --gap-stack: 0.5rem;     /* between lines within one card */
+
+  /* -------------------------------------------------------------------------
+     THE NEUTRAL SURFACE RAMP.
+
+     Derived from the two colours each LCD mode already authors -- `--lcd-page`
+     and `--lcd-surface` -- rather than authored a third time per mode. Nine
+     modes times five steps would be forty-five values to keep in agreement;
+     `color-mix` in oklab against the mode's own text colour is one rule that
+     is correct in all nine, including the four monochrome phosphors, whose
+     grayscale filter it survives because a mix of two greys is a grey.
+
+     **This is what makes the `.lcd-themed` palette escape fixable.** Eighty
+     Tailwind palette classes across the app (441 uses) are remapped one by one
+     at the foot of this file so that a dark-stone background follows the
+     screen mode -- a remap that only covers the shades somebody remembered to
+     list, and that any opacity modifier silently escapes, because a Tailwind
+     opacity modifier compiles to its own class. A component that writes
+     `bg-[var(--surface-raised)]` needs no remap and cannot escape one. v0.4.0
+     does not convert any of the 441; it builds the thing they can be converted
+     to, and stage 4 does the conversion screen by screen. */
+  --surface-sunken: color-mix(in oklab, var(--lcd-text) 4%, var(--lcd-page));
+  --surface-base: var(--lcd-page);
+  --surface-raised: var(--lcd-surface);
+  --surface-high: color-mix(in oklab, var(--lcd-text) 7%, var(--lcd-surface));
+  --surface-line: color-mix(in oklab, var(--lcd-text) 14%, var(--lcd-surface));
+  --surface-line-strong: var(--lcd-surface-edge);
+
+  /* -------------------------------------------------------------------------
+     THE TILE LIVERIES -- `DexTileLivery` (DexTheme.swift:132), ported whole
+     and retuned.
+
+     iOS hoisted these into one seven-row table with a dark AND a light value
+     per livery, because "light mode was added to the settings grid and missed
+     on the main menu, because there was no one place that knew a tile face has
+     two values". **The web never got the hoist.** `MainMenu.tsx` spelled four
+     dark-mode hexes at the call site and `SettingsPanel.tsx` six more, so on
+     every one of the five light LCD modes the web drew the bright dark-mode
+     faces on a pale page -- exactly the fault iOS's own note describes.
+
+     Retuned one chroma step down: converted to OKLCH, C multiplied by 0.84,
+     L and H untouched, so each colour is recognisably itself and a screen
+     full of them stops shouting. (Violet: C 0.233 -> 0.195.)
+
+     **The faces are no longer what a tile is filled with, and that is an
+     accessibility fix as much as a taste one.** White-on-face was measured at
+     1.92:1 (amber) to 3.96:1 (violet) across the seven dark liveries: not one
+     passes AA, and the two greens do not pass the 3:1 non-text floor either.
+     The card treatment below fills with a 14% tint and sets the label in
+     `--lcd-text`, which measures 4.56:1 at its worst across all nine modes
+     times all seven liveries. */
+  --livery-violet: #a362e6;
+  --livery-violet-deep: #67309b;
+  --livery-green: #4bc16c;
+  --livery-green-deep: #2f7d46;
+  --livery-amber: #e3b547;
+  --livery-amber-deep: #9a6629;
+  --livery-red: #e15652;
+  --livery-red-deep: #902c27;
+  --livery-orange: #ec7d3e;
+  --livery-orange-deep: #913d24;
+  --livery-sky: #4eb4f2;
+  --livery-sky-deep: #2a6991;
+  --livery-emerald: #43b586;
+  --livery-emerald-deep: #1f5d48;
+
+  /* The focus ring, one value, and it has to survive being drawn on a black
+     LCD, a paper-white one and a royal-blue one. Two rings solve that: an
+     inner one in the page colour that separates the ring from whatever it
+     surrounds, and an outer one in the mode's own accent. Reached only by
+     `:focus-visible`, so a mouse press never shows it. */
+  --focus-ring: 0 0 0 2px var(--lcd-page), 0 0 0 4px var(--lcd-accent);
+}
+
+/* The light half of the livery table.
+
+   Keyed on `data-lcd-light`, which `applyTheme` writes from the mode's own
+   `isLight` flag -- NOT on the single-mode attribute, which is one of nine
+   modes and would leave VINTAGE, WINE.OS and GRUNERBOY drawing dark-mode
+   faces on their pale pages. That is the same one-mode-of-nine mistake the
+   older grid-wash rule further down still makes; it is left alone here rather
+   than quietly rewritten, and is recorded in the ledger instead. */
+:root[data-lcd-light='true'] {
+  --livery-violet: #7937bd;
+  --livery-violet-deep: #492988;
+  --livery-green: #2f7d46;
+  --livery-green-deep: #194829;
+  --livery-amber: #ab5a29;
+  --livery-amber-deep: #743b1a;
+  --livery-red: #ae332c;
+  --livery-red-deep: #721f1b;
+  --livery-orange: #b74d2a;
+  --livery-orange-deep: #75341f;
+  --livery-sky: #316f9e;
+  --livery-sky-deep: #1e4868;
+  --livery-emerald: #287559;
+  --livery-emerald-deep: #194c3c;
+}
+
+/* ---------------------------------------------------------------------------
+   THE TINT RAMP -- four derived steps from one authored hue.
+
+   A component sets `--tint` (and optionally `--tint-deep`) to a livery and
+   gets back the whole ramp. One authored value per hue instead of four, and
+   every step is mixed against the CURRENT MODE's own page, surface and text,
+   so the ramp is correct on all nine LCD modes without a table.
+
+   The percentages are not taste. They were swept against every mode times
+   every livery and chosen as the loosest that still clears WCAG everywhere:
+
+     surface  14% over `--lcd-surface`  label in `--lcd-text` on it: 4.56:1
+                                        worst case (VINOFD/amber). AA text.
+     subtle   26% over `--lcd-page`     the icon well; deliberately mixed
+                                        toward PAGE rather than surface,
+                                        because page is the more extreme of
+                                        the two in every mode and that is
+                                        where the headroom for the glyph is.
+     ink      70% toward `--lcd-text`   the glyph on `subtle`: 3.14:1 worst
+                                        case (VINOFD/red). Clears the 1.4.11
+                                        non-text floor. At a full 100% -- the
+                                        hue undiluted -- the same pair
+                                        measures 2.20:1 and fails, which is
+                                        why the glyph is a blend and not the
+                                        livery itself.
+     border   55% over `--lcd-surface`  the hairline accent.
+
+   VINOFD (`BLUE_SCREEN`) is the binding constraint in every one of those, as
+   it should be: it is a dark mode with a royal-blue page, which is the
+   hardest ground in the table to sit a colour on. --------------------------- */
+.dex-tint {
+  --tint-surface: color-mix(in oklab, var(--tint) 14%, var(--lcd-surface));
+  --tint-subtle: color-mix(in oklab, var(--tint) 26%, var(--lcd-page));
+  --tint-border: color-mix(in oklab, var(--tint) 55%, var(--lcd-surface));
+  --tint-ink: color-mix(in oklab, var(--tint) 70%, var(--lcd-text));
+  --tint-solid: var(--tint);
+}
+
+/* A control that answers a finger, a pointer and a keyboard.
+
+   Three states, three mechanisms, on purpose: hover is a pointer-only affair
+   and is gated on `hover: hover` so a touch device never sticks in it,
+   `:focus-visible` is the keyboard's and never fires for a mouse press, and
+   the press scale is everyone's. The transition rides `--ease-press`, so the
+   release overshoots and settles the way the iOS control does.
+
+   `transition`, never `animation`: the reduced-motion catch-all at the foot
+   of this file covers transitions on everything including future additions,
+   whereas a keyframe animation has to be listed by name in that block and in
+   `reducedMotion.test.ts`. */
+.dex-pressable {
+  transition:
+    scale var(--motion-press) var(--ease-press),
+    box-shadow var(--motion-settle) var(--ease-settle),
+    background-color var(--motion-overlay) var(--ease-overlay),
+    border-color var(--motion-overlay) var(--ease-overlay);
+}
+
+/* The independent `scale` property, NOT `transform: scale()`.
+
+   They are not interchangeable and the difference is a real bug: a control
+   that is positioned with a transform -- the dial's search hub is
+   `-translate-x-1/2 -translate-y-1/2` on top of its own centre -- would have
+   that transform REPLACED by the press, and would jump half its own width up
+   and to the left every time it was touched. `scale` composes with `transform`
+   instead of overwriting it, so a pressable can be positioned however it
+   likes. */
+.dex-pressable:active {
+  scale: var(--press-scale);
+}
+
+.dex-pressable:focus-visible {
+  outline: none;
+  box-shadow: var(--focus-ring);
+}
+
+@media (hover: hover) {
+  .dex-pressable:hover {
+    background-color: var(--tint-subtle, var(--surface-high));
+  }
 }
 
 /* Base styles */

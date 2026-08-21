@@ -89,35 +89,23 @@ export default defineConfig({
                 statuses: [0, 200]
               }
             }
-          },
-          {
-            urlPattern: /^https:\/\/fonts\.googleapis\.com\/.*/i,
-            handler: 'CacheFirst',
-            options: {
-              cacheName: 'google-fonts-cache',
-              expiration: {
-                maxEntries: 10,
-                maxAgeSeconds: 60 * 60 * 24 * 365
-              },
-              cacheableResponse: {
-                statuses: [0, 200]
-              }
-            }
-          },
-          {
-            urlPattern: /^https:\/\/fonts\.gstatic\.com\/.*/i,
-            handler: 'CacheFirst',
-            options: {
-              cacheName: 'gstatic-fonts-cache',
-              expiration: {
-                maxEntries: 10,
-                maxAgeSeconds: 60 * 60 * 24 * 365
-              },
-              cacheableResponse: {
-                statuses: [0, 200]
-              }
-            }
           }
+          // The two `CacheFirst` rules for fonts.googleapis.com and
+          // fonts.gstatic.com are DELETED (v0.4.0, m1). Press Start 2P, VT323
+          // and Inter are self-hosted under `public/fonts/` now, so those two
+          // origins are never requested and the rules matched nothing.
+          //
+          // They are removed rather than kept "just in case" because a
+          // runtime rule for an origin the app does not use is a claim that
+          // it does: the next person reading this config would conclude the
+          // fonts are still third-party and offline-fragile, which was the
+          // whole thing m1 fixed. `globPatterns` above already names `woff2`,
+          // so the six subsets are precached with the rest of the shell --
+          // +190 KB on a 5.2 MB precache, in exchange for typography that
+          // works with no network at all.
+          //
+          // The art rule above stays exactly as it was: 254 portraits are
+          // runtime-cached on purpose, and this change does not touch that.
         ]
       }
     })
