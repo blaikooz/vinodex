@@ -66,17 +66,32 @@ export interface WebRelease {
  * assertion. It also gives the thing you edit a name.
  */
 const CURRENT: WebRelease = {
-  version: '0.4.1',
+  version: '0.4.2',
   date: '2026-08-21',
-  headline: 'THE CELLAR AUDITED',
+  headline: 'THE PRODUCT SHOT',
   notes: [
-    'Cabernet Pfeffer stops being a mystery: the tag now says what the entry says - misnamed, and solved.',
-    'Melon de Bourgogne and Picardan are scored as the neutral varieties the books describe.',
+    'On a desktop the device stands on a lit stage now: a soft glow behind it, a vignette, a floor.',
+    'The light is the shell\'s own colour - CLASSIC warms the room red, NOCTURNE glows its pale green.',
+    'The boot and the screensaver stand on the same stage, so the lights never jump on the way in or out.',
+    'The shell goes matte: the wet corner sheen is gone, and the device casts a real grounded shadow.',
+    'The buttons and the marquee bezel sit in the band instead of hovering over it on hard black drops.',
+    'The breathing lamps calm down - lit, not alarmed - and reduced motion holds the same calm state.',
+    'Every pale screen mode softens the background grid now, where before only LIGHT itself did.',
+    'On a phone nothing moves: the stage is a desktop treatment, and the chassis geometry is untouched.',
   ],
 };
 
 /** Newest first. A new release is prepended by promoting `CURRENT`. */
 const PREVIOUS: WebRelease[] = [
+  {
+    version: '0.4.1',
+    date: '2026-08-21',
+    headline: 'THE CELLAR AUDITED',
+    notes: [
+      'Cabernet Pfeffer stops being a mystery: the tag now says what the entry says - misnamed, and solved.',
+      'Melon de Bourgogne and Picardan are scored as the neutral varieties the books describe.',
+    ],
+  },
   {
     version: '0.4.0',
     date: '2026-08-21',

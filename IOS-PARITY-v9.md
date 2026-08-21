@@ -69,6 +69,10 @@ needed an excuse.
 
 ## Status — stages 1 and 2 of five, executed and green (2026-08-21, on `testing`)
 
+> **Updated 2026-08-21:** stage 3 (the chassis materials and the desktop
+> stage) executed and green as **web v0.4.2** — see §8. Stages 4–5 remain
+> open, and §4's stage-4/-5 entries still describe them.
+
 **Scope was ruled at two stages of five and stopped there**, so the user can
 see the new language on real screens before it reaches twenty more. Stages 3–5
 (chassis refinement, the screen-by-screen rollout, the app-wide motion pass)
@@ -564,6 +568,7 @@ as a real split. **A ruling either way is wanted before stage 4**, since
 
 ---
 
+
 # 7. Notes
 
 - **iOS is untouched.** `DexTheme.swift` and `MainMenuScreen.swift` were read
@@ -579,3 +584,120 @@ as a real split. **A ruling either way is wanted before stage 4**, since
   exactly as they were.
 - **Nothing was pushed.** `master` is wired to Vercel; the merge and the tag
   are the user's call.
+
+# 8. Stage 3 — the chassis materials, and the desktop stage (v0.4.2, 2026-08-21)
+
+_Executed on `testing` from `b58dcdc` (= `master` = tag `v0.4.1`). Closes §4's
+"(stage 3) The chassis" entry and (v9#d1). §0 governs throughout: everything
+below is web presentation, none of it is parity debt, and none of it moves a
+number the chassis ports pinned._
+
+## Status — executed and green
+
+Gates, run in full before **each** of the three commits:
+**lint 21 warnings (cap 22) · typecheck clean · 642 tests / 57 files · build
+OK (440 OG pages) · check:refs zero dangling · playwright 132 passed, exit 0.**
+(The batch-1 run first reported 4 failures — the a11y dial ring and the three
+slowest smoke specs — all four passed in isolation and the full re-run, left
+strictly alone per this document's own contention note, came back 132/132.)
+
+Before/after screenshots at 1280×800 and 390×844, DARK and LIGHT, dex and
+site, plus CHAMPAGNE (pale) and NOCTURNE (dark):
+`web/e2e/.shots/v0.4.2/{before,after}/` (gitignored). The before set was taken
+from a build at `b58dcdc`.
+
+**What deliberately did NOT move:** every iOS-ported dimension — the island's
+`3×22 + 2×6.72 = 79.44` derivation, `--band-pill` 30, `--panel-corner` /
+`--panel-chamfer` (2 / 2.25rem), the 522px frame, the cap diameters, the
+chamfered keyed corner — and every skin colour-table value. The 22-skin,
+footer-cap, lamp, orb-derivation and viewport gates all pass **unamended**.
+The one deliberate re-pin is in v9#s3 below.
+
+## v9#s1 — The shell goes matte *(minor — and it found a latent bug)*
+
+`DeviceLayout.tsx`. The shell carried `shadow-[inset_-10px_-10px_30px_…0.2]`
+— a diagonal corner sheen that read as wet plastic — and, at `md`, a single
+hard `0_20px_50px` drop. **Those two never composed:** two `shadow-*`
+utilities on one element resolve to one `box-shadow` and the responsive one
+wins, so the desktop shell has never had an inset finish at all, silently.
+Both faces now wear one matte treatment (a `0 1px` top-edge catch light and a
+soft bottom falloff), and the desktop drop becomes the two-layer
+contact + ambient shape the elevation tokens use on screen, so the device sits
+on the stage rather than floating in front of it. Mobile's shell finish
+changes with it — materials are not viewport-scoped — and the 390×844 shots
+show the delta is a calmer edge, nothing structural.
+
+## v9#s2 — The caps sit in the band *(cosmetic)*
+
+`CAP_CLASS`'s `0_6px_10px` at 50% black — the hardest shadow left on the
+device — becomes inset highlight + tight contact + soft ambient. The cap art,
+the S1 gradient fallback and the ChassisPress numbers are untouched.
+
+## v9#s3 — The lamp glows calm down *(minor — the one deliberate re-pin)*
+
+Three linked values, one intent:
+
+- `chassis-throb`'s bright stop `0.8 / scale(1.18)` → `0.55 / scale(1.1)`,
+  and its dim stop `0.28/0.9` → `0.22/0.92`. Six lamps breathing out of phase
+  at an 0.52-opacity swing were the loudest thing on the chassis.
+- The fixed red vent halos `rgba(239,68,68,0.8)` → `0.55` (both sites). The
+  0.8 was iOS's `ventDot` opacity taken 1:1; §0 is what lets the web differ.
+  Calmed, not deleted — A6's "lit, not printed" reading survives.
+- **`reducedMotion.test.ts`'s `.chassis-glow` pin moved with it**
+  (`opacity: 0.8`/`scale(1.18)` → `0.55`/`scale(1.1)`). The pin's job is to
+  hold the reduced-motion end state equal to the keyframe's own bright stop;
+  the keyframe moved on purpose, so the pin moves with it and says so in its
+  own comment. No other gate value was touched.
+
+## v9#s4 — The marquee bezel *(cosmetic)*
+
+The chrome rim's solid `0 3px 0` grey ledge — a hard offset shadow, the
+stroke the elevation system retired on screen, and the brightest line on the
+band — becomes a layered drop under the kept top catch-light; the rim drops
+`white/75` → `white/60`. The glass corner becomes concentric with the rim:
+`1.1rem − 0.35rem padding ≈ 0.75rem`, replacing the near-miss `0.9rem`.
+
+## v9#s5 — The desktop stage *(moderate — the plan's "considered stage")*
+
+`.device-stage` in `index.css`, replacing `bg-neutral-900` in three places:
+`DeviceLayout`, `VinodexBoot` and `ScreensaverOverlay`, so boot → app → sleep
+hand the same lit room back and forth. Three background layers at `md+`: a
+vignette; a key light in `color-mix(in oklab, var(--chassis-body) 30%, transparent)`,
+so **every shell lights its own room** (CLASSIC red, NOCTURNE pale green) and
+the site's CLASSIC override tints its own stage because the property is read
+where the class is painted; and a faint floor sheen. Below `md` the class is
+exactly the flat `#171717` it replaced — mobile is pixel-for-pixel the
+surround it was, verified in the shots.
+
+**Backgrounds only, no elements, and that is load-bearing:** the viewport
+gate fails any border box painted outside the window and
+`getBoundingClientRect` ignores clipping, so a blurred decoration div is a
+red gate even when invisible. Background layers have no box, cannot intercept
+a click, and are behind the frame by construction — which is also the answer
+to the overlay-registration question: the BIOS, screensaver, professor,
+chooser and intro card all draw over the stage exactly as they drew over the
+void. A literal floor **reflection was considered and dropped**: at the
+gate's own 1280×800 the frame ends 16px above the window edge — there is no
+floor to reflect into — and v9#s1's grounded shadow does the seating job.
+The stage's own `rounded-[2rem]` comes off at `md` (a stage is not a card;
+the clip was showing the page background through the window corners) and
+stays below `md`, untouched.
+
+The `--chassis-body` fallback in the key light is CLASSIC's `#DC0A2D`: the
+boot can paint before `applyTheme` writes the tokens, and an unresolvable
+`var()` inside `color-mix` would invalidate the whole `background-image`
+declaration rather than one layer.
+
+## Also closed
+
+- **(v9#d1)** The grid-wash softening now keys on `[data-lcd-light='true']`,
+  so all five pale modes soften it instead of one; the livery-table and
+  `theme.ts` comments that named it open now say closed.
+
+## Left exactly where §4 put it
+
+Stages 4–5 (the screen-by-screen rollout, `body`'s VT323 default, the motion
+pass), (v9#d2)–(v9#d5), and the §6 FLAVORS question — still wanted before
+stage 4.
+
+---
