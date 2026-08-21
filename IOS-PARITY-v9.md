@@ -74,10 +74,32 @@ see the new language on real screens before it reaches twenty more. Stages 3–5
 (chassis refinement, the screen-by-screen rollout, the app-wide motion pass)
 are **not** in this release; §4 lists what was deliberately left.
 
-Gates, run in full on the committed tree:
-**lint 21 warnings (cap 22) · typecheck clean · 657 tests / 58 files · build OK
-(440 OG pages, 426 precache entries / 5,414 KiB) · check:refs zero dangling ·
-playwright 130 passed.**
+Gates, run sequentially on the committed tree:
+**lint 21 warnings (cap 22) · typecheck clean · 642 tests / 57 files · build OK
+(440 OG pages, 426 precache entries / 5,416 KiB) · check:refs zero dangling ·
+playwright 132 passed, exit 0.**
+
+Vitest gained one file and 17 tests (`designTokens.test.ts`); v8 closed at 625
+/ 56. Playwright gained two (`a11y.spec.ts`) and **no existing spec needed
+amending**, which is worth stating: the site suite asserts button *accessible
+names*, so the conversion had to preserve every one of them. `WHO WE ARE` in
+particular was only producing that name by accident, out of a `<br />`-split
+label.
+
+> **A note on how the gates were run, because it cost two hours.** Three
+> earlier Playwright runs reported 3, 4 and 11 failures, and every one of
+> those was **self-inflicted contention**, not a defect: `npm run build` has
+> `emptyOutDir: true` and writes the same `dist/` the Playwright web server is
+> serving, so a build started during a run 404s the app out from under it, and
+> a concurrent `eslint` over the whole repo tips 45-second tests into
+> teardown timeouts. The run above was left strictly alone. **Do not run
+> another gate while Playwright is running in this repo.**
+
+Before/after screenshots for the two converted screens, at 390x844 and
+1280x800, in DARK and LIGHT, plus a keyboard-focus shot of each:
+`web/e2e/.shots/v0.4.0/{before,after}/` (gitignored, like every other shot
+this repo takes). The "before" set was taken by stashing the change and
+rebuilding at `347a42a`, not from memory.
 
 - **Done — stage 1 (foundations):** v9#m1 (the three typefaces self-hosted, and
   Inter added), v9#m2 (the token layer: type scale, radii, elevation, motion,
@@ -91,10 +113,12 @@ playwright 130 passed.**
   light-mode ink on a fixed dark ground — its own wordmark was invisible on
   five of the nine screen modes), v9#b3 (the web never got iOS's light-mode
   livery table, so five modes drew dark-mode faces on a pale page), v9#b4 (the
-  SMALL/LARGE text setting reached almost nothing).
+  SMALL/LARGE text setting reached almost nothing), v9#b5 (the dial's focus
+  ring was masked away — introduced by this pass, found by tabbing through it,
+  and now pinned).
 - **Added:** `web/components/Card.tsx`,
-  `web/src/services/designTokens.test.ts` (17 pins), `web/public/fonts/`
-  (six woff2 subsets + three OFL licences).
+  `web/src/services/designTokens.test.ts` (17 pins), `web/e2e/a11y.spec.ts`
+  (2 pins), `web/public/fonts/` (six woff2 subsets + three OFL licences).
 - **Deleted:** the third-party `@import` in `index.css`, and the two Workbox
   runtime-cache rules for `fonts.googleapis.com` / `fonts.gstatic.com` that it
   was the only caller of.
@@ -363,6 +387,46 @@ exactly as iOS has it: the hue-to-category assignment is one of the shared
 *ideas*, so changing it is a product decision and not a presentation one.
 Raised as an open question in §6.
 
+## v9#b5 — The dial's focus ring was masked away *(moderate — introduced by this pass, found by using it)*
+
+Worth recording in full, because it is the kind of defect this repo's gates
+are structurally unable to see and because two obvious ways to test it are
+both wrong.
+
+`Tile` gives every control a `:focus-visible` ring as a `box-shadow`, and the
+four dial quadrants are clipped to their concave shape with `mask-image`. **A
+mask clips to the border box; a `box-shadow` without `inset` is painted
+outside it.** So the ring was declared, computed, and then removed — a
+keyboard user got no focus indicator at all on the app's front screen.
+Typecheck is silent on it, the screenshot gate photographs a page nobody has
+tabbed into, and a pointer user never asks for a focus ring.
+
+The fix renames `bordered` to **`clipped`**, which is the honest name — it
+states what is true about the tile rather than what it does to the border —
+and lets that one fact decide both of its consequences: drop the card's
+rectangle and hairline, which would fight the shape, and draw the ring inside,
+which is the only place a masked element can show one.
+
+`web/e2e/a11y.spec.ts` pins it. The two traps, both hit and both now written
+down in the spec's own header:
+
+1. **`.focus()` does not do.** `:focus-visible` is a statement about *how*
+   focus arrived, and Chromium does not implement
+   `FocusOptions.focusVisible` — a programmatic focus leaves a button in plain
+   `:focus`. The first draft measured the resting shadow and reported a
+   missing ring on controls that have one. It presses Tab.
+2. **The ring transitions in** over `--motion-settle` (361 ms), so a
+   `getComputedStyle` straight after the key press reads the *start* of that
+   transition, which is indistinguishable from no ring. Every read waits.
+
+So the assertion is not "the CSS declares a ring" — it did. It is that the
+resolved `box-shadow` **changes** when Tab reaches the control, and that on a
+clipped control it is `inset`. Both tests also assert their control count, so
+neither can pass by the screen quietly losing a tile or the scoop.
+
+`after/menu-focus.png` is the visual evidence: the ring follows the quadrant's
+scoop and its outer radius.
+
 ---
 
 # 3. What was verified, and how
@@ -393,7 +457,10 @@ Raised as an open question in §6.
   footer-cap gate and the lamp gate read `--chassis-*` and `--cap-*` custom
   properties against `theme.ts`'s own tables; **stages 1–2 touch no chassis
   colour**, and all three stayed green untouched. Nothing was re-pinned,
-  because nothing legitimately moved.
+  because nothing legitimately moved. The viewport gate — nothing painted
+  outside the window, every chassis control on screen and clickable at three
+  sizes — is likewise green unamended, which is the check that the tile grid
+  becoming a real 2×2 did not change the LCD's box.
 - **`reducedMotion.test.ts` still derives its handled set from the CSS**, and
   still passes without amendment: the pass added transitions and no keyframes,
   and the catch-all covers transitions.
