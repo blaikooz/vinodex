@@ -66,26 +66,35 @@ export interface WebRelease {
  * assertion. It also gives the thing you edit a name.
  */
 const CURRENT: WebRelease = {
-  version: '0.4.0',
+  version: '0.4.1',
   date: '2026-08-21',
-  headline: 'A LANGUAGE OF ITS OWN',
+  headline: 'THE CELLAR AUDITED',
   notes: [
-    'The web and the phone now share their data and their ideas, and stop sharing a look.',
-    'A real type scale, in a clean sans, for everything you read. The pixel face keeps the wordmark.',
-    'The three typefaces ship with the app instead of being fetched from Google, so they work offline.',
-    'Category colours are calmer, and each one now has a light-screen value as well as a dark one.',
-    'Tiles are cards: a tinted surface, a soft shadow, and the colour as an accent rather than the fill.',
-    'Every tile label reads in one line. WHO WE ARE and CONTACT US no longer break in half.',
-    'Labels on the coloured tiles were below the readable contrast floor in every screen mode. Fixed.',
-    'The company site follows your screen mode. On the pale modes its wordmark used to be invisible.',
-    'Buttons answer a keyboard: a visible focus ring on every card, and a spring on every press.',
-    'The SMALL and LARGE text setting reaches the new type, which the old sizes ignored.',
-    'The menu dial and the front page are the first two screens on the new language. The rest follow.',
+    'Cabernet Pfeffer stops being a mystery: the tag now says what the entry says - misnamed, and solved.',
+    'Melon de Bourgogne and Picardan are scored as the neutral varieties the books describe.',
   ],
 };
 
 /** Newest first. A new release is prepended by promoting `CURRENT`. */
 const PREVIOUS: WebRelease[] = [
+  {
+    version: '0.4.0',
+    date: '2026-08-21',
+    headline: 'A LANGUAGE OF ITS OWN',
+    notes: [
+      'The web and the phone now share their data and their ideas, and stop sharing a look.',
+      'A real type scale, in a clean sans, for everything you read. The pixel face keeps the wordmark.',
+      'The three typefaces ship with the app instead of being fetched from Google, so they work offline.',
+      'Category colours are calmer, and each one now has a light-screen value as well as a dark one.',
+      'Tiles are cards: a tinted surface, a soft shadow, and the colour as an accent rather than the fill.',
+      'Every tile label reads in one line. WHO WE ARE and CONTACT US no longer break in half.',
+      'Labels on the coloured tiles were below the readable contrast floor in every screen mode. Fixed.',
+      'The company site follows your screen mode. On the pale modes its wordmark used to be invisible.',
+      'Buttons answer a keyboard: a visible focus ring on every card, and a spring on every press.',
+      'The SMALL and LARGE text setting reaches the new type, which the old sizes ignored.',
+      'The menu dial and the front page are the first two screens on the new language. The rest follow.',
+    ],
+  },
   {
     version: '0.3.0',
     date: '2026-08-20',
