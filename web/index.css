@@ -508,6 +508,22 @@
   box-shadow: var(--focus-ring);
 }
 
+/* The same ring, drawn inside, for a control that is clipped to a shape of its
+   own.
+
+   `mask-image` clips to the border box, and a `box-shadow` without `inset` is
+   painted outside it -- so on the four masked dial quadrants the ring above is
+   masked away completely and a keyboard user gets no focus indicator at all.
+   Invisible to every gate in the repo, and to anyone using a mouse.
+
+   Inset, and one step thicker, because an inner ring on a filled surface has
+   less edge contrast to work with than an outer one on the page. */
+.dex-pressable.dex-focus-inset:focus-visible {
+  box-shadow:
+    inset 0 0 0 3px var(--lcd-page),
+    inset 0 0 0 6px var(--lcd-accent);
+}
+
 @media (hover: hover) {
   .dex-pressable:hover {
     background-color: var(--tint-subtle, var(--surface-high));

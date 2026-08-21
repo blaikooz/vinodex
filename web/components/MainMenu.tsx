@@ -153,9 +153,12 @@ const MainMenu: React.FC<MainMenuProps> = ({ onNavigate, onExit }) => {
                 icon={<t.icon className="w-8 h-8 sm:w-10 sm:h-10" aria-hidden="true" />}
                 // The quadrant supplies its own outer radius and its concave
                 // inner scoop, so the card's rectangle and hairline would both
-                // fight the shape. Elevation goes too: a tile set INTO a
-                // housing does not cast a shadow onto it.
-                bordered={false}
+                // fight the shape -- and the mask clips to the border box, so
+                // the focus ring has to be drawn inside or it is masked away
+                // and a keyboard user gets nothing. `clipped` is both.
+                // Elevation goes too: a tile set INTO a housing does not cast
+                // a shadow onto it.
+                clipped
                 elevation={0}
                 style={tileMask(t.quadrant)}
               />

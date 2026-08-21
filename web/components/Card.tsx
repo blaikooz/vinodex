@@ -154,8 +154,18 @@ export interface TileProps {
    */
   className?: string;
   style?: React.CSSProperties;
-  /** Set false where the tile's own shape provides the edge (the dial). */
-  bordered?: boolean;
+  /**
+   * The tile is clipped to a shape of its own — the dial's quadrants, which
+   * cut a concave scoop out of their inner corner with a `mask-image`.
+   *
+   * It does two things because they have one cause. A clipped tile drops the
+   * card's rectangle and hairline, which would fight the shape; and its focus
+   * ring moves **inside**, because a mask clips to the border box and an outer
+   * ring is painted outside it — so the keyboard ring on all four dial
+   * quadrants would be masked away entirely, which is the kind of thing that
+   * is invisible to every gate and to anyone using a mouse.
+   */
+  clipped?: boolean;
   elevation?: Elevation;
 }
 
@@ -173,6 +183,8 @@ export interface TileProps {
  * tracking reads as the product's voice; a *paragraph* in caps does not, which
  * is why `caption` is `normal-case`. The LCD wrapper uppercases its whole
  * subtree, so the caption has to say so explicitly.
+ *
+ * See `clipped` for why a masked tile needs its focus ring drawn inside.
  */
 export const Tile: React.FC<TileProps> = ({
   livery,
@@ -183,7 +195,7 @@ export const Tile: React.FC<TileProps> = ({
   coachmark,
   className = '',
   style,
-  bordered = true,
+  clipped = false,
   elevation = 2,
 }) => (
   <button
@@ -193,7 +205,7 @@ export const Tile: React.FC<TileProps> = ({
     className={
       `dex-tint dex-pressable group relative flex min-h-11 flex-col items-center justify-center ` +
       `gap-[var(--gap-stack)] overflow-hidden p-[var(--pad-card)] bg-[var(--tint-surface)] ` +
-      `${bordered ? 'rounded-card border border-[var(--surface-line)]' : ''} ` +
+      `${clipped ? 'dex-focus-inset' : 'rounded-card border border-[var(--surface-line)]'} ` +
       `${ELEVATION[elevation]} ${className}`
     }
     style={tintStyle(livery, style)}
