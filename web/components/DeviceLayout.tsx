@@ -143,9 +143,23 @@ const DeviceLayout: React.FC<DeviceLayoutProps> = ({
           }}
         >
           {/* Device chassis. The moulding colour is the active ChassisSkin —
-              see theme.ts; the LCD inside it never changes with the skin. */}
+              see theme.ts; the LCD inside it never changes with the skin.
+
+              **Matte, not gloss (stage 3, v9#s1).** The shell used to carry a
+              `-10px -10px 30px` diagonal inset — a corner sheen that read as
+              wet plastic — and, above `md`, a single hard drop shadow that
+              REPLACED it: two `shadow-*` utilities on one element resolve to
+              one `box-shadow`, and the responsive one wins, so the desktop
+              shell had no inset finish at all. Both faces now wear the same
+              matte treatment — a hairline of light on the top edge and a soft
+              falloff at the bottom, which is what a moulded part looks like
+              under one light from above. The desktop adds a layered ground
+              shadow (a tight contact layer plus a wide ambient one, the
+              elevation language's shape rather than a single hard drop) so
+              the device sits on the stage instead of floating in front of
+              it. */}
           <div
-            className="w-full h-full md:rounded-[2.5rem] md:shadow-[0_20px_50px_rgba(0,0,0,0.35)] overflow-hidden relative border-[3px] ring-1 ring-white/10 shadow-[inset_-10px_-10px_30px_rgba(0,0,0,0.2)]"
+            className="w-full h-full md:rounded-[2.5rem] overflow-hidden relative border-[3px] ring-1 ring-white/10 shadow-[inset_0_1px_0_rgba(255,255,255,0.10),inset_0_-14px_28px_rgba(0,0,0,0.16)] md:shadow-[0_28px_56px_-16px_rgba(0,0,0,0.55),0_10px_20px_-10px_rgba(0,0,0,0.45),inset_0_1px_0_rgba(255,255,255,0.10),inset_0_-14px_28px_rgba(0,0,0,0.16)]"
             style={{
               backgroundColor: 'var(--chassis-body)',
               backgroundImage: 'var(--chassis-pattern, none)',
@@ -200,7 +214,13 @@ const DeviceLayout: React.FC<DeviceLayoutProps> = ({
               full-strength `Dex.red500` with a red halo at 80%, and its own
               note says why: "the red halo stays -- a lamp that is lit throws
               light on the plastic around it". Half-opacity plus no halo is
-              exactly the printed-dot reading A6 exists to undo. */}
+              exactly the printed-dot reading A6 exists to undo.
+
+              The halo is 55% here against iOS's 80% (stage 3, v9#s3 — and §0
+              is what lets the number differ): at 80% the pair read as warning
+              lights rather than idle power indicators. Calmed, not deleted,
+              so A6's "lit, not printed" reading survives; size and colour
+              are untouched. */}
           <div className="relative flex items-center justify-center px-4 h-6 shrink-0">
             <div className="flex gap-2">
               {[0, 1].map(i => (
@@ -210,7 +230,7 @@ const DeviceLayout: React.FC<DeviceLayoutProps> = ({
                   style={{
                     border: '1px solid #991b1b',
                     '--lamp-size': '0.65rem',
-                    '--lamp-halo': 'rgba(239,68,68,0.8)',
+                    '--lamp-halo': 'rgba(239,68,68,0.55)',
                   } as React.CSSProperties}
                 />
               ))}
@@ -285,7 +305,7 @@ const DeviceLayout: React.FC<DeviceLayoutProps> = ({
               style={{
                 border: '1px solid #991b1b',
                 '--lamp-size': '0.75rem',
-                '--lamp-halo': 'rgba(239,68,68,0.8)',
+                '--lamp-halo': 'rgba(239,68,68,0.55)',
               } as React.CSSProperties}
             />
             <div className="flex-1 min-w-0 flex justify-center overflow-hidden">

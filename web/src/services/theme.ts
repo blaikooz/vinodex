@@ -922,13 +922,14 @@ export function applyTheme(): void {
    * The mode's own `isLight` flag, as an attribute (v0.4.0, m2).
    *
    * `data-lcd` alone cannot answer "is this a pale page": five of the nine
-   * modes are light and only one of them is called LIGHT. `index.css` already
-   * carried a rule keyed on `[data-lcd="light"]` that softens the grid wash
-   * so it does not read as dirt on a white page -- and that rule therefore
-   * does nothing on VINTAGE, WINE.OS or GRUNERBOY, which have exactly the
-   * same problem. Rather than repeat the mistake for the v0.4.0 tile
-   * liveries, whose light half is a seven-row table, the flag that already
-   * decides this in TypeScript is published for CSS to branch on.
+   * modes are light and only one of them is called LIGHT. `index.css` used to
+   * carry a rule keyed on `[data-lcd="light"]` that softens the grid wash so
+   * it does not read as dirt on a white page -- a rule that therefore did
+   * nothing on VINTAGE, WINE.OS or GRUNERBOY, which have exactly the same
+   * problem. Rather than repeat the mistake for the v0.4.0 tile liveries,
+   * whose light half is a seven-row table, the flag that already decides this
+   * in TypeScript is published for CSS to branch on. (Stage 3 moved the grid
+   * wash onto this flag too — v9#d1, closed.)
    *
    * Written as a string because that is what `dataset` stores; the selector
    * is `[data-lcd-light='true']`.

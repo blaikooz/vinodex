@@ -90,10 +90,13 @@ describe('reduced motion', () => {
     { selector: '.animate-blink', mustContain: ['animation: none', 'opacity: 1'] },
     // The bright stop of `chassis-throb`, which includes the centre translate
     // the element is positioned with. The ONLY selector for which that
-    // translate is correct.
+    // translate is correct. Re-pinned 0.8/1.18 -> 0.55/1.1 with the stage-3
+    // glow calming (v9#s3): the pin holds the reduced-motion end state equal
+    // to the keyframe's own bright stop, so it moves when the keyframe does
+    // — deliberately, not silently.
     {
       selector: '.chassis-glow',
-      mustContain: ['animation: none', 'opacity: 0.8', 'translate(-50%, -50%)', 'scale(1.18)'],
+      mustContain: ['animation: none', 'opacity: 0.55', 'translate(-50%, -50%)', 'scale(1.1)'],
     },
     // Parked at the start of the scroll, not frozen mid-slide.
     {

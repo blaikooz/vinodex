@@ -124,10 +124,16 @@ const capStyle = (kind: FooterCapKind): React.CSSProperties => ({
  * things press at 0.96, moulded parts of the shell press deeper and lose the
  * light on the face. The orb already used these numbers and the four caps did
  * not, which is the asymmetry this closes.
+ *
+ * The shadow is layered rather than a single `0 6px 10px` at 50% black
+ * (stage 3, v9#s2): a tight contact layer and a wide soft ambient one, which
+ * is the same two-layer shape the elevation tokens use on screen. A cap at
+ * half-black drop read as a sticker hovering over the band; this reads as a
+ * part seated in it.
  */
 const CAP_CLASS =
   'relative w-12 h-12 md:w-14 md:h-14 rounded-full border-[3px] '
-  + 'shadow-[inset_0_3px_6px_rgba(255,255,255,0.15),0_6px_10px_rgba(0,0,0,0.5)] '
+  + 'shadow-[inset_0_2px_4px_rgba(255,255,255,0.12),0_2px_3px_rgba(0,0,0,0.32),0_7px_12px_-5px_rgba(0,0,0,0.42)] '
   + 'flex items-center justify-center '
   + 'transition-[transform,filter] duration-100 '
   + 'active:scale-[0.88] active:brightness-90 '
@@ -229,8 +235,15 @@ const DeviceFooter: React.FC<DeviceFooterProps> = ({
   // the wordmark loop), so the old big-wordmark branch was dead (review I3).
   const footerTitleSize = 'text-[1.55rem] md:text-[1.8rem]';
   const defaultFooterDisplay = (
-    <div className="w-full max-w-[16.5rem] min-w-0 rounded-[1.1rem] bg-black px-[0.35rem] py-[0.3rem] border border-white/75 shadow-[inset_0_1px_0_rgba(255,255,255,0.85),0_3px_0_rgba(120,120,120,0.95)]">
-      <div className="flex items-center min-h-[4.1rem] overflow-hidden bg-black rounded-[0.9rem] px-1 shadow-[inset_0_0_18px_rgba(34,197,94,0.16)]">
+    // The marquee bezel (stage 3, v9#s4). The chrome rim used to end in a
+    // solid `0 3px 0` grey ledge — a hard offset shadow, the exact stroke the
+    // elevation tokens retired on screen — and the brightest line on the whole
+    // band. The rim keeps its top catch-light (that is what reads as chrome)
+    // over a layered contact + ambient drop instead of the ledge. The glass
+    // inside is `1.1rem − 0.35rem padding ≈ 0.75rem`, so the two corners are
+    // concentric rather than the near-miss 0.9rem was.
+    <div className="w-full max-w-[16.5rem] min-w-0 rounded-[1.1rem] bg-black px-[0.35rem] py-[0.3rem] border border-white/60 shadow-[inset_0_1px_0_rgba(255,255,255,0.6),0_2px_3px_rgba(0,0,0,0.35),0_6px_12px_-6px_rgba(0,0,0,0.4)]">
+      <div className="flex items-center min-h-[4.1rem] overflow-hidden bg-black rounded-[0.75rem] px-1 shadow-[inset_0_0_18px_rgba(34,197,94,0.16)]">
         <div className="terminal-marquee whitespace-nowrap flex items-center">
           <span
             className={`inline-block font-retro ${footerTitleSize} italic tracking-[-0.08em] transform -skew-x-12 leading-none text-green-500 pr-6`}

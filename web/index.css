@@ -412,9 +412,9 @@
    Keyed on `data-lcd-light`, which `applyTheme` writes from the mode's own
    `isLight` flag -- NOT on the single-mode attribute, which is one of nine
    modes and would leave VINTAGE, WINE.OS and GRUNERBOY drawing dark-mode
-   faces on their pale pages. That is the same one-mode-of-nine mistake the
-   older grid-wash rule further down still makes; it is left alone here rather
-   than quietly rewritten, and is recorded in the ledger instead. */
+   faces on their pale pages. The older grid-wash rule further down made the
+   same one-mode-of-nine mistake until stage 3 closed it (v9#d1); both are on
+   this flag now. */
 :root[data-lcd-light='true'] {
   --livery-violet: #7937bd;
   --livery-violet-deep: #492988;
@@ -631,10 +631,17 @@ body {
 /* Per-skin lamp/orb glow: a blurred colour disc behind the bead, breathing.
    The colour is the element's own backgroundColor so one keyframe serves every
    skin (iOS `PulseGlow`). Duration is set inline per lamp for the staggered
-   trio (5.3 / 6.1 / 7.4 / 4.8s). */
+   trio (5.3 / 6.1 / 7.4 / 4.8s).
+
+   Calmed one step in stage 3 (v9#s3): the bright stop was 0.8 opacity at
+   scale 1.18 — a swing wide enough that six lamps breathing out of phase were
+   the loudest thing on the chassis. 0.55 at 1.1 keeps the device reading as
+   powered without the glow competing with the LCD. The reduced-motion rule
+   below holds the SAME bright stop, and `reducedMotion.test.ts` pins the two
+   in agreement — a change here that forgets the block below is a red test. */
 @keyframes chassis-throb {
-  0%, 100% { opacity: 0.28; transform: translate(-50%, -50%) scale(0.9); }
-  50%      { opacity: 0.8;  transform: translate(-50%, -50%) scale(1.18); }
+  0%, 100% { opacity: 0.22; transform: translate(-50%, -50%) scale(0.92); }
+  50%      { opacity: 0.55; transform: translate(-50%, -50%) scale(1.1); }
 }
 
 /* The orb's halo and the three lamp haloes.
@@ -741,8 +748,13 @@ body {
 
 /* The grid washes behind list and menu backgrounds are drawn with hardcoded
    dark hex values inline; in light mode they read as dirt. Softened rather than
-   removed, so the texture survives the switch. */
-:root[data-lcd="light"] .lcd-themed .opacity-10 { opacity: 0.04; }
+   removed, so the texture survives the switch.
+
+   Keyed on the mode's own `isLight` flag since stage 3 (v9#d1, closed): the
+   old `[data-lcd="light"]` spelling matched ONE pale mode of the five, so
+   VINTAGE, WINE.OS and GRÜNERBOY kept the full-strength wash on their pale
+   pages — the same one-mode-of-nine mistake the livery table's note names. */
+:root[data-lcd-light='true'] .lcd-themed .opacity-10 { opacity: 0.04; }
 
 /* Text scale, from `TextScale` in DexTheme.swift. Applied to the LCD only —
    the chassis is physical furniture and does not resize with the copy. */
@@ -847,11 +859,12 @@ body {
      stop, and that stop includes the centre translate the class is positioned
      with -- so this rule is correct for this selector and would be actively
      wrong for any element not centred the same way. Four other classes were
-     listed here and are now deleted; see the note above their old home. */
+     listed here and are now deleted; see the note above their old home.
+     The stop is 0.55 / 1.1 because the keyframe's bright stop is (v9#s3). */
   .chassis-glow {
     animation: none;
-    opacity: 0.8;
-    transform: translate(-50%, -50%) scale(1.18);
+    opacity: 0.55;
+    transform: translate(-50%, -50%) scale(1.1);
   }
 
   .animate-in.slide-in-from-top-2 {
