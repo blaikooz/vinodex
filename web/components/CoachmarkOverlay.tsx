@@ -11,7 +11,12 @@ import {
 } from '../src/services/coachmarks';
 import { isSuspendedOtherThan, setSuspended, subscribeToVino } from '../src/services/vinoPresenter';
 import { displayName } from '../src/services/profile';
-import { DEVICE_FRAME_BOX, DEVICE_FRAME_OVERLAY_STYLE, DEVICE_FRAME_STAGE } from '../src/services/deviceFrame';
+import {
+  DEVICE_ABOVE_BAND_STYLE,
+  DEVICE_FRAME_BOX,
+  DEVICE_FRAME_OVERLAY_STYLE,
+  DEVICE_FRAME_STAGE,
+} from '../src/services/deviceFrame';
 
 /**
  * The spotlight, ported from
@@ -110,8 +115,22 @@ const CoachmarkOverlay: React.FC = () => {
         given the box but not the insets. Measured, not assumed: 16 against
         the chassis's 8 at 1280x800, before this line.
       */}
+      {/*
+        Above the button band, for the professor's reason and one of its own
+        (v8#11). The card is `pointer-events-auto` — it carries SKIP and GOT IT
+        — and at `pb-4` it sat on the caps, so the tutorial ate clicks aimed at
+        Home and SETTINGS exactly like the bubble did.
+
+        Worse here: `passportButton` is one of the walkthrough's own targets and
+        it is the Collection cap, **on the band**. The card was covering the
+        control the step was pointing at, with the spotlight ring drawn
+        underneath it.
+      */}
       <div className={`absolute inset-0 ${DEVICE_FRAME_STAGE}`} style={DEVICE_FRAME_OVERLAY_STYLE}>
-        <div className={`relative ${DEVICE_FRAME_BOX} flex items-end justify-center px-4 pb-4`}>
+        <div
+          className={`relative ${DEVICE_FRAME_BOX} flex items-end justify-center px-4`}
+          style={DEVICE_ABOVE_BAND_STYLE}
+        >
           <div className="pointer-events-auto w-full max-w-sm rounded-2xl border-2 border-amber-500 bg-stone-900/95 p-3.5 flex flex-col gap-2.5 shadow-[0_4px_0_rgba(0,0,0,0.5)]">
             <div className="flex items-start gap-3">
               <span className="shrink-0 w-10 h-10 rounded-full border-2 border-amber-500 bg-stone-800 flex items-center justify-center overflow-hidden">

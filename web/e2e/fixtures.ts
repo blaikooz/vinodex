@@ -1,5 +1,4 @@
 import { test as base, expect, Page } from '@playwright/test';
-import { FIRST_TIME_TRIGGERS } from '../src/services/vinoDialogue';
 
 /**
  * The console-error fixture, shared by every spec.
@@ -102,20 +101,17 @@ export const enterDex = async (page: Page, route: string) => {
  * door now (v8#3), so the fixture is what its name always claimed: empty.
  * What a real first visitor meets is what the test meets.
  */
-/**
- * A player the professor has nothing left to say to.
+/*
+ * `ALL_TRIGGERS_SEEN` stood here for one commit and is gone (v8#11).
  *
- * For specs that *navigate by pressing the chassis*. His bubble is a
- * viewport-fixed layer whose card takes pointer events, and it overlaps the
- * button band -- so with a line on screen, a click aimed at the Home cap lands
- * on the bubble instead. That is a real behaviour and worth its own look (see
- * IOS-PARITY-v8 section 5); it is not what a routing test is measuring, so
- * these specs seed past every line rather than dismissing one at a time.
- *
- * The whole vocabulary, from the source of truth, so a new trigger is covered
- * the day it is added.
+ * It seeded past every one of the professor's lines, for the two specs that
+ * navigate by *pressing the chassis* -- because his bubble sat on the button
+ * band and ate the click. That is a fixture written around a bug, and the bug
+ * is fixed: the bubble clears the band now, so the two specs press Home and
+ * Back with him mid-sentence and assert that it works. A helper that exists to
+ * step around a defect has to leave with the defect, or the next person reads
+ * it as a fact about the app.
  */
-export const ALL_TRIGGERS_SEEN = { firstTimeTriggersSeen: FIRST_TIME_TRIGGERS.join(',') };
 
 export const seedFreshDevice = async (page: Page) => {
   await page.addInitScript(() => {

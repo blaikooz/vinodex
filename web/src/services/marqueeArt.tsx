@@ -98,19 +98,63 @@ export const MARQUEE_ART: Record<string, string> = {
   'SETTINGS': 'marquee-settings',
 };
 
+/**
+ * The company site's own mark, and the key that stamps it (v8#10).
+ *
+ * **The first and only web-authored art in this repo.** Everything in
+ * `MARQUEE_ART` above is mirrored one-way out of `vinodex-ios` by
+ * `sync-shared.ps1`'s art leg; iOS owns it and the web consumes it. iOS has no
+ * company site, so it has no mark for one — this had to be drawn here, by
+ * `scripts/draw-site-marquee.py`, and it is recorded as a deliberate deviation
+ * in IOS-PARITY-v8.
+ *
+ * **Full `src` rather than a stem, and that carries the whole point.** The
+ * stems above resolve under `/art/marquee/`, which the sync leg `/MIR`s —
+ * mirroring deletions, so a web-authored PNG dropped in there is removed by
+ * the next sync and the site silently falls back to the wineglass. This mark
+ * lives at `/art/site/` instead, which the leg cannot reach.
+ * `siteMarquee.test.ts` pins that, by reading the script rather than trusting
+ * the comment.
+ *
+ * A map rather than one constant so a second web-authored mark is a line here,
+ * and so `marqueeArt.test.ts` can hold the whole set to its directory the way
+ * it already holds the iOS set to theirs.
+ */
+export const WEB_MARQUEE_ART: Record<string, string> = {
+  'HORIZON/GODOT': '/art/site/marquee-horizon-godot.png',
+};
+
+/**
+ * The key every company-site screen stamps.
+ *
+ * The site's *text* differs per screen — WELCOME on the landing, the screen's
+ * own name elsewhere — but the *mark* is the studio's throughout, because the
+ * mark is whose device this is rather than which page you are on. Before this
+ * every site screen fell through to `<Wine>`: dex iconography on a company
+ * page, which is exactly the leak the separation rule exists to stop, arriving
+ * through a default rather than through an import.
+ */
+export const SITE_MARK_TITLE = 'HORIZON/GODOT';
+
+const artImg = (src: string, size: number): React.ReactNode => (
+  <img
+    src={src}
+    alt=""
+    aria-hidden="true"
+    draggable={false}
+    style={{ height: size, width: 'auto', objectFit: 'contain', imageRendering: 'pixelated', display: 'block', flexShrink: 0 }}
+  />
+);
+
 export const marqueeGlyph = (title: string, size: number): React.ReactNode => {
   const t = title.toUpperCase();
+  // Web-authored first: a title that gains an iOS panel later must not
+  // silently displace a mark drawn here for a screen iOS does not have.
+  const web = WEB_MARQUEE_ART[t];
+  if (web) return artImg(web, size);
   const stem = MARQUEE_ART[t];
   if (stem) {
-    return (
-      <img
-        src={`/art/marquee/${stem}.png`}
-        alt=""
-        aria-hidden="true"
-        draggable={false}
-        style={{ height: size, width: 'auto', objectFit: 'contain', imageRendering: 'pixelated', display: 'block', flexShrink: 0 }}
-      />
-    );
+    return artImg(`/art/marquee/${stem}.png`, size);
   }
   const props = { size, className: 'text-green-500 shrink-0', 'aria-hidden': true } as const;
   switch (t) {

@@ -3,7 +3,12 @@ import { VinoLine, chirpText, renderedLine } from '../src/services/vinoDialogue'
 import VinoPortrait from './VinoPortrait';
 import { currentVinoLine, dismissVino, subscribeToVino } from '../src/services/vinoPresenter';
 import { displayName } from '../src/services/profile';
-import { DEVICE_FRAME_BOX, DEVICE_FRAME_OVERLAY_STYLE, DEVICE_FRAME_STAGE } from '../src/services/deviceFrame';
+import {
+  DEVICE_ABOVE_BAND_STYLE,
+  DEVICE_FRAME_BOX,
+  DEVICE_FRAME_OVERLAY_STYLE,
+  DEVICE_FRAME_STAGE,
+} from '../src/services/deviceFrame';
 
 /**
  * Professor Vino's speech bubble, ported from
@@ -44,10 +49,24 @@ const VinoBubble: React.FC = () => {
         browser: on a tall desktop window the chassis is a centred column with
         neutral backdrop below it, and his bubble floated on that backdrop,
         detached from the machine he lives in. Clamped to `DEVICE_FRAME_BOX` he
-        sits over the LCD's lower edge at every size, which is where iOS draws
-        him.
+        sits over the LCD at every size, which is where iOS draws him.
+
+        **And above the button band, not on it (v8#11).** `pb-3` put the card
+        over the caps. The container is `pointer-events-none` but the card is
+        not — it has to be, it is tap-to-dismiss — so while he spoke, a click
+        aimed at Home or SETTINGS landed on him. Two of v0.3.0's own navigation
+        tests walked into it before they reached their first assertion, which
+        is how it was found after shipping in every release since v0.2.0.
+
+        `DEVICE_ABOVE_BAND_STYLE` rather than a Tailwind `pb-*`: the clearance
+        is the band's real height scaled by the UI-size axis, which is a
+        `calc()` no utility class expresses. He sits over the LCD's lower edge
+        now — the same place, one band higher.
       */}
-      <div className={`relative ${DEVICE_FRAME_BOX} flex items-end justify-center px-4 pb-3`}>
+      <div
+        className={`relative ${DEVICE_FRAME_BOX} flex items-end justify-center px-4`}
+        style={DEVICE_ABOVE_BAND_STYLE}
+      >
         <button
           onClick={dismissVino}
           aria-label={`Dismiss Professor Vino: ${text}`}

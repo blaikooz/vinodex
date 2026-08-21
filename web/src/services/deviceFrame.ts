@@ -68,6 +68,49 @@ export const DEVICE_FRAME_STAGE = 'flex justify-center items-center p-0 md:p-4';
 export const DEVICE_FRAME_BOX = 'w-full h-full md:h-[var(--device-frame-h)] md:w-[522px]';
 
 /**
+ * The button band's height, and the pad under it.
+ *
+ * These were two local constants inside `DeviceLayout`, used to reserve room
+ * below the LCD. They are here now because a *second* set of callers appeared
+ * (v8#11): the overlays that anchor to the bottom of the device have to clear
+ * the band, and a third copy of "8.5rem" is how the boot and the chassis came
+ * to disagree about the device's size in the first place.
+ */
+export const DEVICE_FOOTER_HEIGHT = '8.5rem';
+export const DEVICE_FOOTER_BOTTOM_PAD = 'max(0.5rem, env(safe-area-inset-bottom))';
+
+/**
+ * How far above the bottom of the device an overlay must sit to leave the
+ * button band alone (v8#11).
+ *
+ * **The fault this closes.** Professor Vino's bubble and the walkthrough card
+ * both drew at `items-end ... pb-3/pb-4` inside `DEVICE_FRAME_BOX` — the bottom
+ * of the *device*, which is the button band. Their containers are
+ * `pointer-events-none` but their cards are not (they are tap-to-dismiss, and
+ * the tutorial card carries SKIP and GOT IT), so while either was on screen a
+ * click aimed at Home or SETTINGS **landed on the card instead**. Found by the
+ * v0.3.0 render gate walking into it twice: two navigation tests could not
+ * press Home while the professor was speaking.
+ *
+ * It is worse than a dead button on the tutorial: one of the walkthrough's own
+ * steps spotlights the Collection cap, so the card was covering the very
+ * control the step was pointing at.
+ *
+ * **Scaled by `--ui-scale`, unlike `DeviceLayout`'s own reservation.** The band
+ * carries `zoom: var(--ui-scale)`, so at the LARGE furniture setting it is
+ * genuinely taller than `DEVICE_FOOTER_HEIGHT`. The LCD's padding does not
+ * account for that and is left alone here — changing it moves the screen on
+ * every device — but an overlay that must *never* overlap the band cannot use
+ * the unscaled number, or the fault comes back for exactly the players who
+ * chose the biggest buttons.
+ */
+export const DEVICE_BAND_CLEARANCE =
+  `calc((${DEVICE_FOOTER_HEIGHT} + ${DEVICE_FOOTER_BOTTOM_PAD}) * var(--ui-scale, 1) + 0.5rem)`;
+
+/** The bottom padding an overlay card uses to sit above the band. */
+export const DEVICE_ABOVE_BAND_STYLE: CSSProperties = { paddingBottom: DEVICE_BAND_CLEARANCE };
+
+/**
  * Safe-area insets for an *overlay* stage, plus the install banner's height.
  *
  * A `position: fixed` layer does not inherit the app shell's padding, so an

@@ -1,7 +1,15 @@
 import { readFileSync, readdirSync } from 'node:fs';
 import { resolve } from 'node:path';
 import { describe, expect, it } from 'vitest';
-import { DEVICE_FRAME_BOX, DEVICE_FRAME_STAGE, DEVICE_FRAME_OVERLAY_STYLE } from './deviceFrame';
+import {
+  DEVICE_ABOVE_BAND_STYLE,
+  DEVICE_BAND_CLEARANCE,
+  DEVICE_FOOTER_BOTTOM_PAD,
+  DEVICE_FOOTER_HEIGHT,
+  DEVICE_FRAME_BOX,
+  DEVICE_FRAME_STAGE,
+  DEVICE_FRAME_OVERLAY_STYLE,
+} from './deviceFrame';
 
 /**
  * The rule, not just the constants (v7#D1..D6).
@@ -103,6 +111,66 @@ describe('the device frame', () => {
     expect(DEVICE_FRAME_STAGE).toContain('justify-center');
     expect(DEVICE_FRAME_STAGE).toContain('items-center');
     expect(DEVICE_FRAME_STAGE).toContain('md:p-4');
+  });
+
+  it('keeps every bottom-anchored overlay clear of the button band', () => {
+    // **The v8#11 fault, guarded as a rule rather than as two fixed files.**
+    //
+    // Professor Vino's bubble and the walkthrough card both drew at
+    // `items-end ... pb-3/pb-4` inside the device box -- which is the button
+    // band. Their stages are `pointer-events-none`, but the cards are not (one
+    // is tap-to-dismiss, the other carries SKIP and GOT IT), so a click aimed
+    // at Home or SETTINGS landed on the card. It shipped in every release from
+    // v0.2.0 and was found by a render test that could not press Home.
+    //
+    // The failure mode is a Tailwind `pb-*` on an `items-end` row, which is
+    // exactly the shape a source scan can see and a type cannot. So: any
+    // component that anchors a card to the bottom of `DEVICE_FRAME_BOX` must
+    // import the clearance. `deviceFrame.test.ts` already scans this directory
+    // for the sibling rule about `fixed inset-`; this is the same instrument
+    // pointed one level in.
+    const anchored = sources().filter(([, src]) =>
+      /\$\{DEVICE_FRAME_BOX\}[^`]*items-end/.test(src),
+    );
+    // Guards the guard: a changed class order or a renamed constant would
+    // empty this and make the assertion below pass by checking nothing. Two
+    // overlays anchor this way today -- the professor and the walkthrough.
+    expect(
+      anchored.map(([f]) => f).sort(),
+      'no bottom-anchored overlay found; this scan has stopped seeing them',
+    ).toEqual(['CoachmarkOverlay.tsx', 'VinoBubble.tsx']);
+
+    const offenders = anchored
+      .filter(([, src]) => !src.includes('DEVICE_ABOVE_BAND_STYLE'))
+      .map(([f]) => f);
+    expect(
+      offenders,
+      'these anchor a card to the bottom of the device without clearing the button band, '
+      + 'so the card sits on the Back/Home/Collection/Settings caps and swallows their clicks:\n'
+      + offenders.join('\n'),
+    ).toEqual([]);
+  });
+
+  it('measures the clearance from the band the chassis actually draws', () => {
+    // Two numbers naming one fact is how the boot and the chassis came to
+    // disagree about the device's size (v7#D1). The clearance is built from
+    // the same two constants `DeviceLayout` reserves the LCD's space with, so
+    // a taller band cannot move one without the other.
+    expect(DEVICE_BAND_CLEARANCE).toContain(DEVICE_FOOTER_HEIGHT);
+    expect(DEVICE_BAND_CLEARANCE).toContain(DEVICE_FOOTER_BOTTOM_PAD);
+    // And it scales with the UI-size axis, which `DeviceLayout`'s own
+    // reservation deliberately does not: the band carries `zoom:
+    // var(--ui-scale)`, so at LARGE furniture it is really taller than
+    // `DEVICE_FOOTER_HEIGHT`. An overlay that must *never* overlap it cannot
+    // use the unscaled number, or the fault returns for exactly the players
+    // who chose the biggest buttons.
+    expect(DEVICE_BAND_CLEARANCE).toContain('--ui-scale');
+    expect(DEVICE_ABOVE_BAND_STYLE.paddingBottom).toBe(DEVICE_BAND_CLEARANCE);
+
+    // The chassis reads them too, rather than restating either.
+    const layout = readFileSync(resolve(COMPONENTS, 'DeviceLayout.tsx'), 'utf8');
+    expect(layout).toContain('DEVICE_FOOTER_HEIGHT');
+    expect(layout).toContain('DEVICE_FOOTER_BOTTOM_PAD');
   });
 
   it('keeps overlays in register with the install-banner offset', () => {

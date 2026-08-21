@@ -78,10 +78,13 @@ const CURRENT: WebRelease = {
     'On the site the device is always the red Vinodex CLASSIC shell, whatever skin you picked for the app.',
     'Your chosen skin is untouched by that, and is back on the device the moment you are in the dex.',
     'The wordmark under the screen reads HORIZON/GODOT on the site and VINODEX in the app.',
-    'The marquee panel simply says WELCOME on the site; the greeting script stays in the app.',
+    'The site\'s marquee greets you with WELCOME on the front page and names the page everywhere else.',
+    'The site has its own mark on the marquee now -- a sun on a horizon, instead of the app\'s wineglass.',
     'The screensaver stays in the app. The site does not go to sleep while you are reading it.',
     'Back from the dex menu returns to the site, and SYSTEM now offers EXIT TO SITE.',
     'Every old /website link still works, so nothing shared or bookmarked breaks.',
+    'Professor Vino no longer sits on the buttons: you can press Home or SETTINGS while he is talking.',
+    'The same fix reaches the walkthrough, which used to cover the very button its step was pointing at.',
   ],
 };
 

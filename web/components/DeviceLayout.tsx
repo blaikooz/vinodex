@@ -4,8 +4,9 @@ import { useLocation } from 'react-router-dom';
 import ChassisIsland from './ChassisIsland';
 import DeviceFooter from './DeviceFooter';
 import MarqueeLampChooser from './MarqueeLampChooser';
-import { DEVICE_FRAME_BOX, DEVICE_FRAME_STAGE } from '../src/services/deviceFrame';
-import { SITE_MARQUEE_TITLE, isSitePath } from '../src/services/appRoutes';
+import { DEVICE_FOOTER_BOTTOM_PAD, DEVICE_FOOTER_HEIGHT, DEVICE_FRAME_BOX, DEVICE_FRAME_STAGE } from '../src/services/deviceFrame';
+import { SITE_MARQUEE_TITLE, isSiteLanding, isSitePath } from '../src/services/appRoutes';
+import { SITE_MARK_TITLE } from '../src/services/marqueeArt';
 import { SITE_SKIN, skinCssVars } from '../src/services/theme';
 import { useTheme } from '../src/services/useTheme';
 
@@ -100,10 +101,14 @@ const DeviceLayout: React.FC<DeviceLayoutProps> = ({
    */
   const behindChooser = lampSlot !== null;
 
-  // Taller than the old single-row band: the footer now stacks two controls in
+  // Taller than the old single-row band: the footer stacks two controls in
   // each side well (iOS v0.6.9 button band), so it reserves room for a pair.
-  const footerHeight = '8.5rem';
-  const footerBottomPad = 'max(0.5rem, env(safe-area-inset-bottom))';
+  //
+  // The two numbers moved to `deviceFrame.ts` (v8#11) because the overlays that
+  // must clear the band now read them too — see `DEVICE_BAND_CLEARANCE`. The
+  // values and this reservation are unchanged.
+  const footerHeight = DEVICE_FOOTER_HEIGHT;
+  const footerBottomPad = DEVICE_FOOTER_BOTTOM_PAD;
 
   return (
     <div
@@ -320,11 +325,18 @@ const DeviceLayout: React.FC<DeviceLayoutProps> = ({
           inert={behindChooser}
           onReassignLamp={setLampSlot}
           title={title}
-          // The site's panel is one word (v8#8). The dex's rotating script —
-          // WELCOME! once per launch, MENU at rest, the nine toasts after a
-          // minute idle — is a dex behaviour and stays entirely in
-          // `marqueeScript.ts`, armed only on the main menu.
-          marqueeTitle={onSite ? SITE_MARQUEE_TITLE : undefined}
+          // **The landing greets; every other site screen names itself**
+          // (v8#8, narrowed). The dex's rotating script — WELCOME! once per
+          // launch, MENU at rest, the nine toasts after a minute idle — is a
+          // dex behaviour and stays entirely in `marqueeScript.ts`, armed only
+          // on the main menu. Undefined here means "the screen's own title",
+          // which is what OUR WORK, WHO WE ARE, CONTACT US and the project
+          // splashes get, on the same rule every dex screen follows.
+          marqueeTitle={isSiteLanding(pathname) ? SITE_MARQUEE_TITLE : undefined}
+          // The *mark*, though, is the studio's on every site screen (v8#10):
+          // whose device this is, rather than which page you are on. Without
+          // it they all fell through to the wineglass.
+          marqueeMark={onSite ? SITE_MARK_TITLE : undefined}
           skin={skin}
           footerCenter={footerCenter}
           onBack={onBack}

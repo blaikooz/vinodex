@@ -22,3 +22,9 @@ vite-out.txt
 vite-dev.log
 web/e2e/.artifacts
 web/e2e/.shots
+
+# Python bytecode. `scripts/` carries two committed generators -- the footer-cap
+# baker and the site-marquee draw -- and running either leaves a __pycache__.
+scripts/__pycache__/
+__pycache__/
+*.pyc

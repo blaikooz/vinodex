@@ -139,13 +139,22 @@ export const bootDecision = (from: string | null, to: string): boolean => {
   return !isDexPath(from);
 };
 
+/** The site's front page, and only that. */
+export const isSiteLanding = (path: string): boolean => path === '/';
+
 /**
- * What the marquee panel reads on the site.
+ * What the marquee panel reads on the site's **landing**, and nowhere else.
  *
  * The dex's script — WELCOME! once per launch, MENU at rest, the nine-toast
  * rotation after 60 s — is a *dex* behaviour, driven by `marqueeScript.ts` and
  * armed only on the main menu. The site does not run it and does not want a
- * second clock: the panel simply says WELCOME.
+ * second clock: its front page simply says WELCOME.
+ *
+ * **The landing only** (v8#8, narrowed). Every other site screen names itself
+ * on the panel — OUR WORK, WHO WE ARE, CONTACT US, a project's own name —
+ * which is the same rule the dex follows for every screen that is not the main
+ * menu. WELCOME is a greeting, and a greeting repeated on the fourth page you
+ * open is not a greeting, it is a label that has stopped meaning anything.
  *
  * Exported rather than inlined so `marqueeTitles.test.ts` can hold it to the
  * same rule as every other title the app puts on that panel.

@@ -1,4 +1,4 @@
-import { test, expect, ALL_TRIGGERS_SEEN, enterDex, seedDevice, seedFreshDevice } from './fixtures';
+import { test, expect, enterDex, seedDevice, seedFreshDevice } from './fixtures';
 import type { Page } from '@playwright/test';
 
 /**
@@ -187,15 +187,22 @@ test('the BIOS runs again the second time you open the app', async ({ page, cons
  */
 test('a shared entry link does not boot the device', async ({ page, consoleErrors }) => {
     void consoleErrors;
-  // Past every line: the second half presses Home, and the professor's
-  // `firstGrapeViewed` bubble covers the band -- see `ALL_TRIGGERS_SEEN`.
-  await seedDevice(page, ALL_TRIGGERS_SEEN);
+  // **Deliberately not seeded past the professor** (v8#11). Arriving at a grape
+  // fires `firstGrapeViewed`, so his bubble is up when Home is pressed below --
+  // and until v0.3.0 that bubble sat on the button band and swallowed the
+  // click. This test is where the bug was found; it is now the test that
+  // prevents it.
+  await seedDevice(page);
   const post = page.getByText(/VINODEX BIOS/);
 
   await page.goto('/detail/G001');
   await page.waitForTimeout(700);
   await expect(post).toHaveCount(0);
   await expect(page).toHaveURL(/\/detail\/G001$/);
+
+  // Asserted as present before the press, so a bubble that stopped appearing
+  // at all could not make the click succeed for the wrong reason.
+  await expect(page.getByText('PROF. VINO')).toBeVisible();
 
   // Home takes them into the app proper, and still does not power-cycle:
   // they are already inside the device.

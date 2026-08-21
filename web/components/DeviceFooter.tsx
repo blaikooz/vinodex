@@ -28,17 +28,29 @@ export interface DeviceFooterProps {
   /**
    * What the marquee panel reads, when that is not the screen's own name.
    *
-   * The company site passes one constant (v8#8): the dex's greeting script —
-   * WELCOME! for a beat, then MENU, then the nine toasts once the device has
-   * been ignored for a minute — is a *dex* behaviour, and `useMarqueeScript`
-   * arms its clock only on the main menu. Overriding the *text* rather than
-   * teaching the script a second mode is what keeps the state machine
-   * untouched: the site never enters it, so it cannot consume the once-per-
-   * launch WELCOME! that a player is owed when they open the app.
+   * The company site's **landing** passes one constant (v8#8): the dex's
+   * greeting script — WELCOME! for a beat, then MENU, then the nine toasts
+   * once the device has been ignored for a minute — is a *dex* behaviour, and
+   * `useMarqueeScript` arms its clock only on the main menu. Overriding the
+   * *text* rather than teaching the script a second mode is what keeps the
+   * state machine untouched: the site never enters it, so it cannot consume
+   * the once-per-launch WELCOME! that a player is owed when they open the app.
    *
-   * Absent means "the screen's own name", which is every dex screen.
+   * Absent means "the screen's own name" — every dex screen, and every site
+   * screen but the front page.
    */
   marqueeTitle?: string;
+  /**
+   * Which mark to stamp between the banner's repetitions, when that is not the
+   * one the screen's own name resolves to.
+   *
+   * The company site passes `SITE_MARK_TITLE` on *every* screen (v8#10), which
+   * is deliberately a wider rule than `marqueeTitle`'s: the text says which
+   * page you are on and the mark says whose device you are holding. Before it
+   * existed, no site title was in `MARQUEE_ART`, so all of them fell through
+   * to the generic wineglass — the app's own mark, on a company page.
+   */
+  marqueeMark?: string;
   /**
    * The shell to draw, which is not always the stored one.
    *
@@ -189,6 +201,7 @@ const CapFace: React.FC<{
 const DeviceFooter: React.FC<DeviceFooterProps> = ({
   title,
   marqueeTitle,
+  marqueeMark,
   skin,
   footerCenter,
   onBack,
@@ -207,9 +220,10 @@ const DeviceFooter: React.FC<DeviceFooterProps> = ({
   // replaces only what is *printed*.
   const scriptTitle = useMarqueeScript(title);
   const footerTitle = marqueeTitle ?? scriptTitle;
-  // The glyph follows whatever the panel says, so the two halves of the banner
-  // never name two different screens.
-  const glyphTitle = marqueeTitle ?? title;
+  // The mark wins where it is given, then the text override, then the screen's
+  // own name — so a dex screen's banner still never names two different things,
+  // and a site screen stamps the studio whatever its panel reads.
+  const glyphTitle = marqueeMark ?? marqueeTitle ?? title;
   const backEnabled = showBack && !!onBack;
   // One size: the marquee never says VINODEX any more (the script replaced
   // the wordmark loop), so the old big-wordmark branch was dead (review I3).

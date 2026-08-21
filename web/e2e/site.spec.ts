@@ -1,4 +1,4 @@
-import { test, expect, ALL_TRIGGERS_SEEN, enterDex, seedDevice } from './fixtures';
+import { test, expect, enterDex, seedDevice } from './fixtures';
 import { CHASSIS_SKINS } from '../src/services/theme';
 
 /**
@@ -194,12 +194,16 @@ test('the screensaver never runs on the site', async ({ page, consoleErrors }) =
 
 test('backing out past the menu returns to the site', async ({ page, consoleErrors }) => {
   void consoleErrors;
-  // Pressed rather than navigated, so the caps are the thing under test --
-  // hence past every one of the professor's lines (see `ALL_TRIGGERS_SEEN`).
-  await seedDevice(page, ALL_TRIGGERS_SEEN);
+  // Pressed rather than navigated, so the caps are the thing under test -- and
+  // **deliberately not seeded past the professor** (v8#11). `/passport` fires
+  // `firstPassport`, so his bubble is up when Home is pressed, which until
+  // v0.3.0 meant the click landed on him instead of the cap. Asserted present
+  // first, so the press cannot succeed for the wrong reason.
+  await seedDevice(page);
 
   // Home is unchanged: an in-app control that lands on the dex menu (v8#9).
   await enterDex(page, '/passport');
+  await expect(page.getByText('PROF. VINO')).toBeVisible();
   await page.getByRole('button', { name: 'Home', exact: true }).first().click();
   await expect(page).toHaveURL(/\/dex$/);
 
