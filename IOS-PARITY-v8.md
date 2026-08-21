@@ -30,11 +30,11 @@ _Severity words are unchanged from v5–v7: **cosmetic** (a glyph/word), **minor
 Gates, run in full on the committed tree, after both rounds:
 **lint 21 warnings (cap 22) · typecheck clean · 625 tests / 56 files · build OK
 (440 OG pages, 420 precache entries / 5,222 KiB) · check:refs zero dangling ·
-playwright 127 passed.**
+playwright 130 passed.**
 
 Vitest file count: `UnlockScreen.test.tsx` and `appUnlock.test.ts` deleted with
 the door they tested; `appRoutes.test.ts` and `siteMarquee.test.ts` added.
-Playwright gained `site.spec.ts` (seven tests) and traded one BIOS test for
+Playwright gained `site.spec.ts` (ten tests) and traded one BIOS test for
 three. The precache is unchanged at 420 entries: `globIgnores: ['**/art/**']`
 keeps every drawn asset out of it, so the site's 404-byte mark is runtime-cached
 by the existing `/art/*.png` CacheFirst rule like the 36 mirrored panels beside
@@ -48,7 +48,9 @@ service-worker config to have an opinion about.
   WELCOME; every other site screen names itself), v8#9 (backing out returns to
   the site), v8#10 (the site's own marquee mark — **the first web-authored art
   in the repo**), v8#11 (the professor's bubble, and the walkthrough card, off
-  the button band).
+  the button band), v8#12 (Back on the site goes up the site — the pre-tag
+  release blocker), v8#13 (the site mark's branch, pinned on the rendered
+  element).
 - **Deleted, properly:** `SplashScreen.tsx`, `UnlockScreen.tsx` +
   `UnlockScreen.test.tsx`, `appUnlock.ts` + `appUnlock.test.ts`,
   `useAppUnlock.ts`, the `unlockedAppIDs` storage key and its `keep`
@@ -61,8 +63,14 @@ service-worker config to have an opinion about.
   `theme.skinCssVars` / `SITE_SKIN`, `scripts/draw-site-marquee.py` +
   `web/public/art/site/` + `siteMarquee.test.ts`, and
   `deviceFrame.DEVICE_BAND_CLEARANCE` + its two pins.
-- **Pins rewritten, not relaxed:** eleven. Each is listed in §4 with why the
-  new one is at least as strong.
+- **Pins rewritten:** eleven, listed in §4 with how each compares — nine
+  strictly stronger, one (#8) stronger for dex titles and weaker for site ones
+  until v8#13 pinned the branch it delegates to, and that is stated inside the
+  pin rather than glossed.
+- **Pre-tag review (cleanbot):** one release blocker, **v8#12**, and one
+  unpinned branch, **v8#13** — both fixed, both verified by reverting the fix
+  and watching the new pin fail. Seven non-gating findings are recorded in §7
+  as post-tag backlog, unfixed on purpose.
 - **Version:** **v0.3.0**, with an authored changelog entry; 0.2.2 promoted to
   `PREVIOUS`. Minor rather than patch because the entry model changed.
 - **Not done, deliberately:** §6.
@@ -110,9 +118,12 @@ it is on neither side, or on both, or if a classified prefix names no route.
 | v8#9 | Back past the menu returns to the site | **minor** | `App.tsx:handleExitToSite`, `MainMenu.tsx` |
 | v8#10 | The site gets its own marquee mark | **moderate** | `scripts/draw-site-marquee.py`, `marqueeArt.tsx`, `sync-shared.ps1` |
 | v8#11 | The bubble and the tutorial card clear the band | **moderate** | `deviceFrame.ts`, `VinoBubble.tsx`, `CoachmarkOverlay.tsx` |
+| v8#12 | Back on the site goes up the site, never into the app | **structural** | `App.tsx:handleBack`, `WebsitePortal.tsx` |
+| v8#13 | The site's mark is pinned on the rendered element | — (a pin) | `site.spec.ts` |
 
 v8#8 was narrowed and v8#10/#11 were added by a second round of rulings after
-the first pass reported. The three are written up in §2a.
+the first pass reported; v8#12/#13 come from the pre-tag review (§2b). The five
+are written up in §2a and §2b.
 
 ### v8#1 — the site becomes `/`
 
@@ -411,6 +422,80 @@ claims `'coachmark'` and stands down on `isSuspendedOtherThan`.
 
 ---
 
+## 2b · The pre-tag review — v8#12 (release blocker) and v8#13
+
+Cleanbot's review of the release. Everything else passed; these two did not.
+
+### v8#12 — Back on the company site launched the app. **Release-gating.**
+
+`handleBack`'s no-history fallback was a flat `navigate('/dex')`, carried
+unchanged out of v0.2.x behind a comment that said *"the user is inside the
+app"*. **That premise died the moment `/` became the company site**, and this
+handler is wired to five site routes. Measured in a browser: cold `/` → Back →
+`/dex`, BIOS and all; the same from `/apps` and `/who-we-are`.
+
+The warm case is worse, and is the half a forwards-only test would have missed:
+React Router keeps `key === 'default'` on the **initial** history entry, so
+walking `/` → OUR WORK → Back pops you onto `/` *with the cold branch live
+again*. There was no sequence in which Back on the landing did anything but
+launch the encyclopedia — on the release whose entire thesis is that Vinodex is
+something you open from inside the site.
+
+**Why it slipped, which is the part worth keeping.** It is the one site/dex
+difference in this release that was **not routed through `appRoutes.ts`**.
+Every other one — the boot, the skin, the screensaver, the bezel, the marquee —
+asks the classifier; this one remembered instead, and a remembered premise is
+exactly what §1 says the classifier exists to stop. It asks now:
+
+```ts
+if (location.key !== 'default') { navigate(-1); return; }
+navigate(isSitePath(location.pathname) ? '/' : '/dex', { replace: true });
+```
+
+`replace` because there is nothing to pop: this is a move *up*, not back, and
+leaving the abandoned URL in the history lets the browser's own Back drop the
+visitor straight into the screen they just left.
+
+**`PortalHome` also loses its Back cap.** `/` is the top of the site; a Back
+there could only be a no-op or a lie, and it was the lie. The cap stays moulded
+into the shell and inert — the same answer the band already gives for SAVED and
+SETTINGS on a site screen.
+
+Pinned in `site.spec.ts`: the landing's cap is disabled, a **cold** site
+sub-page falls back to `/`, and the **warm popped-back-onto-`/`** path still
+does not boot — plus a second test for the other side of the same branch, that
+a cold-opened dex screen still falls back to the menu.
+
+The two started as one four-step test and were split by the full suite, which
+is worth recording because isolation lied about it: five navigations plus a real
+power-on walk passed comfortably alone and tipped past the 45s budget under
+parallel load. Splitting is the right shape anyway — "the site's fallback goes
+up the site" and "the dex's fallback is untouched" are different claims about
+different products.
+
+### v8#13 — the mark's branch was the thing holding v8#10 up, and nothing held it
+
+`DeviceLayout`'s `marqueeMark={onSite ? SITE_MARK_TITLE : undefined}` was
+unguarded. Deleting that one ternary put every site screen back on the
+encyclopedia's wineglass **with all 625 vitest and 127 Playwright tests
+green** — the silent downgrade v8#10 was written to remove, reintroduced one
+level up. The `consoleErrors` fixture cannot see it either: the fallback is an
+inline lucide SVG, so there is no 404 to catch.
+
+`site.spec.ts` now reads the rendered `img` src on **two** site screens and
+asserts no lucide SVG remains in the panel. Two, deliberately: the landing and
+a sub-page reach the mark by different routes through `glyphTitle` — the
+landing's own title *is* `HORIZON/GODOT`, and only its WELCOME text override
+stops it resolving by accident — so either alone could pass while the branch
+was broken for the other. The expected src is read from `WEB_MARQUEE_ART`
+rather than written out, so a re-foldered asset fails here.
+
+**Both pins were verified by reverting the fixes** and watching exactly these
+two tests fail while the other seven passed — which is also the measurement
+that confirms the suite was blind to both before.
+
+---
+
 ## 3 · What was deleted, and what was checked before deleting it
 
 | File | Checked |
@@ -426,11 +511,17 @@ claims `'coachmark'` and stands down on `isSuspendedOtherThan`.
 
 ---
 
-## 4 · The pins that were rewritten — eleven, and why each is at least as strong
+## 4 · The pins that were rewritten — eleven, and how each compares
 
 **None was relaxed, and none was deleted outright.** Where a pin asserted a
 property of something that no longer exists, it was replaced by the property
-that survives — in every case a strictly narrower claim.
+that survives.
+
+**Nine of the eleven are strictly narrower claims; one is not, and it is
+labelled.** Pin #8 is stronger for dex titles and, as originally written,
+weaker for site ones — see the correction inside it. The section header used to
+say "why each is at least as strong", which was a claim the section did not
+support.
 
 1. **`storageKeys.test.ts` — "keeps exactly the two keys the rule allows"** →
    **"...the one key"**. The allowed list went from two entries to one, and
@@ -498,6 +589,24 @@ that survives — in every case a strictly narrower claim.
    silently), and no title may hold both a web-authored mark and a mirrored
    one. `SITE_MARQUEE_TITLE` is still folded into the scanned set, since it is
    the one string on that panel which is not a `title=` literal.
+
+   **Correction — this pin is not strictly stronger, and the first draft of
+   this section said it was.** It is stronger for *dex* titles: an unmapped dex
+   screen fails, exactly as before, with two new assertions beside it. For
+   *site* titles it is weaker in one specific way, and the honest statement is
+   worth more than the claim: the old list **enumerated who was permitted to
+   fall through**, so a new site screen arriving without a panel failed the
+   honesty check until somebody named it. The new gate does not check site
+   titles for fallthrough at all. It delegates the guarantee to
+   `DeviceLayout`'s route-derived `marqueeMark` branch — which is a *better*
+   arrangement, because a new site screen inherits the mark with no maintenance
+   at all rather than needing a line added to a list — but only if the branch
+   is guaranteed. **It was not.** Deleting one ternary returned every site
+   screen to the wineglass with all 625 vitest and 127 Playwright tests green
+   (W3), which is the silent downgrade v8#10 existed to remove, reintroduced
+   one level up. `site.spec.ts` now asserts the rendered `img` src on two site
+   screens (v8#13), verified by reverting the branch and watching the pin fail.
+   With that in place the arrangement is sound; the *claim* was wrong before it.
 
 9. **`deviceFrame.test.ts` gained the band-clearance rule (v8#11).** Stated as
    a source scan rather than as two named files: any component anchoring a card
@@ -596,6 +705,70 @@ ruled on and fixed — the stray logo (deleted, §3), the site's wineglass
   writes them. Pre-existing and arguably correct (they are crawler artifacts;
   a real visitor gets the SPA shell), but it is a genuine "documented, not
   chosen" and should be one or the other.
+
+---
+
+## 7 · Post-tag backlog, from the pre-tag review
+
+Cleanbot's findings that are **not** release-gating. Recorded here rather than
+fixed, because each is either a decision, a test, or a change that should not
+ride along inside a release it is not part of. Ids are cleanbot's.
+
+- **W2 — `skinCssVars` duplicates `applyTheme`'s token table, and two dataset
+  attributes cannot be shadowed at all.** The new function restates roughly 35
+  custom properties that `applyTheme` also writes, with nothing holding the two
+  together — the exact shape `capsManifest.test.ts` exists to guard for the cap
+  colours. Worse in kind: `root.dataset.translucent` and `root.dataset.skin`
+  are *attributes*, written from the **stored** skin, and an inherited custom
+  property cannot shadow an attribute. So on a site screen those two still say
+  NOCTURNE while the chassis paints CLASSIC. **Dormant today** — nothing in
+  `index.css` or any component reads either (checked), which is why the site
+  renders correctly — and **live the moment somebody writes a
+  `[data-translucent="on"]` rule**. GLOUGLOU, NOUVEAU and WALDGLAS are the
+  three shells that would show it, since they are the translucent ones. The
+  fix is a shared table plus a test holding `applyTheme` and `skinCssVars`
+  equal, and a decision about what the two attributes should say on a site
+  screen.
+- **W4 — the coachmark half of v8#11 has no behavioural test.** The maths is
+  verified (the clearance is derived from the band's own constants and scales
+  with `--ui-scale`, pinned in `deviceFrame.test.ts`) and the geometry was
+  measured at three viewports, but **no test presses a chassis cap with the
+  walkthrough card up**, the way the two un-seeded tests now do for the
+  professor. The card is the half with SKIP and GOT IT on it and the half whose
+  own step spotlights a cap on the band, so it is the half that deserves the
+  test more.
+- **W5 — the DATA tile boots the device.** `/settings/DATA` is a dex route, so
+  a site tile that opens it is an app launch by the letter of v8#2 and the BIOS
+  runs. That is arguably correct — it *is* opening the app — but DATA is
+  presented as one of the site's own four tiles beside WHO WE ARE and CONTACT
+  US, so a visitor pressing it gets a power-on test they did not ask for.
+  Decide: accept and pin it, or exempt the one sanctioned crossing.
+- **W6 — `unlockedAppIDs` is unregistered rather than tombstoned.** v8#3
+  deleted the key from the registry entirely. For a *returning* v0.2.x visitor
+  the value is already in localStorage, and an unregistered key is one CLEAR
+  ALL SAVED DATA does not remove — so the registry's own sentence ("everything
+  the device remembers about you goes") is not literally true for them. It is
+  not user data and it is inert, so nothing behaves wrongly; it is a
+  cleanliness gap with a one-release fix: register it `wipe` with a tombstone
+  note, ship one release, then delete.
+- **W7 — the share cards' `og:site_name` changed without being a decision.**
+  Moving the shell's card to the studio (v8#1) also moved `og:site_name` and
+  `application-name` from Vinodex to Horizon/Godot on **all 440 prerendered
+  entry pages**, because `prerender-og.ts` copies the shell and overrides only
+  `title`/`description`/`og:url`/images. Arguably right — the studio does
+  publish them — but it was a side effect, not a ruling, and it changes how
+  every shared wine entry unfurls.
+- **W8 — `showSystemButtons` is still a prop while its four siblings are
+  route-derived.** The skin, the bezel wordmark, the marquee text and the
+  marquee mark all ask `appRoutes.ts`, precisely so a new site screen cannot
+  forget one. `showSystemButtons={false}` is passed by hand on every site
+  screen and a new one that omits it gets SAVED, SETTINGS and two dex-pointing
+  lamps. It predates this release and its tests are written against the prop,
+  which is why it was left; it is now the odd one out.
+- **W10 — lint headroom is one.** 21 warnings against a `--max-warnings=22`
+  cap, so a single new warning fails the build. Either burn down a few of the
+  standing downgrades or raise the cap deliberately; leaving it at one is a
+  trap for the next pass.
 
 ---
 
