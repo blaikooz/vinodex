@@ -566,8 +566,14 @@ presentation one, and it would want to change on both platforms or be recorded
 as a real split. **A ruling either way is wanted before stage 4**, since
 `EntryTile`, the passport and the settings grid all read the same assignment.
 
----
+> **RULED (2026-08-22, before stage 4): KEEP BOTH GREENS.** FLAVORS keeps
+> emerald and REGIONS keeps green — the same hue-to-category assignment as
+> iOS, unchanged on both platforms. The icons and the labels are what
+> distinguish the two quadrants; the near-hue pair is accepted, and the
+> monochrome-phosphor collapse to grey was already the norm for all four.
+> Settled: do not re-raise.
 
+---
 
 # 7. Notes
 
@@ -691,8 +697,11 @@ declaration rather than one layer.
 ## Also closed
 
 - **(v9#d1)** The grid-wash softening now keys on `[data-lcd-light='true']`,
-  so all five pale modes soften it instead of one; the livery-table and
-  `theme.ts` comments that named it open now say closed.
+  so all four pale modes soften it instead of one; the livery-table and
+  `theme.ts` comments that named it open now say closed. (This line originally
+  said "five" — the theme.ts:924 miscount, corrected across the tree in the
+  stage-4 run. `isLight: true` is exactly LIGHT, VINTAGE, WINE.OS and
+  GRÜNERBOY: four of the nine.)
 
 ## Left exactly where §4 put it
 

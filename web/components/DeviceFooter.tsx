@@ -241,7 +241,8 @@ const DeviceFooter: React.FC<DeviceFooterProps> = ({
     // band. The rim keeps its top catch-light (that is what reads as chrome)
     // over a layered contact + ambient drop instead of the ledge. The glass
     // inside is `1.1rem − 0.35rem padding ≈ 0.75rem`, so the two corners are
-    // concentric rather than the near-miss 0.9rem was.
+    // near-concentric — the rim's own 1px border keeps it a hair off exact —
+    // rather than the visible near-miss 0.9rem was.
     <div className="w-full max-w-[16.5rem] min-w-0 rounded-[1.1rem] bg-black px-[0.35rem] py-[0.3rem] border border-white/60 shadow-[inset_0_1px_0_rgba(255,255,255,0.6),0_2px_3px_rgba(0,0,0,0.35),0_6px_12px_-6px_rgba(0,0,0,0.4)]">
       <div className="flex items-center min-h-[4.1rem] overflow-hidden bg-black rounded-[0.75rem] px-1 shadow-[inset_0_0_18px_rgba(34,197,94,0.16)]">
         <div className="terminal-marquee whitespace-nowrap flex items-center">

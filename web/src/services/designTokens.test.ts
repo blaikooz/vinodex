@@ -102,7 +102,7 @@ describe('design tokens', () => {
    * settings grid and missed on the main menu, because there was no one place
    * that knew a tile face has two values". A light half that is missing a row
    * is that bug, reintroduced, and it is invisible until somebody switches to
-   * one of the five pale screen modes.
+   * one of the four pale screen modes.
    */
   it('carries a dark and a light value for all seven liveries', () => {
     const lightBlock = css.slice(css.indexOf("[data-lcd-light='true']"));
@@ -112,7 +112,7 @@ describe('design tokens', () => {
         expect(css, `the dark table has no ${token}`).toContain(token);
         expect(
           lightBlock.slice(0, lightBlock.indexOf('}')),
-          `the light table has no ${token} -- the five pale screen modes will `
+          `the light table has no ${token} -- the four pale screen modes will `
           + 'draw the dark-mode face on a pale page',
         ).toContain(token);
       }

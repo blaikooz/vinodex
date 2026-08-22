@@ -423,8 +423,9 @@
      on the main menu, because there was no one place that knew a tile face has
      two values". **The web never got the hoist.** `MainMenu.tsx` spelled four
      dark-mode hexes at the call site and `SettingsPanel.tsx` six more, so on
-     every one of the five light LCD modes the web drew the bright dark-mode
-     faces on a pale page -- exactly the fault iOS's own note describes.
+     every one of the four light LCD modes (LIGHT, VINTAGE, WINE.OS,
+     GRÜNERBOY) the web drew the bright dark-mode faces on a pale page --
+     exactly the fault iOS's own note describes.
 
      Retuned one chroma step down: converted to OKLCH, C multiplied by 0.84,
      L and H untouched, so each colour is recognisably itself and a screen
@@ -804,7 +805,7 @@ body {
    removed, so the texture survives the switch.
 
    Keyed on the mode's own `isLight` flag since stage 3 (v9#d1, closed): the
-   old `[data-lcd="light"]` spelling matched ONE pale mode of the five, so
+   old `[data-lcd="light"]` spelling matched ONE pale mode of the four, so
    VINTAGE, WINE.OS and GRÜNERBOY kept the full-strength wash on their pale
    pages — the same one-mode-of-nine mistake the livery table's note names. */
 :root[data-lcd-light='true'] .lcd-themed .opacity-10 { opacity: 0.04; }

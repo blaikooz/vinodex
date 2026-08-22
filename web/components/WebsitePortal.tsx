@@ -115,9 +115,10 @@ export const getProject = (id: string | undefined): Project | undefined =>
  * The grid wash behind every site screen (v0.4.0, m4).
  *
  * It was two hardcoded `rgba(50, 255, 50, 0.3)` rules, which is a fixed
- * phosphor green — correct on the black LCD, and grime on the five pale
- * screen modes. `index.css` has a rule that softens `opacity-10` on the
- * LIGHT mode for exactly that reason, and it covers one mode of the five.
+ * phosphor green — correct on the black LCD, and grime on the four pale
+ * screen modes. `index.css` has a rule that softens `opacity-10` on a pale
+ * page for exactly that reason (all four since v9#d1 closed; one of them
+ * before).
  * Drawn from `--lcd-accent` instead, it is the mode's own colour everywhere
  * and needs no per-mode exception.
  *
@@ -144,7 +145,7 @@ const RetroGrid: React.FC = () => (
  *
  * **This is a bug fix, not a restyle.** It was `bg-dex-screen` — a fixed
  * `#232323` — while the copy on top of it went through `.lcd-themed`'s
- * palette remap and *did* follow the screen mode. On any of the five pale
+ * palette remap and *did* follow the screen mode. On any of the four pale
  * modes that put light-mode ink on a dark ground: LIGHT resolves
  * `--lcd-body-text` to `#23342A`, which on `#232323` is a contrast ratio of
  * roughly 1:1. The HORIZON/GODOT wordmark on the front page was invisible in
