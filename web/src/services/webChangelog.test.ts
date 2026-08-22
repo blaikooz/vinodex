@@ -76,7 +76,7 @@ describe('the web changelog', () => {
     // paid the debt v0.4.1 left, having grown the log to 7 without moving the
     // floor. The discipline stands: the log grows by one per release and the
     // floor follows it.
-    expect(WEB_RELEASES.length, 'the changelog shrank — a release was deleted, not promoted').toBeGreaterThanOrEqual(9);
+    expect(WEB_RELEASES.length, 'the changelog shrank — a release was deleted, not promoted').toBeGreaterThanOrEqual(10);
     expect(releaseFor('0.1.0'), 'the first web release fell off the log').toBeDefined();
   });
 

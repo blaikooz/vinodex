@@ -66,6 +66,19 @@ export interface WebRelease {
  * assertion. It also gives the thing you edit a name.
  */
 const CURRENT: WebRelease = {
+  version: '0.4.4',
+  date: '2026-08-22',
+  headline: 'THE DEVICE LEARNS TO MOVE',
+  notes: [
+    'Screens fade up on the LCD when you navigate, the way the phone crossfades. The chassis never moves.',
+    'List rows arrive with a short stagger - ten rows, forty milliseconds apart, and no more than that.',
+    'Every button presses with the same small spring, including the world map hotspots.',
+    'Reduced motion parks all of it: screens and rows simply appear, opaque and in place.',
+  ],
+};
+
+/** The release before this one, promoted when 0.4.4 landed. */
+const PREVIOUS_0_4_3: WebRelease = {
   version: '0.4.3',
   date: '2026-08-22',
   headline: 'EVERY SCREEN, ONE VOICE',
@@ -100,6 +113,7 @@ const PREVIOUS_0_4_2: WebRelease = {
 
 /** Newest first. A new release is prepended by promoting `CURRENT`. */
 const PREVIOUS: WebRelease[] = [
+  PREVIOUS_0_4_3,
   PREVIOUS_0_4_2,
   {
     version: '0.4.1',

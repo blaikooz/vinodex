@@ -794,3 +794,30 @@ both correctness fixes found by the widened check itself.)
 - `webChangelog.test.ts`: floor 8 → 9 with the 0.4.3 entry.
 
 ---
+
+# 10. Stage 5 — the motion pass (v0.4.4, 2026-08-22)
+
+_Closes §4's stage-5 entry. Restraint was the operating principle: two
+entrances, one keyframe, and the press spring reaching its last holdouts._
+
+- **Screen transitions.** `screen-enter` on `DeviceLayout`'s LCD content
+  wrapper: navigation remounts the wrapper, so the incoming screen fades up
+  4px over the LCD page at `--motion-crossfade` / `--ease-crossfade` — the
+  `DexMotion.crossfade` idea as a mount animation, since the outgoing screen
+  has already unmounted. The chassis never moves.
+- **Entrances.** `row-enter` on `EntryTile` at overlay speed, staggered 40ms
+  across the first ten rows and capped there. The rows had carried an
+  uncapped `animationDelay` driving nothing since the beginning.
+- **Press.** `dex-pressable` (the stage-1 spring, spread by stage 4) reaches
+  the world map's hotspot rings — whose centre-translate positioning is the
+  exact case the independent `scale` property exists for — and SEARCH WORLD.
+- **Not done, on purpose:** the marquee keeps its 25s linear scroll (already
+  the right read), no route slides, no card flips. Playdate, not PowerPoint.
+- **Reduced motion:** both entrance classes carry explicit parked end states
+  (opaque, unmoved — the `backwards` fill would otherwise hold a delayed row
+  at its invisible first frame); `screen-enter` joins the derived HANDLED
+  list and the keyframe-count pin, deliberately.
+- **Version:** 0.4.4 in all four spellings, THE DEVICE LEARNS TO MOVE
+  authored, 0.4.3 promoted, floor 9 → 10.
+
+---
