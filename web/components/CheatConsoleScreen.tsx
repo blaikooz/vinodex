@@ -54,23 +54,23 @@ const CheatConsoleScreen: React.FC<CheatConsoleScreenProps> = ({ onBack, onHome 
   const readout = (v: Verdict) => {
     const [icon, tintCls, title, detail] =
       v.kind === 'accepted'
-        ? [<BadgeCheck key="i" size={24} />, 'text-green-400', 'ACCEPTED', v.reveal]
+        ? [<BadgeCheck key="i" size={24} />, 'text-[var(--lcd-accent)]', 'ACCEPTED', v.reveal]
         : v.kind === 'already'
-          ? [<CheckCircle2 key="i" size={24} />, 'text-stone-400', 'ALREADY UNLOCKED', v.reveal]
-          : [<OctagonX key="i" size={24} />, 'text-red-500', 'INVALID CODE', 'Nothing unlocked.'];
+          ? [<CheckCircle2 key="i" size={24} />, 'text-[var(--lcd-subtext)]', 'ALREADY UNLOCKED', v.reveal]
+          : [<OctagonX key="i" size={24} />, 'text-[var(--livery-red)]', 'INVALID CODE', 'Nothing unlocked.'];
     return (
       // Announced, not just drawn: this is the one screen whose entire output
       // is a single line of feedback.
       <div
         role="status"
         aria-label={`${title}. ${detail}`}
-        className="flex items-center gap-3 rounded-md border-2 p-3.5"
+        className="flex items-center gap-3 rounded-control border-2 p-3.5"
         style={{ backgroundColor: 'var(--lcd-surface)', borderColor: 'currentcolor' }}
       >
         <span className={tintCls}>{icon}</span>
         <span className="flex flex-col gap-0.5">
-          <span className={`font-retro text-xs tracking-widest ${tintCls}`}>{title}</span>
-          <span className="font-mono text-sm text-stone-200 normal-case">{detail}</span>
+          <span className={`font-sans text-label tracking-widest ${tintCls}`}>{title}</span>
+          <span className="font-sans text-caption text-[var(--lcd-text)] normal-case">{detail}</span>
         </span>
       </div>
     );
@@ -79,16 +79,16 @@ const CheatConsoleScreen: React.FC<CheatConsoleScreenProps> = ({ onBack, onHome 
   return (
     <DeviceLayout title="CHEAT CODES" subtitle="" showBack onBack={onBack} onHome={onHome} centerHeaderText>
       <div className="h-full overflow-y-auto custom-scrollbar p-4 flex flex-col gap-4" style={{ backgroundColor: 'var(--lcd-page)' }}>
-        <div className="font-retro text-sm tracking-widest text-green-400 pb-1 border-b-2" style={{ borderColor: 'color-mix(in srgb, var(--lcd-accent) 45%, transparent)' }}>
+        <h2 className="font-sans text-label uppercase tracking-widest text-[var(--lcd-accent)] pb-1 border-b-2" style={{ borderColor: 'color-mix(in srgb, var(--lcd-accent) 45%, transparent)' }}>
           ENTER CODE
-        </div>
+        </h2>
 
         <form
           onSubmit={e => { e.preventDefault(); if (typed) submit(); }}
           className="flex items-center gap-2.5 rounded-md border p-3"
-          style={{ backgroundColor: 'var(--lcd-surface)', borderColor: 'var(--lcd-surface-edge, #44403c)' }}
+          style={{ backgroundColor: 'var(--lcd-surface)', borderColor: 'var(--lcd-surface-edge)' }}
         >
-          <span className="font-mono text-xl text-green-400">&gt;</span>
+          <span className="font-mono text-xl text-[var(--lcd-accent)]">&gt;</span>
           <input
             type="text"
             value={typed}
@@ -99,17 +99,17 @@ const CheatConsoleScreen: React.FC<CheatConsoleScreenProps> = ({ onBack, onHome 
             autoCapitalize="characters"
             autoCorrect="off"
             spellCheck={false}
-            className="flex-1 min-w-0 bg-transparent font-mono text-xl uppercase text-green-200 placeholder:text-stone-600 focus:outline-none"
+            className="flex-1 min-w-0 bg-transparent font-mono text-xl uppercase text-[var(--lcd-body-text)] placeholder:text-[var(--lcd-disabled-text)] focus:outline-none"
           />
         </form>
 
         <button
           onClick={submit}
           disabled={!typed}
-          className={`w-full rounded-md border-2 py-3.5 font-retro text-[0.65rem] tracking-widest transition-colors ${
-            typed ? 'bg-green-500 border-green-400 text-black' : 'text-stone-500'
+          className={`dex-pressable w-full rounded-control border-2 py-3.5 font-sans text-label tracking-widest ${
+            typed ? 'bg-[var(--lcd-accent)] border-[var(--lcd-accent)] text-[var(--lcd-on-accent)]' : 'text-[var(--lcd-disabled-text)]'
           }`}
-          style={typed ? undefined : { backgroundColor: 'var(--lcd-surface)', borderColor: 'var(--lcd-surface-edge, #44403c)' }}
+          style={typed ? undefined : { backgroundColor: 'var(--lcd-surface)', borderColor: 'var(--lcd-surface-edge)' }}
         >
           SUBMIT
         </button>
@@ -117,13 +117,13 @@ const CheatConsoleScreen: React.FC<CheatConsoleScreenProps> = ({ onBack, onHome 
         {verdict && readout(verdict)}
 
         <div className="flex items-center gap-2.5">
-          <KeyRound size={18} className="text-stone-400" />
-          <span className="font-retro text-[0.55rem] tracking-widest text-stone-400">
+          <KeyRound size={18} className="text-[var(--lcd-subtext)]" />
+          <span className="font-sans text-caption tracking-widest text-[var(--lcd-subtext)]">
             {found} OF {CHEAT_CODES.length} FOUND
           </span>
         </div>
 
-        <p className="font-mono text-sm text-stone-400 normal-case">
+        <p className="font-sans text-caption text-[var(--lcd-subtext)] normal-case leading-relaxed">
           Codes are found, not listed. They unlock cosmetics, hidden features
           and the odd thing nobody asked for.
         </p>

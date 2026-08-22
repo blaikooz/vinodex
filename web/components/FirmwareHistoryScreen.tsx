@@ -54,26 +54,26 @@ const FirmwareHistoryScreen: React.FC<FirmwareHistoryScreenProps> = ({ onBack, o
           // The distress state — says what is wrong rather than showing an
           // empty list, which would read as "this device has no history".
           <div className="flex-1 flex flex-col items-center justify-center gap-3 p-6 text-center">
-            <AlertTriangle size={34} className="text-red-500" />
-            <div className="font-retro text-xs tracking-widest text-stone-100">NO FIRMWARE RECORD</div>
-            <p className="font-mono text-xs text-stone-400 normal-case">The changelog failed to load. See SETTINGS ▸ DEV.</p>
+            <AlertTriangle size={34} className="text-[var(--livery-red)]" />
+            <div className="font-sans text-label tracking-widest text-[var(--lcd-text)]">NO FIRMWARE RECORD</div>
+            <p className="font-sans text-caption text-[var(--lcd-subtext)] normal-case">The changelog failed to load. See SETTINGS ▸ DEV.</p>
           </div>
         ) : (
           <>
             {/* The headline readout: what firmware this catalog is at. */}
-            <div className="rounded-lg p-4 border-2" style={{ backgroundColor: 'var(--lcd-surface)', borderColor: 'var(--lcd-accent)' }}>
-              <div className="font-retro text-[0.55rem] tracking-[0.15em] text-stone-400">INSTALLED</div>
+            <div className="rounded-card p-4 border-2" style={{ backgroundColor: 'var(--lcd-surface)', borderColor: 'var(--lcd-accent)' }}>
+              <div className="font-sans text-caption tracking-[0.15em] text-[var(--lcd-subtext)]">INSTALLED</div>
               <div className="flex items-baseline gap-2 mt-1">
-                <MemoryStick size={20} className="text-green-400" />
-                <span className="font-retro text-xl tracking-wide text-green-400">v{APP_VERSION}</span>
+                <MemoryStick size={20} className="text-[var(--lcd-accent)]" />
+                <span className="font-sans text-title font-bold tracking-wide text-[var(--lcd-accent)]">v{APP_VERSION}</span>
               </div>
               {WEB_RELEASES[0] && (
-                <div className="font-retro text-[0.55rem] tracking-widest text-stone-200 mt-2">{WEB_RELEASES[0].headline}</div>
+                <div className="font-sans text-caption tracking-widest text-[var(--lcd-text)] mt-2">{WEB_RELEASES[0].headline}</div>
               )}
               {/* No disclaimer any more, because there is nothing to
                   disclaim: this number is the one the BIOS states at power-on
                   and the one engraved on the back plate. */}
-              <p className="font-mono text-[0.6rem] text-stone-500 mt-2 normal-case">
+              <p className="font-sans text-caption text-[var(--lcd-subtext)] mt-2 normal-case">
                 Everything this device has shipped, newest first.
               </p>
             </div>
@@ -81,23 +81,23 @@ const FirmwareHistoryScreen: React.FC<FirmwareHistoryScreenProps> = ({ onBack, o
             {WEB_RELEASES.map(release => {
               const isCurrent = release.version === APP_VERSION;
               return (
-                <div key={release.version} className="rounded-md p-3.5 border" style={{ backgroundColor: 'var(--lcd-surface)', borderColor: 'var(--lcd-surface-edge, #44403c)' }}>
+                <div key={release.version} className="rounded-card p-3.5 border shadow-elev-1" style={{ backgroundColor: 'var(--lcd-surface)', borderColor: 'var(--lcd-surface-edge)' }}>
                   <div className="flex items-baseline gap-2">
-                    <span className={`font-retro text-sm tracking-wide ${isCurrent ? 'text-green-400' : 'text-stone-100'}`}>v{release.version}</span>
+                    <span className={`font-sans text-heading font-bold tracking-wide ${isCurrent ? 'text-[var(--lcd-accent)]' : 'text-[var(--lcd-text)]'}`}>v{release.version}</span>
                     {isCurrent && (
-                      <span className="font-retro text-[0.5rem] tracking-widest px-1.5 py-0.5 rounded-sm bg-green-500 text-black">CURRENT</span>
+                      <span className="font-sans text-caption font-semibold tracking-widest px-1.5 py-0.5 rounded-sm bg-[var(--lcd-accent)] text-[var(--lcd-on-accent)]">CURRENT</span>
                     )}
-                    <span className="ml-auto font-mono text-xs text-stone-400">{release.date}</span>
+                    <span className="ml-auto font-sans text-caption text-[var(--lcd-subtext)]">{release.date}</span>
                   </div>
-                  <div className="font-retro text-[0.55rem] tracking-[0.15em] text-stone-400 mt-2 pb-1 border-b" style={{ borderColor: 'color-mix(in srgb, var(--lcd-accent) 30%, transparent)' }}>
+                  <div className="font-sans text-caption tracking-[0.15em] text-[var(--lcd-subtext)] mt-2 pb-1 border-b" style={{ borderColor: 'color-mix(in srgb, var(--lcd-accent) 30%, transparent)' }}>
                     {release.headline}
                   </div>
                   <ul className="mt-2 flex flex-col gap-1.5">
                     {release.notes.map((note, i) => (
                       <li key={i} className="flex items-start gap-2">
                         {/* A bullet the retro face definitely has. */}
-                        <span className="font-mono text-xs text-green-400/70">&gt;</span>
-                        <span className="font-mono text-xs text-stone-200 normal-case">{note}</span>
+                        <span className="font-mono text-xs text-[var(--lcd-accent)] opacity-70">&gt;</span>
+                        <span className="font-sans text-caption text-[var(--lcd-text)] normal-case leading-relaxed">{note}</span>
                       </li>
                     ))}
                   </ul>

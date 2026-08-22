@@ -207,6 +207,10 @@ describe('design tokens', () => {
     'Chip.tsx', 'EntryTile.tsx', 'EncyclopediaList.tsx',
     // Stage 4, batch 2 — the entry readout and its decomposition.
     'EntryDetail.tsx', 'EntryDetailSections.tsx', 'EntryDetailHeaders.tsx',
+    // Stage 4, batch 3 — the settings family. `DexAlert.tsx` is deliberately
+    // NOT here: it is fixed-colour end to end by design (iOS's DexAlert), and
+    // listing it would force tokens onto the one surface that refuses them.
+    'SettingsPanel.tsx', 'FirmwareHistoryScreen.tsx', 'SupportScreen.tsx', 'CheatConsoleScreen.tsx',
   ];
 
   /**
@@ -233,6 +237,10 @@ describe('design tokens', () => {
     // table answer black ink"), not paint: the readable stand-in it picks is
     // the table's border colour, also data.
     'EntryDetailHeaders.tsx': ['#000000'],
+    // The skin-preview's stage: a *picture* of the device on its dark desk,
+    // drawn in the skin's own data colours. The stage is part of the drawing
+    // and does not follow the screen mode, exactly like the chassis itself.
+    'SettingsPanel.tsx': ['#1B1D21'],
   };
 
   /**

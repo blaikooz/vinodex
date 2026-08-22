@@ -59,6 +59,8 @@ import {
   saveProfile,
 } from '../src/services/userProfiles';
 import { DEMO_STOPS, demoCycleSeconds, startDemo } from '../src/services/demoMode';
+import { Tile, Livery } from './Card';
+import DexAlert from './DexAlert';
 import { lineageIndexFor } from '../src/services/grapeLineage';
 import { WEB_RELEASES } from '../src/services/webChangelog';
 import { WIPE_KEYS } from '../src/services/storageKeys';
@@ -104,33 +106,31 @@ function clearAllSavedData(): void {
  * screenful on iOS and the two anyone actually reaches for were below the
  * developer-facing ones. Each tile opens its own panel.
  */
-// Filled tile faces per section, tuned for pale vs dark grounds — ported from
-// SettingsPanel.swift's tileColors (v0.5.6: each tile unique again).
-const TILE_FACE: Record<string, { dark: [string, string, string]; light: [string, string, string] }> = {
-  // The green TUTORIAL freed when the tour moved into SETTINGS (iOS 0.7.6 F1),
-  // reassigned to FIRMWARE (0.8.92, item 2) — same slot, same livery.
-  FIRMWARE: { dark: ['#22C55E', '#15803D', '#FFFFFF'], light: ['#15803D', '#0B4A24', '#FFFFFF'] },
-  TOOLS: { dark: ['#FACC15', '#CA8A04', '#78350F'], light: ['#B45309', '#7A3606', '#FFFFFF'] },
-  CUSTOMIZE: { dark: ['#EF4444', '#991B1B', '#FFFFFF'], light: ['#B91C1C', '#7A1010', '#FFFFFF'] },
-  SETTINGS: { dark: ['#F97316', '#9A3412', '#FFFFFF'], light: ['#C2410C', '#7C2D12', '#FFFFFF'] },
-  DATA: { dark: ['#2AB5FF', '#136A99', '#FFFFFF'], light: ['#1D6FA8', '#11486E', '#FFFFFF'] },
-  ACCESS: { dark: ['#A855F7', '#6B21A8', '#FFFFFF'], light: ['#7E22CE', '#4C1D95', '#FFFFFF'] },
+// Stage 4 (v0.4.3): the six tiles move onto the livery table and the `Tile`
+// primitive — closing (v9#d2) here: the old filled faces put white on
+// full-chroma colour, the exact AA failure v9#b1 measured on the main menu.
+// The hue assignment is iOS's own tileColors (FIRMWARE keeps TUTORIAL's
+// freed green slot, 0.8.92 item 2), and the light half now comes from the
+// livery table instead of a local six-row table.
+const TILE_LIVERY: Record<string, Livery> = {
+  FIRMWARE: 'green',
+  TOOLS: 'amber',
+  CUSTOMIZE: 'red',
+  SETTINGS: 'orange',
+  DATA: 'sky',
+  ACCESS: 'violet',
 };
 
-/** A settings grid tile — a filled colour face with a 6px bottom extrusion, like the main menu. */
-const FeatureTile: React.FC<{ title: string; icon: React.ReactNode; onClick: () => void; isLight: boolean }> = ({ title, icon, onClick, isLight }) => {
-  const [face, shadow, ink] = (TILE_FACE[title] ?? TILE_FACE.DATA!)[isLight ? 'light' : 'dark'];
-  return (
-    <button
-      onClick={onClick}
-      className="aspect-square flex flex-col items-center justify-center gap-3 rounded-xl transition-all active:translate-y-1 active:border-b-0"
-      style={{ backgroundColor: face, borderBottom: `6px solid ${shadow}`, color: ink }}
-    >
-      <span style={{ color: ink }}>{icon}</span>
-      <span className="font-retro text-[0.55rem] sm:text-[0.65rem] tracking-widest text-center px-1" style={{ color: ink }}>{title}</span>
-    </button>
-  );
-};
+/** A settings grid tile — a `Tile` in the section's livery. */
+const FeatureTile: React.FC<{ title: string; icon: React.ReactNode; onClick: () => void }> = ({ title, icon, onClick }) => (
+  <Tile
+    livery={TILE_LIVERY[title] ?? 'sky'}
+    icon={icon}
+    label={title}
+    onClick={onClick}
+    className="aspect-square"
+  />
+);
 
 /** A mini-chassis preview: body over a dark base, status dots, a panel strip with a marquee bar. */
 /**
@@ -167,7 +167,7 @@ const SkinPreviewTile: React.FC<{ id: ChassisSkinId; selected: boolean; onClick:
   return (
     <button
       onClick={onClick}
-      className="flex flex-col items-center gap-2 p-2 rounded-lg transition-all active:scale-95"
+      className="dex-pressable flex flex-col items-center gap-2 p-2 rounded-control"
       style={{ backgroundColor: selected ? 'var(--lcd-accent)' : 'var(--lcd-surface)' }}
     >
       <span className="w-full h-12 rounded-md relative overflow-hidden block" style={{ backgroundColor: '#1B1D21', border: `1px solid ${s.panelEdge}` }}>
@@ -195,7 +195,7 @@ const SkinPreviewTile: React.FC<{ id: ChassisSkinId; selected: boolean; onClick:
         </span>
         {selected && <Check size={12} className="absolute bottom-0.5 right-0.5" style={{ color: s.onBody }} />}
       </span>
-      <span className="font-retro text-[0.45rem] leading-tight text-center h-6 flex items-center justify-center" style={{ color: selected ? 'var(--lcd-on-accent, #fff)' : 'var(--lcd-subtext)' }}>{s.displayName}</span>
+      <span className="font-sans text-caption leading-tight text-center min-h-6 flex items-center justify-center" style={{ color: selected ? 'var(--lcd-on-accent)' : 'var(--lcd-subtext)' }}>{s.displayName}</span>
     </button>
   );
 };
@@ -206,7 +206,7 @@ const ModePreviewTile: React.FC<{ id: LcdModeId; selected: boolean; onClick: () 
   return (
     <button
       onClick={onClick}
-      className="flex flex-col items-center gap-2 p-2 rounded-lg transition-all active:scale-95"
+      className="dex-pressable flex flex-col items-center gap-2 p-2 rounded-control"
       style={{ backgroundColor: selected ? 'var(--lcd-accent)' : 'var(--lcd-surface)' }}
     >
       <span className="w-full h-12 rounded-md relative overflow-hidden block" style={{ backgroundColor: m.screen, border: `1px solid ${m.surfaceEdge}`, isolation: 'isolate' }}>
@@ -218,7 +218,7 @@ const ModePreviewTile: React.FC<{ id: LcdModeId; selected: boolean; onClick: () 
         </span>
         {m.monochromeTint && <span className="absolute inset-0" style={{ backgroundColor: m.monochromeTint, mixBlendMode: 'multiply' }} />}
       </span>
-      <span className="font-retro text-[0.45rem] text-center" style={{ color: selected ? 'var(--lcd-on-accent, #fff)' : 'var(--lcd-subtext)' }}>{m.displayName}</span>
+      <span className="font-sans text-caption text-center" style={{ color: selected ? 'var(--lcd-on-accent)' : 'var(--lcd-subtext)' }}>{m.displayName}</span>
     </button>
   );
 };
@@ -231,8 +231,6 @@ export const SettingsGrid: React.FC<{
   onBack: () => void;
   onHome: () => void;
 }> = ({ onSection, onMinigames, onFirmware, onExitToSite, onBack, onHome }) => {
-  const theme = useTheme();
-  const isLight = LCD_MODES[theme.lcd].isLight;
   return (
   <DeviceLayout title="SYSTEM" subtitle="" showBack={true} onBack={onBack} onHome={onHome} centerHeaderText={true}>
     <div
@@ -244,11 +242,11 @@ export const SettingsGrid: React.FC<{
           (v6#9). TUTORIAL's tile moved into SETTINGS, as on iOS (0.7.6, F1).
           DEV is a button below, not a peer tile. */}
       <div className="grid grid-cols-2 gap-3">
-        <FeatureTile title="TOOLS" icon={<Wrench size={30} />} onClick={onMinigames} isLight={isLight} />
+        <FeatureTile title="TOOLS" icon={<Wrench size={30} />} onClick={onMinigames} />
         {SETTINGS_SECTIONS.filter(s => !s.hidden).map(s => (
-          <FeatureTile key={s.id} title={s.id} icon={s.icon} onClick={() => onSection(s.id)} isLight={isLight} />
+          <FeatureTile key={s.id} title={s.id} icon={s.icon} onClick={() => onSection(s.id)} />
         ))}
-        <FeatureTile title="FIRMWARE" icon={<MemoryStick size={30} />} onClick={onFirmware} isLight={isLight} />
+        <FeatureTile title="FIRMWARE" icon={<MemoryStick size={30} />} onClick={onFirmware} />
       </div>
 
       {/*
@@ -259,11 +257,11 @@ export const SettingsGrid: React.FC<{
       */}
       <button
         onClick={onExitToSite}
-        className="w-full mt-3 flex items-center justify-center gap-2 py-4 rounded-xl border-2 transition-all active:translate-y-0.5"
+        className="dex-pressable w-full mt-3 flex items-center justify-center gap-2 py-4 rounded-card border-2"
         style={{ backgroundColor: 'var(--lcd-surface)', borderColor: 'var(--lcd-surface-edge)' }}
       >
         <LogOut size={18} style={{ color: 'var(--lcd-subtext)' }} />
-        <span className="font-retro text-[0.6rem] tracking-widest" style={{ color: 'var(--lcd-text)' }}>
+        <span className="font-sans text-label tracking-widest" style={{ color: 'var(--lcd-text)' }}>
           EXIT TO SITE
         </span>
       </button>
@@ -273,12 +271,17 @@ export const SettingsGrid: React.FC<{
   );
 };
 
+/* The settings family's ruled header. Deliberately keeps its full-strength
+   accent rule against the readout's 40% `dex-section-rule` — the D9 question,
+   answered by leaving both weights as authored: a settings panel is denser
+   and its rule carries more of the wayfinding. The label converts to the sans
+   label step and becomes a real heading. */
 const Section: React.FC<{ title: string; children: React.ReactNode }> = ({ title, children }) => (
   <div className="mb-6">
     <div className="flex items-center gap-2 mb-3 pb-1 border-b-2" style={{ borderColor: 'var(--lcd-accent)' }}>
-      <span className="font-retro text-[0.65rem] tracking-widest" style={{ color: 'var(--lcd-accent)' }}>
+      <h2 className="font-sans text-label uppercase tracking-widest" style={{ color: 'var(--lcd-accent)' }}>
         {title}
-      </span>
+      </h2>
     </div>
     {children}
   </div>
@@ -317,7 +320,7 @@ const ChoiceRow: React.FC<{
   <button
     onClick={onClick}
     aria-pressed={selected}
-    className="w-full flex items-center gap-3 px-3 py-3 rounded border-2 transition-all active:translate-y-0.5 mb-2"
+    className="dex-pressable w-full flex items-center gap-3 px-3 py-3 rounded-control border-2 mb-2"
     style={{
       backgroundColor: selected ? 'var(--lcd-accent)' : 'var(--lcd-surface)',
       borderColor: selected ? 'var(--lcd-accent)' : 'var(--lcd-surface-edge)',
@@ -341,7 +344,7 @@ const ChoiceRow: React.FC<{
         />
       )
     )}
-    <span className="font-retro text-[0.6rem] tracking-widest text-left flex-1">
+    <span className="font-sans text-label tracking-widest text-left flex-1">
       {label}
     </span>
     {selected && <Check size={18} />}
@@ -361,18 +364,18 @@ const IconToggleRow: React.FC<{ icon: React.ReactNode; title: string; detail: st
     onClick={onToggle}
     role="switch"
     aria-checked={on}
-    className="w-full flex items-center gap-3 px-3 py-3 rounded border-2 mb-2 text-left transition-all active:translate-y-0.5"
+    className="dex-pressable w-full flex items-center gap-3 px-3 py-3 rounded-control border-2 mb-2 text-left"
     style={{
       backgroundColor: 'var(--lcd-surface)',
       borderColor: on ? 'var(--lcd-accent)' : 'var(--lcd-surface-edge)',
     }}
   >
-    <span className="shrink-0" style={{ color: on ? '#22c55e' : 'var(--lcd-subtext)' }}>{icon}</span>
+    <span className="shrink-0" style={{ color: on ? 'var(--lcd-accent)' : 'var(--lcd-subtext)' }}>{icon}</span>
     <span className="flex-1 min-w-0">
-      <span className="block font-retro text-[0.6rem] tracking-widest" style={{ color: 'var(--lcd-text)' }}>
+      <span className="block font-sans text-label tracking-widest" style={{ color: 'var(--lcd-text)' }}>
         {title}
       </span>
-      <span className="block font-mono text-sm normal-case mt-1" style={{ color: 'var(--lcd-subtext)' }}>
+      <span className="block font-sans text-caption normal-case mt-1" style={{ color: 'var(--lcd-subtext)' }}>
         {detail}
       </span>
     </span>
@@ -391,13 +394,15 @@ const IconToggleRow: React.FC<{ icon: React.ReactNode; title: string; detail: st
 
 // Glyph + tint per database table, reusing the main-menu symbols so a count
 // reads as the same thing as the tile that opens it (iOS `statGlyph`).
+// Tints move onto the livery table (stage 4): same hue-to-category assignment
+// as the dial, now with the authored light-mode half for free.
 const STAT_GLYPH: Record<string, { icon: React.ReactNode; tint: string }> = {
-  GRAPES: { icon: <Grid3x3 size={20} />, tint: '#a855f7' },
-  REGIONS: { icon: <Globe size={20} />, tint: '#22c55e' },
-  STYLES: { icon: <Wine size={20} />, tint: '#f97316' },
-  FLAVORS: { icon: <Leaf size={20} />, tint: '#10b981' },
-  CONTINENTS: { icon: <MapIcon size={20} />, tint: '#3b82f6' },
-  COUNTRIES: { icon: <Flag size={20} />, tint: '#eab308' },
+  GRAPES: { icon: <Grid3x3 size={20} />, tint: 'var(--livery-violet)' },
+  REGIONS: { icon: <Globe size={20} />, tint: 'var(--livery-green)' },
+  STYLES: { icon: <Wine size={20} />, tint: 'var(--livery-orange)' },
+  FLAVORS: { icon: <Leaf size={20} />, tint: 'var(--livery-emerald)' },
+  CONTINENTS: { icon: <MapIcon size={20} />, tint: 'var(--livery-sky)' },
+  COUNTRIES: { icon: <Flag size={20} />, tint: 'var(--livery-amber)' },
 };
 const statGlyph = (label: string) => STAT_GLYPH[label] ?? STAT_GLYPH.COUNTRIES!;
 
@@ -418,13 +423,15 @@ const StatTile: React.FC<{ label: string; count: number }> = ({ label, count }) 
   const glyph = statGlyph(label);
   return (
     <div
-      className="flex items-center gap-2.5 px-2.5 py-3 rounded border-2"
-      style={{ backgroundColor: 'var(--lcd-surface)', borderColor: `${glyph.tint}73` }}
+      className="flex items-center gap-2.5 px-2.5 py-3 rounded-control border-2"
+      // 45% is the old `73` alpha suffix, restated as a mix so it works on a
+      // `var()` tint (a hex-suffix cannot be appended to a custom property).
+      style={{ backgroundColor: 'var(--lcd-surface)', borderColor: `color-mix(in srgb, ${glyph.tint} 45%, transparent)` }}
     >
       <span className="shrink-0 w-6 flex justify-center" style={{ color: glyph.tint }}>{glyph.icon}</span>
       <span className="flex flex-col min-w-0">
-        <span className="font-retro text-sm" style={{ color: 'var(--lcd-text)' }}>{count}</span>
-        <span className="font-mono text-xs truncate" style={{ color: 'var(--lcd-subtext)' }}>{label}</span>
+        <span className="font-sans text-heading font-bold" style={{ color: 'var(--lcd-text)' }}>{count}</span>
+        <span className="font-sans text-caption truncate" style={{ color: 'var(--lcd-subtext)' }}>{label}</span>
       </span>
     </div>
   );
@@ -494,7 +501,7 @@ const GrowthWave: React.FC<{ milestones: number[] }> = ({ milestones }) => {
         ))}
       </svg>
       <span
-        className="absolute top-1.5 left-2 font-retro text-lg leading-none pointer-events-none"
+        className="absolute top-1.5 left-2 font-sans text-title leading-none pointer-events-none"
         style={{ color: 'var(--lcd-accent)' }}
       >
         {Math.round(total * t)}
@@ -508,10 +515,10 @@ const StatRow: React.FC<{ label: string; value: string }> = ({ label, value }) =
     className="flex items-center justify-between px-3 py-2.5 rounded border-2 mb-2"
     style={{ backgroundColor: 'var(--lcd-surface)', borderColor: 'var(--lcd-surface-edge)' }}
   >
-    <span className="font-retro text-[0.55rem] tracking-widest" style={{ color: 'var(--lcd-subtext)' }}>
+    <span className="font-sans text-caption tracking-widest" style={{ color: 'var(--lcd-subtext)' }}>
       {label}
     </span>
-    <span className="font-mono text-base font-bold" style={{ color: 'var(--lcd-text)' }}>
+    <span className="font-sans text-body font-bold" style={{ color: 'var(--lcd-text)' }}>
       {value}
     </span>
   </div>
@@ -524,12 +531,12 @@ const HealthRow: React.FC<{ label: string; ok: boolean; detail: string }> = ({ l
     className="flex items-center justify-between px-3 py-2.5 rounded border-2 mb-2"
     style={{ backgroundColor: 'var(--lcd-surface)', borderColor: 'var(--lcd-surface-edge)' }}
   >
-    <span className="font-retro text-[0.55rem] tracking-widest" style={{ color: 'var(--lcd-subtext)' }}>
+    <span className="font-sans text-caption tracking-widest" style={{ color: 'var(--lcd-subtext)' }}>
       {label}
     </span>
     <span className="flex items-center gap-2">
-      <span className="font-mono text-sm normal-case" style={{ color: 'var(--lcd-subtext)' }}>{detail}</span>
-      <span className="font-retro text-[0.6rem] tracking-widest" style={{ color: ok ? '#22c55e' : '#ef4444' }}>
+      <span className="font-sans text-caption normal-case" style={{ color: 'var(--lcd-subtext)' }}>{detail}</span>
+      <span className="font-sans text-caption font-bold tracking-widest" style={{ color: ok ? 'var(--livery-green)' : 'var(--livery-red)' }}>
         {ok ? 'OK' : '!!'}
       </span>
     </span>
@@ -630,7 +637,7 @@ export const SettingsSectionPanel: React.FC<{
                   onClick={() => setTextScale(id)}
                 />
               ))}
-              <p className="font-mono text-sm leading-relaxed normal-case mt-1" style={{ color: 'var(--lcd-subtext)' }}>
+              <p className="font-sans text-caption leading-relaxed normal-case mt-1" style={{ color: 'var(--lcd-subtext)' }}>
                 Applies everywhere. Capped so the retro face still fits its tiles.
               </p>
             </Section>
@@ -644,7 +651,7 @@ export const SettingsSectionPanel: React.FC<{
                   onClick={() => setUiScale(id)}
                 />
               ))}
-              <p className="font-mono text-sm leading-relaxed normal-case mt-1" style={{ color: 'var(--lcd-subtext)' }}>
+              <p className="font-sans text-caption leading-relaxed normal-case mt-1" style={{ color: 'var(--lcd-subtext)' }}>
                 Buttons, wells and chassis chrome — the text keeps its own size above.
               </p>
             </Section>
@@ -667,20 +674,20 @@ export const SettingsSectionPanel: React.FC<{
                 on={sounds}
                 onToggle={() => { const next = !sounds; setSoundsEnabled(next); setSounds(next); }}
               />
-              <p className="font-mono text-sm leading-relaxed normal-case mt-1" style={{ color: 'var(--lcd-subtext)' }}>
+              <p className="font-sans text-caption leading-relaxed normal-case mt-1" style={{ color: 'var(--lcd-subtext)' }}>
                 The ring/silent switch always wins — sounds never interrupt your music.
               </p>
             </Section>
             <Section title="TUTORIAL">
               <button
                 onClick={() => setOfferingTour(true)}
-                className="w-full flex items-center gap-3 px-3 py-3 rounded border-2 text-left transition-all active:translate-y-0.5"
+                className="dex-pressable w-full flex items-center gap-3 px-3 py-3 rounded-control border-2 text-left"
                 style={{ backgroundColor: 'var(--lcd-surface)', borderColor: 'var(--lcd-surface-edge)' }}
               >
                 <span style={{ color: 'var(--lcd-subtext)' }}><Flag size={20} /></span>
                 <span className="flex-1 min-w-0">
-                  <span className="block font-retro text-[0.6rem] tracking-widest" style={{ color: 'var(--lcd-text)' }}>TAKE THE TOUR</span>
-                  <span className="block font-mono text-sm normal-case mt-1" style={{ color: 'var(--lcd-subtext)' }}>
+                  <span className="block font-sans text-label tracking-widest" style={{ color: 'var(--lcd-text)' }}>TAKE THE TOUR</span>
+                  <span className="block font-sans text-caption normal-case mt-1" style={{ color: 'var(--lcd-subtext)' }}>
                     A walk round the device — about a minute.
                   </span>
                 </span>
@@ -694,13 +701,13 @@ export const SettingsSectionPanel: React.FC<{
             <Section title="SUPPORT">
               <button
                 onClick={() => navigate('/support')}
-                className="w-full flex items-center gap-3 px-3 py-3 rounded border-2 text-left transition-all active:translate-y-0.5"
+                className="dex-pressable w-full flex items-center gap-3 px-3 py-3 rounded-control border-2 text-left"
                 style={{ backgroundColor: 'var(--lcd-surface)', borderColor: 'var(--lcd-surface-edge)' }}
               >
                 <span style={{ color: 'var(--lcd-subtext)' }}><Mail size={20} /></span>
                 <span className="flex-1 min-w-0">
-                  <span className="block font-retro text-[0.6rem] tracking-widest" style={{ color: 'var(--lcd-text)' }}>SUPPORT</span>
-                  <span className="block font-mono text-sm normal-case mt-1" style={{ color: 'var(--lcd-subtext)' }}>
+                  <span className="block font-sans text-label tracking-widest" style={{ color: 'var(--lcd-text)' }}>SUPPORT</span>
+                  <span className="block font-sans text-caption normal-case mt-1" style={{ color: 'var(--lcd-subtext)' }}>
                     Something broken, or something it should do? Write in.
                   </span>
                 </span>
@@ -711,13 +718,13 @@ export const SettingsSectionPanel: React.FC<{
             <Section title="CHEAT CODES">
               <button
                 onClick={() => navigate('/cheats')}
-                className="w-full flex items-center gap-3 px-3 py-3 rounded border-2 text-left transition-all active:translate-y-0.5"
+                className="dex-pressable w-full flex items-center gap-3 px-3 py-3 rounded-control border-2 text-left"
                 style={{ backgroundColor: 'var(--lcd-surface)', borderColor: 'var(--lcd-surface-edge)' }}
               >
                 <span style={{ color: 'var(--lcd-subtext)' }}><KeyRound size={20} /></span>
                 <span className="flex-1 min-w-0">
-                  <span className="block font-retro text-[0.6rem] tracking-widest" style={{ color: 'var(--lcd-text)' }}>CHEAT CODES</span>
-                  <span className="block font-mono text-sm normal-case mt-1" style={{ color: 'var(--lcd-subtext)' }}>
+                  <span className="block font-sans text-label tracking-widest" style={{ color: 'var(--lcd-text)' }}>CHEAT CODES</span>
+                  <span className="block font-sans text-caption normal-case mt-1" style={{ color: 'var(--lcd-subtext)' }}>
                     Found, not listed. Type one and see.
                   </span>
                 </span>
@@ -728,13 +735,13 @@ export const SettingsSectionPanel: React.FC<{
             <Section title="DEMO MODE">
               <button
                 onClick={() => { startDemo(); }}
-                className="w-full flex items-center gap-3 px-3 py-3 rounded border-2 text-left transition-all active:translate-y-0.5"
+                className="dex-pressable w-full flex items-center gap-3 px-3 py-3 rounded-control border-2 text-left"
                 style={{ backgroundColor: 'var(--lcd-surface)', borderColor: 'var(--lcd-surface-edge)' }}
               >
                 <span style={{ color: 'var(--lcd-subtext)' }}><Play size={20} /></span>
                 <span className="flex-1 min-w-0">
-                  <span className="block font-retro text-[0.6rem] tracking-widest" style={{ color: 'var(--lcd-text)' }}>START DEMO</span>
-                  <span className="block font-mono text-sm normal-case mt-1" style={{ color: 'var(--lcd-subtext)' }}>
+                  <span className="block font-sans text-label tracking-widest" style={{ color: 'var(--lcd-text)' }}>START DEMO</span>
+                  <span className="block font-sans text-caption normal-case mt-1" style={{ color: 'var(--lcd-subtext)' }}>
                     The unattended tour — {DEMO_STOPS.length} stops, about {Math.round(demoCycleSeconds())}s a lap. Touch anything to take over.
                   </span>
                 </span>
@@ -756,16 +763,16 @@ export const SettingsSectionPanel: React.FC<{
                     >
                       <span style={{ color: 'var(--lcd-subtext)' }}><UserRound size={18} /></span>
                       <span className="flex-1 min-w-0">
-                        <span className="block font-retro text-[0.6rem] tracking-widest truncate" style={{ color: p ? 'var(--lcd-text)' : 'var(--lcd-subtext)' }}>
+                        <span className="block font-sans text-label tracking-widest truncate" style={{ color: p ? 'var(--lcd-text)' : 'var(--lcd-subtext)' }}>
                           {p ? p.name : `SLOT ${slot}`}
                         </span>
-                        <span className="block font-mono text-xs normal-case mt-0.5" style={{ color: 'var(--lcd-subtext)' }}>
+                        <span className="block font-sans text-caption normal-case mt-0.5" style={{ color: 'var(--lcd-subtext)' }}>
                           {p ? (p.savedAt ? new Date(p.savedAt).toLocaleDateString() : 'seeded — loads fresh') : 'empty'}
                         </span>
                       </span>
                       <button
                         onClick={() => setPendingProfile({ mode: 'save', slot })}
-                        className="font-retro text-[0.55rem] tracking-widest px-2.5 py-2 rounded border-2"
+                        className="dex-pressable font-sans text-caption font-semibold tracking-widest px-2.5 py-2 rounded-control border-2"
                         style={{ borderColor: 'var(--lcd-surface-edge)', color: 'var(--lcd-text)' }}
                       >
                         SAVE
@@ -773,7 +780,7 @@ export const SettingsSectionPanel: React.FC<{
                       {p && (
                         <button
                           onClick={() => setPendingProfile({ mode: 'load', slot })}
-                          className="font-retro text-[0.55rem] tracking-widest px-2.5 py-2 rounded border-2 border-yellow-700 text-yellow-400"
+                          className="dex-pressable font-sans text-caption font-semibold tracking-widest px-2.5 py-2 rounded-control border-2 border-[var(--livery-amber)] text-[var(--livery-amber)]"
                         >
                           LOAD
                         </button>
@@ -788,8 +795,8 @@ export const SettingsSectionPanel: React.FC<{
                 >
                   <span style={{ color: 'var(--lcd-subtext)' }}><Sparkle size={18} /></span>
                   <span className="flex-1 min-w-0">
-                    <span className="block font-retro text-[0.6rem] tracking-widest" style={{ color: 'var(--lcd-text)' }}>{FRESH_PROFILE_NAME}</span>
-                    <span className="block font-mono text-xs normal-case mt-0.5" style={{ color: 'var(--lcd-subtext)' }}>
+                    <span className="block font-sans text-label tracking-widest" style={{ color: 'var(--lcd-text)' }}>{FRESH_PROFILE_NAME}</span>
+                    <span className="block font-sans text-caption normal-case mt-0.5" style={{ color: 'var(--lcd-subtext)' }}>
                       A fresh install, every time. For walking the first run.
                     </span>
                   </span>
@@ -813,25 +820,25 @@ export const SettingsSectionPanel: React.FC<{
                   a.click();
                   URL.revokeObjectURL(url);
                 }}
-                className="w-full flex items-center gap-3 px-3 py-3 rounded border-2 text-left transition-all active:translate-y-0.5 mb-2"
+                className="dex-pressable w-full flex items-center gap-3 px-3 py-3 rounded-control border-2 text-left mb-2"
                 style={{ backgroundColor: 'var(--lcd-surface)', borderColor: 'var(--lcd-surface-edge)' }}
               >
                 <span style={{ color: 'var(--lcd-subtext)' }}><Download size={20} /></span>
                 <span className="flex-1 min-w-0">
-                  <span className="block font-retro text-[0.6rem] tracking-widest" style={{ color: 'var(--lcd-text)' }}>EXPORT BACKUP</span>
-                  <span className="block font-mono text-sm normal-case mt-1" style={{ color: 'var(--lcd-subtext)' }}>
+                  <span className="block font-sans text-label tracking-widest" style={{ color: 'var(--lcd-text)' }}>EXPORT BACKUP</span>
+                  <span className="block font-sans text-caption normal-case mt-1" style={{ color: 'var(--lcd-subtext)' }}>
                     Shelves, ratings, progress and settings as one file you own.
                   </span>
                 </span>
               </button>
               <label
-                className="w-full flex items-center gap-3 px-3 py-3 rounded border-2 text-left transition-all active:translate-y-0.5 mb-2 cursor-pointer"
+                className="dex-pressable w-full flex items-center gap-3 px-3 py-3 rounded-control border-2 text-left mb-2 cursor-pointer"
                 style={{ backgroundColor: 'var(--lcd-surface)', borderColor: 'var(--lcd-surface-edge)' }}
               >
                 <span style={{ color: 'var(--lcd-subtext)' }}><Upload size={20} /></span>
                 <span className="flex-1 min-w-0">
-                  <span className="block font-retro text-[0.6rem] tracking-widest" style={{ color: 'var(--lcd-text)' }}>RESTORE BACKUP</span>
-                  <span className="block font-mono text-sm normal-case mt-1" style={{ color: 'var(--lcd-subtext)' }}>
+                  <span className="block font-sans text-label tracking-widest" style={{ color: 'var(--lcd-text)' }}>RESTORE BACKUP</span>
+                  <span className="block font-sans text-caption normal-case mt-1" style={{ color: 'var(--lcd-subtext)' }}>
                     Replaces what is here with a backup file. Purchases never import.
                   </span>
                 </span>
@@ -865,12 +872,12 @@ export const SettingsSectionPanel: React.FC<{
 
               <button
                 onClick={() => setConfirmingWipe(true)}
-                className="w-full py-4 rounded border-2 font-retro text-[0.65rem] tracking-widest transition-colors"
-                style={{ backgroundColor: 'var(--lcd-surface)', borderColor: 'rgba(239,68,68,0.55)', color: '#ef4444' }}
+                className="dex-pressable w-full py-4 rounded-control border-2 font-sans text-label tracking-widest"
+                style={{ backgroundColor: 'var(--lcd-surface)', borderColor: 'color-mix(in srgb, var(--livery-red) 55%, transparent)', color: 'var(--livery-red)' }}
               >
                 CLEAR SAVED DATA
               </button>
-              <p className="font-mono text-sm leading-relaxed normal-case mt-2" style={{ color: 'var(--lcd-subtext)' }}>
+              <p className="font-sans text-caption leading-relaxed normal-case mt-2" style={{ color: 'var(--lcd-subtext)' }}>
                 Erases bookmarks, tastings and ratings, quiz progress, the daily
                 streak, name and photo, purchases, skin, screen and text settings.
                 The encyclopedia itself is untouched.
@@ -880,13 +887,13 @@ export const SettingsSectionPanel: React.FC<{
             <Section title="DEVELOPER">
               <button
                 onClick={() => navigate('/settings/DEV')}
-                className="w-full flex items-center gap-3 px-3 py-3 rounded border-2 text-left transition-all active:translate-y-0.5"
+                className="dex-pressable w-full flex items-center gap-3 px-3 py-3 rounded-control border-2 text-left"
                 style={{ backgroundColor: 'var(--lcd-surface)', borderColor: 'var(--lcd-surface-edge)' }}
               >
                 <span style={{ color: 'var(--lcd-subtext)' }}><Bug size={20} /></span>
                 <span className="flex-1 min-w-0">
-                  <span className="block font-retro text-[0.6rem] tracking-widest" style={{ color: 'var(--lcd-text)' }}>DEV</span>
-                  <span className="block font-mono text-sm normal-case mt-1" style={{ color: 'var(--lcd-subtext)' }}>
+                  <span className="block font-sans text-label tracking-widest" style={{ color: 'var(--lcd-text)' }}>DEV</span>
+                  <span className="block font-sans text-caption normal-case mt-1" style={{ color: 'var(--lcd-subtext)' }}>
                     Diagnostics, the component gallery and the icon sheet.
                   </span>
                 </span>
@@ -933,9 +940,9 @@ export const SettingsSectionPanel: React.FC<{
                 style={{ backgroundColor: 'var(--lcd-surface)', borderColor: 'var(--lcd-surface-edge)' }}
               >
                 <span style={{ color: 'var(--lcd-accent)' }}><Layers size={26} /></span>
-                <span className="font-retro text-2xl" style={{ color: 'var(--lcd-text)' }}>{allEntries.length}</span>
+                <span className="font-sans text-title font-bold" style={{ color: 'var(--lcd-text)' }}>{allEntries.length}</span>
                 <span className="flex-1" />
-                <span className="font-mono text-sm" style={{ color: 'var(--lcd-subtext)' }}>
+                <span className="font-sans text-caption tracking-wide" style={{ color: 'var(--lcd-subtext)' }}>
                   ACROSS {categoryLines.length} TABLES
                 </span>
               </div>
@@ -943,7 +950,7 @@ export const SettingsSectionPanel: React.FC<{
 
             <Section title="GROWTH">
               <GrowthWave milestones={[0, 25, 186, 281, 342, allEntries.length]} />
-              <p className="font-mono text-sm leading-relaxed normal-case mt-2" style={{ color: 'var(--lcd-subtext)' }}>
+              <p className="font-sans text-caption leading-relaxed normal-case mt-2" style={{ color: 'var(--lcd-subtext)' }}>
                 Entries shipped, from the first starter selection to the current
                 build.
               </p>
@@ -979,7 +986,7 @@ export const SettingsSectionPanel: React.FC<{
                 on={locked}
                 onToggle={() => setStarterOnly(!locked)}
               />
-              <p className="font-mono text-sm leading-relaxed normal-case mt-2" style={{ color: 'var(--lcd-subtext)' }}>
+              <p className="font-sans text-caption leading-relaxed normal-case mt-2" style={{ color: 'var(--lcd-subtext)' }}>
                 Off means everything is open regardless of bundles — turn it on
                 to test the locked experience. This is a test harness, not a
                 paywall: nothing turns it on by itself.
@@ -1001,14 +1008,14 @@ export const SettingsSectionPanel: React.FC<{
               {grantedIds().length > 0 && (
                 <button
                   onClick={revokeAll}
-                  className="w-full mt-2 py-3 rounded border-2 border-red-800 font-retro text-[0.6rem] tracking-widest text-red-400 hover:bg-red-950 transition-colors"
+                  className="dex-pressable w-full mt-2 py-3 rounded-control border-2 border-[var(--livery-red)] font-sans text-caption font-semibold tracking-widest text-[var(--livery-red)]"
                 >
                   REVOKE ALL PURCHASES
                 </button>
               )}
             </Section>
 
-            <p className="font-mono text-sm leading-relaxed normal-case" style={{ color: 'var(--lcd-subtext)' }}>
+            <p className="font-sans text-caption leading-relaxed normal-case" style={{ color: 'var(--lcd-subtext)' }}>
               iOS ships a free-tier manifest naming which entries are open
               without a purchase. This app ships none, so with the switch on an
               entry counts as browsable only if a bundle you hold covers it.
@@ -1081,137 +1088,115 @@ export const SettingsSectionPanel: React.FC<{
         {body()}
       </div>
 
-      {/* CLEAR SAVED DATA asks first — the one control here that cannot be undone. */}
+      {/* CLEAR SAVED DATA asks first — the one control here that cannot be
+          undone. All five dialogs render through DexAlert (stage 4): the
+          fixed-colour alert card extracted per U2, with Escape-to-close and
+          initial focus on the safe action per U6. */}
       {pendingProfile && (
-        <div className="absolute inset-0 z-30 bg-black/80 flex items-center justify-center p-6" role="dialog" aria-modal="true" aria-label={pendingProfile.mode === 'save' ? 'Save profile' : 'Load profile'}>
-          <div className="w-full max-w-xs bg-stone-900 border-2 border-yellow-700 rounded-lg p-5 flex flex-col gap-4 text-center">
-            <p className="font-retro text-xs tracking-widest text-yellow-300">
-              {pendingProfile.mode === 'save'
-                ? `SAVE INTO SLOT ${pendingProfile.slot}?`
-                : `LOAD ${pendingProfile.slot === 'fresh' ? FRESH_PROFILE_NAME : profileList.find(p => p.slot === pendingProfile.slot)?.name ?? `SLOT ${pendingProfile.slot}`}?`}
-            </p>
-            <p className="font-mono text-sm text-stone-300 normal-case">
-              {pendingProfile.mode === 'save'
-                ? 'Captures everything on this device into the slot, replacing whatever the slot held.'
-                : pendingProfile.slot === 'fresh'
-                  ? 'A fresh install — everything on this device is cleared. Save into a slot first if you want it back.'
-                  : 'Replaces everything on this device with the snapshot. Save into a slot first if you want the current state back.'}
-            </p>
-            <div className="flex gap-3">
-              <button
-                onClick={() => setPendingProfile(null)}
-                className="flex-1 font-retro text-[0.6rem] tracking-widest text-stone-300 border-2 border-stone-600 rounded py-3"
-              >
-                CANCEL
-              </button>
-              <button
-                onClick={() => {
-                  const action = pendingProfile;
-                  setPendingProfile(null);
-                  if (action.mode === 'save') {
-                    saveProfile(action.slot);
-                    setProfileList(profiles());
-                  } else {
-                    loadProfile(action.slot);
-                    // Relaunch into the loaded state, so every store re-reads.
-                    window.location.reload();
-                  }
-                }}
-                className="flex-1 font-retro text-[0.6rem] tracking-widest text-black bg-yellow-400 border-2 border-yellow-600 rounded py-3"
-              >
-                {pendingProfile.mode === 'save' ? 'SAVE' : 'LOAD'}
-              </button>
-            </div>
-          </div>
-        </div>
+        <DexAlert
+          tone="yellow"
+          title={pendingProfile.mode === 'save'
+            ? `SAVE INTO SLOT ${pendingProfile.slot}?`
+            : `LOAD ${pendingProfile.slot === 'fresh' ? FRESH_PROFILE_NAME : profileList.find(p => p.slot === pendingProfile.slot)?.name ?? `SLOT ${pendingProfile.slot}`}?`}
+          ariaLabel={pendingProfile.mode === 'save' ? 'Save profile' : 'Load profile'}
+          onDismiss={() => setPendingProfile(null)}
+          actions={[
+            { label: 'CANCEL', kind: 'cancel', onClick: () => setPendingProfile(null) },
+            {
+              label: pendingProfile.mode === 'save' ? 'SAVE' : 'LOAD',
+              kind: 'confirm',
+              onClick: () => {
+                const action = pendingProfile;
+                setPendingProfile(null);
+                if (action.mode === 'save') {
+                  saveProfile(action.slot);
+                  setProfileList(profiles());
+                } else {
+                  loadProfile(action.slot);
+                  // Relaunch into the loaded state, so every store re-reads.
+                  window.location.reload();
+                }
+              },
+            },
+          ]}
+        >
+          {pendingProfile.mode === 'save'
+            ? 'Captures everything on this device into the slot, replacing whatever the slot held.'
+            : pendingProfile.slot === 'fresh'
+              ? 'A fresh install — everything on this device is cleared. Save into a slot first if you want it back.'
+              : 'Replaces everything on this device with the snapshot. Save into a slot first if you want the current state back.'}
+        </DexAlert>
       )}
 
       {pendingRestore && (
-        <div className="absolute inset-0 z-30 bg-black/80 flex items-center justify-center p-6">
-          <div className="w-full max-w-xs bg-stone-900 border-2 border-yellow-700 rounded-lg p-5 flex flex-col gap-4 text-center">
-            <p className="font-retro text-xs tracking-widest text-yellow-300">RESTORE THIS BACKUP?</p>
-            <p className="font-mono text-sm text-stone-300 normal-case">
-              From {pendingRestore.app} {pendingRestore.appVersion || '(unknown version)'} —
-              {' '}{pendingRestore.triedShelf.length} tastings, {pendingRestore.savedShelf.length} saved.
-              It replaces everything currently on this device.
-            </p>
-            <div className="flex gap-3">
-              <button
-                onClick={() => setPendingRestore(null)}
-                className="flex-1 font-retro text-[0.6rem] tracking-widest text-stone-300 border-2 border-stone-600 rounded py-3"
-              >
-                CANCEL
-              </button>
-              <button
-                onClick={() => {
-                  applyArchive(pendingRestore);
-                  setPendingRestore(null);
-                  // Reload so every external store re-reads from the restored state.
-                  window.location.reload();
-                }}
-                className="flex-1 font-retro text-[0.6rem] tracking-widest text-black bg-yellow-400 border-2 border-yellow-600 rounded py-3"
-              >
-                RESTORE
-              </button>
-            </div>
-          </div>
-        </div>
+        <DexAlert
+          tone="yellow"
+          title="RESTORE THIS BACKUP?"
+          ariaLabel="Restore backup"
+          onDismiss={() => setPendingRestore(null)}
+          actions={[
+            { label: 'CANCEL', kind: 'cancel', onClick: () => setPendingRestore(null) },
+            {
+              label: 'RESTORE',
+              kind: 'confirm',
+              onClick: () => {
+                applyArchive(pendingRestore);
+                setPendingRestore(null);
+                // Reload so every external store re-reads from the restored state.
+                window.location.reload();
+              },
+            },
+          ]}
+        >
+          From {pendingRestore.app} {pendingRestore.appVersion || '(unknown version)'} —
+          {' '}{pendingRestore.triedShelf.length} tastings, {pendingRestore.savedShelf.length} saved.
+          It replaces everything currently on this device.
+        </DexAlert>
       )}
 
       {restoreError && (
-        <div className="absolute inset-0 z-30 bg-black/80 flex items-center justify-center p-6" role="alertdialog" aria-modal="true" aria-label="Restore failed">
-          <div className="w-full max-w-xs bg-stone-900 border-2 border-red-700 rounded-lg p-5 flex flex-col gap-4 text-center">
-            <p className="font-retro text-xs tracking-widest text-red-400">CAN'T RESTORE</p>
-            <p className="font-mono text-sm text-stone-300 normal-case">{restoreError}</p>
-            <button
-              onClick={() => setRestoreError(null)}
-              className="font-retro text-[0.6rem] tracking-widest text-stone-300 border-2 border-stone-600 rounded py-3"
-            >
-              OK
-            </button>
-          </div>
-        </div>
+        <DexAlert
+          tone="red"
+          role="alertdialog"
+          title="CAN'T RESTORE"
+          ariaLabel="Restore failed"
+          onDismiss={() => setRestoreError(null)}
+          actions={[{ label: 'OK', kind: 'cancel', onClick: () => setRestoreError(null) }]}
+        >
+          {restoreError}
+        </DexAlert>
       )}
 
       {offeringTour && (
-        <div className="absolute inset-0 z-30 bg-black/80 flex items-center justify-center p-6">
-          <div className="w-full max-w-xs bg-stone-900 border-2 border-green-700 rounded-lg p-5 flex flex-col gap-4 text-center">
-            <p className="font-retro text-xs tracking-widest text-green-300">TAKE THE TOUR?</p>
-            <p className="font-mono text-sm text-stone-300 normal-case">
-              A quick walk round the device — what each button does and where things live. About a minute, and you can leave at any point.
-            </p>
-            <div className="flex gap-3">
-              <button onClick={() => setOfferingTour(false)} className="flex-1 font-retro text-[0.6rem] tracking-widest text-stone-300 border-2 border-stone-600 rounded py-3">NOT NOW</button>
-              <button onClick={() => { setOfferingTour(false); navigate('/walkthrough'); }} className="flex-1 font-retro text-[0.6rem] tracking-widest text-white bg-green-700 border-2 border-green-900 rounded py-3">YES</button>
-            </div>
-          </div>
-        </div>
+        <DexAlert
+          tone="green"
+          title="TAKE THE TOUR?"
+          ariaLabel="Take the tour"
+          onDismiss={() => setOfferingTour(false)}
+          actions={[
+            { label: 'NOT NOW', kind: 'cancel', onClick: () => setOfferingTour(false) },
+            { label: 'YES', kind: 'confirm', onClick: () => { setOfferingTour(false); navigate('/walkthrough'); } },
+          ]}
+        >
+          A quick walk round the device — what each button does and where things live. About a minute, and you can leave at any point.
+        </DexAlert>
       )}
 
       {confirmingWipe && (
-        <div className="absolute inset-0 z-30 bg-black/80 flex items-center justify-center p-6">
-          <div className="w-full max-w-xs bg-stone-900 border-2 border-red-700 rounded-lg p-5 flex flex-col gap-4 text-center">
-            <p className="font-retro text-xs tracking-widest text-red-400">CLEAR SAVED DATA?</p>
-            <p className="font-mono text-sm text-stone-300 normal-case">
-              This erases your bookmarks, tastings, ratings, quiz progress, streak,
-              name and photo, purchases and appearance settings. It cannot be undone.
-            </p>
-            <div className="flex gap-3">
-              <button
-                onClick={() => setConfirmingWipe(false)}
-                className="flex-1 font-retro text-[0.6rem] tracking-widest text-stone-300 border-2 border-stone-600 rounded py-3"
-              >
-                CANCEL
-              </button>
-              <button
-                onClick={() => { setConfirmingWipe(false); clearAllSavedData(); }}
-                className="flex-1 font-retro text-[0.6rem] tracking-widest text-white bg-red-700 border-2 border-red-900 rounded py-3"
-              >
-                ERASE
-              </button>
-            </div>
-          </div>
-        </div>
+        <DexAlert
+          tone="red"
+          role="alertdialog"
+          title="CLEAR SAVED DATA?"
+          ariaLabel="Clear saved data"
+          onDismiss={() => setConfirmingWipe(false)}
+          actions={[
+            { label: 'CANCEL', kind: 'cancel', onClick: () => setConfirmingWipe(false) },
+            { label: 'ERASE', kind: 'confirm', onClick: () => { setConfirmingWipe(false); clearAllSavedData(); } },
+          ]}
+        >
+          This erases your bookmarks, tastings, ratings, quiz progress, streak,
+          name and photo, purchases and appearance settings. It cannot be undone.
+        </DexAlert>
       )}
     </DeviceLayout>
   );

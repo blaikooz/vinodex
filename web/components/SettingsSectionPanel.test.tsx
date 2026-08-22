@@ -41,7 +41,10 @@ import { getAllEntries } from '../src/services/wineData';
  * twice.
  */
 const sectionTitles = (): string[] =>
-  Array.from(document.querySelectorAll('div.border-b-2 > span.font-retro'))
+  // Selector moved with the stage-4 conversion (v0.4.3): `Section`'s label is
+  // a real `<h2>` in the sans now. The ruled-header shape (border-b-2) is
+  // unchanged, so the disambiguation argument above still holds.
+  Array.from(document.querySelectorAll('div.border-b-2 > h2'))
     .map(el => el.textContent?.trim() ?? '')
     .filter(Boolean);
 
