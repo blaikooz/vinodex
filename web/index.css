@@ -584,11 +584,20 @@
   }
 }
 
-/* Base styles */
+/* Base styles.
+
+   THE DEFAULT FACE IS THE SANS (stage 4's first act, v0.4.3). From the first
+   commit through v0.4.2 this said `'VT323', monospace`, so every screen that
+   never named a face inherited the terminal face -- which is exactly why the
+   stage-2 note above `--font-sans` said "not wired to body yet". The rollout
+   has now reached the screens that inherit it, so the default flips: reading
+   text is Inter by default, and VT323 / Press Start 2P are opt-in accents
+   (`font-mono` / `font-retro`) reserved for the marquee, the wordmark, the
+   BIOS and deliberate LCD-terminal moments. */
 body {
   background-color: #111;
   margin: 0;
-  font-family: 'VT323', monospace;
+  font-family: var(--font-sans);
 }
 
 /* Custom scrollbar for retro feel */
