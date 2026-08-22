@@ -55,7 +55,11 @@ const pick = (label: string, predicate: (e: WineEntry) => boolean): WineEntry =>
  * `SettingsSectionPanel.test.tsx`.
  */
 const sectionTitles = (): string[] =>
-  Array.from(document.querySelectorAll('div.dex-section-rule > span.font-retro'))
+  // Selector moved with the stage-4 conversion (v0.4.3): the ruled header is
+  // `SectionHeader` now, and its label is a real `<h2>` in the sans rather
+  // than a `span.font-retro`. The pinned ARRAYS are unchanged — this is the
+  // decomposition the header comment predicted, held to its own pins.
+  Array.from(document.querySelectorAll('div.dex-section-rule > h2'))
     .map(el => el.textContent?.trim() ?? '')
     .filter(Boolean);
 

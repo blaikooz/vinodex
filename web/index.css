@@ -882,6 +882,18 @@ body {
 .dex-disabled { color: var(--lcd-disabled-text); }
 .dex-chip-well { background-color: color-mix(in srgb, var(--lcd-accent) 12%, transparent); }
 
+/* The accent-well pill (stage 4): a value chip on a 12% accent wash with a
+   55% accent hairline, in the mode's own body ink. Replaces the inline
+   `#052e16 / #15803d / #bbf7d0` dark-green triple that EntryDetail spelled at
+   three call sites — a fixed dark-mode palette that stayed dark green on
+   AMBER, LIGHT, BLUE_SCREEN and STAR_TREK because an inline hex beats the
+   `.lcd-themed` cascade. */
+.dex-pill {
+  background-color: color-mix(in srgb, var(--lcd-accent) 12%, transparent);
+  border: 1px solid color-mix(in srgb, var(--lcd-accent) 55%, transparent);
+  color: var(--lcd-body-text);
+}
+
 /* ---------------------------------------------------------------------------
    Reduced motion (U7)
 

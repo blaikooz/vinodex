@@ -205,6 +205,8 @@ describe('design tokens', () => {
     'Card.tsx', 'MainMenu.tsx', 'WebsitePortal.tsx',
     // Stage 4, batch 1 — lists and tiles (v0.4.3).
     'Chip.tsx', 'EntryTile.tsx', 'EncyclopediaList.tsx',
+    // Stage 4, batch 2 — the entry readout and its decomposition.
+    'EntryDetail.tsx', 'EntryDetailSections.tsx', 'EntryDetailHeaders.tsx',
   ];
 
   /**
@@ -227,6 +229,10 @@ describe('design tokens', () => {
     // fixed on both platforms exactly like the `shared/services/chipColors`
     // country table — not paint that should follow the screen mode.
     'EntryTile.tsx': ['#0f2027', '#0891b2', '#7dd3fc'],
+    // A comparison against a DATA table's own sentinel ("did the wine-type
+    // table answer black ink"), not paint: the readable stand-in it picks is
+    // the table's border colour, also data.
+    'EntryDetailHeaders.tsx': ['#000000'],
   };
 
   /**
