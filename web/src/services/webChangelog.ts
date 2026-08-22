@@ -68,7 +68,7 @@ export interface WebRelease {
 const CURRENT: WebRelease = {
   version: '0.4.4',
   date: '2026-08-22',
-  headline: 'THE DEVICE LEARNS TO MOVE',
+  headline: 'THE DEVICE MOVES',
   notes: [
     'Screens fade up on the LCD when you navigate, the way the phone crossfades. The chassis never moves.',
     'List rows arrive with a short stagger - ten rows, forty milliseconds apart, and no more than that.',
