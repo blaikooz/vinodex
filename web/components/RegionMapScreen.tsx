@@ -121,7 +121,7 @@ const RegionMapScreen: React.FC<RegionMapScreenProps> = ({ onSelectContinent, on
                         onClick={() => handleRegionClick(region.id)}
                         onMouseEnter={() => handleRegionHover(region.id)}
                         onMouseLeave={() => handleRegionHover(null)}
-                        className={`absolute -translate-x-1/2 -translate-y-1/2 w-14 h-14 rounded-full transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-green-200/60 ${
+                        className={`dex-pressable absolute -translate-x-1/2 -translate-y-1/2 w-14 h-14 rounded-full transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-green-200/60 ${
                           isActive
                             ? 'border border-white/90 bg-green-400/20 shadow-[0_0_30px_rgba(255,255,255,0.35)]'
                             : 'border border-green-300/50 bg-green-400/5 shadow-[0_0_15px_rgba(74,222,128,0.3)] hover:border-white/70 hover:bg-green-400/15'
@@ -148,7 +148,7 @@ const RegionMapScreen: React.FC<RegionMapScreenProps> = ({ onSelectContinent, on
               <div className="border-t border-green-900/60 bg-black/95 px-0 py-4 flex justify-center">
                 <button 
                   onClick={onSearch}
-                  className="group flex items-center gap-3 px-10 py-3 bg-green-400 text-black border border-green-200 rounded-full hover:bg-green-300 hover:border-white transition-all duration-300 shadow-[0_0_20px_rgba(74,222,128,0.4)]"
+                  className="dex-pressable group flex items-center gap-3 px-10 py-3 bg-green-400 text-black border border-green-200 rounded-full hover:bg-green-300 hover:border-white transition-all duration-300 shadow-[0_0_20px_rgba(74,222,128,0.4)]"
                 >
                   <Search size={16} className="group-hover:scale-110 transition-transform" />
                   <span className="font-sans text-label font-semibold tracking-widest">SEARCH WORLD</span>

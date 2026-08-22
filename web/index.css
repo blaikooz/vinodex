@@ -733,6 +733,36 @@ body {
   animation: slide-in-from-top 0.2s ease-out;
 }
 
+/* ---------------------------------------------------------------------------
+   THE MOTION PASS (stage 5, v0.4.4)
+
+   Two entrances, one keyframe. `screen-enter` rides the LCD content wrapper
+   in DeviceLayout: every navigation remounts it, so the incoming screen
+   fades up over the LCD page — `DexMotion.crossfade`'s duration and easing,
+   expressed as a mount animation because the outgoing screen has already
+   unmounted. `row-enter` is the same movement on a list row, with a small
+   per-row delay set inline (a custom property would be one more thing to
+   thread for a value that is honestly per-row), capped at the call site so a
+   400-row list does not stagger for twenty seconds.
+
+   4px of rise, not a slide: the screen is an LCD refreshing, not a deck of
+   cards. Both classes are `backwards`-filled so a delayed row is invisible
+   until its turn rather than popping in twice. Reduced-motion parks both at
+   their end state — arrived, opaque — in the block below.
+   --------------------------------------------------------------------------- */
+@keyframes screen-enter {
+  from { opacity: 0; transform: translateY(4px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.screen-enter {
+  animation: screen-enter var(--motion-crossfade) var(--ease-crossfade) backwards;
+}
+
+.row-enter {
+  animation: screen-enter var(--motion-overlay) var(--ease-overlay) backwards;
+}
+
 /* The world-scan radar sweep (RegionMapScreen). Moved here from an inline
    <style> tag in the component (stage 4): an inline keyframe is invisible to
    `reducedMotion.test.ts`'s derived handled-class check, which reads this
@@ -970,6 +1000,16 @@ body {
   .radar-scan-beam {
     animation: none;
     left: -20%;
+  }
+
+  /* The two entrances arrive in place: opaque, unmoved. Stated explicitly
+     rather than left to the base style, because `backwards` fill would
+     otherwise hold a delayed row at its invisible first frame. */
+  .screen-enter,
+  .row-enter {
+    animation: none;
+    opacity: 1;
+    transform: none;
   }
 
   /* Anything else that animates or transitions, including future additions

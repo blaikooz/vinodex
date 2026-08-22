@@ -256,9 +256,15 @@ const DeviceLayout: React.FC<DeviceLayoutProps> = ({
               <div className="absolute inset-0 z-10 scanlines opacity-20 pointer-events-none"></div>
 
               {/* Content. `lcd-themed` scopes the screen-mode palette remap to
-                  the LCD — see index.css; the chassis must not follow it. */}
+                  the LCD — see index.css; the chassis must not follow it.
+                  `screen-enter` (stage 5, v0.4.4) is the screen transition:
+                  each screen renders its own DeviceLayout, so navigation
+                  remounts this node and the incoming content crossfades in
+                  over the LCD page — the `DexMotion.crossfade` idea, expressed
+                  as a mount animation because the outgoing screen has already
+                  unmounted. The chassis around it never moves. */}
               <div
-                className="lcd-themed relative z-0 h-full w-full overflow-hidden flex flex-col uppercase"
+                className="lcd-themed screen-enter relative z-0 h-full w-full overflow-hidden flex flex-col uppercase"
                 inert={behindChooser}
               >
                 {children}

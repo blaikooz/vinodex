@@ -117,6 +117,11 @@ describe('reduced motion', () => {
     // inline <style> in RegionMapScreen in stage 4, which is what put it in
     // reach of this suite at all.)
     { selector: '.radar-scan-beam', mustContain: ['animation: none', 'left: -20%'] },
+    // The stage-5 entrances arrive in place — explicitly opaque and unmoved,
+    // because their `backwards` fill would otherwise hold a delayed row at
+    // its invisible first frame.
+    { selector: '.screen-enter', mustContain: ['animation: none', 'opacity: 1', 'transform: none'] },
+    { selector: '.row-enter', mustContain: ['animation: none', 'opacity: 1', 'transform: none'] },
   ];
 
   /**
@@ -228,10 +233,13 @@ describe('reduced motion', () => {
     // `radar-scan` joined in stage 4 (v0.4.3): it is not new motion — it is
     // RegionMapScreen's inline <style> sweep moved into this file so the
     // derived check above can actually see it.
+    // `screen-enter` joined in stage 5 (v0.4.4): the crossfade entrance the
+    // LCD content and the list rows share.
     expect(keyframeNames().sort()).toEqual([
       'blink',
       'chassis-throb',
       'radar-scan',
+      'screen-enter',
       'slide-in-from-top',
       'terminal-marquee',
     ]);

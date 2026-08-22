@@ -97,8 +97,11 @@ const EntryTile: React.FC<EntryTileProps> = ({ entry, onPress, index, anchorId }
     <button
       onClick={() => onPress(entry)}
       data-screen-anchor={anchorId}
-      className="dex-pressable w-full bg-[var(--surface-raised)] border border-[var(--surface-line)] hover:border-[var(--lcd-accent)] rounded-card shadow-elev-1 p-2 flex items-center gap-3 relative overflow-hidden group min-h-[4.5rem]"
-      style={{ animationDelay: `${index * 50}ms` }}
+      className="dex-pressable row-enter w-full bg-[var(--surface-raised)] border border-[var(--surface-line)] hover:border-[var(--lcd-accent)] rounded-card shadow-elev-1 p-2 flex items-center gap-3 relative overflow-hidden group min-h-[4.5rem]"
+      // The stagger (stage 5): the first ten rows arrive 40ms apart, the rest
+      // together — a list is a screen refreshing, not a procession, and an
+      // uncapped `index * 50` had a 400-row list arriving for twenty seconds.
+      style={{ animationDelay: `${Math.min(index, 10) * 40}ms` }}
     >
       {/* Left: Large Icon Identifier */}
       <div
