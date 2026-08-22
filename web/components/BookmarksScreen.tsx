@@ -19,6 +19,7 @@ import { recentEntries } from '../src/services/recentlyViewed';
 import { useRecentlyViewed } from '../src/services/useRecentlyViewed';
 import { displayName, setDisplayName, avatarDataUrl, adoptAvatar } from '../src/services/profile';
 import { useProfile } from '../src/services/useProfile';
+import DexAlert from './DexAlert';
 import { currentStreak } from '../src/services/dailyChallenge';
 import { createEntryVisualResolver, resolveEntryIconVisual } from '../src/services/entryIconVisuals';
 
@@ -34,9 +35,9 @@ const SHELVES: Shelf[] = ['saved', 'wantToTry', 'tried'];
 const SHELF_TAB: Record<Shelf, string> = { saved: 'SAVED', wantToTry: 'WANT', tried: 'TRIED' };
 const SHELF_TITLE: Record<Shelf, string> = { saved: 'SAVED', wantToTry: 'WANT TO TRY', tried: 'TRIED' };
 const EMPTY: Record<Shelf, { glyph: React.ReactNode; head: string; hint: string }> = {
-  saved: { glyph: <Bookmark size={44} className="text-green-700 mb-3" />, head: 'NOTHING SAVED', hint: 'Tap SAVE on any entry to keep it here.' },
-  wantToTry: { glyph: <PlusCircle size={44} className="text-green-700 mb-3" />, head: 'NOTHING ON THE WISHLIST', hint: 'Tap WANT on a grape or style you’re curious about.' },
-  tried: { glyph: <CheckCircle2 size={44} className="text-green-700 mb-3" />, head: 'NOTHING TRIED YET', hint: 'Tap TRIED on a grape or style you’ve drunk — then rate it.' },
+  saved: { glyph: <Bookmark size={44} className="text-[var(--lcd-accent)] opacity-70 mb-3" />, head: 'NOTHING SAVED', hint: 'Tap SAVE on any entry to keep it here.' },
+  wantToTry: { glyph: <PlusCircle size={44} className="text-[var(--lcd-accent)] opacity-70 mb-3" />, head: 'NOTHING ON THE WISHLIST', hint: 'Tap WANT on a grape or style you’re curious about.' },
+  tried: { glyph: <CheckCircle2 size={44} className="text-[var(--lcd-accent)] opacity-70 mb-3" />, head: 'NOTHING TRIED YET', hint: 'Tap TRIED on a grape or style you’ve drunk — then rate it.' },
 };
 
 /**
@@ -87,22 +88,22 @@ const BookmarksScreen: React.FC<BookmarksScreenProps> = ({ allEntries, onSelect,
 
   return (
     <DeviceLayout title="COLLECTION" subtitle="" showBack={true} onBack={onBack} onHome={onHome} centerHeaderText={true}>
-      <div className="flex flex-col h-full min-h-0 bg-stone-950 relative">
+      <div className="flex flex-col h-full min-h-0 bg-[var(--surface-base)] relative">
 
         {/* ---- Profile ---- */}
-        <div className="bg-stone-900 border-b border-stone-700 px-4 py-3 flex items-center gap-3">
+        <div className="bg-[var(--surface-raised)] border-b border-[var(--surface-line)] px-4 py-3 flex items-center gap-3">
           <button
             onClick={() => fileRef.current?.click()}
             aria-label="Change photo"
-            className="relative w-16 h-16 shrink-0 rounded-full border-2 border-green-500 overflow-hidden bg-stone-800 flex items-center justify-center"
+            className="dex-pressable relative w-16 h-16 shrink-0 rounded-full border-2 border-[var(--lcd-accent)] overflow-hidden bg-[var(--surface-high)] flex items-center justify-center"
           >
             {avatar ? (
               <img src={avatar} alt="" className="w-full h-full object-cover" />
             ) : (
-              <UserRound size={30} className="text-stone-500" />
+              <UserRound size={30} className="text-[var(--lcd-subtext)]" />
             )}
-            <span className="absolute bottom-0 right-0 bg-green-600 rounded-tl-md p-0.5">
-              <Camera size={11} className="text-white" />
+            <span className="absolute bottom-0 right-0 bg-[var(--lcd-accent)] rounded-tl-md p-0.5">
+              <Camera size={11} className="text-[var(--lcd-on-accent)]" />
             </span>
           </button>
           <input ref={fileRef} type="file" accept="image/*" className="hidden" onChange={onPickFile} />
@@ -117,18 +118,18 @@ const BookmarksScreen: React.FC<BookmarksScreenProps> = ({ allEntries, onSelect,
                   onKeyDown={e => { if (e.key === 'Enter') commitName(); }}
                   maxLength={24}
                   placeholder="YOUR NAME"
-                  className="flex-1 min-w-0 bg-black/40 border-2 border-stone-700 rounded px-2 py-1 font-retro text-xs text-green-200 placeholder:text-stone-600 focus:border-green-600 focus:outline-none"
+                  className="flex-1 min-w-0 bg-[var(--lcd-well)] border border-[var(--surface-line-strong)] rounded-control px-2 py-1 font-sans text-label text-[var(--lcd-text)] placeholder:text-[var(--lcd-disabled-text)] focus:border-[var(--lcd-accent)] focus:outline-none"
                 />
-                <button onClick={commitName} aria-label="Save name" className="text-green-400 p-1">
+                <button onClick={commitName} aria-label="Save name" className="text-[var(--lcd-accent)] p-1">
                   <Check size={18} />
                 </button>
               </div>
             ) : (
               <div className="flex items-center gap-2">
-                <span className="font-retro text-sm text-green-300 tracking-widest truncate">
+                <span className="font-sans text-heading font-bold text-[var(--lcd-text)] tracking-wide truncate">
                   {name ? name.toUpperCase() : 'TASTER'}
                 </span>
-                <button onClick={startEditName} aria-label="Edit name" className="text-stone-500 hover:text-green-400 p-1">
+                <button onClick={startEditName} aria-label="Edit name" className="text-[var(--lcd-subtext)] hover:text-[var(--lcd-accent)] p-1">
                   <SquarePen size={14} />
                 </button>
               </div>
@@ -136,17 +137,17 @@ const BookmarksScreen: React.FC<BookmarksScreenProps> = ({ allEntries, onSelect,
             {/* Streak + PASSPORT. */}
             <div className="mt-2 flex items-center gap-2">
               {streak > 0 && (
-                <span className="inline-flex items-center gap-1 rounded-full px-2.5 py-1 bg-stone-900 border border-stone-700">
-                  <Flame size={12} className="text-amber-400" />
-                  <span className="font-retro text-[0.5rem] tracking-widest text-stone-300">{streak} DAY{streak === 1 ? '' : 'S'}</span>
+                <span className="inline-flex items-center gap-1 rounded-full px-2.5 py-1 bg-[var(--surface-raised)] border border-[var(--surface-line)]">
+                  <Flame size={12} className="text-[var(--livery-amber)]" />
+                  <span className="font-sans text-caption tracking-widest text-[var(--lcd-text)]">{streak} DAY{streak === 1 ? '' : 'S'}</span>
                 </span>
               )}
               <button
                 onClick={onPassport}
-                className="inline-flex items-center gap-1.5 rounded-full px-3 py-1 bg-green-700 border border-green-500 hover:bg-green-600 transition-colors"
+                className="dex-pressable inline-flex items-center gap-1.5 rounded-full px-3 py-1 bg-[var(--lcd-accent)]"
               >
-                <BookOpen size={12} className="text-white" />
-                <span className="font-retro text-[0.5rem] tracking-widest text-white">PASSPORT</span>
+                <BookOpen size={12} className="text-[var(--lcd-on-accent)]" />
+                <span className="font-sans text-caption font-semibold tracking-widest text-[var(--lcd-on-accent)]">PASSPORT</span>
               </button>
             </div>
           </div>
@@ -154,8 +155,8 @@ const BookmarksScreen: React.FC<BookmarksScreenProps> = ({ allEntries, onSelect,
 
         {/* ---- Recently viewed ---- */}
         {recents.length > 0 && (
-          <div className="bg-stone-900/60 border-b border-stone-800 px-3 py-2">
-            <div className="font-retro text-[0.5rem] tracking-widest text-stone-500 mb-1.5 px-1">RECENTLY VIEWED</div>
+          <div className="bg-[var(--surface-raised)] border-b border-[var(--surface-line)] px-3 py-2">
+            <h2 className="font-sans text-caption tracking-widest text-[var(--lcd-subtext)] mb-1.5 px-1">RECENTLY VIEWED</h2>
             <div className="flex gap-2 overflow-x-auto custom-scrollbar pb-1">
               {recents.map(entry => {
                 const v = resolveEntryIconVisual(entry, { size: 26, resolver });
@@ -165,10 +166,10 @@ const BookmarksScreen: React.FC<BookmarksScreenProps> = ({ allEntries, onSelect,
                     onClick={() => onSelect(entry)}
                     className="flex flex-col items-center gap-1 w-14 shrink-0"
                   >
-                    <span className="w-12 h-12 rounded-lg border-2 border-stone-700 flex items-center justify-center overflow-hidden" style={v.style}>
+                    <span className="w-12 h-12 rounded-control border border-[var(--surface-line-strong)] flex items-center justify-center overflow-hidden" style={v.style}>
                       {v.iconNode}
                     </span>
-                    <span className="font-retro text-[0.45rem] text-stone-300 leading-tight text-center w-full truncate line-clamp-1">
+                    <span className="font-sans text-caption text-[var(--lcd-text)] leading-tight text-center w-full truncate line-clamp-1">
                       {entry.name.toUpperCase()}
                     </span>
                   </button>
@@ -179,15 +180,15 @@ const BookmarksScreen: React.FC<BookmarksScreenProps> = ({ allEntries, onSelect,
         )}
 
         {/* ---- Shelf switcher ---- */}
-        <div className="flex gap-1 px-3 py-2 bg-stone-800 border-b border-stone-700">
+        <div className="flex gap-1 px-3 py-2 bg-[var(--surface-high)] border-b border-[var(--surface-line)]">
           {SHELVES.map(s => {
             const active = s === shelf;
             return (
               <button
                 key={s}
                 onClick={() => setShelf(s)}
-                className={`flex-1 rounded-lg py-2 font-retro text-[0.55rem] tracking-widest transition-colors ${
-                  active ? 'bg-green-600 text-white' : 'bg-stone-900/60 text-stone-400 hover:text-stone-200'
+                className={`dex-pressable flex-1 rounded-control py-2 font-sans text-caption font-semibold tracking-widest ${
+                  active ? 'bg-[var(--lcd-accent)] text-[var(--lcd-on-accent)]' : 'bg-[var(--surface-raised)] text-[var(--lcd-subtext)] hover:text-[var(--lcd-text)]'
                 }`}
               >
                 {SHELF_TAB[s]} {counts[s]}
@@ -197,13 +198,13 @@ const BookmarksScreen: React.FC<BookmarksScreenProps> = ({ allEntries, onSelect,
         </div>
 
         {/* ---- Shelf header ---- */}
-        <div className="flex items-center gap-2 px-4 py-2 bg-stone-900/40 border-b border-stone-800">
-          <span className="font-retro text-[0.6rem] tracking-widest text-green-400">{SHELF_TITLE[shelf]}</span>
+        <div className="flex items-center gap-2 px-4 py-2 bg-[var(--surface-raised)] border-b border-[var(--surface-line)]">
+          <h2 className="font-sans text-label tracking-widest text-[var(--lcd-accent)]">{SHELF_TITLE[shelf]}</h2>
           <span className="flex-1" />
           {items.length > 0 && (
             <button
               onClick={() => setConfirmingClear(true)}
-              className="font-retro text-[0.5rem] tracking-widest text-red-400 border border-red-800 rounded px-2 py-1 hover:bg-red-950 transition-colors"
+              className="dex-pressable font-sans text-caption font-semibold tracking-widest text-[var(--livery-red)] border border-[var(--livery-red)] rounded-control px-2 py-1"
             >
               CLEAR ALL
             </button>
@@ -215,15 +216,17 @@ const BookmarksScreen: React.FC<BookmarksScreenProps> = ({ allEntries, onSelect,
           <div
             className="absolute inset-0 opacity-10 pointer-events-none"
             style={{
-              backgroundImage: 'linear-gradient(#333 1px, transparent 1px), linear-gradient(90deg, #333 1px, transparent 1px)',
+              backgroundImage:
+                'linear-gradient(color-mix(in srgb, var(--lcd-text) 30%, transparent) 1px, transparent 1px), ' +
+                'linear-gradient(90deg, color-mix(in srgb, var(--lcd-text) 30%, transparent) 1px, transparent 1px)',
               backgroundSize: '10px 10px',
             }}
           />
           {items.length === 0 ? (
             <div className="text-center py-16 opacity-70 flex flex-col items-center">
               {EMPTY[shelf].glyph}
-              <p className="font-retro text-xs text-stone-300">{EMPTY[shelf].head}</p>
-              <p className="font-mono text-xs text-stone-500 mt-2 normal-case max-w-[15rem]">{EMPTY[shelf].hint}</p>
+              <p className="font-sans text-label tracking-widest text-[var(--lcd-text)]">{EMPTY[shelf].head}</p>
+              <p className="font-sans text-caption text-[var(--lcd-subtext)] mt-2 normal-case max-w-[15rem] leading-relaxed">{EMPTY[shelf].hint}</p>
             </div>
           ) : (
             <div className="flex flex-col gap-2 relative z-10 pb-4">
@@ -244,32 +247,32 @@ const BookmarksScreen: React.FC<BookmarksScreenProps> = ({ allEntries, onSelect,
                       aria-label={`Remove ${entry.name}`}
                       className="absolute -top-1.5 -right-1.5 w-11 h-11 flex items-center justify-center group"
                     >
-                      <span className="p-1.5 rounded bg-stone-950/80 border border-stone-700 text-stone-400 group-hover:text-red-400 group-hover:border-red-700 transition-colors">
+                      <span className="p-1.5 rounded bg-[var(--surface-base)] border border-[var(--surface-line-strong)] text-[var(--lcd-subtext)] group-hover:text-[var(--livery-red)] group-hover:border-[var(--livery-red)] transition-colors">
                         <XCircle size={16} />
                       </span>
                     </button>
                     {shelf === 'tried' && (
                       <button
                         onClick={() => setEditingRating(entry)}
-                        className="mt-1 w-full flex items-center gap-2 px-2 py-1 rounded bg-black/30 border border-stone-800 hover:border-amber-700 transition-colors"
+                        className="dex-pressable mt-1 w-full flex items-center gap-2 px-2 py-1 rounded-control bg-[var(--surface-raised)] border border-[var(--surface-line)] hover:border-[var(--livery-amber)]"
                       >
                         <span className="flex items-center gap-0.5">
                           {Array.from({ length: 5 }).map((_, i) => (
                             <Star
                               key={i}
                               size={12}
-                              className={i < (rating?.rating ?? 0) ? 'text-yellow-400' : 'text-stone-600'}
-                              fill={i < (rating?.rating ?? 0) ? '#facc15' : 'none'}
+                              className={i < (rating?.rating ?? 0) ? 'text-[var(--livery-amber)]' : 'text-[var(--lcd-disabled-text)]'}
+                              fill={i < (rating?.rating ?? 0) ? 'currentColor' : 'none'}
                             />
                           ))}
                         </span>
                         {/* Stars only when unrated — iOS shows no placeholder text. */}
                         {rating?.note ? (
-                          <span className="font-mono text-[0.7rem] text-stone-300 truncate flex-1 text-left">{rating.note}</span>
+                          <span className="font-sans text-caption text-[var(--lcd-text)] normal-case truncate flex-1 text-left">{rating.note}</span>
                         ) : (
                           <span className="flex-1" />
                         )}
-                        <SquarePen size={12} className="text-amber-400 shrink-0" />
+                        <SquarePen size={12} className="text-[var(--livery-amber)] shrink-0" />
                       </button>
                     )}
                   </div>
@@ -280,69 +283,42 @@ const BookmarksScreen: React.FC<BookmarksScreenProps> = ({ allEntries, onSelect,
         </div>
 
         {/* ---- Clear-all confirm ---- */}
+        {/* Through DexAlert since stage 4 (the audit's M19 modal semantics
+            travel with the primitive: role, aria-modal, Escape, safe-action
+            focus). The alert card is fixed-colour by design. */}
         {confirmingClear && (
-          <div className="absolute inset-0 z-30 bg-black/80 flex items-center justify-center p-6">
-            {/*
-              Marked as a modal dialog so a screen reader keeps focus inside it
-              rather than wandering into the list behind the scrim - the audit's
-              M19 fix, which iOS made with accessibilityElement(.contain) plus
-              the isModal trait. Copy stays shelf-aware (parity Phase B).
-            */}
-            <div
-              role="dialog"
-              aria-modal="true"
-              aria-labelledby="clear-saved-title"
-              aria-describedby="clear-saved-detail"
-              className="w-full max-w-xs bg-stone-900 border-2 border-red-800 rounded-lg p-5 flex flex-col gap-4"
-            >
-              <p id="clear-saved-title" className="font-retro text-xs tracking-widest text-red-400 text-center">CLEAR ALL {SHELF_TITLE[shelf]}?</p>
-              <p id="clear-saved-detail" className="font-mono text-sm text-stone-300 text-center normal-case">
-                {shelf === 'tried'
-                  ? `${items.length} tasting${items.length === 1 ? '' : 's'} will be removed - ratings and notes go with them.`
-                  : `${items.length} ${items.length === 1 ? 'item' : 'items'} will be removed. This cannot be undone.`}
-              </p>
-              <div className="flex gap-3">
-                <button
-                  onClick={() => setConfirmingClear(false)}
-                  className="flex-1 font-retro text-[0.6rem] tracking-widest text-stone-300 border-2 border-stone-600 rounded py-3 hover:bg-stone-800"
-                >
-                  CANCEL
-                </button>
-                <button
-                  onClick={() => { clearShelf(shelf); setConfirmingClear(false); }}
-                  className="flex-1 font-retro text-[0.6rem] tracking-widest text-white bg-red-700 border-2 border-red-900 rounded py-3 hover:bg-red-600"
-                >
-                  CLEAR
-                </button>
-              </div>
-            </div>
-          </div>
+          <DexAlert
+            tone="red"
+            role="alertdialog"
+            title={`CLEAR ALL ${SHELF_TITLE[shelf]}?`}
+            ariaLabel={`Clear all ${SHELF_TITLE[shelf].toLowerCase()}`}
+            onDismiss={() => setConfirmingClear(false)}
+            actions={[
+              { label: 'CANCEL', kind: 'cancel', onClick: () => setConfirmingClear(false) },
+              { label: 'CLEAR', kind: 'confirm', onClick: () => { clearShelf(shelf); setConfirmingClear(false); } },
+            ]}
+          >
+            {shelf === 'tried'
+              ? `${items.length} tasting${items.length === 1 ? '' : 's'} will be removed - ratings and notes go with them.`
+              : `${items.length} ${items.length === 1 ? 'item' : 'items'} will be removed. This cannot be undone.`}
+          </DexAlert>
         )}
 
         {/* ---- Single-item remove confirm ---- */}
         {pendingRemove && (
-          <div className="absolute inset-0 z-30 bg-black/80 flex items-center justify-center p-6">
-            <div className="w-full max-w-xs bg-stone-900 border-2 border-red-800 rounded-lg p-5 flex flex-col gap-4">
-              <p className="font-retro text-xs tracking-widest text-red-400 text-center">REMOVE FROM {SHELF_TITLE[shelf]}?</p>
-              <p className="font-mono text-sm text-stone-300 text-center normal-case">
-                {pendingRemove.name.toUpperCase()}
-              </p>
-              <div className="flex gap-3">
-                <button
-                  onClick={() => setPendingRemove(null)}
-                  className="flex-1 font-retro text-[0.6rem] tracking-widest text-stone-300 border-2 border-stone-600 rounded py-3 hover:bg-stone-800"
-                >
-                  CANCEL
-                </button>
-                <button
-                  onClick={() => { removeFromShelf(shelf, pendingRemove.id); setPendingRemove(null); }}
-                  className="flex-1 font-retro text-[0.6rem] tracking-widest text-white bg-red-700 border-2 border-red-900 rounded py-3 hover:bg-red-600"
-                >
-                  REMOVE
-                </button>
-              </div>
-            </div>
-          </div>
+          <DexAlert
+            tone="red"
+            role="alertdialog"
+            title={`REMOVE FROM ${SHELF_TITLE[shelf]}?`}
+            ariaLabel={`Remove from ${SHELF_TITLE[shelf].toLowerCase()}`}
+            onDismiss={() => setPendingRemove(null)}
+            actions={[
+              { label: 'CANCEL', kind: 'cancel', onClick: () => setPendingRemove(null) },
+              { label: 'REMOVE', kind: 'confirm', onClick: () => { removeFromShelf(shelf, pendingRemove.id); setPendingRemove(null); } },
+            ]}
+          >
+            {pendingRemove.name.toUpperCase()}
+          </DexAlert>
         )}
 
         {/* ---- Edit rating from the tried shelf ---- */}

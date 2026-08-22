@@ -61,9 +61,9 @@ const MoonDialScreen: React.FC<MoonDialScreenProps> = ({ onBack, onHome, now }) 
    * the verdict everywhere on the screen, so the answer is legible before any
    * of the words are read.
    */
-  const tint = good ? 'text-green-400' : 'text-amber-400';
-  const tintBorder = good ? 'border-green-400' : 'border-amber-400';
-  const tintBg = good ? 'bg-green-400' : 'bg-amber-400';
+  const tint = good ? 'text-[var(--livery-green)]' : 'text-[var(--livery-amber)]';
+  const tintBorder = good ? 'border-[var(--livery-green)]' : 'border-[var(--livery-amber)]';
+  const tintBg = good ? 'bg-[var(--livery-green)]' : 'bg-[var(--livery-amber)]';
 
   const dateLine = today
     .toLocaleDateString(undefined, {
@@ -76,9 +76,9 @@ const MoonDialScreen: React.FC<MoonDialScreenProps> = ({ onBack, onHome, now }) 
 
   const Row: React.FC<{ label: string; value: string }> = ({ label, value }) => (
     <div className="flex items-baseline gap-2.5">
-      <span className="font-retro text-[0.55rem] tracking-widest text-green-500">{label}</span>
+      <span className="font-sans text-caption tracking-widest text-[var(--lcd-accent)]">{label}</span>
       <span className="flex-1 min-w-0" />
-      <span className="font-retro text-[0.7rem] tracking-widest text-green-300 truncate">{value}</span>
+      <span className="font-sans text-label tracking-widest text-[var(--lcd-body-text)] truncate">{value}</span>
     </div>
   );
 
@@ -91,10 +91,10 @@ const MoonDialScreen: React.FC<MoonDialScreenProps> = ({ onBack, onHome, now }) 
       showBack
       centerHeaderText
     >
-      <div className="flex-1 min-h-0 overflow-y-auto custom-scrollbar bg-stone-950 p-4">
+      <div className="flex-1 min-h-0 overflow-y-auto custom-scrollbar bg-[var(--surface-base)] p-4">
         <div className="flex flex-col items-center gap-4">
 
-          <span className="font-retro text-[0.55rem] tracking-widest text-green-500 text-center leading-relaxed">
+          <span className="font-sans text-caption tracking-widest text-[var(--lcd-accent)] text-center leading-relaxed">
             {dateLine}
           </span>
 
@@ -114,7 +114,7 @@ const MoonDialScreen: React.FC<MoonDialScreenProps> = ({ onBack, onHome, now }) 
                   key={mark}
                   aria-hidden="true"
                   className={`absolute left-1/2 top-1/2 rounded-full ${
-                    isToday ? tintBg : 'bg-green-700 opacity-40'
+                    isToday ? tintBg : 'bg-[var(--lcd-accent)] opacity-40'
                   }`}
                   style={{
                     width: size,
@@ -127,13 +127,13 @@ const MoonDialScreen: React.FC<MoonDialScreenProps> = ({ onBack, onHome, now }) 
 
             <div className="absolute inset-0 flex flex-col items-center justify-center gap-1.5">
               <Glyph size={40} className={tint} />
-              <span className="font-retro text-base tracking-[0.2em] text-green-300">{day}</span>
+              <span className="font-sans text-heading font-bold tracking-[0.2em] text-[var(--lcd-body-text)]">{day}</span>
             </div>
           </div>
 
           {/* The three-line readout. */}
           <div
-            className="w-full rounded-lg border border-green-800 bg-stone-900 px-3 py-3 flex flex-col gap-2"
+            className="w-full rounded-card border border-[var(--surface-line-strong)] bg-[var(--surface-raised)] shadow-elev-1 px-3 py-3 flex flex-col gap-2"
           >
             <Row label="DAY TYPE" value={`${day} DAY`} />
             <Row label="ELEMENT" value={moonElement(day)} />
@@ -145,22 +145,22 @@ const MoonDialScreen: React.FC<MoonDialScreenProps> = ({ onBack, onHome, now }) 
             screen exists to say.
           */}
           <div
-            className={`w-full rounded-lg border-2 ${tintBorder} px-3.5 py-3.5 flex flex-col items-center gap-2.5`}
-            style={{ backgroundColor: good ? 'rgba(74,222,128,0.10)' : 'rgba(251,191,36,0.10)' }}
+            className={`w-full rounded-card border-2 ${tintBorder} px-3.5 py-3.5 flex flex-col items-center gap-2.5`}
+            style={{ backgroundColor: `color-mix(in srgb, var(${good ? '--livery-green' : '--livery-amber'}) 10%, transparent)` }}
           >
             {good ? <BadgeCheck size={28} className={tint} /> : <Hand size={28} className={tint} />}
-            <span className={`font-retro text-[0.8rem] tracking-widest ${tint} text-center leading-relaxed`}>
+            <span className={`font-sans text-label tracking-widest ${tint} text-center leading-relaxed`}>
               {moonVerdict(day)}
             </span>
-            <p className="font-mono text-[0.7rem] sm:text-xs text-green-500 leading-relaxed normal-case text-center">
+            <p className="font-sans text-caption text-[var(--lcd-body-text)] leading-relaxed normal-case text-center">
               {moonSummary(day)}
             </p>
           </div>
 
           {/* The line of the day, against a rule in the verdict's colour. */}
-          <div className="w-full flex items-stretch gap-3 rounded-r bg-green-500/[0.06] py-2.5">
+          <div className="w-full flex items-stretch gap-3 rounded-r dex-info-wash py-2.5">
             <span className={`w-1 shrink-0 rounded-sm ${tintBg}`} aria-hidden="true" />
-            <p className="font-mono text-[0.7rem] sm:text-xs text-green-300 leading-relaxed normal-case pr-3">
+            <p className="font-sans text-caption text-[var(--lcd-body-text)] leading-relaxed normal-case pr-3">
               {moonQuote(today)}
             </p>
           </div>

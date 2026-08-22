@@ -733,6 +733,19 @@ body {
   animation: slide-in-from-top 0.2s ease-out;
 }
 
+/* The world-scan radar sweep (RegionMapScreen). Moved here from an inline
+   <style> tag in the component (stage 4): an inline keyframe is invisible to
+   `reducedMotion.test.ts`'s derived handled-class check, which reads this
+   file — the same hole the lamp glows had (U7). */
+@keyframes radar-scan {
+  0% { left: -20%; }
+  100% { left: 120%; }
+}
+
+.radar-scan-beam {
+  animation: radar-scan 4s linear infinite;
+}
+
 @keyframes terminal-marquee {
   0% {
     transform: translateX(0);
@@ -950,6 +963,13 @@ body {
   .terminal-marquee-slow {
     animation: none;
     transform: translateX(0);
+  }
+
+  /* The radar sweep parks off-screen: a radar that is not sweeping shows the
+     map, not a frozen beam. */
+  .radar-scan-beam {
+    animation: none;
+    left: -20%;
   }
 
   /* Anything else that animates or transitions, including future additions

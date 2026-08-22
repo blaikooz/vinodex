@@ -211,6 +211,12 @@ describe('design tokens', () => {
     // NOT here: it is fixed-colour end to end by design (iOS's DexAlert), and
     // listing it would force tokens onto the one surface that refuses them.
     'SettingsPanel.tsx', 'FirmwareHistoryScreen.tsx', 'SupportScreen.tsx', 'CheatConsoleScreen.tsx',
+    // Stage 4, batch 4 — the tools family. `RegionMapScreen.tsx` and
+    // `RetroGlobeScreen.tsx` are deliberately NOT here: both are drawn
+    // instruments (the radar, the globe) whose phosphor rendering is the
+    // point, recorded as fixed in the v9 §9 ledger notes.
+    'MinigamesScreen.tsx', 'RecommendationsScreen.tsx', 'GrapeLineageScreen.tsx',
+    'MoonDialScreen.tsx', 'ChipFilterScreen.tsx', 'BookmarksScreen.tsx', 'ScannerScreen.tsx',
   ];
 
   /**
@@ -261,11 +267,17 @@ describe('design tokens', () => {
 
   for (const file of CONVERTED) {
     it(`${file} styles with tokens, not literal colour`, () => {
-      const src = fs.readFileSync(path.join(componentsDir, file), 'utf8');
+      // Block comments stripped first — the same correctness fix the CSS half
+      // makes above: a JSX `{/* ... */}` comment's continuation lines do not
+      // start with `*`, so prose naming the colour a conversion REMOVED would
+      // otherwise fail the file that removed it.
+      const src = fs
+        .readFileSync(path.join(componentsDir, file), 'utf8')
+        .replace(/\/\*[\s\S]*?\*\//g, '');
       const allowed = [...(NOT_PAINT[file] ?? [])];
       const offenders: string[] = [];
       for (const line of src.split('\n')) {
-        // Prose in a doc comment may name a colour; code may not.
+        // Line comments may name a colour; code may not.
         if (/^\s*(\*|\/\/)/.test(line)) continue;
         for (const re of LITERAL_COLOUR) {
           for (const m of line.matchAll(re)) {

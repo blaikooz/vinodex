@@ -112,6 +112,11 @@ describe('reduced motion', () => {
     },
     // Arrives in place.
     { selector: '.animate-in.slide-in-from-top-2', mustContain: ['animation: none'] },
+    // The world-scan radar sweep parks off-screen: a radar that is not
+    // sweeping shows the map, not a frozen beam mid-pass. (Moved out of an
+    // inline <style> in RegionMapScreen in stage 4, which is what put it in
+    // reach of this suite at all.)
+    { selector: '.radar-scan-beam', mustContain: ['animation: none', 'left: -20%'] },
   ];
 
   /**
@@ -220,9 +225,13 @@ describe('reduced motion', () => {
     // were the pre-skin lamp glows with their colours baked into the
     // keyframes, superseded by `chassis-throb` and referenced by nothing.
     // Deleted in M5 rather than given a second, correct reduced-motion rule.
+    // `radar-scan` joined in stage 4 (v0.4.3): it is not new motion — it is
+    // RegionMapScreen's inline <style> sweep moved into this file so the
+    // derived check above can actually see it.
     expect(keyframeNames().sort()).toEqual([
       'blink',
       'chassis-throb',
+      'radar-scan',
       'slide-in-from-top',
       'terminal-marquee',
     ]);

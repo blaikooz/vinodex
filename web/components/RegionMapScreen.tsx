@@ -103,15 +103,12 @@ const RegionMapScreen: React.FC<RegionMapScreenProps> = ({ onSelectContinent, on
                   }}
                 />
 
-                {/* Radar Scan Beam Animation */}
+                {/* Radar Scan Beam Animation. The keyframes live in
+                    index.css (stage 4): an inline <style> keyframe was beyond
+                    the reach of the derived reduced-motion check, and the
+                    class carries its own parked end state there. */}
                 <div className="absolute inset-0 z-30 pointer-events-none overflow-hidden">
-                  <style>{`
-                    @keyframes scan {
-                      0% { left: -20%; }
-                      100% { left: 120%; }
-                    }
-                  `}</style>
-                  <div className="absolute top-0 bottom-0 w-[60px] bg-gradient-to-r from-transparent via-green-500/20 to-transparent animate-[scan_4s_linear_infinite] border-r border-green-500/40 blur-[1px]"></div>
+                  <div className="radar-scan-beam absolute top-0 bottom-0 w-[60px] bg-gradient-to-r from-transparent via-green-500/20 to-transparent border-r border-green-500/40 blur-[1px]"></div>
                 </div>
 
                 {/* Region hotspot buttons */}
@@ -154,7 +151,7 @@ const RegionMapScreen: React.FC<RegionMapScreenProps> = ({ onSelectContinent, on
                   className="group flex items-center gap-3 px-10 py-3 bg-green-400 text-black border border-green-200 rounded-full hover:bg-green-300 hover:border-white transition-all duration-300 shadow-[0_0_20px_rgba(74,222,128,0.4)]"
                 >
                   <Search size={16} className="group-hover:scale-110 transition-transform" />
-                  <span className="font-retro tracking-widest text-sm">SEARCH WORLD</span>
+                  <span className="font-sans text-label font-semibold tracking-widest">SEARCH WORLD</span>
                 </button>
               </div>
             </div>
