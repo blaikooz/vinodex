@@ -72,6 +72,10 @@ needed an excuse.
 > **Updated 2026-08-21:** stage 3 (the chassis materials and the desktop
 > stage) executed and green as **web v0.4.2** — see §8. Stages 4–5 remain
 > open, and §4's stage-4/-5 entries still describe them.
+>
+> **Updated 2026-08-22:** stage 4 (the screen-by-screen rollout) executed as
+> **web v0.4.3** — see §9. Stage 5 (motion) and the Device Workshop follow in
+> the same run as v0.4.4 and v0.5.0; see §10 and §11.
 
 **Scope was ruled at two stages of five and stopped there**, so the user can
 see the new language on real screens before it reaches twenty more. Stages 3–5
@@ -708,5 +712,85 @@ declaration rather than one layer.
 Stages 4–5 (the screen-by-screen rollout, `body`'s VT323 default, the motion
 pass), (v9#d2)–(v9#d5), and the §6 FLAVORS question — still wanted before
 stage 4.
+
+---
+
+# 9. Stage 4 — the screen-by-screen rollout (v0.4.3, 2026-08-22)
+
+_Executed on `testing` from `859440a` (= `master` = tag `v0.4.2`). Closes
+§4's stage-4 entries, (v9#d2) and most of (v9#d3). §0 governs throughout.
+The §6 FLAVORS question was ruled first: KEEP BOTH GREENS._
+
+## What landed, batch by batch
+
+1. **The body-font flip** — `body` moves from VT323 to `var(--font-sans)`,
+   its own commit, as §4 scheduled. VT323 / Press Start 2P are opt-in accents
+   from here on.
+2. **Lists and tiles** — `Chip` (sans caption; DATA colours kept),
+   `EntryTile` (the card treatment; corner brackets and the translate-nudge
+   retired; the flag keyline follows `--lcd-text`), `EncyclopediaList`
+   (surface ramp, mode-ink grid wash, tokened search well).
+3. **The entry readout, decomposed as it converted** (the W5 plan):
+   `EntryDetailSections.tsx` (SectionHeader — the 27 hand-rolled headers, now
+   a real `h2` — LinkedEntryTile, LinkedListSection with the Back-surviving
+   expander) and `EntryDetailHeaders.tsx` (the four category header rows,
+   one FlagWell). The ten inline `#22c55e` twins and the
+   `#052e16/#15803d/#bbf7d0` pill triples — U8's sharpest leak — are gone
+   (`.dex-pill` replaces the latter). The hero title moves to the sans
+   display step, unshadowed. `EntryDetail.categories.test.tsx`'s pinned
+   arrays unchanged; only its selector moved with the markup.
+4. **The settings family** — the six grid tiles become `Tile`s on the livery
+   table (closing v9#d2); every row primitive converts; the five dialogs move
+   to the new `DexAlert` (U2's scrim primitive: fixed-colour by design,
+   Escape closes, focus lands safe — the U6 floor). `Section` keeps its
+   full-strength rule: **D9 answered — the two rule weights stay as
+   authored.**
+5. **The tools family** — TOOLS shelf tiles onto liveries (LABEL SCAN blue →
+   sky, MOON DIAL cyan → emerald, recorded approximations), moon dial,
+   lineage, chip filter, bookmarks (confirms through DexAlert), scanner.
+6. **Passport / exam / daily / professor** — livery washes for exam verdicts,
+   accent primaries, rarity tints onto liveries (UNCOMMON blue → sky),
+   professor's page converted in full.
+
+## Deliberate NON-conversions, recorded once
+
+- **The terminal moments keep VT323:** the encyclopedia/scanner search
+  inputs with the block caret, and the cheat console's prompt — colours on
+  tokens, face kept on purpose.
+- **The instruments stay drawn:** `RegionMapScreen`'s radar and
+  `RetroGlobeScreen`'s globe are phosphor renderings on black; labels moved
+  to the sans, drawings untouched. The radar's inline `<style>` keyframe
+  moved to `index.css` (`radar-scan`) with a parked reduced-motion end state
+  — it was invisible to the derived check where it was.
+- **The fixed-palette overlays:** DexAlert, RatingPrompt,
+  StampUnlockedPrompt, the professor cards (bubble, coachmark, intro),
+  InstallBanner — iOS's DexAlert convention; typography converted, palette
+  kept, and they are deliberately absent from the CONVERTED gate.
+- **The BIOS (`VinodexBoot`) and the screensaver** keep their retro faces —
+  they are the two system flourishes the stage-4 language names as the pixel
+  face's home.
+- **MainMenu and WebsitePortal held stable** (user-approved v0.4.0 work).
+- **Chip/tile DATA colours** (country, climate, class, rarity, soil,
+  continent tables) are catalogue vocabulary, identical on both platforms,
+  and never follow the screen mode.
+
+## The gate that holds it
+
+`designTokens.test.ts`'s CONVERTED list grew 3 → 21 files, and its
+literal-colour check widened beyond hex to `rgb()`/`hsl()`/`oklch()` and
+numbered Tailwind palette classes — a converted screen can neither escape
+the `.lcd-themed` remap nor depend on it. (Block comments are stripped
+before scanning, and `&#9656;`-style entities are exempted by lookbehind —
+both correctness fixes found by the widened check itself.)
+
+## Pins moved this stage, each deliberately
+
+- `EntryDetail.categories.test.tsx`: selector `span.font-retro` → `h2`
+  (arrays unchanged).
+- `SettingsSectionPanel.test.tsx`: selector `span.font-retro` → `h2`
+  (arrays unchanged).
+- `reducedMotion.test.ts`: `radar-scan` joins the keyframe-count pin and
+  HANDLED (moved motion, not new motion).
+- `webChangelog.test.ts`: floor 8 → 9 with the 0.4.3 entry.
 
 ---

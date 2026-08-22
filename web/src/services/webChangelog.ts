@@ -66,6 +66,23 @@ export interface WebRelease {
  * assertion. It also gives the thing you edit a name.
  */
 const CURRENT: WebRelease = {
+  version: '0.4.3',
+  date: '2026-08-22',
+  headline: 'EVERY SCREEN, ONE VOICE',
+  notes: [
+    'The whole app reads in the clean sans now. The pixel face keeps the marquee, the boot and the wordmark.',
+    'Every list row, tile and panel is a card: tinted surface, soft shadow, colour as the accent.',
+    'The entry readout is rebuilt on the new language, and its hero title stops shouting.',
+    'The settings tiles and the TOOLS shelf join the category colour table, readable in every screen mode.',
+    'Exam and daily answers mark themselves in green and red washes that survive the pale screens.',
+    'Search fields and the cheat console keep their terminal type on purpose. The radar and the globe stay instruments.',
+    'Confirm dialogs share one card now, close on Escape, and land focus on the safe button.',
+    'Dozens of colours that ignored your screen mode follow it. The category tags keep their own colours by design.',
+  ],
+};
+
+/** The release before this one, promoted when 0.4.3 landed. */
+const PREVIOUS_0_4_2: WebRelease = {
   version: '0.4.2',
   date: '2026-08-21',
   headline: 'THE PRODUCT SHOT',
@@ -83,6 +100,7 @@ const CURRENT: WebRelease = {
 
 /** Newest first. A new release is prepended by promoting `CURRENT`. */
 const PREVIOUS: WebRelease[] = [
+  PREVIOUS_0_4_2,
   {
     version: '0.4.1',
     date: '2026-08-21',
