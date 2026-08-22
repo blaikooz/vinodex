@@ -201,7 +201,11 @@ describe('design tokens', () => {
    * `Card.tsx` is on it from the start, because a primitive that hardcodes a
    * colour hardcodes it everywhere at once.
    */
-  const CONVERTED = ['Card.tsx', 'MainMenu.tsx', 'WebsitePortal.tsx'];
+  const CONVERTED = [
+    'Card.tsx', 'MainMenu.tsx', 'WebsitePortal.tsx',
+    // Stage 4, batch 1 — lists and tiles (v0.4.3).
+    'Chip.tsx', 'EntryTile.tsx', 'EncyclopediaList.tsx',
+  ];
 
   /**
    * The one kind of literal colour that is not paint.
@@ -219,7 +223,27 @@ describe('design tokens', () => {
    */
   const NOT_PAINT: Record<string, string[]> = {
     'MainMenu.tsx': ['#000'],
+    // The CONTINENT chip's colours are chip DATA — a continent's own cyan,
+    // fixed on both platforms exactly like the `shared/services/chipColors`
+    // country table — not paint that should follow the screen mode.
+    'EntryTile.tsx': ['#0f2027', '#0891b2', '#7dd3fc'],
   };
+
+  /**
+   * What counts as literal colour (widened for stage 4). Hex was never the
+   * only spelling: `rgb()`/`hsl()` write the same fixed paint, and a Tailwind
+   * palette utility (`bg-stone-900`, `text-green-500`) is a fixed hex wearing
+   * a class name — on a converted screen it either escapes the `.lcd-themed`
+   * remap outright or quietly depends on it, and the whole point of
+   * conversion is that neither happens. Bare `black`/`white` utilities are
+   * deliberately not matched: a `bg-black/80` scrim is a shadow, not paint,
+   * and is legible in every mode by construction.
+   */
+  const LITERAL_COLOUR = [
+    /#[0-9a-fA-F]{3,8}\b/g,
+    /\b(?:rgb|rgba|hsl|hsla|oklch|oklab)\(/g,
+    /\b(?:bg|text|border|from|via|to|ring|placeholder|fill|stroke|shadow|divide|outline|decoration|caret)-(?:slate|gray|zinc|neutral|stone|red|orange|amber|yellow|lime|green|emerald|teal|cyan|sky|blue|indigo|violet|purple|fuchsia|pink|rose)-\d{2,3}(?:\/\d{1,3})?/g,
+  ];
 
   for (const file of CONVERTED) {
     it(`${file} styles with tokens, not literal colour`, () => {
@@ -229,10 +253,12 @@ describe('design tokens', () => {
       for (const line of src.split('\n')) {
         // Prose in a doc comment may name a colour; code may not.
         if (/^\s*(\*|\/\/)/.test(line)) continue;
-        for (const m of line.matchAll(/#[0-9a-fA-F]{3,8}\b/g)) {
-          const at = allowed.indexOf(m[0]);
-          if (at >= 0) { allowed.splice(at, 1); continue; }
-          offenders.push(m[0]);
+        for (const re of LITERAL_COLOUR) {
+          for (const m of line.matchAll(re)) {
+            const at = allowed.indexOf(m[0]);
+            if (at >= 0) { allowed.splice(at, 1); continue; }
+            offenders.push(m[0]);
+          }
         }
       }
       expect(

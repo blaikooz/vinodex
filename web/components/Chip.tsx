@@ -12,11 +12,17 @@ interface ChipProps {
 }
 
 const Chip: React.FC<ChipProps> = ({ label, color = '', colorStyle, icon, className = '', style, onClick }) => {
-  const base = `inline-flex items-center justify-center px-2 py-px rounded border font-retro text-[16px] md:text-[18px] tracking-normal leading-tight uppercase ${colorStyle ? '' : color} ${className}`.trim();
+  // Stage 4 (v0.4.3): the chip face moves from Press Start 2P to the sans
+  // caption step. A chip is metadata, not a mark, and the pixel face at 16px
+  // was the loudest thing on every list row. The *colours* stay data-driven:
+  // `colorStyle` values come from `shared/services/chipColors`, which is the
+  // catalogue's own vocabulary (a country's chip is that country's colour on
+  // both platforms) and deliberately does not follow the screen mode.
+  const base = `inline-flex items-center justify-center px-2 py-0.5 rounded border font-sans text-caption uppercase leading-tight ${colorStyle ? '' : color} ${className}`.trim();
   const inlineColors: React.CSSProperties = colorStyle
     ? { backgroundColor: colorStyle.bg, borderColor: colorStyle.border, color: colorStyle.text }
     : {};
-  const retro: React.CSSProperties = { fontFamily: 'Press Start 2P, var(--font-retro), cursive', ...inlineColors, ...style };
+  const retro: React.CSSProperties = { ...inlineColors, ...style };
   const inner = (
     <>
       {icon && <span className="mr-1 inline-block align-middle">{icon}</span>}

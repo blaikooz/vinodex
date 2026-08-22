@@ -133,7 +133,7 @@ export default function EncyclopediaList({ category, filterMode, filterValue, in
 
   // iOS uses a single funnel glyph (line.3.horizontal.decrease.circle.fill) in
   // the accent colour for every filter mode, rather than a per-mode glyph.
-  const getFilterIcon = () => <Filter size={24} className="text-green-500" />;
+  const getFilterIcon = () => <Filter size={24} className="text-[var(--lcd-accent)]" />;
 
   const getFilterText = () => {
       const val = typeof activeFilterValue === 'string' ? activeFilterValue.toUpperCase() : 'SELECTION';
@@ -163,18 +163,29 @@ export default function EncyclopediaList({ category, filterMode, filterValue, in
       centerHeaderText={true}
       onHome={onHome}
     >
-      <div className="flex flex-col h-full min-h-0 bg-stone-900">
+      {/* Stage 4 (v0.4.3): surfaces move onto the token ramp — `--surface-*`
+          resolves from the mode's own colours, so nothing here needs the
+          `.lcd-themed` palette remap any more. */}
+      <div className="flex flex-col h-full min-h-0 bg-[var(--surface-raised)]">
         {showFilterIndicator && (
-          <div className="bg-stone-800 border-b border-stone-700 px-4 py-3 flex items-center gap-3 animate-in slide-in-from-top-2 shadow-inner">
+          <div className="bg-[var(--surface-high)] border-b border-[var(--surface-line)] px-4 py-3 flex items-center gap-3 animate-in slide-in-from-top-2">
             <span className="[&>svg]:!w-6 [&>svg]:!h-6">{getFilterIcon()}</span>
-            <span className="text-base font-mono text-stone-200 font-bold tracking-widest">{getFilterText()}</span>
+            <span className="font-sans text-label tracking-widest text-[var(--lcd-text)]">{getFilterText()}</span>
           </div>
         )}
 
-        <div ref={scrollRef} className="flex-1 overflow-y-auto custom-scrollbar p-3 bg-stone-950 relative">
+        <div ref={scrollRef} className="flex-1 overflow-y-auto custom-scrollbar p-3 bg-[var(--surface-base)] relative">
+          {/* The grid wash, drawn from the mode's own ink rather than a fixed
+              #333 — same move the portal's RetroGrid made in v9#m4. The pale
+              modes soften it through the `data-lcd-light` opacity rule. */}
           <div
             className="absolute inset-0 opacity-10 pointer-events-none"
-            style={{ backgroundImage: 'linear-gradient(#333 1px, transparent 1px), linear-gradient(90deg, #333 1px, transparent 1px)', backgroundSize: '10px 10px' }}
+            style={{
+              backgroundImage:
+                'linear-gradient(color-mix(in srgb, var(--lcd-text) 30%, transparent) 1px, transparent 1px), ' +
+                'linear-gradient(90deg, color-mix(in srgb, var(--lcd-text) 30%, transparent) 1px, transparent 1px)',
+              backgroundSize: '10px 10px',
+            }}
           />
 
           {showTopSearchBar && (
@@ -190,21 +201,27 @@ export default function EncyclopediaList({ category, filterMode, filterValue, in
                 it page-coloured in light mode and lose that read entirely.
               */}
               <div
-                className="flex flex-row items-center justify-between h-12 border-2 border-stone-600 px-3 shadow-inner rounded-full"
+                className="flex flex-row items-center justify-between h-12 border border-[var(--surface-line-strong)] px-3 shadow-inner rounded-full"
                 style={{ backgroundColor: 'var(--lcd-well)' }}
               >
-                <Search size={22} className="text-green-500 animate-pulse shrink-0" />
+                {/* The pulse is gone (stage 4): an infinite pulse on a control
+                    that is always available says something is happening when
+                    nothing is — the same call v9#m5 made on the dial hub. */}
+                <Search size={22} className="text-[var(--lcd-accent)] shrink-0" />
                 <div className="relative flex-1 h-full ml-2">
                   <span
                     ref={searchMeasureRef}
                     aria-hidden="true"
                     className="absolute left-0 top-1/2 -translate-y-1/2 invisible whitespace-pre text-2xl leading-none font-mono font-bold uppercase"
                   />
+                  {/* The input keeps VT323 and the block cursor on purpose —
+                      an LCD-terminal moment the stage-4 language reserves the
+                      mono face for. Its colours move onto the mode's tokens. */}
                   <input
                     ref={searchInputRef}
                     type="text"
                     autoFocus={false}
-                    className="w-full text-2xl leading-none font-bold text-green-500 outline-none bg-transparent placeholder-green-900 placeholder:font-bold font-mono uppercase h-full pl-4"
+                    className="w-full text-2xl leading-none font-bold text-[var(--lcd-accent)] outline-none bg-transparent placeholder:text-[var(--lcd-disabled-text)] placeholder:font-bold font-mono uppercase h-full pl-4"
                     placeholder="INPUT SEARCH..."
                     value={searchQuery}
                     onChange={(e) => {
@@ -215,7 +232,7 @@ export default function EncyclopediaList({ category, filterMode, filterValue, in
                     onSelect={updateSearchCursorOffset}
                   />
                   <div
-                    className="absolute top-1/2 -translate-y-1/2 w-2 h-6 bg-green-500 animate-blink pointer-events-none"
+                    className="absolute top-1/2 -translate-y-1/2 w-2 h-6 bg-[var(--lcd-accent)] animate-blink pointer-events-none"
                     style={{ left: `${cursorOffset}px` }}
                   ></div>
                 </div>
@@ -236,7 +253,7 @@ export default function EncyclopediaList({ category, filterMode, filterValue, in
                       setSearchQuery('');
                       searchInputRef.current?.focus();
                     }}
-                    className="w-11 h-11 -mr-2 shrink-0 flex items-center justify-center text-green-500 hover:text-green-300 transition-colors"
+                    className="w-11 h-11 -mr-2 shrink-0 flex items-center justify-center text-[var(--lcd-accent)] hover:opacity-75 transition-opacity"
                   >
                     <X size={18} />
                   </button>
@@ -247,8 +264,8 @@ export default function EncyclopediaList({ category, filterMode, filterValue, in
 
           {filteredEntries.length === 0 ? (
             <div className="text-center py-20 opacity-60 flex flex-col items-center">
-              <ListChecks size={40} className="text-red-500 mb-4" />
-              <p className="text-red-500 font-retro text-xs">NO DATA FOUND</p>
+              <ListChecks size={40} className="text-[var(--livery-red)] mb-4" />
+              <p className="font-sans text-label tracking-widest text-[var(--livery-red)]">NO DATA FOUND</p>
             </div>
           ) : (
             <div className="flex flex-col gap-2 relative z-10 pb-4" data-coachmark="listingRow">

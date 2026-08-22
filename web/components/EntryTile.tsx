@@ -88,28 +88,33 @@ const EntryTile: React.FC<EntryTileProps> = ({ entry, onPress, index, anchorId }
   const renderedIcon = entryVisual.iconNode;
 
   return (
+    // Stage 4 (v0.4.3): the row becomes a card — tokened surface, one soft
+    // shadow, the card radius — and drops its retro dressing: the two
+    // decorative corner brackets, the 2px stone border and the hard
+    // `active:translate-y` nudge (the press spring in `.dex-pressable` is the
+    // press treatment now). The accent appears once, on hover/focus, as the
+    // border warming to the mode's own accent.
     <button
       onClick={() => onPress(entry)}
       data-screen-anchor={anchorId}
-      className="w-full bg-stone-900 border-2 border-stone-700 hover:border-green-500 rounded p-2 flex items-center gap-3 relative overflow-hidden group min-h-[4.5rem] transition-all active:translate-y-0.5"
+      className="dex-pressable w-full bg-[var(--surface-raised)] border border-[var(--surface-line)] hover:border-[var(--lcd-accent)] rounded-card shadow-elev-1 p-2 flex items-center gap-3 relative overflow-hidden group min-h-[4.5rem]"
       style={{ animationDelay: `${index * 50}ms` }}
     >
-      {/* Decorative Corner */}
-      <div className="absolute top-0 right-0 w-2 h-2 border-t-2 border-r-2 border-stone-600 group-hover:border-green-400 transition-colors"></div>
-      <div className="absolute bottom-0 left-0 w-2 h-2 border-b-2 border-l-2 border-stone-600 group-hover:border-green-400 transition-colors"></div>
-
       {/* Left: Large Icon Identifier */}
       <div
         className={`shrink-0 ${CONTAINER_SIZE_LIST} ${CONTAINER_BORDER_CLASS} ${CONTAINER_SHADOW_CLASS} flex items-center justify-center ${CONTAINER_BORDER} self-start`}
-        style={isCountryGate ? { ...entryVisual.style, borderColor: '#ffffff', borderWidth: 2, overflow: 'hidden' } : entryVisual.style}
+        // The flag tile's keyline follows the mode's own ink: the old literal
+        // white read as a frame on the dark LCD and vanished on the pale modes.
+        style={isCountryGate ? { ...entryVisual.style, borderColor: 'var(--lcd-text)', borderWidth: 2, overflow: 'hidden' } : entryVisual.style}
       >
         {renderedIcon}
       </div>
-      
+
       {/* Middle: Title and Tags */}
       <div className="flex flex-col flex-1 min-w-0 justify-center h-full items-start py-1">
-          {/* Title - Optimized for wrapping without truncation */}
-          <h3 className="font-retro text-base dex-text leading-tight group-hover:text-green-400 transition-colors w-full text-left mb-2 tracking-tight whitespace-normal break-words">
+          {/* Title - the sans heading step. Uppercase stays: an entry name on
+              the readout is the product's voice, not a paragraph. */}
+          <h3 className="font-sans text-heading dex-text leading-tight group-hover:text-[var(--lcd-accent)] transition-colors w-full text-left mb-2 tracking-tight whitespace-normal break-words">
             {entry.name.toUpperCase()}
           </h3>
 
@@ -164,7 +169,10 @@ const EntryTile: React.FC<EntryTileProps> = ({ entry, onPress, index, anchorId }
                 </>
               )}
 
-              {/* CONTINENTS: continent label */}
+              {/* CONTINENTS: continent label. The colours are chip DATA in the
+                  `shared/services/chipColors` sense — a continent's own cyan,
+                  fixed on both platforms — not paint that should follow the
+                  screen mode; `designTokens.test.ts` exempts them by value. */}
               {isContinent && (
                 <Chip label="CONTINENT" colorStyle={{ bg: '#0f2027', border: '#0891b2', text: '#7dd3fc' }} />
               )}
@@ -216,7 +224,7 @@ const EntryTile: React.FC<EntryTileProps> = ({ entry, onPress, index, anchorId }
      </div>
 
       {/* Right: Chevron */}
-      <div className="shrink-0 text-stone-600 group-hover:text-white pl-2">
+      <div className="shrink-0 text-[var(--lcd-subtext)] group-hover:text-[var(--lcd-text)] pl-2">
          <ChevronRight size={18} />
       </div>
     </button>
