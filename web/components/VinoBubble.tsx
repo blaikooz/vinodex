@@ -70,18 +70,18 @@ const VinoBubble: React.FC = () => {
         <button
           onClick={dismissVino}
           aria-label={`Dismiss Professor Vino: ${text}`}
-          className="pointer-events-auto w-full max-w-sm flex items-start gap-3 rounded-2xl border-2 border-amber-500 bg-stone-900/95 p-3.5 text-left shadow-[0_4px_0_rgba(0,0,0,0.5)]"
+          className="dex-pressable pointer-events-auto w-full max-w-sm flex items-start gap-3 rounded-card border-2 border-amber-500 bg-stone-900/95 p-3.5 text-left shadow-elev-3"
         >
           <span className="shrink-0 w-11 h-11 rounded-full border-2 border-amber-500 bg-stone-800 flex items-center justify-center overflow-hidden">
             <VinoPortrait expression={line.expression} size={38} />
           </span>
           <span className="flex-1 min-w-0">
-            <span className="block font-retro text-[0.5rem] tracking-widest text-amber-400">PROF. VINO</span>
+            <span className="block font-sans text-caption font-semibold tracking-widest text-amber-400">PROF. VINO</span>
             {line.chirp && (
-              <span className="block font-mono text-[0.62rem] text-stone-500 normal-case mt-0.5">{chirpText(line.chirp)}</span>
+              <span className="block font-sans text-caption text-stone-500 normal-case mt-0.5">{chirpText(line.chirp)}</span>
             )}
-            <span className="block font-mono text-sm text-stone-100 normal-case leading-snug mt-0.5">{text}</span>
-            <span className="block font-retro text-[0.45rem] tracking-widest text-stone-500 mt-1.5">TAP TO DISMISS</span>
+            <span className="block font-sans text-caption text-stone-100 normal-case leading-relaxed mt-0.5">{text}</span>
+            <span className="block font-sans text-caption tracking-widest text-stone-500 mt-1.5">TAP TO DISMISS</span>
           </span>
         </button>
       </div>

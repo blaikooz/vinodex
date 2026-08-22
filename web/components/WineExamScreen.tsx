@@ -1,6 +1,7 @@
 import React, { useMemo, useState } from 'react';
 import { BadgeCheck, BadgeX, CheckCircle2, XCircle, Lock, ChevronRight } from 'lucide-react';
 import DeviceLayout from './DeviceLayout';
+import DexAlert from './DexAlert';
 import {
   EXAM_CATEGORY_LABELS,
   ExamQuestion,
@@ -175,27 +176,27 @@ const WineExamScreen: React.FC<WineExamScreenProps> = ({ onBack, onHome }) => {
     return (
       <DeviceLayout title="WINE EXAM" showBack onBack={onBack} onHome={onHome} centerHeaderText>
         <div className="h-full overflow-y-auto custom-scrollbar flex flex-col items-center justify-center gap-4 p-6 text-center" style={{ backgroundColor: 'var(--lcd-page)' }}>
-          {passed ? <BadgeCheck size={72} className="text-green-400" /> : <BadgeX size={72} className="text-red-400" />}
-          <div className="font-retro text-3xl text-stone-100">{runCorrect(run)}/{run.length}</div>
-          <div className={`font-retro text-lg tracking-widest ${passed ? 'text-green-400' : 'text-red-400'}`}>{passed ? 'PASS' : 'FAIL'}</div>
-          {newlyUnlocked && <div className="font-retro text-xs tracking-widest text-yellow-300">{newlyUnlocked} UNLOCKED</div>}
-          <div className="font-mono text-xs text-stone-400 max-w-[16rem] normal-case">
+          {passed ? <BadgeCheck size={72} className="text-[var(--livery-green)]" /> : <BadgeX size={72} className="text-[var(--livery-red)]" />}
+          <div className="font-sans text-display text-[var(--lcd-text)]">{runCorrect(run)}/{run.length}</div>
+          <div className={`font-sans text-title font-bold tracking-widest ${passed ? 'text-[var(--livery-green)]' : 'text-[var(--livery-red)]'}`}>{passed ? 'PASS' : 'FAIL'}</div>
+          {newlyUnlocked && <div className="font-sans text-label tracking-widest text-[var(--livery-amber)]">{newlyUnlocked} UNLOCKED</div>}
+          <div className="font-sans text-caption text-[var(--lcd-subtext)] max-w-[16rem] normal-case leading-relaxed">
             {passed ? 'Santé!' : `Not quite — ${run.passMark}/${run.length} passes. Swirl and retry.`}
             {weak && ` Weakest subject so far: ${EXAM_CATEGORY_LABELS[weak.category]}.`}
           </div>
           {s.passStreak > 1 && (
-            <div className="font-mono text-[0.65rem] text-stone-500 normal-case">{s.passStreak} papers passed in a row.</div>
+            <div className="font-sans text-caption text-[var(--lcd-subtext)] normal-case">{s.passStreak} papers passed in a row.</div>
           )}
           <div className="flex flex-col gap-3 mt-2 w-full max-w-[16rem]">
             <button
               onClick={() => { setRecorded(false); setNewlyUnlocked(null); setRun(retryRun(run)); }}
-              className="w-full rounded-xl bg-yellow-400 border-b-4 border-yellow-600 active:translate-y-0.5 px-5 py-3 font-retro text-[0.6rem] tracking-widest text-amber-900"
+              className="dex-pressable w-full rounded-control bg-[var(--lcd-accent)] px-5 py-3 font-sans text-label tracking-widest text-[var(--lcd-on-accent)] shadow-elev-1"
             >
               RETRY
             </button>
             <button
               onClick={() => { setRun(null); setNewlyUnlocked(null); setRecorded(false); }}
-              className="w-full rounded-xl bg-stone-800 border-b-4 border-stone-950 active:translate-y-0.5 px-5 py-3 font-retro text-[0.6rem] tracking-widest text-stone-300"
+              className="dex-pressable w-full rounded-control bg-[var(--surface-raised)] border border-[var(--surface-line-strong)] px-5 py-3 font-sans text-label tracking-widest text-[var(--lcd-text)]"
             >
               BACK TO PAPERS
             </button>
@@ -210,8 +211,8 @@ const WineExamScreen: React.FC<WineExamScreenProps> = ({ onBack, onHome }) => {
     return (
       <DeviceLayout title="WINE EXAM" showBack onBack={onBack} onHome={onHome} centerHeaderText>
         <div className="h-full flex flex-col items-center justify-center gap-4 p-6 text-center" style={{ backgroundColor: 'var(--lcd-page)' }}>
-          <p className="font-retro text-xs tracking-widest text-yellow-300">{paper.message}</p>
-          <button onClick={() => setRun(null)} className="rounded-xl bg-stone-800 border-2 border-stone-600 px-6 py-2.5 font-retro text-[0.6rem] tracking-widest text-stone-300">BACK</button>
+          <p className="font-sans text-label tracking-widest text-[var(--livery-amber)]">{paper.message}</p>
+          <button onClick={() => setRun(null)} className="dex-pressable rounded-control bg-[var(--surface-raised)] border border-[var(--surface-line-strong)] px-6 py-2.5 font-sans text-label tracking-widest text-[var(--lcd-text)]">BACK</button>
         </div>
       </DeviceLayout>
     );
@@ -225,24 +226,24 @@ const WineExamScreen: React.FC<WineExamScreenProps> = ({ onBack, onHome }) => {
     const answer = run.answer;
 
     const optionButton = (label: string, slot: number, picked: boolean, onPick: () => void) => {
-      let cls = 'bg-stone-900/70 border-stone-700 text-stone-200';
+      let cls = 'bg-[var(--surface-raised)] border-[var(--surface-line-strong)] text-[var(--lcd-text)]';
       if (answered) {
-        if (isCorrectSlot(prompt, slot)) cls = 'bg-green-700/80 border-green-400 text-white';
-        else if (picked) cls = 'bg-red-800/80 border-red-500 text-white';
-        else cls = 'bg-stone-900/40 border-stone-800 text-stone-500';
+        if (isCorrectSlot(prompt, slot)) cls = 'bg-[color-mix(in_srgb,var(--livery-green)_16%,transparent)] border-[var(--livery-green)] text-[var(--lcd-text)]';
+        else if (picked) cls = 'bg-[color-mix(in_srgb,var(--livery-red)_16%,transparent)] border-[var(--livery-red)] text-[var(--lcd-text)]';
+        else cls = 'bg-[var(--surface-raised)] border-[var(--surface-line)] text-[var(--lcd-disabled-text)]';
       } else if (picked) {
-        cls = 'bg-stone-800 border-green-600 text-stone-100';
+        cls = 'bg-[var(--surface-high)] border-[var(--lcd-accent)] text-[var(--lcd-text)]';
       }
       return (
         <button
           key={slot}
           disabled={answered}
           onClick={onPick}
-          className={`flex items-center gap-2 rounded-xl border-2 px-4 py-3 text-left transition-colors ${cls}`}
+          className={`dex-pressable flex items-center gap-2 rounded-card border-2 px-4 py-3 text-left ${cls}`}
         >
-          <span className="flex-1 font-retro text-[0.65rem] tracking-widest normal-case">{label}</span>
-          {answered && isCorrectSlot(prompt, slot) && <CheckCircle2 size={18} className="text-white" />}
-          {answered && picked && !isCorrectSlot(prompt, slot) && <XCircle size={18} className="text-white" />}
+          <span className="flex-1 font-sans text-label normal-case">{label}</span>
+          {answered && isCorrectSlot(prompt, slot) && <CheckCircle2 size={18} className="text-[var(--livery-green)]" />}
+          {answered && picked && !isCorrectSlot(prompt, slot) && <XCircle size={18} className="text-[var(--livery-red)]" />}
         </button>
       );
     };
@@ -257,18 +258,18 @@ const WineExamScreen: React.FC<WineExamScreenProps> = ({ onBack, onHome }) => {
       body = (
         <div className="flex gap-3">
           {[true, false].map(v => {
-            let cls = 'bg-stone-900/70 border-stone-700 text-stone-200';
+            let cls = 'bg-[var(--surface-raised)] border-[var(--surface-line-strong)] text-[var(--lcd-text)]';
             if (answered) {
-              if (q.answer === v) cls = 'bg-green-700/80 border-green-400 text-white';
-              else if (pick === v) cls = 'bg-red-800/80 border-red-500 text-white';
-              else cls = 'bg-stone-900/40 border-stone-800 text-stone-500';
+              if (q.answer === v) cls = 'bg-[color-mix(in_srgb,var(--livery-green)_16%,transparent)] border-[var(--livery-green)] text-[var(--lcd-text)]';
+              else if (pick === v) cls = 'bg-[color-mix(in_srgb,var(--livery-red)_16%,transparent)] border-[var(--livery-red)] text-[var(--lcd-text)]';
+              else cls = 'bg-[var(--surface-raised)] border-[var(--surface-line)] text-[var(--lcd-disabled-text)]';
             }
             return (
               <button
                 key={String(v)}
                 disabled={answered}
                 onClick={() => commit({ kind: 'truth', value: v })}
-                className={`flex-1 rounded-xl border-2 px-4 py-4 font-retro text-sm tracking-widest transition-colors ${cls}`}
+                className={`dex-pressable flex-1 rounded-card border-2 px-4 py-4 font-sans text-label tracking-widest ${cls}`}
               >
                 {v ? 'TRUE' : 'FALSE'}
               </button>
@@ -296,7 +297,7 @@ const WineExamScreen: React.FC<WineExamScreenProps> = ({ onBack, onHome }) => {
               setRun(draft(run, { kind: 'selection', slots: nextSlots }));
             }),
           )}
-          <p className="font-mono text-[0.65rem] text-stone-500 normal-case">Select every answer that applies, then check.</p>
+          <p className="font-sans text-caption text-[var(--lcd-subtext)] normal-case">Select every answer that applies, then check.</p>
         </div>
       );
     } else if (q.format === 'matching') {
@@ -309,7 +310,7 @@ const WineExamScreen: React.FC<WineExamScreenProps> = ({ onBack, onHome }) => {
       const want = correctPairing(prompt);
       body = (
         <div className="flex flex-col gap-3">
-          <p className="font-mono text-[0.65rem] text-stone-500 normal-case">Tap an item, then its match.</p>
+          <p className="font-sans text-caption text-[var(--lcd-subtext)] normal-case">Tap an item, then its match.</p>
           <div className="grid grid-cols-2 gap-2">
             <div className="flex flex-col gap-2">
               {left.map((label, i) => {
@@ -320,16 +321,16 @@ const WineExamScreen: React.FC<WineExamScreenProps> = ({ onBack, onHome }) => {
                     key={i}
                     disabled={answered}
                     onClick={() => setPendingLeft(pendingLeft === i ? null : i)}
-                    className={`rounded-lg border-2 px-2 py-2 text-left font-mono text-[0.65rem] normal-case transition-colors ${
-                      good ? 'bg-green-700/80 border-green-400 text-white'
-                        : bad ? 'bg-red-800/80 border-red-500 text-white'
-                        : pendingLeft === i ? 'bg-stone-800 border-green-600 text-stone-100'
-                        : map[i] !== undefined ? 'bg-stone-800/70 border-stone-600 text-stone-200'
-                        : 'bg-stone-900/70 border-stone-700 text-stone-200'
+                    className={`dex-pressable rounded-control border-2 px-2 py-2 text-left font-sans text-caption normal-case ${
+                      good ? 'bg-[color-mix(in_srgb,var(--livery-green)_16%,transparent)] border-[var(--livery-green)] text-[var(--lcd-text)]'
+                        : bad ? 'bg-[color-mix(in_srgb,var(--livery-red)_16%,transparent)] border-[var(--livery-red)] text-[var(--lcd-text)]'
+                        : pendingLeft === i ? 'bg-[var(--surface-high)] border-[var(--lcd-accent)] text-[var(--lcd-text)]'
+                        : map[i] !== undefined ? 'bg-[var(--surface-high)] border-[var(--surface-line-strong)] text-[var(--lcd-text)]'
+                        : 'bg-[var(--surface-raised)] border-[var(--surface-line-strong)] text-[var(--lcd-text)]'
                     }`}
                   >
                     {label}
-                    {map[i] !== undefined && <span className="block text-[0.55rem] text-stone-400">→ {right[map[i]!]}</span>}
+                    {map[i] !== undefined && <span className="block text-[0.55rem] text-[var(--lcd-subtext)]">→ {right[map[i]!]}</span>}
                   </button>
                 );
               })}
@@ -348,9 +349,9 @@ const WineExamScreen: React.FC<WineExamScreenProps> = ({ onBack, onHome }) => {
                     setPendingLeft(null);
                     setRun(draft(run, { kind: 'pairing', map: nextMap }));
                   }}
-                  className={`rounded-lg border-2 px-2 py-2 text-left font-mono text-[0.65rem] normal-case transition-colors ${
-                    pairedRights.has(slot) ? 'bg-stone-800/70 border-stone-600 text-stone-400' : 'bg-stone-900/70 border-stone-700 text-stone-200'
-                  } ${pendingLeft !== null && !answered ? 'border-green-700' : ''}`}
+                  className={`dex-pressable rounded-control border-2 px-2 py-2 text-left font-sans text-caption normal-case ${
+                    pairedRights.has(slot) ? 'bg-[var(--surface-high)] border-[var(--surface-line-strong)] text-[var(--lcd-subtext)]' : 'bg-[var(--surface-raised)] border-[var(--surface-line-strong)] text-[var(--lcd-text)]'
+                  } ${pendingLeft !== null && !answered ? 'border-[var(--lcd-accent)]' : ''}`}
                 >
                   {label}
                 </button>
@@ -358,7 +359,7 @@ const WineExamScreen: React.FC<WineExamScreenProps> = ({ onBack, onHome }) => {
             </div>
           </div>
           {answered && (
-            <div className="font-mono text-[0.65rem] text-stone-400 normal-case">
+            <div className="font-sans text-caption text-[var(--lcd-subtext)] normal-case">
               {left.map((label, i) => (
                 <div key={i}>{label} → {right[want[i]!]}</div>
               ))}
@@ -373,7 +374,7 @@ const WineExamScreen: React.FC<WineExamScreenProps> = ({ onBack, onHome }) => {
       const want = correctSequence(prompt);
       body = (
         <div className="flex flex-col gap-2">
-          <p className="font-mono text-[0.65rem] text-stone-500 normal-case">
+          <p className="font-sans text-caption text-[var(--lcd-subtext)] normal-case">
             Tap in order: {q.axis.from} → {q.axis.to}. Tap again to remove.
           </p>
           {options.map((label, slot) => {
@@ -388,20 +389,20 @@ const WineExamScreen: React.FC<WineExamScreenProps> = ({ onBack, onHome }) => {
                   const nextSeq = position >= 0 ? seq.filter(s => s !== slot) : [...seq, slot];
                   setRun(draft(run, { kind: 'sequence', slots: nextSeq }));
                 }}
-                className={`flex items-center gap-2 rounded-xl border-2 px-4 py-3 text-left transition-colors ${
-                  good ? 'bg-green-700/80 border-green-400 text-white'
-                    : bad ? 'bg-red-800/80 border-red-500 text-white'
-                    : position >= 0 ? 'bg-stone-800 border-green-600 text-stone-100'
-                    : 'bg-stone-900/70 border-stone-700 text-stone-200'
+                className={`dex-pressable flex items-center gap-2 rounded-card border-2 px-4 py-3 text-left ${
+                  good ? 'bg-[color-mix(in_srgb,var(--livery-green)_16%,transparent)] border-[var(--livery-green)] text-[var(--lcd-text)]'
+                    : bad ? 'bg-[color-mix(in_srgb,var(--livery-red)_16%,transparent)] border-[var(--livery-red)] text-[var(--lcd-text)]'
+                    : position >= 0 ? 'bg-[var(--surface-high)] border-[var(--lcd-accent)] text-[var(--lcd-text)]'
+                    : 'bg-[var(--surface-raised)] border-[var(--surface-line-strong)] text-[var(--lcd-text)]'
                 }`}
               >
-                <span className="w-6 font-retro text-[0.65rem] text-green-400">{position >= 0 ? position + 1 : ''}</span>
-                <span className="flex-1 font-mono text-[0.7rem] normal-case">{label}</span>
+                <span className="w-6 font-sans text-label font-bold text-[var(--lcd-accent)]">{position >= 0 ? position + 1 : ''}</span>
+                <span className="flex-1 font-sans text-caption normal-case">{label}</span>
               </button>
             );
           })}
           {answered && (
-            <div className="font-mono text-[0.65rem] text-stone-400 normal-case">
+            <div className="font-sans text-caption text-[var(--lcd-subtext)] normal-case">
               Correct order: {want.map(s => options[s]).join(' → ')}
             </div>
           )}
@@ -414,20 +415,20 @@ const WineExamScreen: React.FC<WineExamScreenProps> = ({ onBack, onHome }) => {
         <div className="relative h-full">
           <div className="h-full overflow-y-auto custom-scrollbar p-4 flex flex-col gap-4" style={{ backgroundColor: 'var(--lcd-page)' }}>
             <div className="flex items-center justify-between">
-              <span className="font-retro text-[0.55rem] tracking-widest text-green-400">
+              <span className="font-sans text-caption tracking-widest text-[var(--lcd-accent)]">
                 {runTierLabel} · {EXAM_CATEGORY_LABELS[q.category]}
               </span>
-              <span className="font-retro text-[0.55rem] tracking-widest text-stone-400">{Math.min(run.index + 1, run.length)}/{run.length}</span>
+              <span className="font-sans text-caption tracking-widest text-[var(--lcd-subtext)]">{Math.min(run.index + 1, run.length)}/{run.length}</span>
             </div>
-            <p className="font-retro text-base text-stone-100 normal-case leading-snug">{q.prompt}</p>
+            <p className="font-sans text-body font-semibold text-[var(--lcd-text)] normal-case leading-snug">{q.prompt}</p>
             {questionImage(q)}
             {body}
             {needsCheck && !answered && (
               <button
                 disabled={!checkEnabled}
                 onClick={submitDraft}
-                className={`w-full rounded-xl border-b-4 active:translate-y-0.5 px-4 py-3 font-retro text-[0.6rem] tracking-widest ${
-                  checkEnabled ? 'bg-green-600 border-green-800 text-white' : 'bg-stone-800 border-stone-950 text-stone-500'
+                className={`dex-pressable w-full rounded-control px-4 py-3 font-sans text-label tracking-widest ${
+                  checkEnabled ? 'bg-[var(--lcd-accent)] text-[var(--lcd-on-accent)] shadow-elev-1' : 'bg-[var(--surface-raised)] border border-[var(--surface-line)] text-[var(--lcd-disabled-text)]'
                 }`}
               >
                 CHECK ANSWER
@@ -435,13 +436,13 @@ const WineExamScreen: React.FC<WineExamScreenProps> = ({ onBack, onHome }) => {
             )}
             {/* Reveal: verdict + the explanation every question carries (D7). */}
             {answered && (
-              <div className={`rounded-2xl border-2 bg-stone-900 p-4 flex flex-col gap-3 ${run.marks[run.marks.length - 1] ? 'border-green-700' : 'border-yellow-600'}`}>
-                <div className={`font-retro text-sm tracking-widest text-center ${run.marks[run.marks.length - 1] ? 'text-green-400' : 'text-yellow-400'}`}>
+              <div className={`rounded-card border-2 bg-[var(--surface-raised)] shadow-elev-2 p-4 flex flex-col gap-3 ${run.marks[run.marks.length - 1] ? 'border-[var(--livery-green)]' : 'border-[var(--livery-amber)]'}`}>
+                <div className={`font-sans text-label tracking-widest text-center ${run.marks[run.marks.length - 1] ? 'text-[var(--livery-green)]' : 'text-[var(--livery-amber)]'}`}>
                   {run.marks[run.marks.length - 1] ? 'CORRECT' : 'NOT QUITE'}
                 </div>
-                <p className="font-mono text-xs text-stone-300 normal-case leading-snug">{q.explanation}</p>
-                {q.source && <p className="font-mono text-[0.6rem] text-stone-500 normal-case">{q.source}</p>}
-                <button onClick={next} className="w-full rounded-xl bg-yellow-400 border-b-4 border-yellow-600 active:translate-y-0.5 px-3 py-2.5 font-retro text-[0.55rem] tracking-widest text-amber-900">
+                <p className="font-sans text-caption text-[var(--lcd-text)] normal-case leading-relaxed">{q.explanation}</p>
+                {q.source && <p className="font-sans text-caption text-[var(--lcd-subtext)] normal-case">{q.source}</p>}
+                <button onClick={next} className="dex-pressable w-full rounded-control bg-[var(--lcd-accent)] px-3 py-2.5 font-sans text-label tracking-widest text-[var(--lcd-on-accent)] shadow-elev-1">
                   {run.index === run.length - 1 ? 'SEE RESULTS' : 'NEXT QUESTION'}
                 </button>
               </div>
@@ -456,41 +457,41 @@ const WineExamScreen: React.FC<WineExamScreenProps> = ({ onBack, onHome }) => {
   return (
     <DeviceLayout title="WINE EXAM" showBack onBack={onBack} onHome={onHome} centerHeaderText>
       <div className="h-full overflow-y-auto custom-scrollbar p-4 flex flex-col gap-3" style={{ backgroundColor: 'var(--lcd-page)' }}>
-        <div className="font-retro text-xs tracking-widest text-green-400 text-left pb-1 mb-1 border-b-2" style={{ borderColor: 'var(--lcd-accent)' }}>CHOOSE YOUR EXAM</div>
+        <h2 className="font-sans text-label uppercase tracking-widest text-[var(--lcd-accent)] text-left pb-1 mb-1 border-b-2" style={{ borderColor: 'var(--lcd-accent)' }}>CHOOSE YOUR EXAM</h2>
         {QUIZ_TIERS.map(tier => {
           const unlocked = isTierUnlocked(tier);
           return (
             <button
               key={tier}
               onClick={() => begin(tier)}
-              className={`w-full flex items-center gap-3 p-4 rounded-xl border-2 transition-colors ${
-                unlocked ? 'bg-stone-900/70 border-green-700 hover:border-green-400' : 'bg-stone-900/40 border-stone-800 opacity-60'
+              className={`dex-pressable w-full flex items-center gap-3 p-4 rounded-card border ${
+                unlocked ? 'bg-[var(--surface-raised)] border-[var(--surface-line-strong)] hover:border-[var(--lcd-accent)] shadow-elev-1' : 'bg-[var(--surface-raised)] border-[var(--surface-line)] opacity-60'
               }`}
             >
               <div className="flex-1 text-left">
-                <div className="font-retro text-sm tracking-widest text-stone-100">{tier}</div>
-                <div className="font-mono text-xs text-stone-500 mt-0.5 normal-case">{TIER_BLURB[tier]}</div>
+                <div className="font-sans text-heading font-bold tracking-wide text-[var(--lcd-text)]">{tier}</div>
+                <div className="font-sans text-caption text-[var(--lcd-subtext)] mt-0.5 normal-case">{TIER_BLURB[tier]}</div>
               </div>
-              {unlocked ? <ChevronRight size={20} className="text-green-400" /> : <Lock size={18} className="text-stone-600" />}
+              {unlocked ? <ChevronRight size={20} className="text-[var(--lcd-accent)]" /> : <Lock size={18} className="text-[var(--lcd-disabled-text)]" />}
             </button>
           );
         })}
         {/* iOS `WineExamScreen`'s ledger line, numbers from the engine. */}
-        <p className="font-mono text-xs text-stone-500 text-left mt-2 normal-case">
+        <p className="font-sans text-caption text-[var(--lcd-subtext)] text-left mt-2 normal-case leading-relaxed">
           {EXAM_LENGTH} questions across 16 subjects, {EXAM_PASS_MARK} to pass. Passing an exam unlocks the next one.
         </p>
       </div>
 
       {lockedTier && (
-        <div className="absolute inset-0 z-40 bg-black/80 flex items-center justify-center p-6">
-          <div className="w-full max-w-xs bg-stone-900 border-2 border-yellow-700 rounded-lg p-5 flex flex-col gap-3 text-center">
-            <p className="font-retro text-xs tracking-widest text-yellow-300">{lockedTier} IS LOCKED</p>
-            <p className="font-mono text-sm text-stone-300 normal-case">
-              Pass {QUIZ_TIERS[tierRank(lockedTier) - 1] ?? 'NOVICE'} — {EXAM_PASS_MARK} of {EXAM_LENGTH} — to unlock it.
-            </p>
-            <button onClick={() => setLockedTier(null)} className="rounded-xl bg-stone-800 border-2 border-stone-600 py-2.5 font-retro text-[0.6rem] tracking-widest text-stone-300">OK</button>
-          </div>
-        </div>
+        <DexAlert
+          tone="yellow"
+          title={`${lockedTier} IS LOCKED`}
+          ariaLabel={`${lockedTier} is locked`}
+          onDismiss={() => setLockedTier(null)}
+          actions={[{ label: 'OK', kind: 'cancel', onClick: () => setLockedTier(null) }]}
+        >
+          Pass {QUIZ_TIERS[tierRank(lockedTier) - 1] ?? 'NOVICE'} — {EXAM_PASS_MARK} of {EXAM_LENGTH} — to unlock it.
+        </DexAlert>
       )}
     </DeviceLayout>
   );

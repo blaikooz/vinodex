@@ -78,10 +78,10 @@ const TastingQuizScreen: React.FC<TastingQuizScreenProps> = ({ allEntries, onOpe
     return (
       <DeviceLayout title="DAILY CHALLENGE" showBack onBack={onBack} onHome={onHome} centerHeaderText>
         <div className="h-full flex flex-col items-center justify-center gap-4 p-6 text-center" style={{ backgroundColor: 'var(--lcd-page)' }}>
-          {passed ? <BadgeCheck size={72} className="text-green-400" /> : <BadgeX size={72} className="text-red-400" />}
-          <div className="font-retro text-3xl text-stone-100">{session.correct}/{session.length}</div>
-          <div className={`font-retro text-lg tracking-widest ${passed ? 'text-green-400' : 'text-red-400'}`}>{passed ? 'PASS' : 'FAIL'}</div>
-          <div className="font-mono text-xs text-stone-400 max-w-[16rem] normal-case">
+          {passed ? <BadgeCheck size={72} className="text-[var(--livery-green)]" /> : <BadgeX size={72} className="text-[var(--livery-red)]" />}
+          <div className="font-sans text-display text-[var(--lcd-text)]">{session.correct}/{session.length}</div>
+          <div className={`font-sans text-title font-bold tracking-widest ${passed ? 'text-[var(--livery-green)]' : 'text-[var(--livery-red)]'}`}>{passed ? 'PASS' : 'FAIL'}</div>
+          <div className="font-sans text-caption text-[var(--lcd-subtext)] max-w-[16rem] normal-case leading-relaxed">
             {currentStreak() > 0
               ? `Streak: ${currentStreak()} day${currentStreak() === 1 ? '' : 's'}.`
               : 'Streak reset — tomorrow is a fresh paper.'}
@@ -89,7 +89,7 @@ const TastingQuizScreen: React.FC<TastingQuizScreenProps> = ({ allEntries, onOpe
           <div className="flex flex-col gap-3 mt-2 w-full max-w-[16rem]">
             <button
               onClick={onBack}
-              className="w-full rounded-xl bg-stone-800 border-b-4 border-stone-950 active:translate-y-0.5 px-5 py-3 font-retro text-[0.6rem] tracking-widest text-stone-300"
+              className="dex-pressable w-full rounded-control bg-[var(--surface-raised)] border border-[var(--surface-line-strong)] px-5 py-3 font-sans text-label tracking-widest text-[var(--lcd-text)]"
             >
               EXIT
             </button>
@@ -108,32 +108,32 @@ const TastingQuizScreen: React.FC<TastingQuizScreenProps> = ({ allEntries, onOpe
         <div className="relative h-full">
           <div className="h-full overflow-y-auto custom-scrollbar p-4 flex flex-col gap-4" style={{ backgroundColor: 'var(--lcd-page)' }}>
             <div className="flex items-center justify-between">
-              <span className="font-retro text-[0.55rem] tracking-widest text-green-400">
+              <span className="font-sans text-caption tracking-widest text-[var(--lcd-accent)]">
                 DAILY · {kindTopic(question.kind)}
               </span>
-              <span className="font-retro text-[0.55rem] tracking-widest text-stone-400">{Math.min(session.index + 1, session.length)}/{session.length}</span>
+              <span className="font-sans text-caption tracking-widest text-[var(--lcd-subtext)]">{Math.min(session.index + 1, session.length)}/{session.length}</span>
             </div>
-            <p className="font-retro text-base text-stone-100 normal-case leading-snug">{question.prompt}</p>
+            <p className="font-sans text-body font-semibold text-[var(--lcd-text)] normal-case leading-snug">{question.prompt}</p>
             <div className="flex flex-col gap-2">
               {question.optionIDs.map(id => {
                 const correct = id === question.answerID;
                 const chosen = session.chosenID === id;
-                let cls = 'bg-stone-900/70 border-stone-700 text-stone-200';
+                let cls = 'bg-[var(--surface-raised)] border-[var(--surface-line-strong)] text-[var(--lcd-text)]';
                 if (answered) {
-                  if (correct) cls = 'bg-green-700/80 border-green-400 text-white';
-                  else if (chosen) cls = 'bg-red-800/80 border-red-500 text-white';
-                  else cls = 'bg-stone-900/40 border-stone-800 text-stone-500';
+                  if (correct) cls = 'bg-[color-mix(in_srgb,var(--livery-green)_16%,transparent)] border-[var(--livery-green)] text-[var(--lcd-text)]';
+                  else if (chosen) cls = 'bg-[color-mix(in_srgb,var(--livery-red)_16%,transparent)] border-[var(--livery-red)] text-[var(--lcd-text)]';
+                  else cls = 'bg-[var(--surface-raised)] border-[var(--surface-line)] text-[var(--lcd-disabled-text)]';
                 }
                 return (
                   <button
                     key={id}
                     disabled={answered}
                     onClick={() => choose(id)}
-                    className={`flex items-center gap-2 rounded-xl border-2 px-4 py-3 text-left transition-colors ${cls}`}
+                    className={`dex-pressable flex items-center gap-2 rounded-card border-2 px-4 py-3 text-left ${cls}`}
                   >
-                    <span className="flex-1 font-retro text-[0.65rem] tracking-widest">{entryName(id).toUpperCase()}</span>
-                    {answered && correct && <CheckCircle2 size={18} className="text-white" />}
-                    {answered && chosen && !correct && <XCircle size={18} className="text-white" />}
+                    <span className="flex-1 font-sans text-label">{entryName(id).toUpperCase()}</span>
+                    {answered && correct && <CheckCircle2 size={18} className="text-[var(--livery-green)]" />}
+                    {answered && chosen && !correct && <XCircle size={18} className="text-[var(--livery-red)]" />}
                   </button>
                 );
               })}
@@ -144,16 +144,16 @@ const TastingQuizScreen: React.FC<TastingQuizScreenProps> = ({ allEntries, onOpe
           {answered && answer && (
             <div className="absolute inset-0 z-40 flex items-end justify-center p-4">
               <div className="absolute inset-0 bg-black/70" />
-              <div className={`relative w-full max-w-sm rounded-2xl border-2 bg-stone-900 p-4 flex flex-col gap-3 mb-2 ${session.chosenID === question.answerID ? 'border-green-700' : 'border-yellow-600'}`}>
-                <div className={`font-retro text-sm tracking-widest text-center ${session.chosenID === question.answerID ? 'text-green-400' : 'text-yellow-400'}`}>
+              <div className={`relative w-full max-w-sm rounded-card border-2 bg-[var(--surface-raised)] shadow-elev-3 p-4 flex flex-col gap-3 mb-2 ${session.chosenID === question.answerID ? 'border-[var(--livery-green)]' : 'border-[var(--livery-amber)]'}`}>
+                <div className={`font-sans text-label tracking-widest text-center ${session.chosenID === question.answerID ? 'text-[var(--livery-green)]' : 'text-[var(--livery-amber)]'}`}>
                   {session.chosenID === question.answerID ? 'CORRECT' : 'NOT QUITE'}
                 </div>
-                <p className="font-mono text-xs text-stone-300 normal-case leading-snug line-clamp-4">{answer.description}</p>
+                <p className="font-sans text-caption text-[var(--lcd-text)] normal-case leading-relaxed line-clamp-4">{answer.description}</p>
                 <EntryTile entry={answer} onPress={() => onOpen(answer)} index={0} />
-                <button onClick={() => onOpen(answer)} className="w-full flex items-center justify-center gap-1 rounded-xl bg-green-600 border-b-4 border-green-800 active:translate-y-0.5 px-3 py-2.5 font-retro text-[0.55rem] tracking-widest text-white">
+                <button onClick={() => onOpen(answer)} className="dex-pressable w-full flex items-center justify-center gap-1 rounded-control bg-[var(--lcd-accent)] px-3 py-2.5 font-sans text-label tracking-widest text-[var(--lcd-on-accent)] shadow-elev-1">
                   <BookOpen size={13} /> LEARN MORE
                 </button>
-                <button onClick={next} className="w-full rounded-xl bg-yellow-400 border-b-4 border-yellow-600 active:translate-y-0.5 px-3 py-2.5 font-retro text-[0.55rem] tracking-widest text-amber-900">
+                <button onClick={next} className="dex-pressable w-full rounded-control bg-[var(--surface-high)] border border-[var(--surface-line-strong)] px-3 py-2.5 font-sans text-label tracking-widest text-[var(--lcd-text)]">
                   {session.index === session.length - 1 ? 'SEE RESULTS' : 'NEXT QUESTION'}
                 </button>
               </div>
@@ -169,12 +169,12 @@ const TastingQuizScreen: React.FC<TastingQuizScreenProps> = ({ allEntries, onOpe
   return (
     <DeviceLayout title="DAILY CHALLENGE" showBack onBack={onBack} onHome={onHome} centerHeaderText>
       <div className="h-full flex flex-col items-center justify-center gap-4 p-6 text-center" style={{ backgroundColor: 'var(--lcd-page)' }}>
-        <Flame size={64} className={streak > 0 ? 'text-yellow-400' : 'text-stone-600'} />
-        <div className="font-retro text-lg text-stone-100">PAPER COMPLETE</div>
-        <div className="font-mono text-xs text-stone-400 max-w-[16rem] normal-case">
+        <Flame size={64} className={streak > 0 ? 'text-[var(--livery-amber)]' : 'text-[var(--lcd-disabled-text)]'} />
+        <div className="font-sans text-title font-bold text-[var(--lcd-text)]">PAPER COMPLETE</div>
+        <div className="font-sans text-caption text-[var(--lcd-subtext)] max-w-[16rem] normal-case leading-relaxed">
           {streak > 0 ? `Streak: ${streak} day${streak === 1 ? '' : 's'}. Come back tomorrow.` : "Today's paper is done. A new one arrives tomorrow."}
         </div>
-        <button onClick={onBack} className="rounded-xl bg-green-600 border-b-4 border-green-800 active:translate-y-0.5 px-6 py-3 font-retro text-[0.6rem] tracking-widest text-white">EXIT</button>
+        <button onClick={onBack} className="dex-pressable rounded-control bg-[var(--lcd-accent)] px-6 py-3 font-sans text-label tracking-widest text-[var(--lcd-on-accent)] shadow-elev-1">EXIT</button>
       </div>
     </DeviceLayout>
   );

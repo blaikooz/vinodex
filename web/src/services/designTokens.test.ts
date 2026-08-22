@@ -217,6 +217,12 @@ describe('design tokens', () => {
     // point, recorded as fixed in the v9 §9 ledger notes.
     'MinigamesScreen.tsx', 'RecommendationsScreen.tsx', 'GrapeLineageScreen.tsx',
     'MoonDialScreen.tsx', 'ChipFilterScreen.tsx', 'BookmarksScreen.tsx', 'ScannerScreen.tsx',
+    // Stage 4, batch 5 — passport, exam, professor. NOT here, with reasons:
+    // the professor cards, RatingPrompt, StampUnlockedPrompt and InstallBanner
+    // are fixed-palette overlays of the DexAlert family; WalkthroughScreen's
+    // schematic mini-device is an illustration drawn in painted colours.
+    'PassportScreen.tsx', 'WineExamScreen.tsx', 'TastingQuizScreen.tsx',
+    'ProfVinoScreen.tsx', 'InsightSection.tsx',
   ];
 
   /**
@@ -260,7 +266,9 @@ describe('design tokens', () => {
    * and is legible in every mode by construction.
    */
   const LITERAL_COLOUR = [
-    /#[0-9a-fA-F]{3,8}\b/g,
+    // The lookbehind exempts HTML entities: `&#9656;` is a triangle bullet,
+    // not a hex colour, and its digits happen to be valid hex.
+    /(?<!&)#[0-9a-fA-F]{3,8}\b/g,
     /\b(?:rgb|rgba|hsl|hsla|oklch|oklab)\(/g,
     /\b(?:bg|text|border|from|via|to|ring|placeholder|fill|stroke|shadow|divide|outline|decoration|caret)-(?:slate|gray|zinc|neutral|stone|red|orange|amber|yellow|lime|green|emerald|teal|cyan|sky|blue|indigo|violet|purple|fuchsia|pink|rose)-\d{2,3}(?:\/\d{1,3})?/g,
   ];

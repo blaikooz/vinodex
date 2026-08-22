@@ -131,29 +131,29 @@ const CoachmarkOverlay: React.FC = () => {
           className={`relative ${DEVICE_FRAME_BOX} flex items-end justify-center px-4`}
           style={DEVICE_ABOVE_BAND_STYLE}
         >
-          <div className="pointer-events-auto w-full max-w-sm rounded-2xl border-2 border-amber-500 bg-stone-900/95 p-3.5 flex flex-col gap-2.5 shadow-[0_4px_0_rgba(0,0,0,0.5)]">
+          <div className="pointer-events-auto w-full max-w-sm rounded-card border-2 border-amber-500 bg-stone-900/95 p-3.5 flex flex-col gap-2.5 shadow-elev-3">
             <div className="flex items-start gap-3">
               <span className="shrink-0 w-10 h-10 rounded-full border-2 border-amber-500 bg-stone-800 flex items-center justify-center overflow-hidden">
                 <VinoPortrait expression={step.expression} size={34} />
               </span>
               <div className="flex-1 min-w-0">
-                <p className="font-retro text-[0.5rem] tracking-widest text-amber-400">
+                <p className="font-sans text-caption font-semibold tracking-widest text-amber-400">
                   TUTORIAL {position}/{COACHMARK_STEPS.length}
                 </p>
-                <p className="font-mono text-sm text-stone-100 normal-case leading-snug mt-1">{text}</p>
+                <p className="font-sans text-caption text-stone-100 normal-case leading-relaxed mt-1">{text}</p>
               </div>
             </div>
             <div className="flex gap-2.5">
               <button
                 onClick={skipCoachmarks}
-                className="flex-1 font-retro text-[0.55rem] tracking-widest text-stone-400 border-2 border-stone-700 rounded-lg py-2.5"
+                className="dex-pressable flex-1 font-sans text-caption font-semibold tracking-widest text-stone-400 border-2 border-stone-700 rounded-control py-2.5"
               >
                 SKIP
               </button>
               {step.advancesOn === 'acknowledged' && (
                 <button
                   onClick={() => reportCoachmark('acknowledged')}
-                  className="flex-1 font-retro text-[0.55rem] tracking-widest text-black bg-amber-400 border-b-4 border-amber-600 rounded-lg py-2.5 active:translate-y-0.5"
+                  className="dex-pressable flex-1 font-sans text-caption font-semibold tracking-widest text-black bg-amber-400 rounded-control py-2.5"
                 >
                   CONTINUE
                 </button>

@@ -130,9 +130,9 @@ const WalkthroughScreen: React.FC<WalkthroughScreenProps> = ({ onBack, onHome })
         </div>
 
         {/* Copy */}
-        <div className="rounded-xl p-4" style={{ backgroundColor: 'var(--lcd-surface)', border: '2px solid var(--lcd-surface-edge)' }}>
-          <div className="font-retro text-sm tracking-widest mb-2" style={{ color: 'var(--lcd-accent)' }}>{step.title}</div>
-          <div className="font-mono text-sm normal-case leading-snug" style={{ color: 'var(--lcd-body-text)' }}>{step.body}</div>
+        <div className="rounded-card p-4 shadow-elev-1" style={{ backgroundColor: 'var(--lcd-surface)', border: '1px solid var(--lcd-surface-edge)' }}>
+          <div className="font-sans text-label uppercase tracking-widest mb-2" style={{ color: 'var(--lcd-accent)' }}>{step.title}</div>
+          <div className="font-sans text-body normal-case leading-relaxed" style={{ color: 'var(--lcd-body-text)' }}>{step.body}</div>
         </div>
 
         <div className="flex-1" />
@@ -140,11 +140,11 @@ const WalkthroughScreen: React.FC<WalkthroughScreenProps> = ({ onBack, onHome })
         {/* Controls */}
         <div className="flex gap-3">
           {index > 0 && (
-            <button onClick={() => setIndex(i => i - 1)} className="flex-1 rounded-xl py-3 font-retro text-[0.6rem] tracking-widest" style={{ backgroundColor: 'var(--lcd-surface)', color: 'var(--lcd-text)', border: '2px solid var(--lcd-surface-edge)' }}>BACK</button>
+            <button onClick={() => setIndex(i => i - 1)} className="dex-pressable flex-1 rounded-control py-3 font-sans text-label tracking-widest" style={{ backgroundColor: 'var(--lcd-surface)', color: 'var(--lcd-text)', border: '2px solid var(--lcd-surface-edge)' }}>BACK</button>
           )}
           <button
             onClick={() => (isLast ? onHome() : setIndex(i => i + 1))}
-            className="flex-1 rounded-xl py-3 font-retro text-[0.6rem] tracking-widest text-white"
+            className="dex-pressable flex-1 rounded-control py-3 font-sans text-label tracking-widest text-[var(--lcd-on-accent)]"
             style={{ backgroundColor: 'var(--lcd-accent)' }}
           >
             {isLast ? 'FINISH' : 'NEXT'}

@@ -53,15 +53,15 @@ const VinoIntroCard: React.FC<VinoIntroCardProps> = ({ onDone }) => {
     */
     <div className={`fixed inset-0 z-[85] ${DEVICE_FRAME_STAGE}`} style={DEVICE_FRAME_OVERLAY_STYLE} role="dialog" aria-modal="true" aria-label="Professor Vino introduces himself">
       <div className={`relative ${DEVICE_FRAME_BOX} bg-black/85 flex items-center justify-center p-6 overflow-hidden md:rounded-[2.5rem]`}>
-        <div className="w-full max-w-sm bg-stone-900 border-2 border-amber-500 rounded-2xl p-5 flex flex-col gap-4">
+        <div className="w-full max-w-sm bg-stone-900 border-2 border-amber-500 rounded-card p-5 flex flex-col gap-4">
           <div className="flex items-start gap-3">
             <span className="shrink-0 w-12 h-12 rounded-full border-2 border-amber-500 bg-stone-800 flex items-center justify-center overflow-hidden">
               <VinoPortrait expression={ask.expression} size={42} />
             </span>
             <div className="flex-1 min-w-0">
-              <p className="font-retro text-[0.5rem] tracking-widest text-amber-400">PROF. VINO</p>
-              {ask.chirp && <p className="font-mono text-[0.62rem] text-stone-500 normal-case mt-0.5">{chirpText(ask.chirp)}</p>}
-              <p className="font-mono text-sm text-stone-100 normal-case leading-snug mt-1">{renderedLine(ask, null)}</p>
+              <p className="font-sans text-caption font-semibold tracking-widest text-amber-400">PROF. VINO</p>
+              {ask.chirp && <p className="font-sans text-caption text-stone-500 normal-case mt-0.5">{chirpText(ask.chirp)}</p>}
+              <p className="font-sans text-caption text-stone-100 normal-case leading-relaxed mt-1">{renderedLine(ask, null)}</p>
             </div>
           </div>
 
@@ -82,19 +82,19 @@ const VinoIntroCard: React.FC<VinoIntroCardProps> = ({ onDone }) => {
               autoFocus
               autoCorrect="off"
               spellCheck={false}
-              className="w-full rounded-lg bg-black/50 border-2 border-stone-700 px-3 py-2.5 font-mono text-base text-green-200 placeholder:text-stone-600 focus:border-amber-500 focus:outline-none"
+              className="w-full rounded-control bg-black/50 border-2 border-stone-700 px-3 py-2.5 font-sans text-body text-green-200 placeholder:text-stone-600 focus:border-amber-500 focus:outline-none"
             />
             <div className="flex gap-3">
               <button
                 type="button"
                 onClick={() => finish(null)}
-                className="flex-1 font-retro text-[0.6rem] tracking-widest text-stone-300 border-2 border-stone-600 rounded-xl py-3"
+                className="dex-pressable flex-1 font-sans text-caption font-semibold tracking-widest text-stone-300 border-2 border-stone-600 rounded-control py-3"
               >
                 SKIP
               </button>
               <button
                 type="submit"
-                className="flex-1 font-retro text-[0.6rem] tracking-widest text-black bg-amber-400 border-b-4 border-amber-600 rounded-xl py-3 active:translate-y-0.5"
+                className="dex-pressable flex-1 font-sans text-caption font-semibold tracking-widest text-black bg-amber-400 rounded-control py-3"
               >
                 SUBMIT
               </button>

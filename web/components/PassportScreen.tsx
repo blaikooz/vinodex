@@ -27,28 +27,31 @@ interface PassportScreenProps {
   onHome: () => void;
 }
 
+// Rarity tints ride the livery table (stage 4) — same hue per tier, plus the
+// authored light-mode half. UNCOMMON's blue approximates to sky, the same
+// call the TOOLS shelf records for out-of-vocabulary hues.
 const RARITY_TINT: Record<string, string> = {
-  COMMON: '#22c55e',
-  UNCOMMON: '#3b82f6',
-  RARE: '#a855f7',
-  NOBLE: '#eab308',
-  GODFORSAKEN: '#ca8a04',
+  COMMON: 'var(--livery-green)',
+  UNCOMMON: 'var(--livery-sky)',
+  RARE: 'var(--livery-violet)',
+  NOBLE: 'var(--livery-amber)',
+  GODFORSAKEN: 'var(--livery-amber-deep)',
 };
 const RARITIES = ['COMMON', 'UNCOMMON', 'RARE', 'NOBLE', 'GODFORSAKEN'];
 
 const Section: React.FC<{ title: string; children: React.ReactNode }> = ({ title, children }) => (
   <div className="mb-5">
-    <div className="font-retro text-[0.6rem] tracking-widest text-green-400 border-b border-green-800 pb-1 mb-3">{title}</div>
+    <h2 className="font-sans text-label uppercase tracking-widest text-[var(--lcd-accent)] border-b pb-1 mb-3" style={{ borderColor: 'color-mix(in srgb, var(--lcd-accent) 45%, transparent)' }}>{title}</h2>
     {children}
   </div>
 );
 
 const StatTile: React.FC<{ icon: React.ReactNode; value: string; label: string; tint: string }> = ({ icon, value, label, tint }) => (
-  <div className="rounded-xl bg-stone-900/70 border-2 p-3 flex items-center gap-2.5" style={{ borderColor: `${tint}55` }}>
+  <div className="rounded-card bg-[var(--surface-raised)] border-2 p-3 flex items-center gap-2.5 shadow-elev-1" style={{ borderColor: `color-mix(in srgb, ${tint} 35%, transparent)` }}>
     <span className="shrink-0" style={{ color: tint }}>{icon}</span>
     <div className="flex flex-col items-start min-w-0">
-      <span className="font-retro text-lg text-stone-100 truncate">{value}</span>
-      <span className="font-mono text-[0.62rem] text-stone-400 normal-case truncate">{label}</span>
+      <span className="font-sans text-heading font-bold text-[var(--lcd-text)] truncate">{value}</span>
+      <span className="font-sans text-caption text-[var(--lcd-subtext)] normal-case truncate">{label}</span>
     </div>
   </div>
 );
@@ -57,11 +60,11 @@ const ProgressRow: React.FC<{ label: string; done: number; total: number; fill: 
   const pct = total > 0 ? Math.max(done > 0 ? 8 : 0, Math.round((done / total) * 100)) : 0;
   return (
     <div className="flex items-center gap-3 mb-2">
-      <span className="font-mono text-xs text-stone-300 normal-case w-24 shrink-0 truncate">{label}</span>
-      <span className="flex-1 h-3 rounded-full bg-black/50 overflow-hidden">
+      <span className="font-sans text-caption text-[var(--lcd-text)] normal-case w-24 shrink-0 truncate">{label}</span>
+      <span className="flex-1 h-3 rounded-full bg-[var(--lcd-well)] overflow-hidden">
         <span className="block h-full rounded-full" style={{ width: `${pct}%`, backgroundColor: fill }} />
       </span>
-      <span className="font-mono text-xs text-stone-400 w-12 text-right shrink-0">{done}/{total}</span>
+      <span className="font-sans text-caption text-[var(--lcd-subtext)] w-12 text-right shrink-0">{done}/{total}</span>
     </div>
   );
 };
@@ -102,24 +105,24 @@ const PassportScreen: React.FC<PassportScreenProps> = ({ allEntries, onSelect, o
             GRANDMASTER 100 / LEGENDARY 250 / WINE MONK 400), progress from
             the held rung's floor rather than zero. */}
         <Section title="RANK">
-          <div className="rounded-xl bg-stone-900/70 border-2 border-yellow-700/50 p-3.5">
+          <div className="rounded-card bg-[var(--surface-raised)] border-2 p-3.5 shadow-elev-1" style={{ borderColor: 'color-mix(in srgb, var(--livery-amber) 50%, transparent)' }}>
             <div className="flex items-center gap-3">
-              <ShieldCheck size={30} color="#eab308" />
+              <ShieldCheck size={30} className="text-[var(--livery-amber)]" />
               <div className="flex-1 min-w-0">
-                <div className="font-retro text-sm tracking-widest text-stone-100">
+                <div className="font-sans text-heading font-bold tracking-wide text-[var(--lcd-text)]">
                   {rank.held ? rank.held.name : 'UNRANKED'}
                 </div>
-                <div className="font-mono text-[0.65rem] text-stone-400 normal-case mt-0.5">
+                <div className="font-sans text-caption text-[var(--lcd-subtext)] normal-case mt-0.5">
                   {rank.held ? rank.held.blurb : 'Mark five entries tried to take the first rung.'}
                 </div>
               </div>
             </div>
             {rank.next && (
               <div className="mt-3">
-                <div className="h-3 rounded-full bg-black/50 overflow-hidden">
-                  <span className="block h-full rounded-full bg-yellow-500" style={{ width: `${Math.max(rank.fraction > 0 ? 8 : 0, Math.round(rank.fraction * 100))}%` }} />
+                <div className="h-3 rounded-full bg-[var(--lcd-well)] overflow-hidden">
+                  <span className="block h-full rounded-full bg-[var(--livery-amber)]" style={{ width: `${Math.max(rank.fraction > 0 ? 8 : 0, Math.round(rank.fraction * 100))}%` }} />
                 </div>
-                <div className="font-mono text-[0.62rem] text-stone-400 normal-case mt-1 text-right">
+                <div className="font-sans text-caption text-[var(--lcd-subtext)] normal-case mt-1 text-right">
                   {tastings}/{rank.next.threshold} toward {rank.next.name}
                 </div>
               </div>
@@ -129,21 +132,21 @@ const PassportScreen: React.FC<PassportScreenProps> = ({ allEntries, onSelect, o
 
         <Section title="TASTINGS">
           <div className="grid grid-cols-2 gap-3">
-            <StatTile icon={<Grid3x3 size={22} />} value={`${passport.triedGrapes}/${passport.totalGrapes}`} label="GRAPES" tint="#a855f7" />
-            <StatTile icon={<Wine size={22} />} value={`${passport.triedStyles}/${passport.totalStyles}`} label="STYLES" tint="#f97316" />
-            <StatTile icon={<Flag size={22} />} value={`${passport.countries}`} label="COUNTRIES" tint="#eab308" />
-            <StatTile icon={<MapIcon size={22} />} value={`${passport.continents.length}/6`} label="CONTINENTS" tint="#3b82f6" />
+            <StatTile icon={<Grid3x3 size={22} />} value={`${passport.triedGrapes}/${passport.totalGrapes}`} label="GRAPES" tint="var(--livery-violet)" />
+            <StatTile icon={<Wine size={22} />} value={`${passport.triedStyles}/${passport.totalStyles}`} label="STYLES" tint="var(--livery-orange)" />
+            <StatTile icon={<Flag size={22} />} value={`${passport.countries}`} label="COUNTRIES" tint="var(--livery-amber)" />
+            <StatTile icon={<MapIcon size={22} />} value={`${passport.continents.length}/6`} label="CONTINENTS" tint="var(--livery-sky)" />
           </div>
         </Section>
 
         <Section title="BY COLOUR">
-          <ProgressRow label="RED" done={passport.byColor.red} total={passport.colorTotals.red} fill="#ef4444" />
-          <ProgressRow label="WHITE" done={passport.byColor.white} total={passport.colorTotals.white} fill="#d6d3d1" />
+          <ProgressRow label="RED" done={passport.byColor.red} total={passport.colorTotals.red} fill="var(--livery-red)" />
+          <ProgressRow label="WHITE" done={passport.byColor.white} total={passport.colorTotals.white} fill="var(--lcd-text)" />
         </Section>
 
         <Section title="BY RARITY">
           {RARITIES.map(r => (
-            <ProgressRow key={r} label={r} done={passport.byRarity[r] ?? 0} total={passport.rarityTotals[r] ?? 0} fill={RARITY_TINT[r] ?? '#888'} />
+            <ProgressRow key={r} label={r} done={passport.byRarity[r] ?? 0} total={passport.rarityTotals[r] ?? 0} fill={RARITY_TINT[r] ?? 'var(--lcd-subtext)'} />
           ))}
         </Section>
 
@@ -156,7 +159,7 @@ const PassportScreen: React.FC<PassportScreenProps> = ({ allEntries, onSelect, o
               {recommended.length > RECOMMENDATION_STRIP && (
                 <button
                   onClick={onShowAllRecommendations}
-                  className="w-full flex items-center justify-center gap-1.5 rounded-xl bg-stone-900/70 border-2 border-green-800 px-4 py-2.5 font-retro text-[0.55rem] tracking-widest text-green-400 transition-colors hover:border-green-500"
+                  className="dex-pressable w-full flex items-center justify-center gap-1.5 rounded-card bg-[var(--surface-raised)] border border-[var(--surface-line-strong)] px-4 py-2.5 font-sans text-caption font-semibold tracking-widest text-[var(--lcd-accent)] hover:border-[var(--lcd-accent)] shadow-elev-1"
                 >
                   SHOW ALL ({recommended.length}) <ChevronRight size={13} />
                 </button>
@@ -172,12 +175,12 @@ const PassportScreen: React.FC<PassportScreenProps> = ({ allEntries, onSelect, o
               return (
                 <div
                   key={b.id}
-                  className="rounded-xl bg-stone-900/60 p-3 flex flex-col items-center text-center gap-1"
-                  style={{ border: `${b.earned ? 2 : 1}px solid ${b.earned ? `${tint}88` : '#44403c'}`, opacity: b.earned ? 1 : 0.7 }}
+                  className="rounded-card bg-[var(--surface-raised)] p-3 flex flex-col items-center text-center gap-1 shadow-elev-1"
+                  style={{ border: b.earned ? `2px solid color-mix(in srgb, ${tint} 55%, transparent)` : '1px solid var(--surface-line)', opacity: b.earned ? 1 : 0.7 }}
                 >
                   <StampArt id={b.id} size={40} earned={b.earned} />
-                  <span className="font-retro text-[0.55rem] tracking-widest mt-1" style={{ color: b.earned ? '#e7e5e4' : '#78716c' }}>{b.title}</span>
-                  <span className="font-mono text-[0.62rem] text-stone-500 leading-tight normal-case">{b.blurb}</span>
+                  <span className="font-sans text-caption font-semibold tracking-widest mt-1" style={{ color: b.earned ? 'var(--lcd-text)' : 'var(--lcd-disabled-text)' }}>{b.title}</span>
+                  <span className="font-sans text-caption text-[var(--lcd-subtext)] leading-tight normal-case">{b.blurb}</span>
                 </div>
               );
             })}
