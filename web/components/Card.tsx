@@ -140,6 +140,8 @@ export interface TileProps {
   livery: Livery;
   /** The glyph. Sized by the caller; coloured by the chip. */
   icon: React.ReactNode;
+  /** Draw the glyph directly on the tile instead of inside the shared chip. */
+  bareIcon?: boolean;
   /** One line, in the sans. Never wrapped by a literal line break. */
   label: string;
   /** Optional second line, sentence case. */
@@ -189,6 +191,7 @@ export interface TileProps {
 export const Tile: React.FC<TileProps> = ({
   livery,
   icon,
+  bareIcon = false,
   label,
   caption,
   onClick,
@@ -217,8 +220,10 @@ export const Tile: React.FC<TileProps> = ({
     <span
       aria-hidden="true"
       className={
-        'flex items-center justify-center rounded-control bg-[var(--tint-subtle)] ' +
-        'text-[var(--tint-ink)] p-2.5 sm:p-3.5 transition-transform duration-200 group-hover:scale-105'
+        bareIcon
+          ? 'flex items-center justify-center text-[var(--lcd-text)] transition-transform duration-200 group-hover:scale-105'
+          : 'flex items-center justify-center rounded-control bg-[var(--tint-subtle)] ' +
+            'text-[var(--tint-ink)] p-2.5 sm:p-3.5 transition-transform duration-200 group-hover:scale-105'
       }
     >
       {icon}

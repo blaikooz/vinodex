@@ -33,6 +33,13 @@ describe('the Horizon/Godot website', () => {
       expect(screen.getByRole('button', { name: action })).toBeTruthy();
     }
     expect(screen.queryByRole('button', { name: 'DATA' })).toBeNull();
+    const openVinodex = screen.getByRole('button', { name: 'OPEN VINODEX' });
+    expect(openVinodex.style.backgroundColor).toBe('var(--tint-solid)');
+    const iconWell = openVinodex.querySelector('span');
+    expect(iconWell?.className).not.toContain('bg-[var(--tint-subtle)]');
+    expect(openVinodex.querySelector('svg')?.getAttribute('width')).toBe('44');
+    expect(document.querySelector<HTMLElement>('.device-screen-space')?.style.paddingBottom)
+      .toBe('max(0.5rem, env(safe-area-inset-bottom))');
     fireEvent.click(screen.getByRole('button', { name: 'OPEN VINODEX' }));
     expect(onOpenApp).toHaveBeenCalledOnce();
   });

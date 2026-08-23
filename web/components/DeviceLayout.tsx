@@ -181,8 +181,8 @@ const DeviceLayout: React.FC<DeviceLayoutProps> = ({
 
         {/* Screen Container */}
         <div
-          className="flex-1 min-h-0"
-          style={{ paddingBottom: onSite ? 0 : `calc(${footerHeight} + ${footerBottomPad})` }}
+          className="device-screen-space flex-1 min-h-0"
+          style={{ paddingBottom: onSite ? footerBottomPad : `calc(${footerHeight} + ${footerBottomPad})` }}
         >
           {/*
             The screen housing, with its keyed corner (S4) and NOCTURNE's

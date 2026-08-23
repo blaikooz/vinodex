@@ -257,7 +257,12 @@ export const PortalHome: React.FC<PortalHomeProps> = props => (
               livery={t.livery}
               label={t.label}
               onClick={props[t.key] as () => void}
-              icon={<t.icon size={28} className="sm:w-9 sm:h-9" aria-hidden="true" />}
+              icon={<t.icon size={44} className="sm:w-14 sm:h-14" aria-hidden="true" />}
+              bareIcon
+              style={{
+                backgroundColor: 'var(--tint-solid)',
+                borderColor: 'var(--tint-border)',
+              }}
               className="[&>span:nth-of-type(2)]:font-retro"
             />
           ))}
