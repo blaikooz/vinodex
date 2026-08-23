@@ -174,7 +174,7 @@ export interface TileProps {
 /**
  * A big square control: icon in a tinted well, one-line label under it.
  *
- * The label is `<span>` rather than a heading because a tile is a button, and
+ * The pixel label is `<span>` rather than a heading because a tile is a button, and
  * its text is the button's accessible name — which is also why `WHO WE<br/>
  * ARE` had to go beyond looking bad: it made the name "WHO WEARE" in some
  * name-computation paths and left the site suite asserting a string the DOM
@@ -229,11 +229,9 @@ export const Tile: React.FC<TileProps> = ({
       {icon}
     </span>
 
-    {/* One step up above the `sm` breakpoint. The chassis is a fixed box on a
-        desktop window, so the tile gets physically bigger while a fixed 13px
-        label does not -- and a label that is 6% of its tile's height reads as
-        a caption for something else. */}
-    <span className="font-sans text-label sm:text-heading uppercase tracking-wide text-[var(--lcd-text)]">
+    {/* One step up above the `sm` breakpoint. The terminal face stays legible
+        as the fixed desktop chassis grows without overwhelming the artwork. */}
+    <span className="font-retro text-[0.65rem] sm:text-xs uppercase tracking-wide text-[var(--lcd-text)]">
       {label}
     </span>
 

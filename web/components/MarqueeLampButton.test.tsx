@@ -53,6 +53,19 @@ describe('<MarqueeLampButton />', () => {
     expect(onReassign).not.toHaveBeenCalled();
   });
 
+  it('carries a tactile pressed-state treatment', () => {
+    const { button } = mount();
+    const classes = button.className.split(/\s+/);
+    expect(
+      classes.some(name => name.startsWith('active:translate-y-') || name.startsWith('active:scale-')),
+      'the marquee pill does not move into the chassis when pressed',
+    ).toBe(true);
+    expect(
+      classes.some(name => name.startsWith('active:brightness-') || name.startsWith('active:shadow-')),
+      'the marquee pill face does not lose light when pressed',
+    ).toBe(true);
+  });
+
   it('opens the chooser on the context menu', () => {
     // Right-click, the Menu key and Shift+F10 all land on this one event.
     const { onActivate, onReassign, button } = mount();

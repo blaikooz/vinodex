@@ -133,8 +133,7 @@ const capStyle = (kind: FooterCapKind): React.CSSProperties => ({
  * part seated in it.
  */
 const CAP_CLASS =
-  'relative w-12 h-12 md:w-14 md:h-14 rounded-full border-[3px] '
-  + 'shadow-[inset_0_2px_4px_rgba(255,255,255,0.12),0_2px_3px_rgba(0,0,0,0.32),0_7px_12px_-5px_rgba(0,0,0,0.42)] '
+  'relative h-16 w-16 shrink-0 rounded-full border-0 bg-transparent p-0 '
   + 'flex items-center justify-center '
   + 'transition-[transform,filter] duration-100 '
   + 'active:scale-[0.88] active:brightness-90 '
@@ -186,7 +185,16 @@ const CapFace: React.FC<{
   const [failed, setFailed] = useState(false);
   const src = capArt(skin, kind);
   useEffect(() => { setFailed(false); }, [src]);
-  if (!src || failed) return <>{children}</>;
+  if (!src || failed) {
+    return (
+      <span
+        className="absolute inset-0 flex items-center justify-center rounded-full border-[3px] shadow-[inset_0_2px_4px_rgba(255,255,255,0.12),0_2px_3px_rgba(0,0,0,0.32),0_7px_12px_-5px_rgba(0,0,0,0.42)]"
+        style={capStyle(kind)}
+      >
+        {children}
+      </span>
+    );
+  }
   return (
     <img
       src={src}
@@ -194,10 +202,10 @@ const CapFace: React.FC<{
       aria-hidden="true"
       draggable={false}
       onError={() => setFailed(true)}
-      className="absolute inset-[-3px] w-[calc(100%+6px)] h-[calc(100%+6px)] pointer-events-none select-none"
-      // Inset by the border width and sized past it: the sprite is a whole
-      // moulded cap including its own rim, so it replaces the CSS border
-      // rather than sitting inside it. Drawn smooth, not pixelated -- these
+      className="absolute inset-0 h-full w-full pointer-events-none select-none"
+      // The sprite is the whole moulded cap, including its rim and shadow; it
+      // replaces the CSS fallback instead of being painted over it. Drawn
+      // smooth, not pixelated -- these
       // are a rendered circle downscaled, not pixel art on a grid, which is
       // the same exception iOS carves out with `.interpolation(.high)`.
       style={{ imageRendering: 'auto', objectFit: 'contain' }}
@@ -234,7 +242,7 @@ const DeviceFooter: React.FC<DeviceFooterProps> = ({
   const backEnabled = showBack && !!onBack;
   // One size: the marquee never says VINODEX any more (the script replaced
   // the wordmark loop), so the old big-wordmark branch was dead (review I3).
-  const footerTitleSize = 'text-[1.55rem] md:text-[1.8rem]';
+  const footerTitleSize = 'text-[1.2rem] md:text-[1.45rem]';
   const defaultFooterDisplay = (
     // The marquee bezel (stage 3, v9#s4). The chrome rim used to end in a
     // solid `0 3px 0` grey ledge — a hard offset shadow, the exact stroke the
@@ -243,24 +251,18 @@ const DeviceFooter: React.FC<DeviceFooterProps> = ({
     // over a layered contact + ambient drop instead of the ledge. The glass
     // inside is `1.1rem − 0.35rem padding ≈ 0.75rem`, so the two corners are
     // concentric rather than the near-miss 0.9rem was.
-    <div className="flex-1 min-h-0 w-full min-w-0 rounded-[1.1rem] bg-black px-[0.35rem] py-[0.3rem] border border-white/60 shadow-[inset_0_1px_0_rgba(255,255,255,0.6),0_2px_3px_rgba(0,0,0,0.35),0_6px_12px_-6px_rgba(0,0,0,0.4)]">
-      <div className="flex h-full min-h-0 items-center overflow-hidden bg-black rounded-[0.75rem] px-1 shadow-[inset_0_0_18px_rgba(34,197,94,0.16)]">
-        <div className="terminal-marquee whitespace-nowrap flex items-center">
+    <div className="chassis-marquee flex-1 min-h-0 w-full min-w-0 rounded-[1.1rem] p-[0.3rem] border-[3px] border-emerald-950 shadow-[inset_0_1px_0_rgba(255,255,255,0.28),0_2px_3px_rgba(0,0,0,0.35),0_6px_12px_-6px_rgba(0,0,0,0.4)]">
+      <div className="chassis-marquee-screen relative flex h-full min-h-0 items-center justify-center overflow-hidden rounded-[0.7rem] px-1">
+        <div className="terminal-marquee static-marquee flex flex-col items-center justify-center gap-1 text-emerald-950">
+          <span className="chassis-marquee-glyph flex items-center justify-center">
+            {marqueeGlyph(glyphTitle, 32)}
+          </span>
           <span
-            className={`inline-block font-retro ${footerTitleSize} italic tracking-[-0.08em] transform -skew-x-12 leading-none text-green-500 pr-6`}
-            style={{ textShadow: '1px 1px 0px rgba(8, 32, 16, 0.65)' }}
+            className={`block font-retro ${footerTitleSize} tracking-[-0.05em] leading-none text-emerald-950`}
+            style={{ textShadow: '0 1px 0 rgba(255,255,255,0.18)' }}
           >
             {footerTitle}
           </span>
-          <span className="pr-6 flex items-center">{marqueeGlyph(glyphTitle, 22)}</span>
-          <span
-            aria-hidden="true"
-            className={`inline-block font-retro ${footerTitleSize} italic tracking-[-0.08em] transform -skew-x-12 leading-none text-green-500 pr-6`}
-            style={{ textShadow: '1px 1px 0px rgba(8, 32, 16, 0.65)' }}
-          >
-            {footerTitle}
-          </span>
-          <span aria-hidden="true" className="pr-6 flex items-center">{marqueeGlyph(glyphTitle, 22)}</span>
         </div>
       </div>
     </div>
@@ -279,8 +281,8 @@ const DeviceFooter: React.FC<DeviceFooterProps> = ({
     >
       {/* Left well: Back (top) over Saved (bottom). */}
       <div
-        className="flex h-full flex-col items-center justify-between rounded-full p-1.5 shrink-0"
-        style={{ backgroundColor: 'rgba(0,0,0,0.2)', boxShadow: 'inset 0 2px 4px rgba(0,0,0,0.35), inset 0 -1px 0 rgba(255,255,255,0.14)' }}
+        className="flex h-full flex-col items-center justify-between rounded-full p-1 shrink-0"
+        style={{ backgroundColor: 'rgba(64,0,18,0.12)', boxShadow: 'inset 0 1px 2px rgba(0,0,0,0.16)' }}
       >
         <button
           type="button"
@@ -288,7 +290,6 @@ const DeviceFooter: React.FC<DeviceFooterProps> = ({
           disabled={!backEnabled}
           aria-label="Back"
           className={`${CAP_CLASS} ${backEnabled ? 'hover:scale-[1.02]' : 'opacity-35 cursor-default'}`}
-          style={capStyle('back')}
         >
           {/* The drawn cap, with the coloured circle behind it as its own
               fallback. `currentColor` on the glyph so that fallback is
@@ -317,7 +318,6 @@ const DeviceFooter: React.FC<DeviceFooterProps> = ({
             aria-label="Collection"
             data-coachmark="passportButton"
             className={`${CAP_CLASS} hover:scale-[1.02]`}
-            style={capStyle('user')}
           >
             <CapFace kind="user" skin={skin}>
               <CircleUser className="w-7 h-7 pointer-events-none" strokeWidth={2} aria-hidden="true" />
@@ -431,8 +431,8 @@ const DeviceFooter: React.FC<DeviceFooterProps> = ({
 
       {/* Right well: Home (top) over Settings (bottom). */}
       <div
-        className="flex h-full flex-col items-center justify-between rounded-full p-1.5 shrink-0"
-        style={{ backgroundColor: 'rgba(0,0,0,0.2)', boxShadow: 'inset 0 2px 4px rgba(0,0,0,0.35), inset 0 -1px 0 rgba(255,255,255,0.14)' }}
+        className="flex h-full flex-col items-center justify-between rounded-full p-1 shrink-0"
+        style={{ backgroundColor: 'rgba(64,0,18,0.12)', boxShadow: 'inset 0 1px 2px rgba(0,0,0,0.16)' }}
       >
         {/* No inner lit disc, and no amber (S1). It was the web twin of
             the `ChassisAccent`-lit disc iOS deleted in 0.8.98: a second
@@ -446,7 +446,6 @@ const DeviceFooter: React.FC<DeviceFooterProps> = ({
           disabled={!onHome}
           aria-label="Home"
           className={`${CAP_CLASS} ${onHome ? 'hover:scale-[1.02]' : 'opacity-35 cursor-default'}`}
-          style={capStyle('home')}
         >
           <CapFace kind="home" skin={skin}>
             <Home size={28} className="pointer-events-none" aria-hidden="true" />
@@ -458,7 +457,6 @@ const DeviceFooter: React.FC<DeviceFooterProps> = ({
             onClick={() => navigate('/settings')}
             aria-label="Settings"
             className={`${CAP_CLASS} hover:scale-[1.02]`}
-            style={capStyle('settings')}
           >
             <CapFace kind="settings" skin={skin}>
               <Settings

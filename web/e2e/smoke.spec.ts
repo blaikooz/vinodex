@@ -40,6 +40,7 @@ for (const [route, name] of routes) {
     void consoleErrors;
     await seed(page);
     await enterDex(page, route);
+    await expect(page).toHaveTitle('VINODEX');
     // The chassis always paints something; an empty body is a dead screen.
     await expect(page.locator('body')).not.toBeEmpty();
     await page.waitForTimeout(600);
@@ -140,7 +141,8 @@ test('the BIOS runs on entering the app, and never on the site', async ({ page, 
   // COUNTRY_GATE rows as entries, so its number is its own, not iOS's.
   await expect(post).toBeVisible();
   await expect(page.getByText(/\d+ ENTRIES/)).toBeVisible();
-  await expect(post).toBeHidden({ timeout: 20_000 });
+  await page.getByRole('button', { name: 'Skip boot' }).click();
+  await expect(post).toBeHidden();
   await expect(page).toHaveURL(/\/dex$/);
 
   // 3. Inside the app, nothing power-cycles under you.
@@ -172,7 +174,8 @@ test('the BIOS runs again the second time you open the app', async ({ page, cons
   await page.getByRole('button', { name: /VINODEX/ }).first().click();
   await page.getByRole('button', { name: /OPEN VINODEX/ }).click();
   await expect(post).toBeVisible();
-  await expect(post).toBeHidden({ timeout: 20_000 });
+  await page.getByRole('button', { name: 'Skip boot' }).click();
+  await expect(post).toBeHidden();
 });
 
 /**
@@ -244,8 +247,9 @@ test('the BIOS runs alone on a genuinely fresh device', async ({ page, consoleEr
   await expect(page.getByRole('dialog', { name: /introduces himself/i })).toHaveCount(0);
   await expect(page.getByText(/TUTORIAL \d\/\d/)).toHaveCount(0);
 
-  // And once it hands over, the first-run flow arrives.
-  await expect(page.getByText(/VINODEX BIOS/)).toBeHidden({ timeout: 20_000 });
+  // It waits at the BIOS until the player explicitly hands over.
+  await page.getByRole('button', { name: 'Skip boot' }).click();
+  await expect(page.getByText(/VINODEX BIOS/)).toBeHidden();
   await expect(page.getByRole('dialog', { name: /introduces himself/i })).toBeVisible({ timeout: 10_000 });
 });
 
@@ -260,7 +264,8 @@ test('a returning untoured player is not spotlit over the BIOS', async ({ page, 
   await page.goto('/dex');
   await expect(page.getByText(/VINODEX BIOS/)).toBeVisible();
   await expect(page.getByText(/TUTORIAL \d\/\d/)).toHaveCount(0);
-  await expect(page.getByText(/VINODEX BIOS/)).toBeHidden({ timeout: 20_000 });
+  await page.getByRole('button', { name: 'Skip boot' }).click();
+  await expect(page.getByText(/VINODEX BIOS/)).toBeHidden();
   // The tour takes over only after the device is handed to the player.
   await expect(page.getByText(/TUTORIAL \d\/\d/)).toBeVisible({ timeout: 10_000 });
 });

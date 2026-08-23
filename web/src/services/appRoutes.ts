@@ -68,7 +68,8 @@ export const DEX_PREFIXES: readonly string[] = [
  * The app's share surface.
  *
  * `scripts/prerender-og.ts` writes 440 static `dist/detail/<id>/index.html`
- * pages, each with its own `<title>`, canonical link and unfurl card, for
+ * pages, each with the VINODEX browser title, a canonical link and its own
+ * unfurl card, for
  * exactly these URLs. They exist so a stranger who taps a shared link lands on
  * the entry — which is why a cold arrival here is a page view rather than an
  * app launch. See `bootDecision`.
@@ -86,6 +87,10 @@ export const isSitePath = (path: string): boolean =>
 
 /** The encyclopedia app. */
 export const isDexPath = (path: string): boolean => DEX_PREFIXES.some(p => owns(p, path));
+
+/** The browser tab names only the product currently being used. */
+export const browserTitle = (path: string): 'HORIZON/GODOT' | 'VINODEX' =>
+  isDexPath(path) ? 'VINODEX' : 'HORIZON/GODOT';
 
 /** A shared entry page. */
 export const isSharePath = (path: string): boolean => owns(SHARE_PREFIX, path);

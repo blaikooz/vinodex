@@ -76,7 +76,7 @@ export const DEVICE_FRAME_BOX = 'w-full h-full md:h-[var(--device-frame-h)] md:w
  * the band, and a third copy of "8.5rem" is how the boot and the chassis came
  * to disagree about the device's size in the first place.
  */
-export const DEVICE_FOOTER_HEIGHT = '8.5rem';
+export const DEVICE_FOOTER_HEIGHT = '9.5rem';
 export const DEVICE_FOOTER_BOTTOM_PAD = 'max(0.5rem, env(safe-area-inset-bottom))';
 
 /** The footer's painted height after the UI furniture scale is applied. */

@@ -101,6 +101,21 @@ for (const [name, width, height] of SIZES) {
 
       const strays = await paintedOutside(page, OVERHANG_BY_DESIGN);
       expect(strays, `painted outside the window:\n${strays.join('\n')}`).toEqual([]);
+
+      // The engraved owner mark is clipped by its strip deliberately, but the
+      // lettering itself must fit inside that clip at every supported frame.
+      const wordmark = await page.locator('.bezel-wordmark').evaluate(node => {
+        const mark = node.getBoundingClientRect();
+        const host = node.parentElement!.getBoundingClientRect();
+        return {
+          mark: { left: mark.left, right: mark.right, top: mark.top, bottom: mark.bottom },
+          host: { left: host.left, right: host.right, top: host.top, bottom: host.bottom },
+        };
+      });
+      expect(wordmark.mark.left, 'VINODEX clips at the left edge').toBeGreaterThanOrEqual(wordmark.host.left - 0.5);
+      expect(wordmark.mark.right, 'VINODEX clips at the right edge').toBeLessThanOrEqual(wordmark.host.right + 0.5);
+      expect(wordmark.mark.top, 'VINODEX clips at the top edge').toBeGreaterThanOrEqual(wordmark.host.top - 0.5);
+      expect(wordmark.mark.bottom, 'VINODEX clips at the bottom edge').toBeLessThanOrEqual(wordmark.host.bottom + 0.5);
     });
 
     /**
@@ -198,8 +213,9 @@ for (const [name, width, height] of SIZES) {
         expect(geom.box, 'the device frame is not the 522px column on desktop').toBeLessThan(geom.vw * 0.6);
       }
 
-      // It still hands the device over, at every size.
-      await expect(post).toBeHidden({ timeout: 20_000 });
+      // It waits for and accepts an explicit handoff at every size.
+      await page.getByRole('button', { name: 'Skip boot' }).click();
+      await expect(post).toBeHidden();
     });
   });
 }

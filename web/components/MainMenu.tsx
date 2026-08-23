@@ -1,6 +1,4 @@
 import React, { useState } from 'react';
-import { Grip, Globe, Leaf, Search, Wine } from 'lucide-react';
-import type { LucideIcon } from 'lucide-react';
 import DeviceLayout from './DeviceLayout';
 import DeviceBackPanel from './DeviceBackPanel';
 import { Tile } from './Card';
@@ -76,11 +74,11 @@ const tileMask = (q: Quadrant): React.CSSProperties => {
  * quietly re-hued: the assignment is one of the shared ideas, and changing it
  * is a product decision, not a presentation one. Flagged in the ledger.
  */
-const DIAL: { quadrant: Quadrant; label: string; livery: Livery; icon: LucideIcon; category: EntryCategory }[] = [
-  { quadrant: 'tl', label: 'GRAPES', livery: 'violet', icon: Grip, category: 'GRAPES' },
-  { quadrant: 'tr', label: 'REGIONS', livery: 'green', icon: Globe, category: 'REGIONS' },
-  { quadrant: 'bl', label: 'STYLES', livery: 'orange', icon: Wine, category: 'STYLES' },
-  { quadrant: 'br', label: 'FLAVORS', livery: 'emerald', icon: Leaf, category: 'FLAVORS' },
+const DIAL: { quadrant: Quadrant; label: string; livery: Livery; iconName: string; iconSrc: string; category: EntryCategory }[] = [
+  { quadrant: 'tl', label: 'GRAPES', livery: 'violet', iconName: 'grapes', iconSrc: '/art/grape/red-full-noble.png', category: 'GRAPES' },
+  { quadrant: 'tr', label: 'REGIONS', livery: 'green', iconName: 'regions', iconSrc: '/art/class/globe-north-america.png', category: 'REGIONS' },
+  { quadrant: 'bl', label: 'STYLES', livery: 'orange', iconName: 'styles', iconSrc: '/icons/game-icons--wine-glass@3x.png', category: 'STYLES' },
+  { quadrant: 'br', label: 'FLAVORS', livery: 'emerald', iconName: 'flavors', iconSrc: '/art/flavor/cherry.png', category: 'FLAVORS' },
 ];
 
 const MainMenu: React.FC<MainMenuProps> = ({ onNavigate, onExit }) => {
@@ -148,7 +146,15 @@ const MainMenu: React.FC<MainMenuProps> = ({ onNavigate, onExit }) => {
                 livery={t.livery}
                 label={t.label}
                 onClick={() => onNavigate(t.category)}
-                icon={<t.icon className="w-11 h-11 sm:w-14 sm:h-14" aria-hidden="true" />}
+                icon={(
+                  <img
+                    src={t.iconSrc}
+                    alt=""
+                    data-menu-icon={t.iconName}
+                    className="main-menu-icon h-16 w-16 object-contain drop-shadow-[0_3px_0_rgba(0,0,0,0.28)] sm:h-20 sm:w-20"
+                    style={{ imageRendering: 'pixelated' }}
+                  />
+                )}
                 bareIcon
                 // The quadrant supplies its own outer radius and its concave
                 // inner scoop, so the card's rectangle and hairline would both
@@ -198,7 +204,14 @@ const MainMenu: React.FC<MainMenuProps> = ({ onNavigate, onExit }) => {
               } as React.CSSProperties
             }
           >
-            <Search aria-hidden="true" className="w-2/5 h-2/5 transition-transform duration-200 group-hover:scale-110" />
+            <img
+              src="/icons/menu-search-pixel.svg"
+              alt=""
+              aria-hidden="true"
+              data-menu-icon="search"
+              className="h-[56%] w-[56%] transition-transform duration-200 group-hover:scale-110"
+              style={{ imageRendering: 'pixelated' }}
+            />
           </button>
         </div>
       </div>

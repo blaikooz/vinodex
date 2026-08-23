@@ -7,6 +7,7 @@ import DeviceFooter from './DeviceFooter';
 import MarqueeLampChooser from './MarqueeLampChooser';
 import { IosUpdatesPromptOverlay } from './IosUpdatesPrompt';
 import { VinodexBootOverlay } from './VinodexBoot';
+import { ScreensaverOverlay } from './ScreensaverOverlay';
 import { DEVICE_FOOTER_BOTTOM_PAD, DEVICE_FOOTER_RESERVATION, DEVICE_FRAME_BOX, DEVICE_FRAME_STAGE } from '../src/services/deviceFrame';
 import { isSitePath } from '../src/services/appRoutes';
 import { SITE_SKIN, skinCssVars } from '../src/services/theme';
@@ -318,6 +319,7 @@ const DeviceLayout: React.FC<DeviceLayoutProps> = ({
                   sized device. The routed chassis stays visible while the
                   BIOS owns only the LCD. */}
               <VinodexBootOverlay />
+              <ScreensaverOverlay />
             </div>
 
           </div>
@@ -345,23 +347,19 @@ const DeviceLayout: React.FC<DeviceLayoutProps> = ({
                 '--lamp-halo': 'rgba(239,68,68,0.55)',
               } as React.CSSProperties}
             />
-            <div className="flex-1 min-w-0 flex justify-center overflow-hidden">
+            <div className="flex-1 min-w-0 flex items-center justify-center overflow-hidden">
               {/* `bezel-wordmark` is a stable hook for the render gate, in the
                   house style of `.lamp-hit` / `.band-pills` / `.island-strip`.
                   The wordmark is `aria-hidden` moulding, so there is no
-                  accessible name to select it by, and finding it in the span
-                  soup by its `scaleX` transform is a selector that breaks the
-                  first time anything else on the bezel is stretched. */}
+                  accessible name to select it by. */}
               <span
                 aria-hidden="true"
-                className="bezel-wordmark font-retro leading-none select-none whitespace-nowrap"
+                className="bezel-wordmark block max-w-full py-0.5 font-retro leading-[1.2] select-none whitespace-nowrap"
                 style={{
                   color: 'var(--chassis-grill)',
                   opacity: 0.85,
-                  fontSize: 'clamp(0.65rem, 3vw, 1rem)',
+                  fontSize: 'clamp(0.58rem, 2.6vw, 0.9rem)',
                   letterSpacing: '0.12em',
-                  transform: 'scaleX(1.3)',
-                  display: 'inline-block',
                 }}
               >
                 {onSite ? 'HORIZON/GODOT' : 'VINODEX'}

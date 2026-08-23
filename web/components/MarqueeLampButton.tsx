@@ -156,6 +156,7 @@ const MarqueeLampButton: React.FC<MarqueeLampButtonProps> = ({
         onReassign();
       }}
       className="lamp-hit relative flex-1 min-w-0 h-[var(--band-pill)] rounded-full p-0 bg-transparent border-0
+                 transition-[transform,filter] duration-100 active:translate-y-[2px] active:scale-[0.96] active:brightness-90
                  focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/80 focus-visible:ring-offset-1
                  focus-visible:ring-offset-[color:var(--chassis-footer)]"
     >

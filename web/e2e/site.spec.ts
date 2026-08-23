@@ -35,6 +35,7 @@ test('the site is what a visitor lands on', async ({ page, consoleErrors }) => {
   await seedDevice(page);
   await page.goto('/');
   await page.waitForTimeout(600);
+  await expect(page).toHaveTitle('HORIZON/GODOT');
 
   // The four tiles, and no fork. DEX / WEBSITE is gone with the splash (v8#1),
   // so a visitor is never asked which product they meant before being shown

@@ -43,8 +43,8 @@ import VinoBubble from './components/VinoBubble';
 import VinoIntroCard from './components/VinoIntroCard';
 import CoachmarkOverlay from './components/CoachmarkOverlay';
 import { IDLE_ACTIVITY_EVENTS, IDLE_SCREENSAVER_SECONDS } from './src/services/screensaver';
-import ScreensaverOverlay from './components/ScreensaverOverlay';
-import { bootDecision, isDexPath, isSitePath } from './src/services/appRoutes';
+import { ScreensaverProvider } from './components/ScreensaverOverlay';
+import { bootDecision, browserTitle, isDexPath, isSitePath } from './src/services/appRoutes';
 import { IosUpdatesPromptProvider } from './components/IosUpdatesPrompt';
 
 const RetroGlobeScreen = lazy(() => import('./components/RetroGlobeScreen'));
@@ -293,6 +293,10 @@ const App: React.FC = () => {
   const location = useLocation();
   const allEntries = useMemo(() => getAllEntries(), []);
 
+  useEffect(() => {
+    document.title = browserTitle(location.pathname);
+  }, [location.pathname]);
+
   /*
    * The BIOS boot (v8#2).
    *
@@ -381,7 +385,7 @@ const App: React.FC = () => {
   const [saverUp, setSaverUp] = React.useState(false);
   const inDex = isDexPath(location.pathname);
   useEffect(() => {
-    if (demoActive || !inDex) {
+    if (demoActive || !inDex || booting) {
       setSaverUp(false);
       return;
     }
@@ -399,7 +403,7 @@ const App: React.FC = () => {
       events.forEach(e => window.removeEventListener(e, activity, { capture: true }));
       clearInterval(poll);
     };
-  }, [demoActive, inDex]);
+  }, [booting, demoActive, inDex]);
 
   // Professor Vino + the coachmarks (v6#23/#26). Seed both ledgers once per
   // launch — the three history-derived triggers for an existing shelf, and
@@ -634,7 +638,6 @@ const App: React.FC = () => {
       className="antialiased text-gray-900 bg-gray-900 min-h-screen overflow-hidden"
       style={{ paddingTop: 'var(--install-banner-h, 0px)' }}
     >
-      {saverUp && <ScreensaverOverlay onDismiss={() => setSaverUp(false)} />}
       {showIntroCard && (
         <VinoIntroCard
           onDone={() => {
@@ -647,12 +650,13 @@ const App: React.FC = () => {
       <CoachmarkOverlay />
       <VinoBubble />
       <InstallBanner />
-      <VinodexBootProvider active={booting} entries={allEntries.length} onDone={finishBoot}>
-        <IosUpdatesPromptProvider
-          key={isDexPath(location.pathname) ? 'dex' : 'site'}
-          active={isDexPath(location.pathname) && !booting && !saverUp && !demoActive}
-        >
-          <Routes>
+      <ScreensaverProvider active={saverUp && inDex && !booting} onDismiss={() => setSaverUp(false)}>
+        <VinodexBootProvider active={booting} entries={allEntries.length} onDone={finishBoot}>
+          <IosUpdatesPromptProvider
+            key={isDexPath(location.pathname) ? 'dex' : 'site'}
+            active={isDexPath(location.pathname) && !booting && !saverUp && !demoActive}
+          >
+            <Routes>
         {/*
           "/" is the company site, and the site is the landing experience
           (v8#1). There is no DEX / WEBSITE fork any more: Horizon/Godot is what
@@ -954,9 +958,10 @@ const App: React.FC = () => {
             "/dex". Nothing boots on the way through: an unknown path is in
             neither product's list, so `bootDecision` declines it (v8#2). */}
         <Route path="*" element={<Navigate to="/" replace />} />
-          </Routes>
-        </IosUpdatesPromptProvider>
-      </VinodexBootProvider>
+            </Routes>
+          </IosUpdatesPromptProvider>
+        </VinodexBootProvider>
+      </ScreensaverProvider>
     </div>
   );
 };

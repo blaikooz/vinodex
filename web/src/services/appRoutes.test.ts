@@ -5,6 +5,7 @@ import {
   DEX_PREFIXES,
   SITE_EXACT,
   SITE_PREFIXES,
+  browserTitle,
   bootDecision,
   isDexPath,
   isSharePath,
@@ -82,6 +83,15 @@ describe('the route table is fully classified', () => {
 });
 
 describe('path classification', () => {
+  it('uses only the active product name in the browser title', () => {
+    for (const p of ['/', '/apps', '/project/vinodex', '/who-we-are', '/garbage']) {
+      expect(browserTitle(p), p).toBe('HORIZON/GODOT');
+    }
+    for (const p of ['/dex', '/detail/G001', '/settings', '/list/GRAPES']) {
+      expect(browserTitle(p), p).toBe('VINODEX');
+    }
+  });
+
   it('knows the site from the dex', () => {
     for (const p of ['/', '/apps', '/who-we-are', '/contact', '/project/focuspond']) {
       expect(isSitePath(p), p).toBe(true);

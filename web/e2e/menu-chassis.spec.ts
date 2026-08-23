@@ -30,18 +30,22 @@ test.describe('main menu chassis fit', () => {
     expect(fit.width, 'the menu leaves too much LCD width unused').toBeGreaterThanOrEqual(0.9);
     expect(fit.height, 'the menu leaves too much LCD height unused').toBeGreaterThanOrEqual(0.9);
 
-    // These are the same five symbols named by iOS MainMenuScreen: the
-    // nine-dot grid, globe, wine glass, leaf and magnifying glass.
+    // These are illustrated/pixel menu marks, not generic line icons. Four
+    // categories can reuse the art already mirrored from iOS; Search may use
+    // a dedicated menu asset because the current bundle has no magnifier.
     const iconByControl = [
-      ['GRAPES', 'lucide-grip'],
-      ['REGIONS', 'lucide-globe'],
-      ['STYLES', 'lucide-wine'],
-      ['FLAVORS', 'lucide-leaf'],
-      ['Search', 'lucide-search'],
+      ['GRAPES', 'grapes'],
+      ['REGIONS', 'regions'],
+      ['STYLES', 'styles'],
+      ['FLAVORS', 'flavors'],
+      ['Search', 'search'],
     ] as const;
-    for (const [name, iconClass] of iconByControl) {
-      await expect(page.getByRole('button', { name, exact: true }).locator(`svg.${iconClass}`),
-        `${name} is not using its iOS-parity icon`).toHaveCount(1);
+    for (const [name, iconName] of iconByControl) {
+      const control = page.getByRole('button', { name, exact: true });
+      await expect(control.locator(`[data-menu-icon="${iconName}"]`),
+        `${name} is missing its illustrated menu icon`).toHaveCount(1);
+      await expect(control.locator('svg[class*="lucide-"]'),
+        `${name} fell back to a generic Lucide icon`).toHaveCount(0);
     }
 
     const fills = await page.locator('.main-menu-tile, .main-menu-search').evaluateAll(nodes =>
@@ -78,5 +82,58 @@ test.describe('main menu chassis fit', () => {
       .toBeGreaterThanOrEqual(0.95);
     expect(widths.marquee / widths.center, 'marquee leaves an empty gutter in its footer column')
       .toBeGreaterThanOrEqual(0.95);
+  });
+
+  test('the footer has one large cap face per control', async ({ page, consoleErrors }) => {
+    void consoleErrors;
+    const caps = ['Back', 'Collection', 'Home', 'Settings'] as const;
+
+    for (const name of caps) {
+      const button = page.getByRole('button', { name, exact: true }).first();
+      const face = button.locator('img[src^="/art/caps/"]');
+      await expect(face, `${name} has no rendered cap face`).toHaveCount(1);
+
+      const material = await button.evaluate(node => {
+        const style = getComputedStyle(node);
+        const rect = node.getBoundingClientRect();
+        return {
+          width: rect.width,
+          height: rect.height,
+          backgroundImage: style.backgroundImage,
+          borderTopWidth: style.borderTopWidth,
+        };
+      });
+      expect(material.width, `${name} is smaller than the 4rem chassis control`).toBeGreaterThanOrEqual(63.5);
+      expect(material.height, `${name} is smaller than the 4rem chassis control`).toBeGreaterThanOrEqual(63.5);
+      expect(material.backgroundImage, `${name} paints a CSS cap underneath its complete PNG cap`).toBe('none');
+      expect(material.borderTopWidth, `${name} paints a second rim underneath its complete PNG cap`).toBe('0px');
+    }
+  });
+
+  test('the marquee uses one static dark-on-green route panel', async ({ page, consoleErrors }) => {
+    void consoleErrors;
+    const run = page.locator('.terminal-marquee');
+    const glass = run.locator('..');
+
+    await expect(run).toBeVisible();
+    const panel = await glass.evaluate(node => {
+      const style = getComputedStyle(node);
+      const parse = (value: string) => (value.match(/[\d.]+/g) ?? []).slice(0, 3).map(Number);
+      return {
+        background: parse(style.backgroundColor),
+        backgroundImage: style.backgroundImage,
+        animationName: getComputedStyle(node.firstElementChild ?? node).animationName,
+      };
+    });
+    const [red = 0, green = 0, blue = 0] = panel.background;
+    expect(green, 'marquee panel is not green-led').toBeGreaterThan(red);
+    expect(green, 'marquee panel is not green-led').toBeGreaterThan(blue);
+    expect(panel.backgroundImage, 'marquee panel has no LCD grid/scan texture').not.toBe('none');
+    expect(panel.animationName, 'the route title still scrolls/repeats').toBe('none');
+
+    const text = (await run.textContent()) ?? '';
+    const title = text.trim();
+    expect(title, 'the marquee repeats its route title').not.toMatch(/^(.+)\1$/);
+    await expect(run.locator('img')).toHaveCount(1);
   });
 });

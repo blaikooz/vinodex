@@ -1,4 +1,4 @@
-import { cleanup, fireEvent, render, screen } from '@testing-library/react';
+import { act, cleanup, fireEvent, render, screen } from '@testing-library/react';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { VinodexBootOverlay, VinodexBootProvider } from './VinodexBoot';
 
@@ -27,7 +27,7 @@ describe('the Vinodex BIOS overlay', () => {
     expect(onDone).toHaveBeenCalledOnce();
   });
 
-  it('hands off automatically and disappears when inactive', () => {
+  it('waits for an explicit action before handing off', () => {
     vi.useFakeTimers();
     const onDone = vi.fn();
     const view = render(
@@ -36,7 +36,11 @@ describe('the Vinodex BIOS overlay', () => {
       </VinodexBootProvider>,
     );
 
-    vi.advanceTimersByTime(3_400);
+    act(() => vi.advanceTimersByTime(30_000));
+    expect(onDone).not.toHaveBeenCalled();
+    expect(screen.getByText('PRESS ANY BUTTON TO CONTINUE')).toBeTruthy();
+
+    fireEvent.click(screen.getByRole('button', { name: 'Skip boot' }));
     expect(onDone).toHaveBeenCalledOnce();
 
     view.rerender(

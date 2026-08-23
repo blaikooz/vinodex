@@ -10,7 +10,8 @@ import { APP_VERSION_DISPLAY } from '../src/services/appVersion';
  * Deliberately does NOT read the LCD theme: a BIOS runs before the firmware has
  * loaded the user's colourway, so it keeps its own palette (cream = the system
  * talking about itself, gold = telemetry, magenta = the machine addressing you).
- * Any tap/key advances it; it also auto-advances so it can never trap a launch.
+ * Any tap/key advances it. The final handoff is deliberately manual: the BIOS
+ * is the app's front door, so it waits for the person holding the device.
  */
 
 const INK = {
@@ -57,14 +58,13 @@ const VinodexBoot: React.FC<Props> = ({ entries, onDone }) => {
   }, [onDone]);
 
   React.useEffect(() => {
-    // Absolute schedule from one start instant (iOS: bounded by ~5.4s; the web
-    // trims it since a boot animation taxes every launch).
+    // Absolute schedule from one start instant. The sequence resolves into a
+    // stable prompt and waits there until a tap or key explicitly enters.
     const t = [
       window.setTimeout(() => setLines(1), 300),
       window.setTimeout(() => setLines(2), 700),
       window.setTimeout(() => setLines(3), 1100),
       window.setTimeout(() => setSplash(true), 1750),
-      window.setTimeout(finish, 3400),
     ];
     return () => t.forEach(window.clearTimeout);
   }, [finish]);

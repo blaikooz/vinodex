@@ -755,12 +755,60 @@ body {
   display: inline-flex;
   align-items: center;
   width: max-content;
-  animation: terminal-marquee 25s linear infinite;
+  animation-name: var(--marquee-animation, terminal-marquee);
+  animation-duration: 25s;
+  animation-timing-function: linear;
+  animation-iteration-count: infinite;
   will-change: transform;
 }
 
 .terminal-marquee-slow {
   animation-duration: 15s;
+}
+
+/* The footer display is a lit green plastic panel like the iOS chassis, not a
+   black browser ticker. The grid and scan layer keep it inside the same pixel
+   hardware vocabulary as the LCD while the centered route mark stays legible. */
+.chassis-marquee,
+.chassis-marquee-screen {
+  background-color: var(--livery-green);
+}
+
+.chassis-marquee-screen {
+  background-image:
+    linear-gradient(rgba(0, 54, 28, 0.12) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(0, 54, 28, 0.12) 1px, transparent 1px);
+  background-size: 16px 16px;
+  box-shadow: inset 0 0 16px rgba(0, 62, 30, 0.24);
+}
+
+.chassis-marquee-screen::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: repeating-linear-gradient(
+    to bottom,
+    rgba(255, 255, 255, 0.05) 0,
+    rgba(255, 255, 255, 0.05) 1px,
+    transparent 1px,
+    transparent 4px
+  );
+}
+
+.terminal-marquee.static-marquee {
+  --marquee-animation: none;
+  width: auto;
+  transform: none;
+  will-change: auto;
+}
+
+.chassis-marquee-glyph img {
+  filter: brightness(0) saturate(100%) opacity(0.82);
+}
+
+.chassis-marquee-glyph svg {
+  color: #064e3b;
 }
 
 
@@ -1216,6 +1264,12 @@ body {
    PILL's width and not the legend's own -- which would be circular. */
 .lamp-hit {
   container-type: inline-size;
+}
+
+.lamp-hit:active .recessed-lamp {
+  box-shadow:
+    inset 0 4px 8px rgba(0, 0, 0, 0.38),
+    inset 0 -1px 0 rgba(255, 255, 255, 0.15);
 }
 
 .lamp-hit::after {
