@@ -1,5 +1,5 @@
 
-import React, { Suspense, lazy, useEffect, useMemo, useRef, useState, useSyncExternalStore } from 'react';
+import React, { Suspense, lazy, useCallback, useEffect, useMemo, useRef, useState, useSyncExternalStore } from 'react';
 import {
   Routes,
   Route,
@@ -16,7 +16,7 @@ import EntryDetail from './components/EntryDetail';
 import RegionMapScreen from './components/RegionMapScreen';
 import DeviceLayout from './components/DeviceLayout';
 import InstallBanner from './components/InstallBanner';
-import VinodexBoot from './components/VinodexBoot';
+import { VinodexBootProvider } from './components/VinodexBoot';
 import { WineEntry, EntryCategory } from '@/shared/types';
 import { getAllEntries } from './src/services/wineData';
 import { clear as clearScreenState } from './src/services/screenState';
@@ -324,7 +324,7 @@ const App: React.FC = () => {
     if (from === null || from === location.pathname) return;
     if (bootDecision(from, location.pathname)) setBooting(true);
   }, [location.pathname]);
-  const finishBoot = () => setBooting(false);
+  const finishBoot = useCallback(() => setBooting(false), []);
   // While the boot screen owns the device, the professor holds his tongue —
   // the same suspension seam the in-screen prompts claim.
   useEffect(() => { setSuspended(booting, 'boot'); }, [booting]);
@@ -647,12 +647,12 @@ const App: React.FC = () => {
       <CoachmarkOverlay />
       <VinoBubble />
       <InstallBanner />
-      {booting && <VinodexBoot entries={allEntries.length} onDone={finishBoot} />}
-      <IosUpdatesPromptProvider
-        key={isDexPath(location.pathname) ? 'dex' : 'site'}
-        active={isDexPath(location.pathname) && !booting && !saverUp && !demoActive}
-      >
-        <Routes>
+      <VinodexBootProvider active={booting} entries={allEntries.length} onDone={finishBoot}>
+        <IosUpdatesPromptProvider
+          key={isDexPath(location.pathname) ? 'dex' : 'site'}
+          active={isDexPath(location.pathname) && !booting && !saverUp && !demoActive}
+        >
+          <Routes>
         {/*
           "/" is the company site, and the site is the landing experience
           (v8#1). There is no DEX / WEBSITE fork any more: Horizon/Godot is what
@@ -954,8 +954,9 @@ const App: React.FC = () => {
             "/dex". Nothing boots on the way through: an unknown path is in
             neither product's list, so `bootDecision` declines it (v8#2). */}
         <Route path="*" element={<Navigate to="/" replace />} />
-        </Routes>
-      </IosUpdatesPromptProvider>
+          </Routes>
+        </IosUpdatesPromptProvider>
+      </VinodexBootProvider>
     </div>
   );
 };

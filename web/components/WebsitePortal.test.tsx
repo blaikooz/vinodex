@@ -37,7 +37,7 @@ describe('the Horizon/Godot website', () => {
     expect(onOpenApp).toHaveBeenCalledOnce();
   });
 
-  it('lists Vinodex first and includes Château Earth with a text badge', () => {
+  it('lists Vinodex first and includes Château with its supplied logo', () => {
     expect(PROJECTS.map(project => project.id)).toEqual([
       'vinodex',
       'chateau-earth',
@@ -46,19 +46,24 @@ describe('the Horizon/Godot website', () => {
     ]);
     expect(PROJECTS[0]?.featured).toBe(true);
     expect(PROJECTS[1]).toMatchObject({
-      name: 'CHÂTEAU EARTH',
+      name: 'CHÂTEAU',
       href: 'https://chateauearth.substack.com/',
-      badge: 'CE',
+      logo: '/projects/chateau.png',
     });
 
-    inRouter(<OurAppsList onBack={noop} onHome={noop} onSelectProject={noop} />);
-    expect(screen.getByRole('button', { name: /CHÂTEAU EARTH/ })).toBeTruthy();
+    const view = inRouter(<OurAppsList onBack={noop} onHome={noop} onSelectProject={noop} />);
+    expect(screen.getByRole('button', { name: /CHÂTEAU/ })).toBeTruthy();
     expect(screen.getByText('FEATURED PROJECT')).toBeTruthy();
+    expect(view.container.querySelector('img[src="/projects/chateau.png"]')).toBeTruthy();
+    expect(view.container.querySelector('.site-pixel-copy')).toBeTruthy();
+    expect(view.container.querySelector('footer')).toBeNull();
+    expect(screen.getByRole('navigation', { name: 'Screen navigation' })).toBeTruthy();
+    expect(screen.getByRole('button', { name: 'Back' })).toBeTruthy();
   });
 
   it('shows a clear, safe outbound handoff for publications', () => {
     const project = PROJECTS.find(candidate => candidate.id === 'chateau-earth');
-    if (!project) throw new Error('missing Château Earth fixture');
+    if (!project) throw new Error('missing Château fixture');
     inRouter(<ProjectSplash project={project} onBack={noop} onHome={noop} onOpenApp={noop} />);
 
     const link = screen.getByRole('link', { name: /VISIT PUBLICATION/ });

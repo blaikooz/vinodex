@@ -68,12 +68,12 @@ export const PROJECTS: Project[] = [
   },
   {
     id: 'chateau-earth',
-    name: 'CHÂTEAU EARTH',
+    name: 'CHÂTEAU',
     blurb: 'Wine writing from service to table',
     href: 'https://chateauearth.substack.com/',
     description:
-      'Château Earth is our wine blog: bottles, regions, service knowledge, and the things we keep learning at the table. It is a place for curious drinking without the gatekeeping.',
-    badge: 'CE',
+      'Château is our wine blog: bottles, regions, service knowledge, and the things we keep learning at the table. It is a place for curious drinking without the gatekeeping.',
+    logo: '/projects/chateau.png',
     livery: 'amber',
   },
   {
@@ -364,11 +364,7 @@ export const ProjectSplash: React.FC<ProjectSplashProps> = ({ project, onBack, o
           <p className="font-retro text-caption normal-case tracking-wide text-[var(--lcd-subtext)]">{project.blurb}</p>
         </div>
 
-        {/* The blurb is a paragraph, so it is set as one: the sans at body
-            size, sentence case, and `max-w-prose` to keep the measure honest.
-            It was VT323 at `text-sm` inside the LCD's blanket `uppercase`,
-            which is three separate reasons a reader's eye slides off it. */}
-        <p className="font-sans text-body normal-case text-[var(--lcd-body-text)] max-w-prose">
+        <p className="font-retro text-caption normal-case leading-relaxed text-[var(--lcd-body-text)] max-w-prose">
           {project.description}
         </p>
 
@@ -402,14 +398,14 @@ export const ProjectSplash: React.FC<ProjectSplashProps> = ({ project, onBack, o
  * `normal-case` is the load-bearing class. The LCD wrapper uppercases its
  * whole subtree -- correct for a device readout, wrong for three paragraphs
  * about a studio, and the reason this page has always been hard to read. The
- * sans at body size with a 1.55 line-height and `max-w-prose` is the rest of
- * it. VT323 is a terminal face; it stays for terminal moments.
+ * Pixel type is used throughout the website; the smaller caption scale and
+ * generous line-height keep longer studio copy readable inside the LCD.
  */
 const InfoPage: React.FC<{ title: string; onBack: () => void; onHome: () => void; children: React.ReactNode }> = ({ title, onBack, onHome, children }) => (
   <DeviceLayout title={title} subtitle="" showBack onBack={onBack} onHome={onHome} showSystemButtons={false} centerHeaderText>
     <div className={`flex-1 min-h-0 w-full flex flex-col relative overflow-hidden ${screenGround}`}>
       <RetroGrid />
-      <div className="relative z-10 flex-1 overflow-y-auto p-[var(--pad-screen)] font-sans text-body normal-case text-[var(--lcd-body-text)] max-w-prose space-y-4">
+      <div className="relative z-10 flex-1 overflow-y-auto p-[var(--pad-screen)] font-retro text-caption normal-case leading-relaxed text-[var(--lcd-body-text)] max-w-prose space-y-4">
         {children}
       </div>
     </div>
@@ -437,7 +433,7 @@ export const WhoWeAre: React.FC<{ onBack: () => void; onHome: () => void }> = ({
       </Card>
     </div>
     <p>
-      We both love wine and have worked in service. Vinodex and Château Earth
+      We both love wine and have worked in service. Vinodex and Château
       grew from that experience and from a shared goal: make wine education
       inviting, useful, and fun instead of guarded or intimidating.
     </p>
@@ -463,7 +459,7 @@ export const ContactUs: React.FC<{ onBack: () => void; onHome: () => void }> = (
           </h2>
         </div>
 
-        <p className="font-sans text-body normal-case text-[var(--lcd-body-text)] max-w-prose">
+        <p className="font-retro text-caption normal-case leading-relaxed text-[var(--lcd-body-text)] max-w-prose">
           Product feedback, collaboration ideas, project questions, or a good
           bottle we should know about — we read everything.
         </p>

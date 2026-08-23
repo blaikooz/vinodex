@@ -218,6 +218,14 @@
   --shadow-elev-3: 0 4px 8px -4px rgb(0 0 0 / 0.24), 0 16px 32px -12px rgb(0 0 0 / 0.32);
 }
 
+/* Studio pages use the pixel face throughout. The descendant selector is
+   deliberate: shared cards carry their own sans-serif defaults, and those
+   should remain intact inside Vinodex while the website overrides them. */
+.site-pixel-copy,
+.site-pixel-copy * {
+  font-family: var(--font-retro);
+}
+
 /* The device frame's height cap (v7#D2).
    Read by `DEVICE_FRAME_BOX` in `web/src/services/deviceFrame.ts`, which is the
    only thing that should reference it — see the note there for why the device

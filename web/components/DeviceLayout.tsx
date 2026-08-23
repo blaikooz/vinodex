@@ -1,13 +1,14 @@
 
 import React, { useMemo, useState } from 'react';
 import { useLocation } from 'react-router-dom';
+import { ChevronLeft } from 'lucide-react';
 import ChassisIsland from './ChassisIsland';
 import DeviceFooter from './DeviceFooter';
 import MarqueeLampChooser from './MarqueeLampChooser';
 import { IosUpdatesPromptOverlay } from './IosUpdatesPrompt';
+import { VinodexBootOverlay } from './VinodexBoot';
 import { DEVICE_FOOTER_BOTTOM_PAD, DEVICE_FOOTER_HEIGHT, DEVICE_FRAME_BOX, DEVICE_FRAME_STAGE } from '../src/services/deviceFrame';
-import { SITE_MARQUEE_TITLE, isSiteLanding, isSitePath } from '../src/services/appRoutes';
-import { SITE_MARK_TITLE } from '../src/services/marqueeArt';
+import { isSitePath } from '../src/services/appRoutes';
 import { SITE_SKIN, skinCssVars } from '../src/services/theme';
 import { useTheme } from '../src/services/useTheme';
 
@@ -181,7 +182,7 @@ const DeviceLayout: React.FC<DeviceLayoutProps> = ({
         {/* Screen Container */}
         <div
           className="flex-1 min-h-0"
-          style={{ paddingBottom: `calc(${footerHeight} + ${footerBottomPad})` }}
+          style={{ paddingBottom: onSite ? 0 : `calc(${footerHeight} + ${footerBottomPad})` }}
         >
           {/*
             The screen housing, with its keyed corner (S4) and NOCTURNE's
@@ -259,9 +260,29 @@ const DeviceLayout: React.FC<DeviceLayoutProps> = ({
               {/* Content. `lcd-themed` scopes the screen-mode palette remap to
                   the LCD — see index.css; the chassis must not follow it. */}
               <div
-                className="lcd-themed relative z-0 h-full w-full overflow-hidden flex flex-col uppercase"
+                className={`lcd-themed relative z-0 h-full w-full overflow-hidden flex flex-col uppercase ${onSite ? 'site-pixel-copy' : ''}`}
                 inert={behindChooser}
               >
+                {onSite && showBack && onBack && (
+                  <nav
+                    aria-label="Screen navigation"
+                    className="site-lcd-nav grid shrink-0 grid-cols-[1fr_auto_1fr] items-center gap-2 border-b border-[var(--surface-line)] bg-[var(--surface-raised)] px-3 py-2"
+                  >
+                    <button
+                      type="button"
+                      aria-label="Back"
+                      onClick={onBack}
+                      className="dex-pressable inline-flex min-h-11 w-fit items-center gap-1 rounded-control px-2 text-label tracking-widest text-[var(--lcd-accent)]"
+                    >
+                      <ChevronLeft size={18} aria-hidden="true" />
+                      BACK
+                    </button>
+                    <span className="min-w-0 truncate text-center text-caption tracking-widest text-[var(--lcd-text)]">
+                      {title}
+                    </span>
+                    <span aria-hidden="true" />
+                  </nav>
+                )}
                 {children}
               </div>
 
@@ -293,6 +314,11 @@ const DeviceLayout: React.FC<DeviceLayoutProps> = ({
                 className="absolute inset-0 z-20 pointer-events-none"
                 style={{ backgroundColor: 'var(--mono-tint, transparent)', mixBlendMode: 'multiply' }}
               />
+
+              {/* Power-on belongs to this display, not to a second viewport-
+                  sized device. The routed chassis stays visible while the
+                  BIOS owns only the LCD. */}
+              <VinodexBootOverlay />
             </div>
 
           </div>
@@ -353,29 +379,19 @@ const DeviceLayout: React.FC<DeviceLayoutProps> = ({
         </div>
         </div>
 
-        <DeviceFooter
-          inert={behindChooser}
-          onReassignLamp={setLampSlot}
-          title={title}
-          // **The landing greets; every other site screen names itself**
-          // (v8#8, narrowed). The dex's rotating script — WELCOME! once per
-          // launch, MENU at rest, the nine toasts after a minute idle — is a
-          // dex behaviour and stays entirely in `marqueeScript.ts`, armed only
-          // on the main menu. Undefined here means "the screen's own title",
-          // which is what OUR WORK, WHO WE ARE, CONTACT US and the project
-          // splashes get, on the same rule every dex screen follows.
-          marqueeTitle={isSiteLanding(pathname) ? SITE_MARQUEE_TITLE : undefined}
-          // The *mark*, though, is the studio's on every site screen (v8#10):
-          // whose device this is, rather than which page you are on. Without
-          // it they all fell through to the wineglass.
-          marqueeMark={onSite ? SITE_MARK_TITLE : undefined}
-          skin={skin}
-          footerCenter={footerCenter}
-          onBack={onBack}
-          showBack={showBack}
-          onHome={onHome}
-          showSystemButtons={showSystemButtons}
-        />
+        {!onSite && (
+          <DeviceFooter
+            inert={behindChooser}
+            onReassignLamp={setLampSlot}
+            title={title}
+            skin={skin}
+            footerCenter={footerCenter}
+            onBack={onBack}
+            showBack={showBack}
+            onHome={onHome}
+            showSystemButtons={showSystemButtons}
+          />
+        )}
           </div>
         </div>
         {/* Back face — steel plate, only rendered when backFace provided */}

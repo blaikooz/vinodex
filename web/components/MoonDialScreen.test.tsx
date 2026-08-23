@@ -24,7 +24,7 @@ import {
  */
 const renderDial = (now: Date) => {
   render(
-    <MemoryRouter>
+    <MemoryRouter initialEntries={['/moon-dial']}>
       <MoonDialScreen onBack={vi.fn()} onHome={vi.fn()} now={now} />
     </MemoryRouter>,
   );

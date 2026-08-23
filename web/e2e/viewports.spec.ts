@@ -160,6 +160,8 @@ for (const [name, width, height] of SIZES) {
 
       const post = page.getByText(/VINODEX BIOS/);
       await expect(post).toBeVisible();
+      await expect(page.locator('.island-strip')).toBeVisible();
+      await expect(page.locator('.bezel-wordmark')).toHaveText('VINODEX');
 
       // Measured before the screenshots, not after: the POST resolves into the
       // identity splash at 1750ms and two full-page captures at 1280px cost

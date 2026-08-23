@@ -1,6 +1,5 @@
 import React from 'react';
 import { APP_VERSION_DISPLAY } from '../src/services/appVersion';
-import { DEVICE_FRAME_BOX, DEVICE_FRAME_OVERLAY_STYLE, DEVICE_FRAME_STAGE } from '../src/services/deviceFrame';
 
 /**
  * The BIOS power-on boot (iOS `VinodexBootView` / `BootSequence`): a POST that
@@ -25,6 +24,26 @@ interface Props {
   entries: number;
   onDone: () => void;
 }
+
+interface BootContextValue extends Props {
+  active: boolean;
+}
+
+const BootContext = React.createContext<BootContextValue | null>(null);
+
+/** Keeps the boot state beside the routes while DeviceLayout paints it in the LCD. */
+export const VinodexBootProvider: React.FC<BootContextValue & { children: React.ReactNode }> = ({
+  active,
+  entries,
+  onDone,
+  children,
+}) => {
+  const value = React.useMemo(
+    () => ({ active, entries, onDone }),
+    [active, entries, onDone],
+  );
+  return <BootContext.Provider value={value}>{children}</BootContext.Provider>;
+};
 
 const VinodexBoot: React.FC<Props> = ({ entries, onDone }) => {
   const [lines, setLines] = React.useState(0); // POST lines revealed
@@ -57,36 +76,16 @@ const VinodexBoot: React.FC<Props> = ({ entries, onDone }) => {
   ];
 
   return (
-    /*
-      The layer is fixed to the viewport; the POST is not (v7#D1).
-      It used to be a single `fixed inset-0` box, which on a phone is the same
-      rectangle as the device and on a 1280px desktop window is emphatically
-      not: the dotted MEMORY/DATABASE/FIRMWARE leaders ran the full 1280px,
-      left-aligned, while the machine they were booting sat in a centred 522px
-      column. A BIOS is the device talking about itself, so it belongs on the
-      device's screen at every size — `DEVICE_FRAME_STAGE` + `DEVICE_FRAME_BOX`
-      are the same two strings `DeviceLayout` centres the chassis with.
-
-      The click/key handler stays on the outer layer, not the box: "any tap
-      advances it" is the promise, and on desktop a click on the surround is
-      still a tap on the machine.
-    */
     <div
-      // `device-stage` rather than a flat fill, so the surround does not jump
-      // when the boot hands the device over (the BIOS's own palette note is
-      // about the LCD, not the room the machine is standing in).
-      className={`fixed inset-0 z-[70] ${DEVICE_FRAME_STAGE} device-stage select-none cursor-pointer overflow-hidden`}
-      style={DEVICE_FRAME_OVERLAY_STYLE}
+      className="absolute inset-0 z-[30] flex select-none cursor-pointer overflow-hidden font-mono"
+      style={{ backgroundColor: INK.bg }}
       onClick={finish}
       onKeyDown={finish}
       role="button"
       tabIndex={0}
       aria-label="Skip boot"
     >
-      <div
-        className={`relative ${DEVICE_FRAME_BOX} flex flex-col font-mono overflow-hidden md:rounded-[2.5rem]`}
-        style={{ backgroundColor: INK.bg }}
-      >
+      <div className="relative flex min-h-0 flex-1 flex-col overflow-hidden">
         {/* faint scanlines */}
         <div className="absolute inset-0 pointer-events-none opacity-30 scanlines" />
 
@@ -137,6 +136,13 @@ const VinodexBoot: React.FC<Props> = ({ entries, onDone }) => {
       </div>
     </div>
   );
+};
+
+/** DeviceLayout's slot for the active sequence. Nothing renders on site routes. */
+export const VinodexBootOverlay: React.FC = () => {
+  const boot = React.useContext(BootContext);
+  if (!boot?.active) return null;
+  return <VinodexBoot entries={boot.entries} onDone={boot.onDone} />;
 };
 
 export default VinodexBoot;
