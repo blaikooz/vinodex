@@ -117,7 +117,7 @@ export const getProject = (id: string | undefined): Project | undefined =>
  * marquee lamps follow the same flag — see `DeviceFooter`.
  *
  * Structure:
- *   /               PortalHome  — OPEN VINODEX / OUR WORK / WHO WE ARE / CONTACT US
+ *   /               PortalHome  — OUR WORK / WHO WE ARE / OPEN VINODEX / CONTACT US
  *   /apps           OurAppsList — Vinodex plus the studio's Substacks
  *   /project/:id    ProjectSplash — one project, then out to it
  *   /who-we-are     WhoWeAre
@@ -209,12 +209,12 @@ interface PortalHomeProps {
  * drawn differently from the others" impossible to write by accident.
  *
  * The liveries are the shared card system's names: Vinodex green, the work
- * index violet, the founder story amber, and contact orange.
+ * index violet, the founder story amber, Vinodex green, and contact orange.
  */
 const PORTAL_TILES: { label: string; livery: Livery; icon: LucideIcon; key: keyof PortalHomeProps }[] = [
-  { label: 'OPEN VINODEX', livery: 'green', icon: Gamepad2, key: 'onOpenApp' },
   { label: 'OUR WORK', livery: 'violet', icon: LayoutGrid, key: 'onOpenApps' },
   { label: 'WHO WE ARE', livery: 'amber', icon: Users, key: 'onWhoWeAre' },
+  { label: 'OPEN VINODEX', livery: 'green', icon: Gamepad2, key: 'onOpenApp' },
   { label: 'CONTACT US', livery: 'orange', icon: Mail, key: 'onContactUs' },
 ];
 
@@ -394,7 +394,7 @@ export const ProjectSplash: React.FC<ProjectSplashProps> = ({ project, onBack, o
 );
 
 // ---------------------------------------------------------------------------
-// Simple content pages. Copy is placeholder — edit freely.
+// Simple content pages.
 // ---------------------------------------------------------------------------
 
 /**
@@ -419,28 +419,111 @@ const InfoPage: React.FC<{ title: string; onBack: () => void; onHome: () => void
 
 export const WhoWeAre: React.FC<{ onBack: () => void; onHome: () => void }> = ({ onBack, onHome }) => (
   <InfoPage title="WHO WE ARE" onBack={onBack} onHome={onHome}>
-    <p className="font-retro text-heading uppercase tracking-widest text-[var(--lcd-accent)]">PLAYFUL TOOLS, MADE WELL.</p>
+    <section className="space-y-3">
+      <h2 className="font-retro text-title uppercase tracking-widest text-[var(--lcd-accent)]">
+        AN INDEPENDENT CREATIVE + PRODUCT STUDIO
+      </h2>
+      <p>
+        Horizon/Godot is a New York City studio working across digital
+        products, publishing, media, wine, design, and research. We develop
+        our own projects and selectively collaborate with people and
+        organizations on product, creative, editorial, and strategic work.
+      </p>
+      <p>
+        The studio grew from a creative partnership that began in the early
+        2020s. Our work is built around a simple idea: useful products can be
+        rigorous, inviting, and full of personality at the same time.
+      </p>
+    </section>
+
+    <section className="space-y-3">
+      <h2 className="font-retro text-heading uppercase tracking-widest text-[var(--lcd-text)]">THE FOUNDERS</h2>
+      <div className="grid gap-3 sm:grid-cols-2">
+        <Card livery="violet" elevation={1} className="p-[var(--pad-card)]">
+          <h3 className="font-retro text-heading uppercase tracking-widest text-[var(--lcd-text)]">HORIZON</h3>
+          <p className="mt-1 font-retro text-caption uppercase tracking-wide text-[var(--lcd-accent)]">
+            CO-FOUNDER + CREATIVE DIRECTOR
+          </p>
+          <p className="mt-3">
+            Horizon leads product and creative direction across product
+            vision, UX/UI, visual design, branding, editorial, writing,
+            research, development, and audio production.
+          </p>
+          <p className="mt-3">
+            His background spans independent wine retail and service,
+            tastings and events, publishing, radio, and digital product
+            development. Across Vinodex, FocusPond, Château, and Varied/Mix,
+            he takes ideas from research and concept through design, code,
+            editorial production, and release.
+          </p>
+          <h4 className="mt-4 font-retro text-caption uppercase tracking-widest text-[var(--lcd-accent)]">EXPERIENCE</h4>
+          <ul className="mt-2 list-disc space-y-1 pl-5">
+            <li>Wine retail, sales, education, merchandising, and service</li>
+            <li>Tastings and events with producers, importers, and distributors</li>
+            <li>Publishing, editorial direction, social media, and content</li>
+            <li>Radio programming, hosting, research, and audio production</li>
+            <li>Product design, prototyping, and software development</li>
+          </ul>
+        </Card>
+
+        <Card livery="amber" elevation={1} className="p-[var(--pad-card)]">
+          <h3 className="font-retro text-heading uppercase tracking-widest text-[var(--lcd-text)]">GODOT / ERICK GUZMAN</h3>
+          <p className="mt-1 font-retro text-caption uppercase tracking-wide text-[var(--lcd-accent)]">
+            CO-FOUNDER + DIRECTOR OF STRATEGY &amp; OPERATIONS
+          </p>
+          <p className="mt-3">
+            Erick leads strategic and operational thinking across research,
+            financial planning, business strategy, product testing, writing,
+            project pipelines, and network development.
+          </p>
+          <p className="mt-3">
+            His background combines hospitality and customer-facing service,
+            independent ventures, entrepreneurship, and philosophy studies at
+            Hunter College. He also founded and operated an embroidery
+            business, designing, producing, and delivering its goods.
+          </p>
+          <h4 className="mt-4 font-retro text-caption uppercase tracking-widest text-[var(--lcd-accent)]">EXPERIENCE</h4>
+          <ul className="mt-2 list-disc space-y-1 pl-5">
+            <li>Hospitality and customer-facing service</li>
+            <li>Independent business development and operations</li>
+            <li>Product testing, research, planning, and strategic analysis</li>
+            <li>Financial planning and sustainable business modeling</li>
+            <li>Writing, creative feedback, and project pipeline development</li>
+          </ul>
+        </Card>
+      </div>
+    </section>
+
+    <section className="space-y-3">
+      <h2 className="font-retro text-heading uppercase tracking-widest text-[var(--lcd-text)]">HOW WE WORK</h2>
+      <p>
+        Horizon originates and builds most of the studio’s creative and
+        product work. Erick researches, pressure-tests, plans, and helps turn
+        those concepts into practical projects and business models. At the
+        studio level, we decide together which ideas deserve to become
+        products, test new ventures, shape strategy, and make major decisions.
+      </p>
+      <p>
+        Our contributions are complementary rather than identical: creative
+        direction and hands-on production meet critical analysis, operational
+        planning, and a clear view of what it takes to make an idea viable.
+      </p>
+    </section>
+
+    <section className="space-y-3">
+      <h2 className="font-retro text-heading uppercase tracking-widest text-[var(--lcd-text)]">SELECTED COLLABORATIONS</h2>
+      <p>
+        We take on selected work in creative direction, product and digital
+        design, editorial and content, research, brand development, and
+        strategic or operational consulting.
+      </p>
+    </section>
+
     <p>
-      Horizon/Godot is a two-person studio in New York City. We make useful
-      digital projects with personality, built around the things we genuinely
-      want to understand, use, and share.
-    </p>
-    <div className="grid gap-3 sm:grid-cols-2">
-      <Card livery="violet" elevation={1} className="p-[var(--pad-card)]">
-        <h3 className="font-retro text-heading uppercase tracking-widest text-[var(--lcd-text)]">HORIZON</h3>
-        <p className="mt-1 font-retro text-caption uppercase tracking-wide text-[var(--lcd-accent)]">CREATIVE + DESIGN LEAD</p>
-        <p className="mt-3">Shapes the ideas, visual systems, and product experiences.</p>
-      </Card>
-      <Card livery="amber" elevation={1} className="p-[var(--pad-card)]">
-        <h3 className="font-retro text-heading uppercase tracking-widest text-[var(--lcd-text)]">GODOT</h3>
-        <p className="mt-1 font-retro text-caption uppercase tracking-wide text-[var(--lcd-accent)]">FINANCIALS + OPERATIONS</p>
-        <p className="mt-3">Keeps the work grounded, organized, and moving forward.</p>
-      </Card>
-    </div>
-    <p>
-      We both love wine and have worked in service. Vinodex and Château
-      grew from that experience and from a shared goal: make wine education
-      inviting, useful, and fun instead of guarded or intimidating.
+      We both came to this work through service, curiosity, and a shared love
+      of wine. Vinodex and Château grew from that experience and from our goal
+      of making education useful, welcoming, and fun rather than guarded or
+      intimidating.
     </p>
   </InfoPage>
 );

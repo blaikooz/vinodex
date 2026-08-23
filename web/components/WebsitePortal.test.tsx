@@ -29,9 +29,15 @@ describe('the Horizon/Godot website', () => {
     );
 
     expect(screen.getByText('PLAYFUL TOOLS, MADE WELL.')).toBeTruthy();
-    for (const action of ['OPEN VINODEX', 'OUR WORK', 'WHO WE ARE', 'CONTACT US']) {
+    const actions = ['OUR WORK', 'WHO WE ARE', 'OPEN VINODEX', 'CONTACT US'];
+    for (const action of actions) {
       expect(screen.getByRole('button', { name: action })).toBeTruthy();
     }
+    expect(
+      screen.getAllByRole('button')
+        .map(button => button.textContent?.trim())
+        .filter(label => label && actions.includes(label)),
+    ).toEqual(actions);
     expect(screen.queryByRole('button', { name: 'DATA' })).toBeNull();
     const openVinodex = screen.getByRole('button', { name: 'OPEN VINODEX' });
     expect(openVinodex.style.backgroundColor).toBe('var(--tint-solid)');
@@ -79,12 +85,15 @@ describe('the Horizon/Godot website', () => {
     expect(link.getAttribute('rel')).toContain('noopener');
   });
 
-  it('names both founders and keeps the contact invitation concise', () => {
+  it('presents both founders with concrete roles and experience', () => {
     const view = inRouter(<WhoWeAre onBack={noop} onHome={noop} />);
     expect(screen.getByText('HORIZON')).toBeTruthy();
-    expect(screen.getByText('CREATIVE + DESIGN LEAD')).toBeTruthy();
-    expect(screen.getByText('GODOT')).toBeTruthy();
-    expect(screen.getByText('FINANCIALS + OPERATIONS')).toBeTruthy();
+    expect(screen.getByText('CO-FOUNDER + CREATIVE DIRECTOR')).toBeTruthy();
+    expect(screen.getByText('GODOT / ERICK GUZMAN')).toBeTruthy();
+    expect(screen.getByText('CO-FOUNDER + DIRECTOR OF STRATEGY & OPERATIONS')).toBeTruthy();
+    expect(screen.getByText(/Wine retail, sales, education/)).toBeTruthy();
+    expect(screen.getByText(/Independent business development/)).toBeTruthy();
+    expect(screen.getByRole('heading', { name: 'HOW WE WORK' })).toBeTruthy();
 
     view.unmount();
     inRouter(<ContactUs onBack={noop} onHome={noop} />);

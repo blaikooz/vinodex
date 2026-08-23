@@ -277,7 +277,7 @@ const DeviceLayout: React.FC<DeviceLayoutProps> = ({
                       <ChevronLeft size={18} aria-hidden="true" />
                       BACK
                     </button>
-                    <span className="min-w-0 truncate text-center text-caption tracking-widest text-[var(--lcd-text)]">
+                    <span className="min-w-0 truncate text-center font-retro text-heading tracking-widest text-[var(--lcd-text)] sm:text-title">
                       {title}
                     </span>
                     <span aria-hidden="true" />
