@@ -4,6 +4,7 @@ import { useLocation } from 'react-router-dom';
 import ChassisIsland from './ChassisIsland';
 import DeviceFooter from './DeviceFooter';
 import MarqueeLampChooser from './MarqueeLampChooser';
+import { IosUpdatesPromptOverlay } from './IosUpdatesPrompt';
 import { DEVICE_FOOTER_BOTTOM_PAD, DEVICE_FOOTER_HEIGHT, DEVICE_FRAME_BOX, DEVICE_FRAME_STAGE } from '../src/services/deviceFrame';
 import { SITE_MARQUEE_TITLE, isSiteLanding, isSitePath } from '../src/services/appRoutes';
 import { SITE_MARK_TITLE } from '../src/services/marqueeArt';
@@ -263,6 +264,11 @@ const DeviceLayout: React.FC<DeviceLayoutProps> = ({
               >
                 {children}
               </div>
+
+              {/* Product-update invitation. It lives beside the routed LCD
+                  content so it inherits the screen palette, clipping and
+                  phosphor treatment instead of floating over the chassis. */}
+              <IosUpdatesPromptOverlay />
 
               {/* The lamp-reassignment chooser.
                   Inside the LCD, above the screen and below the scanlines —

@@ -26,8 +26,8 @@
  * the site hands the app over on a button press, and a key recording a
  * permission nothing asks for is not a `keep` with a stale note, it is a key
  * with nothing to record. It is deleted rather than re-justified. The one
- * survivor left is `installNudgeDismissed`, and it survives because it is a
- * fact about this *browser* rather than about the player.
+ * survivors are the two spent browser prompts, `installNudgeDismissed` and
+ * `iosUpdatesPromptSeen`; both are facts about this *browser*, not the player.
  *
  * That settles the inconsistency the audit flagged: `textScale`, `uiScale`
  * and `chassisSkin` were wiped while `hapticsEnabled` and `soundsEnabled`
@@ -155,7 +155,7 @@ export const STORAGE_KEYS: readonly StorageKeySpec[] = [
     note: `profile slot ${i + 1} — a full snapshot of a device, wiped with it`,
   })),
 
-  // --- Kept, and the only one: not user data at all.
+  // --- Kept: spent browser prompts, not user data at all.
   //
   // `unlockedAppIDs` used to sit here, keeping the grant that let you through
   // the portal door. The door is gone (v8#3), so the key records nothing and
@@ -167,6 +167,11 @@ export const STORAGE_KEYS: readonly StorageKeySpec[] = [
     key: 'installNudgeDismissed',
     disposition: 'keep',
     note: 'the "add to home screen" banner has been dismissed. A browser-chrome preference about this *browser*, not a record of anything the player did; re-nagging someone who just erased their data would be the wrong reading of a reset.',
+  },
+  {
+    key: 'iosUpdatesPromptSeen',
+    disposition: 'keep',
+    note: 'the optional iOS-updates invitation has already appeared in this browser. It records a spent browser prompt, not wine data or player progress.',
   },
 ] as const;
 

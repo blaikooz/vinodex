@@ -45,6 +45,7 @@ import CoachmarkOverlay from './components/CoachmarkOverlay';
 import { IDLE_ACTIVITY_EVENTS, IDLE_SCREENSAVER_SECONDS } from './src/services/screensaver';
 import ScreensaverOverlay from './components/ScreensaverOverlay';
 import { bootDecision, isDexPath, isSitePath } from './src/services/appRoutes';
+import { IosUpdatesPromptProvider } from './components/IosUpdatesPrompt';
 
 const RetroGlobeScreen = lazy(() => import('./components/RetroGlobeScreen'));
 const MoonDialScreen = lazy(() => import('./components/MoonDialScreen'));
@@ -647,7 +648,11 @@ const App: React.FC = () => {
       <VinoBubble />
       <InstallBanner />
       {booting && <VinodexBoot entries={allEntries.length} onDone={finishBoot} />}
-      <Routes>
+      <IosUpdatesPromptProvider
+        key={isDexPath(location.pathname) ? 'dex' : 'site'}
+        active={isDexPath(location.pathname) && !booting && !saverUp && !demoActive}
+      >
+        <Routes>
         {/*
           "/" is the company site, and the site is the landing experience
           (v8#1). There is no DEX / WEBSITE fork any more: Horizon/Godot is what
@@ -665,9 +670,9 @@ const App: React.FC = () => {
             <PortalHome
               onHome={() => navigate('/')}
               onOpenApps={() => navigate('/apps')}
+              onOpenApp={() => navigate('/dex')}
               onWhoWeAre={() => navigate('/who-we-are')}
               onContactUs={() => navigate('/contact')}
-              onData={() => navigate('/settings/DATA')}
             />
           }
         />
@@ -949,7 +954,8 @@ const App: React.FC = () => {
             "/dex". Nothing boots on the way through: an unknown path is in
             neither product's list, so `bootDecision` declines it (v8#2). */}
         <Route path="*" element={<Navigate to="/" replace />} />
-      </Routes>
+        </Routes>
+      </IosUpdatesPromptProvider>
     </div>
   );
 };

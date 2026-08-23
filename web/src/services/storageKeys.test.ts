@@ -187,7 +187,7 @@ describe('the storage-key registry', () => {
     }
   });
 
-  it('keeps exactly the one key the rule allows', () => {
+  it('keeps exactly the browser-level prompt keys the rule allows', () => {
     // The rule, in v0.3.0's wording: everything the device remembers about you
     // goes, and what stays is only what is not about you at all. Any second
     // `keep` is a decision, not an edit, and should fail here first.
@@ -196,7 +196,10 @@ describe('the storage-key registry', () => {
     // keys and named `unlockedAppIDs` as the second. The access door is gone
     // (v8#3), so the grant records nothing; the list is now one key long and
     // the exemption cannot be quietly re-added.
-    expect(KEEP_KEYS.map(s => s.key).sort()).toEqual(['installNudgeDismissed']);
+    expect(KEEP_KEYS.map(s => s.key).sort()).toEqual([
+      'installNudgeDismissed',
+      'iosUpdatesPromptSeen',
+    ]);
   });
 
   it('registers no access grant, now that there is no door', () => {

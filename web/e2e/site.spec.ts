@@ -41,15 +41,15 @@ test('the site is what a visitor lands on', async ({ page, consoleErrors }) => {
   // so a visitor is never asked which product they meant before being shown
   // either of them.
   await expect(page.getByRole('heading', { name: 'HORIZON/GODOT' })).toBeVisible();
-  for (const tile of ['OUR WORK', 'WHO WE ARE', 'CONTACT US', 'DATA']) {
+  for (const tile of ['OPEN VINODEX', 'OUR WORK', 'WHO WE ARE', 'CONTACT US']) {
     await expect(page.getByRole('button', { name: tile })).toBeVisible();
   }
+  await expect(page.getByText('PLAYFUL TOOLS, MADE WELL.')).toBeVisible();
+  await expect(page.getByRole('button', { name: 'DATA', exact: true })).toHaveCount(0);
   await expect(page.getByRole('button', { name: 'DEX', exact: true })).toHaveCount(0);
   await expect(page.getByRole('button', { name: 'WEBSITE', exact: true })).toHaveCount(0);
 
-  // The strapline under the wordmark is gone (v8#6), and only that: the
-  // wordmark above it stays. Asserted as a pair so a future edit cannot
-  // satisfy this by deleting both.
+  // The old studio line is replaced by a concrete promise.
   await expect(page.getByText('CREATING ACROSS MULTITUDES')).toHaveCount(0);
 });
 
@@ -99,6 +99,19 @@ test('OUR WORK opens Vinodex with no code in the way', async ({ page, consoleErr
   await page.getByRole('button', { name: /OPEN VINODEX/ }).click();
   await page.getByRole('button', { name: 'Skip boot' }).click({ force: true });
   await expect(page).toHaveURL(/\/dex$/);
+});
+
+test('OUR WORK includes Château Earth and hands off safely', async ({ page, consoleErrors }) => {
+  void consoleErrors;
+  await seedDevice(page);
+  await page.goto('/apps');
+
+  await page.getByRole('button', { name: /CHÂTEAU EARTH/ }).click();
+  await expect(page).toHaveURL(/\/project\/chateau-earth$/);
+  const publication = page.getByRole('link', { name: /VISIT PUBLICATION/ });
+  await expect(publication).toHaveAttribute('href', 'https://chateauearth.substack.com/');
+  await expect(publication).toHaveAttribute('target', '_blank');
+  await expect(publication).toHaveAttribute('rel', /noopener/);
 });
 
 test('the site wears CLASSIC while the player wears something else', async ({ page, consoleErrors }, testInfo) => {
