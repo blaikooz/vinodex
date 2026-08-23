@@ -10,6 +10,17 @@
    Excluding prose is the fix rather than rewording the record: the ledger has
    to be able to name what it changed. */
 @source not "../**/*.md";
+
+/* The browser viewport is the chassis. Route content may scroll inside the
+   LCD, but the document itself must never pan the hardware off the stage. */
+html,
+body,
+#root {
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  overscroll-behavior: none;
+}
 /* ---------------------------------------------------------------------------
    THE TYPEFACES, SELF-HOSTED (v0.4.0, m1)
 

@@ -6,6 +6,7 @@ import {
   DEVICE_BAND_CLEARANCE,
   DEVICE_FOOTER_BOTTOM_PAD,
   DEVICE_FOOTER_HEIGHT,
+  DEVICE_FOOTER_RESERVATION,
   DEVICE_FRAME_BOX,
   DEVICE_FRAME_STAGE,
   DEVICE_FRAME_OVERLAY_STYLE,
@@ -156,20 +157,15 @@ describe('the device frame', () => {
     // disagree about the device's size (v7#D1). The clearance is built from
     // the same two constants `DeviceLayout` reserves the LCD's space with, so
     // a taller band cannot move one without the other.
-    expect(DEVICE_BAND_CLEARANCE).toContain(DEVICE_FOOTER_HEIGHT);
-    expect(DEVICE_BAND_CLEARANCE).toContain(DEVICE_FOOTER_BOTTOM_PAD);
-    // And it scales with the UI-size axis, which `DeviceLayout`'s own
-    // reservation deliberately does not: the band carries `zoom:
-    // var(--ui-scale)`, so at LARGE furniture it is really taller than
-    // `DEVICE_FOOTER_HEIGHT`. An overlay that must *never* overlap it cannot
-    // use the unscaled number, or the fault returns for exactly the players
-    // who chose the biggest buttons.
-    expect(DEVICE_BAND_CLEARANCE).toContain('--ui-scale');
+    expect(DEVICE_FOOTER_RESERVATION).toContain(DEVICE_FOOTER_HEIGHT);
+    expect(DEVICE_FOOTER_RESERVATION).toContain(DEVICE_FOOTER_BOTTOM_PAD);
+    expect(DEVICE_FOOTER_RESERVATION).toContain('--ui-scale');
+    expect(DEVICE_BAND_CLEARANCE).toContain(DEVICE_FOOTER_RESERVATION);
     expect(DEVICE_ABOVE_BAND_STYLE.paddingBottom).toBe(DEVICE_BAND_CLEARANCE);
 
-    // The chassis reads them too, rather than restating either.
+    // The chassis reads the scaled reservation rather than restating it.
     const layout = readFileSync(resolve(COMPONENTS, 'DeviceLayout.tsx'), 'utf8');
-    expect(layout).toContain('DEVICE_FOOTER_HEIGHT');
+    expect(layout).toContain('DEVICE_FOOTER_RESERVATION');
     expect(layout).toContain('DEVICE_FOOTER_BOTTOM_PAD');
   });
 

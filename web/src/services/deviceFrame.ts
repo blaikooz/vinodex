@@ -79,6 +79,10 @@ export const DEVICE_FRAME_BOX = 'w-full h-full md:h-[var(--device-frame-h)] md:w
 export const DEVICE_FOOTER_HEIGHT = '8.5rem';
 export const DEVICE_FOOTER_BOTTOM_PAD = 'max(0.5rem, env(safe-area-inset-bottom))';
 
+/** The footer's painted height after the UI furniture scale is applied. */
+export const DEVICE_FOOTER_RESERVATION =
+  `calc((${DEVICE_FOOTER_HEIGHT} + ${DEVICE_FOOTER_BOTTOM_PAD}) * var(--ui-scale, 1))`;
+
 /**
  * How far above the bottom of the device an overlay must sit to leave the
  * button band alone (v8#11).
@@ -96,16 +100,12 @@ export const DEVICE_FOOTER_BOTTOM_PAD = 'max(0.5rem, env(safe-area-inset-bottom)
  * steps spotlights the Collection cap, so the card was covering the very
  * control the step was pointing at.
  *
- * **Scaled by `--ui-scale`, unlike `DeviceLayout`'s own reservation.** The band
- * carries `zoom: var(--ui-scale)`, so at the LARGE furniture setting it is
- * genuinely taller than `DEVICE_FOOTER_HEIGHT`. The LCD's padding does not
- * account for that and is left alone here — changing it moves the screen on
- * every device — but an overlay that must *never* overlap the band cannot use
- * the unscaled number, or the fault comes back for exactly the players who
- * chose the biggest buttons.
+ * The chassis reservation and overlays both scale with `--ui-scale`. The band
+ * carries the same zoom, so LARGE furniture cannot overlap either the LCD or
+ * a bottom-anchored prompt.
  */
 export const DEVICE_BAND_CLEARANCE =
-  `calc((${DEVICE_FOOTER_HEIGHT} + ${DEVICE_FOOTER_BOTTOM_PAD}) * var(--ui-scale, 1) + 0.5rem)`;
+  `calc(${DEVICE_FOOTER_RESERVATION} + 0.5rem)`;
 
 /** The bottom padding an overlay card uses to sit above the band. */
 export const DEVICE_ABOVE_BAND_STYLE: CSSProperties = { paddingBottom: DEVICE_BAND_CLEARANCE };

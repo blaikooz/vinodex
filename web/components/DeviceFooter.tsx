@@ -7,6 +7,7 @@ import { marqueeGlyph } from '../src/services/marqueeArt';
 import { pinAt, pinRoute, pinsRevision, subscribeToPins } from '../src/services/quickPins';
 import MarqueeLampButton from './MarqueeLampButton';
 import ChassisLamp from './ChassisLamp';
+import { DEVICE_FOOTER_BOTTOM_PAD, DEVICE_FOOTER_HEIGHT } from '../src/services/deviceFrame';
 
 /**
  * The button band.
@@ -242,8 +243,8 @@ const DeviceFooter: React.FC<DeviceFooterProps> = ({
     // over a layered contact + ambient drop instead of the ledge. The glass
     // inside is `1.1rem − 0.35rem padding ≈ 0.75rem`, so the two corners are
     // concentric rather than the near-miss 0.9rem was.
-    <div className="w-full max-w-[16.5rem] min-w-0 rounded-[1.1rem] bg-black px-[0.35rem] py-[0.3rem] border border-white/60 shadow-[inset_0_1px_0_rgba(255,255,255,0.6),0_2px_3px_rgba(0,0,0,0.35),0_6px_12px_-6px_rgba(0,0,0,0.4)]">
-      <div className="flex items-center min-h-[4.1rem] overflow-hidden bg-black rounded-[0.75rem] px-1 shadow-[inset_0_0_18px_rgba(34,197,94,0.16)]">
+    <div className="flex-1 min-h-0 w-full min-w-0 rounded-[1.1rem] bg-black px-[0.35rem] py-[0.3rem] border border-white/60 shadow-[inset_0_1px_0_rgba(255,255,255,0.6),0_2px_3px_rgba(0,0,0,0.35),0_6px_12px_-6px_rgba(0,0,0,0.4)]">
+      <div className="flex h-full min-h-0 items-center overflow-hidden bg-black rounded-[0.75rem] px-1 shadow-[inset_0_0_18px_rgba(34,197,94,0.16)]">
         <div className="terminal-marquee whitespace-nowrap flex items-center">
           <span
             className={`inline-block font-retro ${footerTitleSize} italic tracking-[-0.08em] transform -skew-x-12 leading-none text-green-500 pr-6`}
@@ -268,16 +269,17 @@ const DeviceFooter: React.FC<DeviceFooterProps> = ({
   return (
     <footer
       inert={inert}
-      className="absolute inset-x-0 bottom-0 px-2 pt-1 flex items-start justify-between gap-2"
+      className="absolute inset-x-0 bottom-0 px-2 pt-1 flex items-stretch justify-between gap-2"
       style={{
         backgroundColor: 'var(--chassis-footer)',
+        height: `calc(${DEVICE_FOOTER_HEIGHT} + ${DEVICE_FOOTER_BOTTOM_PAD})`,
         paddingBottom: 'max(0.5rem, env(safe-area-inset-bottom))',
         zoom: 'var(--ui-scale, 1)' as unknown as number,
       }}
     >
       {/* Left well: Back (top) over Saved (bottom). */}
       <div
-        className="flex flex-col items-center gap-1.5 rounded-full p-1.5 -translate-y-1 shrink-0"
+        className="flex h-full flex-col items-center justify-between rounded-full p-1.5 shrink-0"
         style={{ backgroundColor: 'rgba(0,0,0,0.2)', boxShadow: 'inset 0 2px 4px rgba(0,0,0,0.35), inset 0 -1px 0 rgba(255,255,255,0.14)' }}
       >
         <button
@@ -325,7 +327,7 @@ const DeviceFooter: React.FC<DeviceFooterProps> = ({
       </div>
 
       {/* Centre: two indicator lamps over the marquee, matched to its width. */}
-      <div className="flex-1 min-w-0 flex flex-col items-center gap-1 -translate-y-0.5">
+      <div className="flex-1 min-w-0 h-full flex flex-col items-center gap-1">
         {/*
           The marquee's two indicator lamps, skin-tinted (S7a).
 
@@ -357,7 +359,7 @@ const DeviceFooter: React.FC<DeviceFooterProps> = ({
           Shift+F10 from one handler and keeps the hold for touch.
         */}
         <div
-          className="band-pills w-full max-w-[16.5rem] flex gap-[var(--band-pill-gap)] px-0.5"
+          className="band-pills w-full flex gap-[var(--band-pill-gap)] px-0.5"
           // Decoration on the portal, so nothing to announce there.
           aria-hidden={showSystemButtons ? undefined : true}
         >
@@ -421,7 +423,7 @@ const DeviceFooter: React.FC<DeviceFooterProps> = ({
           )}
         </div>
         {footerCenter ? (
-          <div className="flex items-center justify-center w-full">{footerCenter}</div>
+          <div className="flex flex-1 min-h-0 items-center justify-center w-full">{footerCenter}</div>
         ) : (
           defaultFooterDisplay
         )}
@@ -429,7 +431,7 @@ const DeviceFooter: React.FC<DeviceFooterProps> = ({
 
       {/* Right well: Home (top) over Settings (bottom). */}
       <div
-        className="flex flex-col items-center gap-1.5 rounded-full p-1.5 -translate-y-1 shrink-0"
+        className="flex h-full flex-col items-center justify-between rounded-full p-1.5 shrink-0"
         style={{ backgroundColor: 'rgba(0,0,0,0.2)', boxShadow: 'inset 0 2px 4px rgba(0,0,0,0.35), inset 0 -1px 0 rgba(255,255,255,0.14)' }}
       >
         {/* No inner lit disc, and no amber (S1). It was the web twin of

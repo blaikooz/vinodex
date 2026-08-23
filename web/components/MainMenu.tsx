@@ -97,7 +97,7 @@ const MainMenu: React.FC<MainMenuProps> = ({ onNavigate, onExit }) => {
       onTitleTap={() => setIsFlipped(true)}
       backFace={<DeviceBackPanel onReturn={() => setIsFlipped(false)} />}
     >
-      <div className="flex-1 min-h-0 w-full flex items-center justify-center bg-[var(--surface-base)] relative overflow-hidden p-[var(--pad-screen)]">
+      <div className="flex-1 min-h-0 w-full flex items-stretch justify-stretch bg-[var(--surface-base)] relative overflow-hidden p-2 sm:p-3">
         {/* The grid wash, from the mode's own accent rather than a fixed
             phosphor green -- see the same note in `WebsitePortal`, which keeps
             its own copy because the site and the dex share a chassis and
@@ -121,11 +121,9 @@ const MainMenu: React.FC<MainMenuProps> = ({ onNavigate, onExit }) => {
             surface ramp's own line colour instead of `black/35`, and the drop
             is `--shadow-elev-2` instead of a hand-written `0 6px 14px`. */}
         <div
-          className="relative z-10 rounded-[2.4rem] border border-[var(--surface-line)] shadow-elev-2"
+          className="main-menu-dial relative z-10 h-full w-full min-h-0 rounded-[2.4rem] border border-[var(--surface-line)] shadow-elev-2"
           style={
             {
-              width: 'min(92%, 26rem)',
-              aspectRatio: '1',
               padding: 'var(--dial-inset)',
               backgroundColor: 'var(--surface-sunken)',
               // Dial geometry — one set of numbers so the scoops and the button
@@ -150,7 +148,8 @@ const MainMenu: React.FC<MainMenuProps> = ({ onNavigate, onExit }) => {
                 livery={t.livery}
                 label={t.label}
                 onClick={() => onNavigate(t.category)}
-                icon={<t.icon className="w-8 h-8 sm:w-10 sm:h-10" aria-hidden="true" />}
+                icon={<t.icon className="w-11 h-11 sm:w-14 sm:h-14" aria-hidden="true" />}
+                bareIcon
                 // The quadrant supplies its own outer radius and its concave
                 // inner scoop, so the card's rectangle and hairline would both
                 // fight the shape -- and the mask clips to the border box, so
@@ -160,7 +159,12 @@ const MainMenu: React.FC<MainMenuProps> = ({ onNavigate, onExit }) => {
                 // a shadow onto it.
                 clipped
                 elevation={0}
-                style={tileMask(t.quadrant)}
+                className="main-menu-tile"
+                style={{
+                  ...tileMask(t.quadrant),
+                  backgroundColor: 'var(--tint-solid)',
+                  color: 'var(--lcd-text)',
+                }}
               />
             ))}
           </div>
@@ -181,15 +185,16 @@ const MainMenu: React.FC<MainMenuProps> = ({ onNavigate, onExit }) => {
             onClick={() => onNavigate('MASTER_SEARCH')}
             aria-label="Search"
             className={
-              'dex-tint dex-pressable absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 '
+              'main-menu-search dex-tint dex-pressable absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 '
               + 'rounded-full border-[3px] border-[var(--tint-solid)] bg-[var(--tint-subtle)] '
-              + 'text-[var(--tint-ink)] shadow-elev-3 flex items-center justify-center group z-20'
+              + 'text-[var(--lcd-text)] shadow-elev-3 flex items-center justify-center group z-20'
             }
             style={
               {
                 width: 'var(--dial-center)',
                 height: 'var(--dial-center)',
                 '--tint': 'var(--livery-amber)',
+                backgroundColor: 'var(--tint-solid)',
               } as React.CSSProperties
             }
           >

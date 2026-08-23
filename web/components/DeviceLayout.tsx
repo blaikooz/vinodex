@@ -7,7 +7,7 @@ import DeviceFooter from './DeviceFooter';
 import MarqueeLampChooser from './MarqueeLampChooser';
 import { IosUpdatesPromptOverlay } from './IosUpdatesPrompt';
 import { VinodexBootOverlay } from './VinodexBoot';
-import { DEVICE_FOOTER_BOTTOM_PAD, DEVICE_FOOTER_HEIGHT, DEVICE_FRAME_BOX, DEVICE_FRAME_STAGE } from '../src/services/deviceFrame';
+import { DEVICE_FOOTER_BOTTOM_PAD, DEVICE_FOOTER_RESERVATION, DEVICE_FRAME_BOX, DEVICE_FRAME_STAGE } from '../src/services/deviceFrame';
 import { isSitePath } from '../src/services/appRoutes';
 import { SITE_SKIN, skinCssVars } from '../src/services/theme';
 import { useTheme } from '../src/services/useTheme';
@@ -106,10 +106,9 @@ const DeviceLayout: React.FC<DeviceLayoutProps> = ({
   // Taller than the old single-row band: the footer stacks two controls in
   // each side well (iOS v0.6.9 button band), so it reserves room for a pair.
   //
-  // The two numbers moved to `deviceFrame.ts` (v8#11) because the overlays that
-  // must clear the band now read them too — see `DEVICE_BAND_CLEARANCE`. The
-  // values and this reservation are unchanged.
-  const footerHeight = DEVICE_FOOTER_HEIGHT;
+  // The band is zoomed by the UI furniture setting, so the screen reserves its
+  // resolved painted height rather than only the unscaled base measurement.
+  const footerReservation = DEVICE_FOOTER_RESERVATION;
   const footerBottomPad = DEVICE_FOOTER_BOTTOM_PAD;
 
   return (
@@ -182,7 +181,7 @@ const DeviceLayout: React.FC<DeviceLayoutProps> = ({
         {/* Screen Container */}
         <div
           className="device-screen-space flex-1 min-h-0"
-          style={{ paddingBottom: onSite ? footerBottomPad : `calc(${footerHeight} + ${footerBottomPad})` }}
+          style={{ paddingBottom: onSite ? footerBottomPad : footerReservation }}
         >
           {/*
             The screen housing, with its keyed corner (S4) and NOCTURNE's
