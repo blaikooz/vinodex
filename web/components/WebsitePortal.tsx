@@ -6,6 +6,12 @@ import { Card, Tile } from './Card';
 import type { Livery } from './Card';
 import { CONTACT_ADDRESS } from '../src/services/brand';
 
+/* The browser document is intentionally locked because the chassis is the
+   page. These named LCD regions therefore need to be keyboard-focusable so
+   Page Up/Down and arrow keys have a scroll target; `region` is correctly
+   non-interactive, but the generic lint rule cannot represent that exception. */
+/* eslint-disable jsx-a11y/no-noninteractive-tabindex */
+
 /**
  * The studio's other projects, shown under OUR WORK beneath Vinodex. These are
  * Substack projects. Tapping a row opens an in-app splash (/project/:id) that
@@ -287,7 +293,12 @@ export const OurAppsList: React.FC<OurAppsListProps> = ({ onBack, onHome, onSele
   <DeviceLayout title="OUR WORK" subtitle="" showBack onBack={onBack} onHome={onHome} showSystemButtons={false} centerHeaderText>
     <div className={`flex-1 min-h-0 w-full flex flex-col relative overflow-hidden ${screenGround}`}>
       <RetroGrid />
-      <div className="relative z-10 flex-1 overflow-y-auto p-[var(--pad-screen)] flex flex-col gap-[var(--gap-grid)]">
+      <div
+        className="site-scroll-region custom-scrollbar relative z-10 min-h-0 flex-1 overflow-y-auto p-[var(--pad-screen)] flex flex-col gap-[var(--gap-grid)]"
+        tabIndex={0}
+        role="region"
+        aria-label="Our work content"
+      >
 
         {/* Every project — the Vinodex app plus the studio's Substacks — opens
             its own in-app splash first. From there Vinodex boots the device
@@ -360,7 +371,12 @@ export const ProjectSplash: React.FC<ProjectSplashProps> = ({ project, onBack, o
   <DeviceLayout title={project.name} subtitle="" showBack onBack={onBack} onHome={onHome} showSystemButtons={false} centerHeaderText>
     <div className={`flex-1 min-h-0 w-full flex flex-col relative overflow-hidden ${screenGround}`}>
       <RetroGrid />
-      <div className="relative z-10 flex-1 overflow-y-auto p-[var(--pad-screen)] flex flex-col items-center justify-center gap-5 text-center">
+      <div
+        className="site-scroll-region custom-scrollbar relative z-10 min-h-0 flex-1 overflow-y-auto p-[var(--pad-screen)] flex flex-col items-center justify-center gap-5 text-center"
+        tabIndex={0}
+        role="region"
+        aria-label={`${project.name} project details`}
+      >
 
         <ProjectMark project={project} large />
 
@@ -410,7 +426,12 @@ const InfoPage: React.FC<{ title: string; onBack: () => void; onHome: () => void
   <DeviceLayout title={title} subtitle="" showBack onBack={onBack} onHome={onHome} showSystemButtons={false} centerHeaderText>
     <div className={`flex-1 min-h-0 w-full flex flex-col relative overflow-hidden ${screenGround}`}>
       <RetroGrid />
-      <div className="relative z-10 flex-1 overflow-y-auto p-[var(--pad-screen)] font-retro text-caption normal-case leading-relaxed text-[var(--lcd-body-text)] max-w-prose space-y-4">
+      <div
+        className="site-scroll-region custom-scrollbar relative z-10 min-h-0 flex-1 overflow-y-auto p-[var(--pad-screen)] font-retro text-caption normal-case leading-relaxed text-[var(--lcd-body-text)] max-w-prose space-y-4"
+        tabIndex={0}
+        role="region"
+        aria-label={`${title} content`}
+      >
         {children}
       </div>
     </div>
@@ -424,15 +445,11 @@ export const WhoWeAre: React.FC<{ onBack: () => void; onHome: () => void }> = ({
         AN INDEPENDENT CREATIVE + PRODUCT STUDIO
       </h2>
       <p>
-        Horizon/Godot is a New York City studio working across digital
-        products, publishing, media, wine, design, and research. We develop
-        our own projects and selectively collaborate with people and
-        organizations on product, creative, editorial, and strategic work.
-      </p>
-      <p>
-        The studio grew from a creative partnership that began in the early
-        2020s. Our work is built around a simple idea: useful products can be
-        rigorous, inviting, and full of personality at the same time.
+        Horizon/Godot is a New York City studio creating digital products,
+        publications, and media across wine, design, and research. We build
+        our own projects and take on selected creative and strategic work.
+        Everything starts with the same belief: useful products can be
+        rigorous, inviting, and full of personality.
       </p>
     </section>
 
@@ -445,23 +462,15 @@ export const WhoWeAre: React.FC<{ onBack: () => void; onHome: () => void }> = ({
             CO-FOUNDER + CREATIVE DIRECTOR
           </p>
           <p className="mt-3">
-            Horizon leads product and creative direction across product
-            vision, UX/UI, visual design, branding, editorial, writing,
-            research, development, and audio production.
-          </p>
-          <p className="mt-3">
-            His background spans independent wine retail and service,
-            tastings and events, publishing, radio, and digital product
-            development. Across Vinodex, FocusPond, Château, and Varied/Mix,
-            he takes ideas from research and concept through design, code,
-            editorial production, and release.
+            Horizon leads product vision, UX/UI, visual identity, editorial,
+            research, development, and audio. His background spans wine retail
+            and service, tastings and events, publishing, radio, and digital
+            products. He takes the studio’s ideas from concept through release.
           </p>
           <h4 className="mt-4 font-retro text-caption uppercase tracking-widest text-[var(--lcd-accent)]">EXPERIENCE</h4>
           <ul className="mt-2 list-disc space-y-1 pl-5">
-            <li>Wine retail, sales, education, merchandising, and service</li>
-            <li>Tastings and events with producers, importers, and distributors</li>
-            <li>Publishing, editorial direction, social media, and content</li>
-            <li>Radio programming, hosting, research, and audio production</li>
+            <li>Wine retail, sales, education, tastings, and events</li>
+            <li>Publishing, editorial, radio, content, and audio production</li>
             <li>Product design, prototyping, and software development</li>
           </ul>
         </Card>
@@ -472,23 +481,17 @@ export const WhoWeAre: React.FC<{ onBack: () => void; onHome: () => void }> = ({
             CO-FOUNDER + DIRECTOR OF STRATEGY &amp; OPERATIONS
           </p>
           <p className="mt-3">
-            Erick leads strategic and operational thinking across research,
-            financial planning, business strategy, product testing, writing,
-            project pipelines, and network development.
-          </p>
-          <p className="mt-3">
-            His background combines hospitality and customer-facing service,
-            independent ventures, entrepreneurship, and philosophy studies at
-            Hunter College. He also founded and operated an embroidery
-            business, designing, producing, and delivering its goods.
+            Erick leads research, financial planning, business strategy,
+            product testing, and project pipelines. His background combines
+            hospitality, entrepreneurship, and philosophy studies at Hunter
+            College. He also founded and operated an independent embroidery
+            business from design through delivery.
           </p>
           <h4 className="mt-4 font-retro text-caption uppercase tracking-widest text-[var(--lcd-accent)]">EXPERIENCE</h4>
           <ul className="mt-2 list-disc space-y-1 pl-5">
             <li>Hospitality and customer-facing service</li>
             <li>Independent business development and operations</li>
-            <li>Product testing, research, planning, and strategic analysis</li>
-            <li>Financial planning and sustainable business modeling</li>
-            <li>Writing, creative feedback, and project pipeline development</li>
+            <li>Research, testing, financial planning, and strategic analysis</li>
           </ul>
         </Card>
       </div>
@@ -497,33 +500,18 @@ export const WhoWeAre: React.FC<{ onBack: () => void; onHome: () => void }> = ({
     <section className="space-y-3">
       <h2 className="font-retro text-heading uppercase tracking-widest text-[var(--lcd-text)]">HOW WE WORK</h2>
       <p>
-        Horizon originates and builds most of the studio’s creative and
-        product work. Erick researches, pressure-tests, plans, and helps turn
-        those concepts into practical projects and business models. At the
-        studio level, we decide together which ideas deserve to become
-        products, test new ventures, shape strategy, and make major decisions.
-      </p>
-      <p>
-        Our contributions are complementary rather than identical: creative
-        direction and hands-on production meet critical analysis, operational
-        planning, and a clear view of what it takes to make an idea viable.
-      </p>
-    </section>
-
-    <section className="space-y-3">
-      <h2 className="font-retro text-heading uppercase tracking-widest text-[var(--lcd-text)]">SELECTED COLLABORATIONS</h2>
-      <p>
-        We take on selected work in creative direction, product and digital
-        design, editorial and content, research, brand development, and
-        strategic or operational consulting.
+        Horizon originates and builds most of the creative and product work;
+        Erick researches, pressure-tests, and plans how those ideas can work
+        in practice. Together, we choose what to pursue, test new ventures,
+        shape strategy, and make major studio decisions.
       </p>
     </section>
 
     <p>
-      We both came to this work through service, curiosity, and a shared love
-      of wine. Vinodex and Château grew from that experience and from our goal
-      of making education useful, welcoming, and fun rather than guarded or
-      intimidating.
+      We take on selected collaborations in creative direction, digital
+      product design, editorial, research, brand development, and strategy.
+      Our wine work grows from service experience and a shared goal: make
+      education useful, welcoming, and fun rather than intimidating.
     </p>
   </InfoPage>
 );
@@ -532,7 +520,12 @@ export const ContactUs: React.FC<{ onBack: () => void; onHome: () => void }> = (
   <DeviceLayout title="CONTACT US" subtitle="" showBack onBack={onBack} onHome={onHome} showSystemButtons={false} centerHeaderText>
     <div className={`flex-1 min-h-0 w-full flex flex-col relative overflow-hidden ${screenGround}`}>
       <RetroGrid />
-      <div className="relative z-10 flex-1 overflow-y-auto p-[var(--pad-screen)] flex flex-col items-center justify-center gap-6 text-center">
+      <div
+        className="site-scroll-region custom-scrollbar relative z-10 min-h-0 flex-1 overflow-y-auto p-[var(--pad-screen)] flex flex-col items-center justify-center gap-6 text-center"
+        tabIndex={0}
+        role="region"
+        aria-label="Contact content"
+      >
 
         <div className="flex flex-col items-center gap-3">
           <span

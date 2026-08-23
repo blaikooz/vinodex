@@ -1,5 +1,5 @@
 import React from 'react';
-import { Palette, Lock, LockOpen, Bug, Check, Wrench, LogOut, Flag, Crown, Leaf, Sun, Moon, Grid3x3, Globe, Wine, Map as MapIcon, Layers, Vibrate, Volume2, ChevronRight, MemoryStick, Download, Upload, Mail, KeyRound, UserRound, Sparkle, Play } from 'lucide-react';
+import { Palette, Lock, LockOpen, Bug, Check, LogOut, Flag, Crown, Leaf, Sun, Moon, Grid3x3, Globe, Wine, Map as MapIcon, Layers, Vibrate, Volume2, ChevronRight, Download, Upload, Mail, KeyRound, UserRound, Sparkle, Play } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import DeviceLayout from './DeviceLayout';
 // The section vocabulary moved out so `App.tsx` can import it without
@@ -62,6 +62,7 @@ import { DEMO_STOPS, demoCycleSeconds, startDemo } from '../src/services/demoMod
 import { lineageIndexFor } from '../src/services/grapeLineage';
 import { WEB_RELEASES } from '../src/services/webChangelog';
 import { WIPE_KEYS } from '../src/services/storageKeys';
+import IOSGridTile from './IOSGridTile';
 
 
 /**
@@ -114,21 +115,22 @@ const TILE_FACE: Record<string, { dark: [string, string, string]; light: [string
   CUSTOMIZE: { dark: ['#EF4444', '#991B1B', '#FFFFFF'], light: ['#B91C1C', '#7A1010', '#FFFFFF'] },
   SETTINGS: { dark: ['#F97316', '#9A3412', '#FFFFFF'], light: ['#C2410C', '#7C2D12', '#FFFFFF'] },
   DATA: { dark: ['#2AB5FF', '#136A99', '#FFFFFF'], light: ['#1D6FA8', '#11486E', '#FFFFFF'] },
-  ACCESS: { dark: ['#A855F7', '#6B21A8', '#FFFFFF'], light: ['#7E22CE', '#4C1D95', '#FFFFFF'] },
+  SHOP: { dark: ['#A855F7', '#6B21A8', '#FFFFFF'], light: ['#7E22CE', '#4C1D95', '#FFFFFF'] },
 };
 
-/** A settings grid tile — a filled colour face with a 6px bottom extrusion, like the main menu. */
-const FeatureTile: React.FC<{ title: string; icon: React.ReactNode; onClick: () => void; isLight: boolean }> = ({ title, icon, onClick, isLight }) => {
+/** A settings-grid tile backed by the same ButtonArt bitmap iOS renders. */
+const FeatureTile: React.FC<{ title: string; art: string; onClick: () => void; isLight: boolean }> = ({ title, art, onClick, isLight }) => {
   const [face, shadow, ink] = (TILE_FACE[title] ?? TILE_FACE.DATA!)[isLight ? 'light' : 'dark'];
   return (
-    <button
+    <IOSGridTile
+      title={title}
       onClick={onClick}
-      className="aspect-square flex flex-col items-center justify-center gap-3 rounded-xl transition-all active:translate-y-1 active:border-b-0"
-      style={{ backgroundColor: face, borderBottom: `6px solid ${shadow}`, color: ink }}
-    >
-      <span style={{ color: ink }}>{icon}</span>
-      <span className="font-retro text-[0.55rem] sm:text-[0.65rem] tracking-widest text-center px-1" style={{ color: ink }}>{title}</span>
-    </button>
+      face={face}
+      shadow={shadow}
+      ink={ink}
+      artSrc={`/art/button/${art}.png`}
+      artName={art}
+    />
   );
 };
 
@@ -243,12 +245,14 @@ export const SettingsGrid: React.FC<{
           SETTINGS / DATA / ACCESS, with FIRMWARE closing the last pair
           (v6#9). TUTORIAL's tile moved into SETTINGS, as on iOS (0.7.6, F1).
           DEV is a button below, not a peer tile. */}
-      <div className="grid grid-cols-2 gap-3">
-        <FeatureTile title="TOOLS" icon={<Wrench size={30} />} onClick={onMinigames} isLight={isLight} />
-        {SETTINGS_SECTIONS.filter(s => !s.hidden).map(s => (
-          <FeatureTile key={s.id} title={s.id} icon={s.icon} onClick={() => onSection(s.id)} isLight={isLight} />
-        ))}
-        <FeatureTile title="FIRMWARE" icon={<MemoryStick size={30} />} onClick={onFirmware} isLight={isLight} />
+      <div className="ios-grid-shelf" data-ios-grid="system">
+        <FeatureTile title="TOOLS" art="tools" onClick={onMinigames} isLight={isLight} />
+        <FeatureTile title="CUSTOMIZE" art="customize" onClick={() => onSection('CUSTOMIZE')} isLight={isLight} />
+        <FeatureTile title="SETTINGS" art="settings" onClick={() => onSection('SETTINGS')} isLight={isLight} />
+        <FeatureTile title="DATA" art="data" onClick={() => onSection('DATA')} isLight={isLight} />
+        {/* ACCESS is the persisted route id; SHOP is the public-facing iOS label. */}
+        <FeatureTile title="SHOP" art="shop" onClick={() => onSection('ACCESS')} isLight={isLight} />
+        <FeatureTile title="FIRMWARE" art="firmware" onClick={onFirmware} isLight={isLight} />
       </div>
 
       {/*

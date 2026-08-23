@@ -35,7 +35,8 @@
 # ---------------------------------------------------------------------------
 #
 # The web renders a named subset of the drawn chrome art: the professor's six
-# expressions, the passport stamps, the marquee panels and the skin stickers.
+# expressions, the passport stamps, the marquee panels, the skin stickers and
+# the drawn button glyphs used by every large LCD tile.
 # Those had no route into vinodex-web, so the web drew lucide glyphs instead.
 #
 # This leg is deliberately NOT a new folder under shared\, and that is the
@@ -57,14 +58,15 @@
 #
 # NOTE the /MIR below is scoped to *.png inside each named target, so it also
 # mirrors DELETIONS: a PNG authored on the web side and dropped into one of
-# these four folders is removed by the next sync. That is what /MIR is for and
-# it is why the leg is scoped to four folders rather than to web\public\art.
+# these named folders is removed by the next sync. That is what /MIR is for and
+# it is why the leg is enumerated rather than aimed at all of web\public\art.
 $WebArt = @(
     @{ From = 'VinoArt';    To = 'vino'    },  # 6  the professor's expressions
     @{ From = 'StampArt';   To = 'stamp'   },  # 10 passport stamps
     @{ From = 'MarqueeArt'; To = 'marquee' },  # 36 per-route marquee panels
     @{ From = 'StickerArt'; To = 'sticker' },  # 20 chassis skin stickers
-    @{ From = 'FooterArt';  To = 'footer'  }   # 4  the drawn moulded caps
+    @{ From = 'FooterArt';  To = 'footer'  },  # 4  the drawn moulded caps
+    @{ From = 'ButtonArt';  To = 'button'  }   # 31 large LCD button glyphs
 )
 
 # NOTE on the footer caps, because the /MIR above makes it a trap.

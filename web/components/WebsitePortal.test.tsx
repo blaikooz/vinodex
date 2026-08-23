@@ -94,6 +94,10 @@ describe('the Horizon/Godot website', () => {
     expect(screen.getByText(/Wine retail, sales, education/)).toBeTruthy();
     expect(screen.getByText(/Independent business development/)).toBeTruthy();
     expect(screen.getByRole('heading', { name: 'HOW WE WORK' })).toBeTruthy();
+    const founderScroll = screen.getByRole('region', { name: 'WHO WE ARE content' });
+    expect(founderScroll.className).toContain('min-h-0');
+    expect(founderScroll.className).toContain('overflow-y-auto');
+    expect(founderScroll.getAttribute('tabindex')).toBe('0');
 
     view.unmount();
     inRouter(<ContactUs onBack={noop} onHome={noop} />);

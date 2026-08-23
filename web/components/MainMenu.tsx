@@ -75,10 +75,10 @@ const tileMask = (q: Quadrant): React.CSSProperties => {
  * is a product decision, not a presentation one. Flagged in the ledger.
  */
 const DIAL: { quadrant: Quadrant; label: string; livery: Livery; iconName: string; iconSrc: string; category: EntryCategory }[] = [
-  { quadrant: 'tl', label: 'GRAPES', livery: 'violet', iconName: 'grapes', iconSrc: '/art/grape/red-full-noble.png', category: 'GRAPES' },
-  { quadrant: 'tr', label: 'REGIONS', livery: 'green', iconName: 'regions', iconSrc: '/art/class/globe-north-america.png', category: 'REGIONS' },
-  { quadrant: 'bl', label: 'STYLES', livery: 'orange', iconName: 'styles', iconSrc: '/icons/game-icons--wine-glass@3x.png', category: 'STYLES' },
-  { quadrant: 'br', label: 'FLAVORS', livery: 'emerald', iconName: 'flavors', iconSrc: '/art/flavor/cherry.png', category: 'FLAVORS' },
+  { quadrant: 'tl', label: 'GRAPES', livery: 'violet', iconName: 'grapes', iconSrc: '/art/button/grapes.png', category: 'GRAPES' },
+  { quadrant: 'tr', label: 'REGIONS', livery: 'green', iconName: 'regions', iconSrc: '/art/button/regions.png', category: 'REGIONS' },
+  { quadrant: 'bl', label: 'STYLES', livery: 'orange', iconName: 'styles', iconSrc: '/art/button/styles.png', category: 'STYLES' },
+  { quadrant: 'br', label: 'FLAVORS', livery: 'emerald', iconName: 'flavors', iconSrc: '/art/button/flavors.png', category: 'FLAVORS' },
 ];
 
 const MainMenu: React.FC<MainMenuProps> = ({ onNavigate, onExit }) => {
@@ -205,7 +205,7 @@ const MainMenu: React.FC<MainMenuProps> = ({ onNavigate, onExit }) => {
             }
           >
             <img
-              src="/icons/menu-search-pixel.svg"
+              src="/art/button/search.png"
               alt=""
               aria-hidden="true"
               data-menu-icon="search"

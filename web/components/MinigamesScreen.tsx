@@ -1,6 +1,6 @@
 import React from 'react';
-import { MoonStar, BadgeCheck, Flame, EyeOff, Camera, Hourglass, GraduationCap } from 'lucide-react';
 import DeviceLayout from './DeviceLayout';
+import IOSGridTile from './IOSGridTile';
 
 interface MinigamesScreenProps {
   onScanner: () => void;
@@ -29,6 +29,7 @@ interface ToolEntry {
   face: string;
   shadow: string;
   ink: string;
+  art: string;
   comingSoon?: boolean;
 }
 
@@ -38,15 +39,15 @@ interface ToolEntry {
  * parallel-copy drift the derived sentence exists to prevent.
  */
 export const TOOL_ROSTER: ToolEntry[] = [
-  { id: 'scanner', title: 'BLIND TASTING', face: '#22C55E', shadow: '#15803D', ink: '#FFFFFF' },
-  { id: 'labelReader', title: 'LABEL SCAN', face: '#3B82F6', shadow: '#1D4ED8', ink: '#FFFFFF', comingSoon: true },
-  { id: 'wineExam', title: 'WINE EXAM', face: '#A855F7', shadow: '#6B21A8', ink: '#FFFFFF' },
-  { id: 'dailyChallenge', title: 'DAILY CHALLENGE', face: '#EF4444', shadow: '#991B1B', ink: '#FFFFFF' },
+  { id: 'scanner', title: 'BLIND TASTING', face: '#22C55E', shadow: '#15803D', ink: '#FFFFFF', art: '/art/button/blindtasting.png' },
+  { id: 'labelReader', title: 'LABEL SCAN', face: '#3B82F6', shadow: '#1D4ED8', ink: '#FFFFFF', art: '/art/button/labelscanner.png', comingSoon: true },
+  { id: 'wineExam', title: 'WINE EXAM', face: '#A855F7', shadow: '#6B21A8', ink: '#FFFFFF', art: '/art/button/wineexam.png' },
+  { id: 'dailyChallenge', title: 'DAILY CHALLENGE', face: '#EF4444', shadow: '#991B1B', ink: '#FFFFFF', art: '/art/button/dailychallenge.png' },
   // PROF. VINO holds WHAT'S THAT…?'s old slot, exactly as iOS 0.8.93 gave
   // it to him — ruling v6#6 deleted the game outright, and the shelf is the
   // fixed six again.
-  { id: 'profVino', title: 'PROF. VINO', face: '#EAB308', shadow: '#A16207', ink: '#FFFFFF' },
-  { id: 'moonDial', title: 'MOON DIAL', face: '#0891B2', shadow: '#155E75', ink: '#FFFFFF' },
+  { id: 'profVino', title: 'PROF. VINO', face: '#EAB308', shadow: '#A16207', ink: '#FFFFFF', art: '/art/vino/vino-neutral.png' },
+  { id: 'moonDial', title: 'MOON DIAL', face: '#0891B2', shadow: '#155E75', ink: '#FFFFFF', art: '/art/button/moondial.png' },
 ];
 
 export const TOOL_TITLES: string[] = TOOL_ROSTER.map(t => t.title);
@@ -60,52 +61,6 @@ export const toolSentence = (): string => {
   if (last === undefined || names.length <= 1) return names[0] ?? '';
   return names.slice(0, -1).join(', ') + ', and ' + last;
 };
-
-interface TileProps {
-  title: string;
-  /** Filled tile face + 6px extrusion + ink, mirroring iOS `ToolsScreen.tile`
-   *  and the web SETTINGS grid's `FeatureTile`. */
-  face: string;
-  shadow: string;
-  ink: string;
-  icon: React.ReactNode;
-  /**
-   * iOS's announced-but-unbuilt treatment (`ToolsScreen.swift` 0.7.0, I2):
-   * the tile still exists and looks like what it will be, its ink dims, and it
-   * says COMING SOON in words. Not `disabled` — a dead grey tile is
-   * indistinguishable from a paywalled one and from a bug. It stays tappable
-   * and does nothing, because there is nothing yet to explain that the label
-   * has not already said.
-   */
-  comingSoon?: boolean;
-  onClick: () => void;
-}
-
-const Tile: React.FC<TileProps> = ({ title, face, shadow, ink, icon, comingSoon = false, onClick }) => (
-  <button
-    onClick={onClick}
-    className="aspect-square flex flex-col items-center justify-center gap-3 rounded-xl transition-all active:translate-y-1 active:border-b-0"
-    style={{ backgroundColor: face, borderBottom: `6px solid ${shadow}`, color: ink, opacity: comingSoon ? 0.62 : 1 }}
-  >
-    <span style={{ color: ink }}>{icon}</span>
-    {/* No hard line breaks in the label — a literal newline lands in the
-        button's accessible name (v6#39; same bug Block 10 fixed for
-        WHO WE ARE). Wrapping is the browser's job. */}
-    <span className="font-retro text-[0.6rem] sm:text-xs tracking-widest text-center px-2 leading-relaxed" style={{ color: ink }}>
-      {title}
-    </span>
-    {comingSoon && (
-      <span
-        className="flex items-center gap-1 font-retro text-[0.55rem] tracking-widest"
-        style={{ color: ink, opacity: 0.85 }}
-        aria-label="Coming soon — not built yet"
-      >
-        <Hourglass size={10} aria-hidden="true" />
-        COMING SOON
-      </span>
-    )}
-  </button>
-);
 
 /**
  * The Tools hub, ported from `vinodex-ios/Sources/VinodexUI/ToolsScreen.swift`
@@ -138,16 +93,8 @@ const MinigamesScreen: React.FC<MinigamesScreenProps> = ({
         {/* Rows 1–3 as iOS orders them: the two that answer a question about a
             specific glass first, then the quiz family, then the rest. The grid
             *is* the roster — nothing here restates a title or a face. */}
-        <div className="grid grid-cols-2 gap-3">
+        <div className="ios-grid-shelf" data-ios-grid="tools">
           {TOOL_ROSTER.map(tool => {
-            const icon = {
-              scanner: <EyeOff size={32} />,
-              labelReader: <Camera size={32} />,
-              wineExam: <BadgeCheck size={32} />,
-              dailyChallenge: <Flame size={32} />,
-              profVino: <GraduationCap size={32} />,
-              moonDial: <MoonStar size={32} />,
-            }[tool.id];
             const action = {
               scanner: onScanner,
               labelReader: () => {},
@@ -157,13 +104,14 @@ const MinigamesScreen: React.FC<MinigamesScreenProps> = ({
               moonDial: onMoonDial,
             }[tool.id];
             return (
-              <Tile
+              <IOSGridTile
                 key={tool.id}
                 title={tool.title}
                 face={tool.face}
                 shadow={tool.shadow}
                 ink={tool.ink}
-                icon={icon}
+                artSrc={tool.art}
+                artName={tool.id === 'profVino' ? 'vino-neutral' : tool.art.split('/').pop()?.replace('.png', '')}
                 comingSoon={tool.comingSoon}
                 onClick={action}
               />
