@@ -380,7 +380,7 @@ body,
 @media (min-width: 768px) {
   .site-device-frame {
     width: auto;
-    height: min(720px, calc(100dvh - 2rem), calc(75vw - 1.5rem));
+    height: min(768px, calc(100dvh - 2rem), calc(75vw - 1.5rem));
     aspect-ratio: 4 / 3;
   }
 }
@@ -421,6 +421,43 @@ body,
    --------------------------------------------------------------------------- */
 .device-stage {
   background-color: #171717;
+}
+
+/* BIOS identity stack. The old wordmark was italic and skewed inside the
+   correctly clipped LCD. A transform changes paint but not the element's
+   layout box, so the first/last glyph could be guillotined by overflow-hidden.
+   These dimensions are based on the BIOS container itself (`cqi`), leave a
+   real paint inset, and preserve the canonical mark's 320:262 aspect. */
+.bios-boot {
+  container-type: inline-size;
+}
+
+.bios-boot-mark {
+  width: min(46cqi, 11rem);
+  aspect-ratio: 320 / 262;
+  filter: drop-shadow(0 0 0.875rem rgba(176, 65, 122, 0.72));
+}
+
+.bios-boot-mark-layer {
+  display: block;
+  background-repeat: no-repeat;
+  -webkit-mask-position: center;
+  mask-position: center;
+  -webkit-mask-repeat: no-repeat;
+  mask-repeat: no-repeat;
+  -webkit-mask-size: contain;
+  mask-size: contain;
+  image-rendering: pixelated;
+}
+
+.bios-boot-wordmark {
+  box-sizing: border-box;
+  padding: 0.18em 0.18em 0.12em;
+  font-size: clamp(2.375rem, 12cqi, 3rem);
+  line-height: 1.2;
+  letter-spacing: 0.025em;
+  white-space: nowrap;
+  filter: drop-shadow(0 0 0.5rem rgba(230, 169, 58, 0.4));
 }
 
 @media (min-width: 768px) {

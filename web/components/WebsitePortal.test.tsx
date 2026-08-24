@@ -98,7 +98,10 @@ describe('the Horizon/Godot website', () => {
     expect(screen.getByRole('heading', { name: 'HOW WE WORK' })).toBeTruthy();
     const founderScroll = screen.getByRole('region', { name: 'WHO WE ARE content' });
     expect(founderScroll.className).toContain('min-h-0');
+    expect(founderScroll.className).toContain('w-full');
     expect(founderScroll.className).toContain('overflow-y-auto');
+    expect(founderScroll.className).toContain('pb-[calc(var(--pad-screen)+0.5rem)]');
+    expect(founderScroll.className).not.toContain('max-w-prose');
     expect(founderScroll.getAttribute('tabindex')).toBe('0');
 
     view.unmount();

@@ -67,7 +67,8 @@ $WebArt = @(
     @{ From = 'StickerArt'; To = 'sticker' },  # 20 chassis skin stickers
     @{ From = 'FooterArt';  To = 'footer'  },  # 4  the drawn moulded caps
     @{ From = 'ButtonArt';  To = 'button'  },  # 31 large LCD button glyphs
-    @{ From = 'GlyphArt';   To = 'glyph'   }   # 22 stateful / secondary glyphs
+    @{ From = 'GlyphArt';   To = 'glyph'   },  # 22 stateful / secondary glyphs
+    @{ From = 'Logo';       To = 'logo'    }   # 3  BIOS and screensaver logo layers
 )
 
 # NOTE on the footer caps, because the /MIR above makes it a trap.

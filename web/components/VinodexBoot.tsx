@@ -17,9 +17,15 @@ import { APP_VERSION_DISPLAY } from '../src/services/appVersion';
 const INK = {
   bg: '#0E0A0E',
   magenta: '#B0417A',
+  magentaDeep: '#7A2E52',
   cream: '#F2E8D5',
   gold: '#E6A93A',
 };
+
+const BOOT_MARK = {
+  face: '/art/logo/vinodex-mark-face.png',
+  shade: '/art/logo/vinodex-mark-shade.png',
+} as const;
 
 interface Props {
   entries: number;
@@ -77,7 +83,7 @@ const VinodexBoot: React.FC<Props> = ({ entries, onDone }) => {
 
   return (
     <div
-      className="absolute inset-0 z-[30] flex select-none cursor-pointer overflow-hidden font-mono"
+      className="bios-boot absolute inset-0 z-[30] flex select-none cursor-pointer overflow-hidden font-mono"
       style={{ backgroundColor: INK.bg }}
       onClick={finish}
       onKeyDown={finish}
@@ -104,9 +110,36 @@ const VinodexBoot: React.FC<Props> = ({ entries, onDone }) => {
             <span className="mt-2 w-2 h-4 inline-block animate-pulse" style={{ backgroundColor: INK.cream }} aria-hidden="true" />
           </div>
         ) : (
-          <div className="flex-1 flex flex-col items-center justify-center px-6 text-center gap-3">
+          <div className="flex-1 min-h-0 flex flex-col items-center justify-center px-4 sm:px-6 text-center gap-2.5">
+            {/* The canonical iOS BootMark: two white-on-alpha pixel layers,
+                coloured here with the BIOS palette. Its aspect ratio and
+                inline-size cap keep it wholly inside the LCD at every chassis
+                size; the screen remains the only clipping boundary. */}
+            <div
+              className="bios-boot-mark relative shrink-0"
+              data-bios-mark
+              aria-hidden="true"
+            >
+              <span
+                className="bios-boot-mark-layer absolute inset-0"
+                style={{
+                  backgroundColor: INK.magentaDeep,
+                  WebkitMaskImage: `url(${BOOT_MARK.shade})`,
+                  maskImage: `url(${BOOT_MARK.shade})`,
+                }}
+              />
+              <span
+                className="bios-boot-mark-layer absolute inset-0"
+                style={{
+                  background: `linear-gradient(to bottom, ${INK.cream}, rgba(242,232,213,0.72))`,
+                  WebkitMaskImage: `url(${BOOT_MARK.face})`,
+                  maskImage: `url(${BOOT_MARK.face})`,
+                }}
+              />
+            </div>
             <h1
-              className="text-4xl sm:text-5xl font-black italic -skew-x-6 tracking-tight"
+              className="bios-boot-wordmark max-w-full font-retro font-black"
+              data-bios-wordmark
               style={{
                 backgroundImage: `linear-gradient(to bottom, #ffffff, ${INK.cream}, ${INK.gold}, ${INK.cream}, #ffffff)`,
                 WebkitBackgroundClip: 'text',

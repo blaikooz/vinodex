@@ -427,7 +427,7 @@ const InfoPage: React.FC<{ title: string; onBack: () => void; onHome: () => void
     <div className={`flex-1 min-h-0 w-full flex flex-col relative overflow-hidden ${screenGround}`}>
       <RetroGrid />
       <div
-        className="site-scroll-region custom-scrollbar relative z-10 min-h-0 flex-1 overflow-y-auto p-[var(--pad-screen)] font-retro text-caption normal-case leading-relaxed text-[var(--lcd-body-text)] max-w-prose space-y-4"
+        className="site-scroll-region custom-scrollbar relative z-10 min-h-0 w-full flex-1 overflow-y-auto p-[var(--pad-screen)] pb-[calc(var(--pad-screen)+0.5rem)] font-retro text-caption normal-case leading-relaxed text-[var(--lcd-body-text)] space-y-4"
         tabIndex={0}
         role="region"
         aria-label={`${title} content`}

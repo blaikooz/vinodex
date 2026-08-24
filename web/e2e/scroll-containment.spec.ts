@@ -1,5 +1,44 @@
 import { test, expect, enterDex, seedDevice } from './fixtures';
 
+const assertFounderEndpoint = async (
+  page: import('@playwright/test').Page,
+) => {
+  const scroller = page.getByRole('region', { name: 'WHO WE ARE content' });
+  await expect(scroller).toBeVisible();
+  await scroller.evaluate(el => { el.scrollTop = el.scrollHeight; });
+
+  const endpoint = await scroller.evaluate(el => {
+    const last = el.lastElementChild;
+    if (!last) return null;
+    const viewport = el.getBoundingClientRect();
+    const contentEnd = last.getBoundingClientRect();
+    return {
+      scrollTop: el.scrollTop,
+      maxScrollTop: el.scrollHeight - el.clientHeight,
+      viewportBottom: viewport.bottom,
+      contentBottom: contentEnd.bottom,
+    };
+  });
+  expect(endpoint, 'the founder page has no final content node').not.toBeNull();
+  expect(endpoint!.scrollTop).toBeCloseTo(endpoint!.maxScrollTop, 0);
+  expect(
+    endpoint!.viewportBottom - endpoint!.contentBottom,
+    'the final founder line touches or disappears under the LCD clip',
+  ).toBeGreaterThanOrEqual(20);
+
+  const bezelTop = await page.locator('.bezel-wordmark').evaluate(el =>
+    el.closest('div.shrink-0')!.getBoundingClientRect().top,
+  );
+  expect(endpoint!.viewportBottom, 'founder content extends beneath the bezel')
+    .toBeLessThanOrEqual(bezelTop);
+
+  await page.evaluate(() => window.scrollTo(0, document.documentElement.scrollHeight));
+  expect(await page.evaluate(() => window.scrollY), 'the founder route unlocks document scrolling')
+    .toBe(0);
+  expect(await page.evaluate(() => getComputedStyle(document.documentElement).overflow))
+    .toBe('hidden');
+};
+
 /**
  * The chassis is the page. Long content belongs to the LCD and must never turn
  * the browser document into a second, competing scroll surface around it.
@@ -65,6 +104,7 @@ test.describe('scroll containment', () => {
       page,
       page.getByRole('region', { name: 'WHO WE ARE content' }),
     );
+    await assertFounderEndpoint(page);
   });
 
   test('search, detail, and settings screens keep working scroll regions', async ({ page, consoleErrors }) => {
@@ -76,5 +116,17 @@ test.describe('scroll containment', () => {
       const scroller = page.locator('.lcd-themed .overflow-y-auto').first();
       await assertInternalScroll(page, scroller);
     }
+  });
+});
+
+test.describe('mobile founder scroll endpoint', () => {
+  test.use({ viewport: { width: 390, height: 844 } });
+
+  test('keeps the complete final line above the bezel without document scrolling', async ({ page, consoleErrors }) => {
+    void consoleErrors;
+    await seedDevice(page);
+    await page.goto('/who-we-are');
+
+    await assertFounderEndpoint(page);
   });
 });

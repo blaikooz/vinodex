@@ -213,9 +213,35 @@ for (const [name, width, height] of SIZES) {
         expect(geom.box, 'the device frame is not the 522px column on desktop').toBeLessThan(geom.vw * 0.6);
       }
 
+      // The identity arrives after the POST. Its old italic/skew transform
+      // painted beyond the h1's measured box, where the LCD quite correctly
+      // clipped the first/last letters. Both pieces now carry stable hooks so
+      // this checks painted geometry rather than class-name intent.
+      await expect(page.getByText('PRESS ANY BUTTON TO CONTINUE')).toBeVisible();
+      const identity = await page.evaluate(() => {
+        const wordmark = document.querySelector('[data-bios-wordmark]');
+        const boot = wordmark?.closest('[role="button"]') ?? null;
+        const mark = document.querySelector('[data-bios-mark]');
+        const rect = (node: Element | null) => {
+          if (!node) return null;
+          const r = node.getBoundingClientRect();
+          return { left: r.left, right: r.right, top: r.top, bottom: r.bottom };
+        };
+        return { boot: rect(boot), wordmark: rect(wordmark), mark: rect(mark) };
+      });
+      expect(identity.boot, 'the BIOS identity has no LCD box').not.toBeNull();
+      for (const [name, box] of [['wordmark', identity.wordmark], ['mark', identity.mark]] as const) {
+        expect(box, `${name} has no layout box`).not.toBeNull();
+        expect(box!.left, `${name} clips at the left LCD edge`).toBeGreaterThanOrEqual(identity.boot!.left - 0.5);
+        expect(box!.right, `${name} clips at the right LCD edge`).toBeLessThanOrEqual(identity.boot!.right + 0.5);
+        expect(box!.top, `${name} clips at the top LCD edge`).toBeGreaterThanOrEqual(identity.boot!.top - 0.5);
+        expect(box!.bottom, `${name} clips at the bottom LCD edge`).toBeLessThanOrEqual(identity.boot!.bottom + 0.5);
+      }
+
       // It waits for and accepts an explicit handoff at every size.
-      await page.getByRole('button', { name: 'Skip boot' }).click();
-      await expect(post).toBeHidden();
+      const handoff = page.getByRole('button', { name: 'Skip boot' });
+      await handoff.click();
+      await expect(handoff).toBeHidden();
     });
   });
 }
