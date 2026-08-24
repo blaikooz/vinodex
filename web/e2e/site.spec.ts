@@ -206,6 +206,8 @@ test('the site alone reshapes its chassis for the viewport', async ({ page, cons
     const panelBox = panel.getBoundingClientRect();
     const outer = getComputedStyle(panel);
     const inner = getComputedStyle(panel, '::before');
+    const lamp = document.querySelector<HTMLElement>('.bezel-bottom-light')!.getBoundingClientRect();
+    const grill = document.querySelector<HTMLElement>('.bezel-grill')!.getBoundingClientRect();
     const labels = Array.from(document.querySelectorAll('.portal-home-tile > span:nth-of-type(2)'));
     return {
       crown: panelBox.top - frame.top,
@@ -214,6 +216,8 @@ test('the site alone reshapes its chassis for the viewport', async ({ page, cons
       innerInset: inner.top,
       outerClip: outer.clipPath,
       innerClip: inner.clipPath,
+      lampLeft: lamp.left - panelBox.left,
+      grillRight: panelBox.right - grill.right,
       labels: labels.map(label => Number.parseFloat(getComputedStyle(label).fontSize)),
     };
   });
@@ -222,6 +226,8 @@ test('the site alone reshapes its chassis for the viewport', async ({ page, cons
   expect(siteFinish.innerInset, 'the chamfer rim has no inset face').toBe('6px');
   expect(siteFinish.outerClip).not.toBe('none');
   expect(siteFinish.innerClip).not.toBe('none');
+  expect(siteFinish.lampLeft, 'the bezel lamp sits in the chamfer cut').toBeGreaterThanOrEqual(40);
+  expect(siteFinish.grillRight, 'the grill crowds the rounded bezel corner').toBeGreaterThanOrEqual(19);
   expect(siteFinish.labels).toHaveLength(4);
   for (const size of siteFinish.labels) {
     expect(size, 'a website tile title stayed at the old small size').toBeGreaterThanOrEqual(14);

@@ -340,20 +340,20 @@ const DeviceLayout: React.FC<DeviceLayoutProps> = ({
               Inside the dex it reads VINODEX, as it always has. One wordmark,
               two owners, and the wordmark is how you can tell at a glance
               which one you are holding. */}
-          <div className="shrink-0 relative flex items-center gap-3 px-4 h-7">
+          <div className="bezel-bottom-strip shrink-0 relative h-7">
             {/* `bottomVentDot` (0.75rem), a shade over the pair on the bezel
                 above: iOS's G3 makes them the same bulb at two sizes, and the
                 bottom one is bigger because at `ventDot` "it read as a speck
                 of dirt rather than as a lamp". */}
             <span
-              className="recessed-lamp w-[0.75rem] h-[0.75rem] rounded-full bg-red-500 shrink-0"
+              className="bezel-bottom-light recessed-lamp absolute top-1/2 w-[0.75rem] h-[0.75rem] rounded-full bg-red-500"
               style={{
                 border: '1px solid #991b1b',
                 '--lamp-size': '0.75rem',
                 '--lamp-halo': 'rgba(239,68,68,0.55)',
               } as React.CSSProperties}
             />
-            <div className="flex-1 min-w-0 flex items-center justify-center overflow-hidden">
+            <div className="absolute inset-0 flex min-w-0 items-center justify-center overflow-hidden px-20 pointer-events-none">
               {/* `bezel-wordmark` is a stable hook for the render gate, in the
                   house style of `.lamp-hit` / `.band-pills` / `.island-strip`.
                   The wordmark is `aria-hidden` moulding, so there is no
@@ -371,7 +371,7 @@ const DeviceLayout: React.FC<DeviceLayoutProps> = ({
                 {onSite ? 'HORIZON/GODOT' : 'VINODEX'}
               </span>
             </div>
-            <div className="flex flex-col gap-0.5 opacity-50 shrink-0">
+            <div className="bezel-grill absolute top-1/2 flex -translate-y-1/2 flex-col gap-0.5 opacity-50">
               {[0, 1, 2, 3].map(i => (
                 <div key={i} className="w-14 h-0.5 rounded-full" style={{ backgroundColor: 'var(--chassis-grill)' }}></div>
               ))}

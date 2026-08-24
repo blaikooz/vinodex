@@ -1530,6 +1530,20 @@ body {
   z-index: 1;
 }
 
+/* Keep the bottom furniture on the bezel's usable face. The keyed corner cuts
+   through the first 2.25rem of the strip, so generic horizontal padding put
+   the lamp partly on the cut and made its recess appear clipped. The grill has
+   its own safe inset from the rounded corner. The wordmark remains centered
+   against the complete bezel rather than between two unequal ornaments. */
+.bezel-bottom-light {
+  left: calc(var(--panel-chamfer) + 0.25rem);
+  transform: translateY(-50%);
+}
+
+.bezel-grill {
+  right: 1.25rem;
+}
+
 @media (prefers-reduced-motion: reduce) {
   /* Nothing here animates; listed so a future addition to this block is
      considered rather than inherited. */

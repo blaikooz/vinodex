@@ -171,10 +171,15 @@ test.describe('main menu chassis fit', () => {
     const panel = await glass.evaluate(node => {
       const style = getComputedStyle(node);
       const parse = (value: string) => (value.match(/[\d.]+/g) ?? []).slice(0, 3).map(Number);
+      const run = node.firstElementChild as HTMLElement;
+      const glyph = run.querySelector('img') as HTMLElement;
+      const title = run.querySelector('span:last-child') as HTMLElement;
       return {
         background: parse(style.backgroundColor),
         backgroundImage: style.backgroundImage,
-        animationName: getComputedStyle(node.firstElementChild ?? node).animationName,
+        animationName: getComputedStyle(run).animationName,
+        glyphHeight: glyph.getBoundingClientRect().height,
+        titleSize: Number.parseFloat(getComputedStyle(title).fontSize),
       };
     });
     const [red = 0, green = 0, blue = 0] = panel.background;
@@ -182,6 +187,8 @@ test.describe('main menu chassis fit', () => {
     expect(green, 'marquee panel is not green-led').toBeGreaterThan(blue);
     expect(panel.backgroundImage, 'marquee panel has no LCD grid/scan texture').not.toBe('none');
     expect(panel.animationName, 'the route title still scrolls/repeats').toBe('none');
+    expect(panel.glyphHeight, 'the marquee glyph stayed at its old small size').toBeGreaterThanOrEqual(41);
+    expect(panel.titleSize, 'the marquee title stayed at its old small size').toBeGreaterThanOrEqual(22);
 
     const text = (await run.textContent()) ?? '';
     const title = text.trim();

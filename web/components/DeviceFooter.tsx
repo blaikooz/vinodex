@@ -242,7 +242,7 @@ const DeviceFooter: React.FC<DeviceFooterProps> = ({
   const backEnabled = showBack && !!onBack;
   // One size: the marquee never says VINODEX any more (the script replaced
   // the wordmark loop), so the old big-wordmark branch was dead (review I3).
-  const footerTitleSize = 'text-[1.2rem] md:text-[1.45rem]';
+  const footerTitleSize = 'text-[1.4rem] md:text-[1.7rem]';
   const defaultFooterDisplay = (
     // The marquee bezel (stage 3, v9#s4). The chrome rim used to end in a
     // solid `0 3px 0` grey ledge — a hard offset shadow, the exact stroke the
@@ -253,9 +253,9 @@ const DeviceFooter: React.FC<DeviceFooterProps> = ({
     // concentric rather than the near-miss 0.9rem was.
     <div className="chassis-marquee flex-1 min-h-0 w-full min-w-0 rounded-[1.1rem] p-[0.3rem] border-[3px] border-emerald-950 shadow-[inset_0_1px_0_rgba(255,255,255,0.28),0_2px_3px_rgba(0,0,0,0.35),0_6px_12px_-6px_rgba(0,0,0,0.4)]">
       <div className="chassis-marquee-screen relative flex h-full min-h-0 items-center justify-center overflow-hidden rounded-[0.7rem] px-1">
-        <div className="terminal-marquee static-marquee flex flex-col items-center justify-center gap-1 text-emerald-950">
+        <div className="terminal-marquee static-marquee flex flex-col items-center justify-center gap-0.5 text-emerald-950">
           <span className="chassis-marquee-glyph flex items-center justify-center">
-            {marqueeGlyph(glyphTitle, 32)}
+            {marqueeGlyph(glyphTitle, 42)}
           </span>
           <span
             className={`block font-retro ${footerTitleSize} tracking-[-0.05em] leading-none text-emerald-950`}
