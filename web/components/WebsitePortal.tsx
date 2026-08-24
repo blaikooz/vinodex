@@ -269,7 +269,7 @@ export const PortalHome: React.FC<PortalHomeProps> = props => (
                 backgroundColor: 'var(--tint-solid)',
                 borderColor: 'var(--tint-border)',
               }}
-              className="[&>span:nth-of-type(2)]:font-retro"
+              className="portal-home-tile [&>span:nth-of-type(2)]:font-retro"
             />
           ))}
         </div>
@@ -478,12 +478,12 @@ export const WhoWeAre: React.FC<{ onBack: () => void; onHome: () => void }> = ({
         </Card>
 
         <Card livery="amber" elevation={1} className="p-[var(--pad-card)]">
-          <h3 className="font-retro text-heading uppercase tracking-widest text-[var(--lcd-text)]">GODOT / ERICK GUZMAN</h3>
+          <h3 className="font-retro text-heading uppercase tracking-widest text-[var(--lcd-text)]">GODOT</h3>
           <p className="mt-1 font-retro text-caption uppercase tracking-wide text-[var(--lcd-accent)]">
             CO-FOUNDER + DIRECTOR OF STRATEGY &amp; OPERATIONS
           </p>
           <p className="mt-3">
-            Erick leads strategy, financial planning, research, product
+            Godot leads strategy, financial planning, research, product
             testing, partnerships, and operations.
           </p>
           <ul className="mt-3 space-y-1 font-retro text-caption uppercase tracking-wide">
@@ -498,7 +498,7 @@ export const WhoWeAre: React.FC<{ onBack: () => void; onHome: () => void }> = ({
     <section className="space-y-3">
       <h2 className="font-retro text-heading uppercase tracking-widest text-[var(--lcd-text)]">HOW WE WORK</h2>
       <p>
-        Horizon shapes and builds the work. Erick pressure-tests the plan and
+        Horizon shapes and builds the work. Godot pressure-tests the plan and
         keeps it moving. Together, we make education useful, welcoming, and fun.
       </p>
     </section>

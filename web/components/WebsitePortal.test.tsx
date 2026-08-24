@@ -89,7 +89,8 @@ describe('the Horizon/Godot website', () => {
     const view = inRouter(<WhoWeAre onBack={noop} onHome={noop} />);
     expect(screen.getByText('HORIZON')).toBeTruthy();
     expect(screen.getByText('CO-FOUNDER + CREATIVE DIRECTOR')).toBeTruthy();
-    expect(screen.getByText('GODOT / ERICK GUZMAN')).toBeTruthy();
+    expect(screen.getByText('GODOT')).toBeTruthy();
+    expect(screen.queryByText(/ERICK GUZMAN/i)).toBeNull();
     expect(screen.getByText('CO-FOUNDER + DIRECTOR OF STRATEGY & OPERATIONS')).toBeTruthy();
     expect(screen.getByText('WINE OBSESSED')).toBeTruthy();
     expect(screen.getByText('SERIOUS ABOUT PLAY')).toBeTruthy();

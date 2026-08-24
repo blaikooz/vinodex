@@ -377,6 +377,28 @@ body,
   aspect-ratio: 1 / 1;
 }
 
+/* With the island intentionally absent, the website still needs a visible
+   crown of red moulding above the white screen housing. This padding is
+   site-only; Vinodex keeps its established portrait stack and island height. */
+.site-device-screen-space {
+  padding-top: clamp(0.65rem, 2vw, 1rem);
+}
+
+/* The shared Tile label is deliberately conservative. These two primary
+   navigation surfaces have enough room for one measured step up. */
+.portal-home-tile > span:nth-of-type(2),
+.main-menu-tile > span:nth-of-type(2) {
+  font-size: clamp(0.78rem, 1.35vw, 0.9rem);
+}
+
+/* The category content follows the area left by its concave corner, matching
+   iOS's centroid adjustment rather than sitting partly under Search. */
+.main-menu-tile > span {
+  position: relative;
+  left: var(--dial-shift-x, 0);
+  top: var(--dial-shift-y, 0);
+}
+
 @media (min-width: 768px) {
   .site-device-frame {
     width: auto;
@@ -1464,6 +1486,11 @@ body {
 .chamfered-panel {
   --panel-corner: 2rem;
   --panel-chamfer: 2.25rem;
+  --panel-rim: 6px;
+  --panel-inner-corner: calc(var(--panel-corner) - var(--panel-rim));
+  --panel-inner-chamfer: calc(var(--panel-chamfer) - 0.25rem);
+  isolation: isolate;
+  background: var(--panel-edge, var(--chassis-panel-edge));
   clip-path: polygon(
     var(--panel-chamfer) 100%,
     100% 100%,
@@ -1475,6 +1502,32 @@ body {
      bottom-left, and `border-radius` still rounds what is left. */
   border-radius: var(--panel-corner);
   border-bottom-left-radius: 0;
+}
+
+/* A second, inset copy of the silhouette creates a genuine six-pixel rim on
+   the rounded corners and the diagonal. CSS borders only knew about the
+   element's original rectangle, so the old clipped border disappeared along
+   the chamfer and made the keyed corner look unfinished. */
+.chamfered-panel::before {
+  content: '';
+  position: absolute;
+  inset: var(--panel-rim);
+  z-index: 0;
+  pointer-events: none;
+  background: var(--panel-fill, var(--chassis-panel));
+  clip-path: polygon(
+    var(--panel-inner-chamfer) 100%,
+    100% 100%,
+    100% 0,
+    0 0,
+    0 calc(100% - var(--panel-inner-chamfer))
+  );
+  border-radius: var(--panel-inner-corner);
+  border-bottom-left-radius: 0;
+}
+
+.chamfered-panel > * {
+  z-index: 1;
 }
 
 @media (prefers-reduced-motion: reduce) {

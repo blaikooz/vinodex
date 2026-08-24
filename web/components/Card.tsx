@@ -158,7 +158,7 @@ export interface TileProps {
   style?: React.CSSProperties;
   /**
    * The tile is clipped to a shape of its own — the dial's quadrants, which
-   * cut a concave scoop out of their inner corner with a `mask-image`.
+   * cut a concave scoop out of their inner corner with a responsive clip path.
    *
    * It does two things because they have one cause. A clipped tile drops the
    * card's rectangle and hairline, which would fight the shape; and its focus

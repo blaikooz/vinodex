@@ -189,11 +189,43 @@ test('the site alone reshapes its chassis for the viewport', async ({ page, cons
   expect(mobile).not.toBeNull();
   expect(Math.abs((mobile?.width ?? 0) - (mobile?.height ?? 0))).toBeLessThanOrEqual(1);
   await expect(page.locator('.island-strip')).toHaveCount(0);
+  const mobileCrown = await page.evaluate(() => {
+    const frame = document.querySelector('.site-device-frame')!.getBoundingClientRect();
+    const panel = document.querySelector('.chamfered-panel')!.getBoundingClientRect();
+    return panel.top - frame.top;
+  });
+  expect(mobileCrown, 'the square website chassis has no top moulding').toBeGreaterThanOrEqual(10);
 
   await page.setViewportSize({ width: 1280, height: 800 });
   const desktop = await page.locator('.site-device-frame').boundingBox();
   expect(desktop).not.toBeNull();
   expect((desktop?.width ?? 0) / (desktop?.height ?? 1)).toBeCloseTo(4 / 3, 2);
+  const siteFinish = await page.evaluate(() => {
+    const frame = document.querySelector('.site-device-frame')!.getBoundingClientRect();
+    const panel = document.querySelector<HTMLElement>('.chamfered-panel')!;
+    const panelBox = panel.getBoundingClientRect();
+    const outer = getComputedStyle(panel);
+    const inner = getComputedStyle(panel, '::before');
+    const labels = Array.from(document.querySelectorAll('.portal-home-tile > span:nth-of-type(2)'));
+    return {
+      crown: panelBox.top - frame.top,
+      outerFill: outer.backgroundColor,
+      innerFill: inner.backgroundColor,
+      innerInset: inner.top,
+      outerClip: outer.clipPath,
+      innerClip: inner.clipPath,
+      labels: labels.map(label => Number.parseFloat(getComputedStyle(label).fontSize)),
+    };
+  });
+  expect(siteFinish.crown, 'the landscape website chassis has no top moulding').toBeGreaterThanOrEqual(14);
+  expect(siteFinish.outerFill, 'the chamfer rim has no edge material').not.toBe(siteFinish.innerFill);
+  expect(siteFinish.innerInset, 'the chamfer rim has no inset face').toBe('6px');
+  expect(siteFinish.outerClip).not.toBe('none');
+  expect(siteFinish.innerClip).not.toBe('none');
+  expect(siteFinish.labels).toHaveLength(4);
+  for (const size of siteFinish.labels) {
+    expect(size, 'a website tile title stayed at the old small size').toBeGreaterThanOrEqual(14);
+  }
 
   await enterDex(page, '/dex');
   const dex = await page.locator('div[class*="md:w-[522px]"]').first().boundingBox();

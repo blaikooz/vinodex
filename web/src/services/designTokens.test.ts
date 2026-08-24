@@ -203,23 +203,10 @@ describe('design tokens', () => {
    */
   const CONVERTED = ['Card.tsx', 'MainMenu.tsx', 'WebsitePortal.tsx'];
 
-  /**
-   * The one kind of literal colour that is not paint.
-   *
-   * `MainMenu`'s dial cuts each quadrant's concave inner corner with a
-   * `radial-gradient` used as a **mask**, and in a mask only the alpha channel
-   * is read: `#000` there means "keep this pixel", nothing more. Theming it
-   * would be meaningless -- there is no screen mode in which the scoop should
-   * be a different shape -- and swapping it for `rgb(0 0 0 / 1)` to slip past
-   * the regex would be worse than either.
-   *
-   * Listed per file and per value rather than as a blanket "ignore lines
-   * containing `mask`", so an actual paint colour cannot hide behind the
-   * exemption by being on the same line as one.
-   */
-  const NOT_PAINT: Record<string, string[]> = {
-    'MainMenu.tsx': ['#000'],
-  };
+  // Literal non-paint exemptions are spent rather than permanent. MainMenu's
+  // former black alpha mask left when the dial moved to geometric SVG clips,
+  // so all three converted surfaces are now entirely token-driven.
+  const NOT_PAINT: Record<string, string[]> = {};
 
   for (const file of CONVERTED) {
     it(`${file} styles with tokens, not literal colour`, () => {

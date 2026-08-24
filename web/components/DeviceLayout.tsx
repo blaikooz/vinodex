@@ -187,7 +187,7 @@ const DeviceLayout: React.FC<DeviceLayoutProps> = ({
 
         {/* Screen Container */}
         <div
-          className="device-screen-space flex-1 min-h-0"
+          className={`device-screen-space flex-1 min-h-0 ${onSite ? 'site-device-screen-space' : ''}`}
           style={{ paddingBottom: onSite ? footerBottomPad : footerReservation }}
         >
           {/*
@@ -208,13 +208,13 @@ const DeviceLayout: React.FC<DeviceLayoutProps> = ({
             nothing.
           */}
           <div
-            className="chamfered-panel h-full flex flex-col relative m-2 mt-0 border-l-[6px] border-r-[6px] border-b-[6px] border-t-0 shadow-inner"
+            className="chamfered-panel h-full flex flex-col relative m-2 mt-0"
             style={{
-              backgroundColor: 'var(--chassis-panel)',
-              borderColor: 'var(--chassis-panel-edge)',
+              '--panel-fill': 'var(--chassis-panel)',
+              '--panel-edge': 'var(--chassis-panel-edge)',
               boxShadow:
                 '0 0 6px var(--chassis-rim-glow, transparent), 0 0 16px var(--chassis-rim-glow, transparent)',
-            }}
+            } as React.CSSProperties}
           >
 
           {/* The two housing lamps. Fixed red on every shell, matching iOS's

@@ -60,6 +60,58 @@ test.describe('main menu chassis fit', () => {
       .toBe(5);
   });
 
+  test('the four tiles curve around the search hub with a real channel', async ({ page, consoleErrors }) => {
+    void consoleErrors;
+    const geometry = await page.evaluate(() => {
+      const search = document.querySelector<HTMLElement>('.main-menu-search')!;
+      const tiles = Array.from(document.querySelectorAll<HTMLElement>('.main-menu-tile'));
+      const searchBox = search.getBoundingClientRect();
+      const center = {
+        x: searchBox.left + searchBox.width / 2,
+        y: searchBox.top + searchBox.height / 2,
+      };
+      const radius = searchBox.width / 2;
+      const diagonal = Math.SQRT1_2;
+      const directions = [
+        [-diagonal, -diagonal],
+        [diagonal, -diagonal],
+        [-diagonal, diagonal],
+        [diagonal, diagonal],
+      ];
+
+      return tiles.map((tile, index) => {
+        const [dx = 0, dy = 0] = directions[index] ?? [];
+        const at = (distance: number) => document.elementFromPoint(
+          center.x + dx * distance,
+          center.y + dy * distance,
+        ) as HTMLElement | null;
+        const channelHit = at(radius + 5);
+        const tileHit = at(radius + 24);
+        const clipId = getComputedStyle(tile).clipPath;
+        const pathId = clipId.match(/#([^"')]+)/)?.[1] ?? '';
+        const path = pathId ? document.querySelector<SVGPathElement>(`#${CSS.escape(pathId)} path`) : null;
+        return {
+          channelIsTile: channelHit?.closest('.main-menu-tile') === tile,
+          channelIsSearch: channelHit?.closest('.main-menu-search') === search,
+          outerIsTile: tileHit?.closest('.main-menu-tile') === tile,
+          clipPath: clipId,
+          arcCount: (path?.getAttribute('d')?.match(/\bA\b/g) ?? []).length,
+          labelSize: Number.parseFloat(getComputedStyle(tile.querySelector('span:nth-of-type(2)')!).fontSize),
+        };
+      });
+    });
+
+    expect(geometry).toHaveLength(4);
+    for (const tile of geometry) {
+      expect(tile.clipPath, 'a category tile has no responsive scoop path').toMatch(/^url\(/);
+      expect(tile.arcCount, 'the scoop lost its rounded corners or tangent fillets').toBeGreaterThanOrEqual(6);
+      expect(tile.channelIsTile, 'a tile paints into the channel around Search').toBe(false);
+      expect(tile.channelIsSearch, 'the channel sample still lands on Search').toBe(false);
+      expect(tile.outerIsTile, 'the scoop cuts too deeply into its tile').toBe(true);
+      expect(tile.labelSize, 'a category title stayed at the old small size').toBeGreaterThanOrEqual(14);
+    }
+  });
+
   test('the marquee and quick-pin row use the footer center column', async ({ page, consoleErrors }) => {
     void consoleErrors;
     await expect(page.locator('footer')).toBeVisible();
