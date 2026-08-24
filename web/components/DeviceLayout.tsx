@@ -138,7 +138,11 @@ const DeviceLayout: React.FC<DeviceLayoutProps> = ({
         style={{
           transformStyle: 'preserve-3d',
           transition: 'transform 700ms cubic-bezier(0.4, 0, 0.2, 1)',
-          transform: isFlipped ? 'rotateY(180deg)' : 'rotateY(0deg)',
+          // Keep the live LCD out of a 3D compositor layer until the user
+          // actually flips the chassis. Chromium can drop wheel scrolling on
+          // nested overflow regions inside an identity 3D transform at the
+          // desktop breakpoint, even though touch scrolling still works.
+          transform: isFlipped ? 'rotateY(180deg)' : 'none',
         }}
       >
         {/* Front face — full device chassis */}

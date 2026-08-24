@@ -67,11 +67,11 @@ test.describe('scroll containment', () => {
     );
   });
 
-  test('long detail and settings screens keep working scroll regions', async ({ page, consoleErrors }) => {
+  test('search, detail, and settings screens keep working scroll regions', async ({ page, consoleErrors }) => {
     void consoleErrors;
     await seedDevice(page);
 
-    for (const route of ['/detail/G001', '/settings']) {
+    for (const route of ['/chip-filter', '/detail/G001', '/settings/SETTINGS']) {
       await enterDex(page, route);
       const scroller = page.locator('.lcd-themed .overflow-y-auto').first();
       await assertInternalScroll(page, scroller);
