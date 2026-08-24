@@ -445,12 +445,17 @@ export const WhoWeAre: React.FC<{ onBack: () => void; onHome: () => void }> = ({
         AN INDEPENDENT CREATIVE + PRODUCT STUDIO
       </h2>
       <p>
-        Horizon/Godot is a New York City studio creating digital products,
-        publications, and media across wine, design, and research. We build
-        our own projects and take on selected creative and strategic work.
-        Everything starts with the same belief: useful products can be
-        rigorous, inviting, and full of personality.
+        We are a two-founder NYC studio making useful digital products,
+        publications, and media with personality.
       </p>
+      <ul className="grid grid-cols-2 gap-2 font-retro text-caption uppercase tracking-wide sm:grid-cols-4">
+        {['NYC BASED', 'SERVICE TRAINED', 'WINE OBSESSED', 'SERIOUS ABOUT PLAY'].map(item => (
+          <li key={item} className="rounded-control border border-[var(--surface-line)] bg-[var(--surface-raised)] px-2 py-2 text-center text-[var(--lcd-text)]">
+            <span aria-hidden="true" className="mr-1 text-[var(--lcd-accent)]">◆</span>
+            {item}
+          </li>
+        ))}
+      </ul>
     </section>
 
     <section className="space-y-3">
@@ -462,16 +467,13 @@ export const WhoWeAre: React.FC<{ onBack: () => void; onHome: () => void }> = ({
             CO-FOUNDER + CREATIVE DIRECTOR
           </p>
           <p className="mt-3">
-            Horizon leads product vision, UX/UI, visual identity, editorial,
-            research, development, and audio. His background spans wine retail
-            and service, tastings and events, publishing, radio, and digital
-            products. He takes the studio’s ideas from concept through release.
+            Horizon leads product vision, creative direction, UX/UI, brand,
+            editorial, and development.
           </p>
-          <h4 className="mt-4 font-retro text-caption uppercase tracking-widest text-[var(--lcd-accent)]">EXPERIENCE</h4>
-          <ul className="mt-2 list-disc space-y-1 pl-5">
-            <li>Wine retail, sales, education, tastings, and events</li>
-            <li>Publishing, editorial, radio, content, and audio production</li>
-            <li>Product design, prototyping, and software development</li>
+          <ul className="mt-3 space-y-1 font-retro text-caption uppercase tracking-wide">
+            <li><span aria-hidden="true" className="text-[var(--lcd-accent)]">→</span> Pixels + prototypes</li>
+            <li><span aria-hidden="true" className="text-[var(--lcd-accent)]">→</span> Wine + service instincts</li>
+            <li><span aria-hidden="true" className="text-[var(--lcd-accent)]">→</span> Music, culture + story</li>
           </ul>
         </Card>
 
@@ -481,17 +483,13 @@ export const WhoWeAre: React.FC<{ onBack: () => void; onHome: () => void }> = ({
             CO-FOUNDER + DIRECTOR OF STRATEGY &amp; OPERATIONS
           </p>
           <p className="mt-3">
-            Erick leads research, financial planning, business strategy,
-            product testing, and project pipelines. His background combines
-            hospitality, entrepreneurship, and philosophy studies at Hunter
-            College. He also founded and operated an independent embroidery
-            business from design through delivery.
+            Erick leads strategy, financial planning, research, product
+            testing, partnerships, and operations.
           </p>
-          <h4 className="mt-4 font-retro text-caption uppercase tracking-widest text-[var(--lcd-accent)]">EXPERIENCE</h4>
-          <ul className="mt-2 list-disc space-y-1 pl-5">
-            <li>Hospitality and customer-facing service</li>
-            <li>Independent business development and operations</li>
-            <li>Research, testing, financial planning, and strategic analysis</li>
+          <ul className="mt-3 space-y-1 font-retro text-caption uppercase tracking-wide">
+            <li><span aria-hidden="true" className="text-[var(--lcd-accent)]">→</span> Models + milestones</li>
+            <li><span aria-hidden="true" className="text-[var(--lcd-accent)]">→</span> Partners + pipelines</li>
+            <li><span aria-hidden="true" className="text-[var(--lcd-accent)]">→</span> Systems that scale</li>
           </ul>
         </Card>
       </div>
@@ -500,18 +498,14 @@ export const WhoWeAre: React.FC<{ onBack: () => void; onHome: () => void }> = ({
     <section className="space-y-3">
       <h2 className="font-retro text-heading uppercase tracking-widest text-[var(--lcd-text)]">HOW WE WORK</h2>
       <p>
-        Horizon originates and builds most of the creative and product work;
-        Erick researches, pressure-tests, and plans how those ideas can work
-        in practice. Together, we choose what to pursue, test new ventures,
-        shape strategy, and make major studio decisions.
+        Horizon shapes and builds the work. Erick pressure-tests the plan and
+        keeps it moving. Together, we make education useful, welcoming, and fun.
       </p>
     </section>
 
     <p>
-      We take on selected collaborations in creative direction, digital
-      product design, editorial, research, brand development, and strategy.
-      Our wine work grows from service experience and a shared goal: make
-      education useful, welcoming, and fun rather than intimidating.
+      Available for selected creative direction, product design, editorial,
+      research, brand, and strategy collaborations.
     </p>
   </InfoPage>
 );

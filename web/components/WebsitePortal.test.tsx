@@ -85,14 +85,16 @@ describe('the Horizon/Godot website', () => {
     expect(link.getAttribute('rel')).toContain('noopener');
   });
 
-  it('presents both founders with concrete roles and experience', () => {
+  it('presents both founders with concise roles and playful studio facts', () => {
     const view = inRouter(<WhoWeAre onBack={noop} onHome={noop} />);
     expect(screen.getByText('HORIZON')).toBeTruthy();
     expect(screen.getByText('CO-FOUNDER + CREATIVE DIRECTOR')).toBeTruthy();
     expect(screen.getByText('GODOT / ERICK GUZMAN')).toBeTruthy();
     expect(screen.getByText('CO-FOUNDER + DIRECTOR OF STRATEGY & OPERATIONS')).toBeTruthy();
-    expect(screen.getByText(/Wine retail, sales, education/)).toBeTruthy();
-    expect(screen.getByText(/Independent business development/)).toBeTruthy();
+    expect(screen.getByText('WINE OBSESSED')).toBeTruthy();
+    expect(screen.getByText('SERIOUS ABOUT PLAY')).toBeTruthy();
+    expect(screen.getByText(/Pixels \+ prototypes/)).toBeTruthy();
+    expect(screen.getByText(/Systems that scale/)).toBeTruthy();
     expect(screen.getByRole('heading', { name: 'HOW WE WORK' })).toBeTruthy();
     const founderScroll = screen.getByRole('region', { name: 'WHO WE ARE content' });
     expect(founderScroll.className).toContain('min-h-0');

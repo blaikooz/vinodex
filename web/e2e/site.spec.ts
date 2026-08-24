@@ -155,6 +155,7 @@ test('the site keeps its bezel, removes the footer, and navigates inside the LCD
   // longer carries the app's footer controls, marquee, or status lamps.
   await page.goto('/');
   await page.waitForTimeout(600);
+  await expect(page.locator('.island-strip')).toHaveCount(0);
   const bezel = page.locator('.bezel-wordmark');
   await expect(bezel).toHaveCount(1);
   expect((await bezel.textContent())?.trim(), 'the site bezel does not read HORIZON/GODOT')
@@ -176,6 +177,30 @@ test('the site keeps its bezel, removes the footer, and navigates inside the LCD
   await page.waitForTimeout(600);
   expect((await page.locator('.bezel-wordmark').textContent())?.trim(),
     'the dex bezel does not read VINODEX').toBe('VINODEX');
+});
+
+test('the site alone reshapes its chassis for the viewport', async ({ page, consoleErrors }) => {
+  void consoleErrors;
+  await seedDevice(page);
+
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.goto('/');
+  const mobile = await page.locator('.site-device-frame').boundingBox();
+  expect(mobile).not.toBeNull();
+  expect(Math.abs((mobile?.width ?? 0) - (mobile?.height ?? 0))).toBeLessThanOrEqual(1);
+  await expect(page.locator('.island-strip')).toHaveCount(0);
+
+  await page.setViewportSize({ width: 1280, height: 800 });
+  const desktop = await page.locator('.site-device-frame').boundingBox();
+  expect(desktop).not.toBeNull();
+  expect((desktop?.width ?? 0) / (desktop?.height ?? 1)).toBeCloseTo(4 / 3, 2);
+
+  await enterDex(page, '/dex');
+  const dex = await page.locator('div[class*="md:w-[522px]"]').first().boundingBox();
+  expect(dex).not.toBeNull();
+  expect(dex?.width).toBeCloseTo(522, 0);
+  expect((dex?.height ?? 0)).toBeGreaterThan(dex?.width ?? 0);
+  await expect(page.locator('.island-strip')).toBeVisible();
 });
 
 test('the screensaver never runs on the site', async ({ page, consoleErrors }) => {

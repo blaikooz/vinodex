@@ -134,7 +134,7 @@ const DeviceLayout: React.FC<DeviceLayoutProps> = ({
     >
       {/* 3D flip container — wraps both faces of the device */}
       <div
-        className={`relative ${DEVICE_FRAME_BOX}`}
+        className={`relative ${DEVICE_FRAME_BOX} ${onSite ? 'site-device-frame' : ''}`}
         style={{
           transformStyle: 'preserve-3d',
           transition: 'transform 700ms cubic-bezier(0.4, 0, 0.2, 1)',
@@ -181,7 +181,9 @@ const DeviceLayout: React.FC<DeviceLayoutProps> = ({
           >
             <div className="flex h-full flex-col">
         
-        {!hideHeader && <ChassisIsland onTitleTap={onTitleTap} inert={behindChooser} />}
+        {/* The studio site gives its full chassis face to the LCD. Vinodex
+            keeps the island hardware and its established portrait geometry. */}
+        {!hideHeader && !onSite && <ChassisIsland onTitleTap={onTitleTap} inert={behindChooser} />}
 
         {/* Screen Container */}
         <div

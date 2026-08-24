@@ -365,6 +365,26 @@ body,
   --device-frame-h: min(850px, calc(100dvh - 2rem));
 }
 
+/* The studio website has its own responsive hardware footprint. On a phone
+   it is a compact square; from tablet upward it becomes a 4:3 landscape
+   display, constrained by both axes of the viewport. The Vinodex application
+   never receives this class and continues to use DEVICE_FRAME_BOX's portrait
+   dimensions. */
+.site-device-frame {
+  flex: none;
+  width: min(100%, 100dvh);
+  height: auto;
+  aspect-ratio: 1 / 1;
+}
+
+@media (min-width: 768px) {
+  .site-device-frame {
+    width: auto;
+    height: min(720px, calc(100dvh - 2rem), calc(75vw - 1.5rem));
+    aspect-ratio: 4 / 3;
+  }
+}
+
 /* ---------------------------------------------------------------------------
    THE DESKTOP STAGE (stage 3, v9#s5)
 
