@@ -108,7 +108,10 @@ export const renderedStep = (step: CoachmarkStep, name: string | null | undefine
 export const coachmarkActionForArrival = (path: string): CoachmarkAction | null => {
   if (path === '/list/GRAPES') return 'openedCategory';
   if (path.startsWith('/detail/')) return 'openedEntry';
-  if (path === '/passport') return 'openedPassport';
+  // The web chassis calls its persistent shelf COLLECTION and its cap opens
+  // `/saved`; `/passport` is the deeper progress page inside that shelf.
+  // Either arrival satisfies the walkthrough's "open your Passport" action.
+  if (path === '/passport' || path === '/saved') return 'openedPassport';
   return null;
 };
 

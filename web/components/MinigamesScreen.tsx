@@ -75,8 +75,7 @@ export const toolSentence = (): string => {
  * - LABEL SCAN holds its slot with the COMING SOON treatment until the web
  *   OCR ruling (v6#4/v6#27).
  *
- * Faces/shadows/inks are iOS `ToolsScreen`'s current values; yellow faces take
- * a dark ink — white on it is unreadable.
+ * Faces, shadows, and inks follow iOS `ToolsScreen`'s current values.
  */
 const MinigamesScreen: React.FC<MinigamesScreenProps> = ({
   onScanner,
@@ -89,7 +88,10 @@ const MinigamesScreen: React.FC<MinigamesScreenProps> = ({
 }) => {
   return (
     <DeviceLayout title="TOOLS" subtitle="" showBack={true} onBack={onBack} onHome={onHome} centerHeaderText={true}>
-      <div className="flex-1 min-h-0 overflow-y-auto custom-scrollbar bg-stone-950 p-3">
+      <div
+        className="flex-1 min-h-0 overflow-y-auto custom-scrollbar p-3"
+        style={{ backgroundColor: 'var(--lcd-page)' }}
+      >
         {/* Rows 1–3 as iOS orders them: the two that answer a question about a
             specific glass first, then the quiz family, then the rest. The grid
             *is* the roster — nothing here restates a title or a face. */}

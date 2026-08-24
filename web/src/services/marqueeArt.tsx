@@ -71,7 +71,11 @@ export const MARQUEE_ART: Record<string, string> = {
   'CUSTOMIZE': 'marquee-customize',
   'DATA': 'marquee-data',
   'DEV': 'marquee-dev',
+  // ACCESS is the stable route/storage id; SHOP is what that route displays.
+  // Keep both keys so legacy/raw callers and the visible title resolve to the
+  // same canonical iOS panel.
   'ACCESS': 'marquee-shop',
+  'SHOP': 'marquee-shop',
   // The filter-mode scan titles the listing sets, and the remaining screens.
   // Every stem below exists on disk; `marqueeArt.test.ts` holds the map and
   // the directory to each other in both directions.

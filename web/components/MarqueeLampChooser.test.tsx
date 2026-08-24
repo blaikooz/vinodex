@@ -53,9 +53,10 @@ describe('<MarqueeLampChooser />', () => {
 
   it('offers exactly the five pins', () => {
     open();
-    for (const pin of ['TOOLS', 'CUSTOMIZE', 'SETTINGS', 'DATA', 'ACCESS']) {
+    for (const pin of ['TOOLS', 'CUSTOMIZE', 'SETTINGS', 'DATA', 'SHOP']) {
       expect(screen.getByRole('button', { name: new RegExp(`^${pin}`) })).toBeTruthy();
     }
+    expect(screen.queryByRole('button', { name: /^ACCESS/ })).toBeNull();
     // DEV is developer plumbing reached by a button, not a place to point a
     // lamp — the one section the vocabulary deliberately does not carry.
     expect(screen.queryByRole('button', { name: /^DEV/ })).toBeNull();

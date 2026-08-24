@@ -828,7 +828,14 @@ const App: React.FC = () => {
           path="/walkthrough"
           element={
             <Suspense fallback={<ScreenLoading label="LOADING TUTORIAL..." onBack={handleBack} onHome={handleHome} />}>
-              <WalkthroughScreen onBack={handleBack} onHome={handleHome} />
+              <WalkthroughScreen
+                onBack={handleBack}
+                onHome={handleHome}
+                onGuidedRun={() => {
+                  startCoachmarks();
+                  handleHome();
+                }}
+              />
             </Suspense>
           }
         />

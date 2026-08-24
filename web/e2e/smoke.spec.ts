@@ -67,7 +67,7 @@ test('the tools shelf is the fixed six', async ({ page, consoleErrors }) => {
   await seed(page);
   await enterDex(page, '/minigames');
   await page.waitForTimeout(600);
-  const tiles = page.locator('.grid > button');
+  const tiles = page.locator('[data-ios-grid="tools"] > .ios-grid-tile');
   await expect(tiles).toHaveCount(6);
   await expect(page.getByText("WHAT'S THAT")).toHaveCount(0);
   await expect(page.getByText('PROF. VINO')).toBeVisible();

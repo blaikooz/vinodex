@@ -35,6 +35,29 @@ test.describe('iOS button-art shelves', () => {
       expect(await shelf.locator('[data-button-art]').evaluateAll(nodes =>
         nodes.map(node => node.getAttribute('data-button-art')),
       )).toEqual(screen.art);
+      expect(await shelf.locator('img').evaluateAll(images => images.map(image => {
+        const img = image as HTMLImageElement;
+        return { complete: img.complete, width: img.naturalWidth, height: img.naturalHeight };
+      }))).toEqual(screen.art.map(() => expect.objectContaining({
+        complete: true,
+        width: expect.any(Number),
+        height: expect.any(Number),
+      })));
+      for (const image of await shelf.locator('img').evaluateAll(images => images.map(node => {
+        const img = node as HTMLImageElement;
+        return { width: img.naturalWidth, height: img.naturalHeight };
+      }))) {
+        expect(image.width, 'a ButtonArt image completed without decoded pixels').toBeGreaterThan(0);
+        expect(image.height, 'a ButtonArt image completed without decoded pixels').toBeGreaterThan(0);
+      }
+
+      if (screen.grid === 'tools') {
+        const labelScan = page.getByRole('button', { name: /LABEL SCAN/ });
+        await expect(labelScan).toBeDisabled();
+        const descriptionId = await labelScan.getAttribute('aria-describedby');
+        expect(descriptionId, 'the unavailable tool has no accessible explanation').toBeTruthy();
+        await expect(page.locator(`[id="${descriptionId}"]`)).toHaveText('Coming soon — not built yet.');
+      }
 
       const geometry = await tiles.evaluateAll(nodes => nodes.map(node => {
         const rect = node.getBoundingClientRect();

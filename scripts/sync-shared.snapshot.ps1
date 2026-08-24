@@ -66,7 +66,8 @@ $WebArt = @(
     @{ From = 'MarqueeArt'; To = 'marquee' },  # 36 per-route marquee panels
     @{ From = 'StickerArt'; To = 'sticker' },  # 20 chassis skin stickers
     @{ From = 'FooterArt';  To = 'footer'  },  # 4  the drawn moulded caps
-    @{ From = 'ButtonArt';  To = 'button'  }   # 31 large LCD button glyphs
+    @{ From = 'ButtonArt';  To = 'button'  },  # 31 large LCD button glyphs
+    @{ From = 'GlyphArt';   To = 'glyph'   }   # 22 stateful / secondary glyphs
 )
 
 # NOTE on the footer caps, because the /MIR above makes it a trap.
