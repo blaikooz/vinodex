@@ -66,6 +66,24 @@ export interface WebRelease {
  * assertion. It also gives the thing you edit a name.
  */
 const CURRENT: WebRelease = {
+  version: '0.5.0',
+  date: '2026-08-26',
+  headline: 'THE DEVICE WORKSHOP',
+  notes: [
+    'THE DEVICE WORKSHOP opens, behind SETTINGS: ten parts - shell, caps, orb, lamps, marquee, grille, screen, font - each yours to fit.',
+    'The preview is the device you are holding: fit a violet orb and the real orb turns violet under your finger.',
+    'Name a build and keep it - twelve garage slots, refit any with a tap - and REVERT restores the build you walked in with.',
+    'The footer caps re-ink themselves to whatever colour you fit, the way every skin already moulded its own.',
+    'The speaker grille is real hardware now, with its own colour and its own weave.',
+    'The chassis sits closer to the phone: iOS button and icon art, drawn pixel glyphs on the menus, and the dial geometry trued up.',
+    'The walkthrough reads as one guided run now, and can hand you to the live tour that points at the real buttons.',
+    'On the site, the studio viewport reshapes around a wider device and the founders get real bios.',
+    'Desktop scrolling inside the LCD is restored, and the menu and footer fill their band edge to edge.',
+  ],
+};
+
+/** The release before this one, promoted when 0.5.0 landed. */
+const PREVIOUS_0_4_4: WebRelease = {
   version: '0.4.4',
   date: '2026-08-22',
   headline: 'THE DEVICE MOVES',
@@ -113,6 +131,7 @@ const PREVIOUS_0_4_2: WebRelease = {
 
 /** Newest first. A new release is prepended by promoting `CURRENT`. */
 const PREVIOUS: WebRelease[] = [
+  PREVIOUS_0_4_4,
   PREVIOUS_0_4_3,
   PREVIOUS_0_4_2,
   {
