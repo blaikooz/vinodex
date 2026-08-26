@@ -10,7 +10,7 @@ import {
   useSearchParams,
 } from 'react-router-dom';
 import MainMenu from './components/MainMenu';
-import { PortalHome, OurAppsList, ProjectSplash, WhoWeAre, ContactUs, getProject } from './components/WebsitePortal';
+import { PortalHome, OurAppsList, ProjectSplash, WhoWeAre, ContactUs, PrivacyAndTerms, getProject } from './components/WebsitePortal';
 import EncyclopediaList from './components/EncyclopediaList';
 import EntryDetail from './components/EntryDetail';
 import RegionMapScreen from './components/RegionMapScreen';
@@ -704,7 +704,16 @@ const App: React.FC = () => {
           }
         />
         <Route path="/who-we-are" element={<WhoWeAre onBack={handleBack} onHome={() => navigate('/')} />} />
-        <Route path="/contact" element={<ContactUs onBack={handleBack} onHome={() => navigate('/')} />} />
+        <Route
+          path="/contact"
+          element={<ContactUs onBack={handleBack} onHome={() => navigate('/')} onPrivacy={() => navigate('/privacy')} />}
+        />
+        {/* The legal page (v0.6.0): the App Store's privacy-policy URL, and the
+            small print for anyone who asks. `/terms` is the other name people
+            and store forms guess, so it resolves rather than 404ing — both are
+            site paths, so neither ever boots the device. */}
+        <Route path="/privacy" element={<PrivacyAndTerms onBack={handleBack} onHome={() => navigate('/')} />} />
+        <Route path="/terms" element={<Navigate to="/privacy" replace />} />
 
         {/* The v0.2.x spellings. Redirects, so nothing shared or bookmarked
             breaks — see `LegacyProjectRedirect`. `/website/unlock` was the

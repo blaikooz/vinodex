@@ -27,8 +27,10 @@
  */
 
 /** Site paths with no children. `/website` and its subtree are the v0.2.x
- *  spellings, kept routable as redirects — nothing shared may break. */
-export const SITE_EXACT: readonly string[] = ['/', '/apps', '/who-we-are', '/contact'];
+ *  spellings, kept routable as redirects — nothing shared may break.
+ *  `/terms` is a redirect to `/privacy`, but it is still the *site's* URL
+ *  while it resolves, same reasoning as the `/website` spellings. */
+export const SITE_EXACT: readonly string[] = ['/', '/apps', '/who-we-are', '/contact', '/privacy', '/terms'];
 
 /** Site path *prefixes*: a segment root that owns everything under it. */
 export const SITE_PREFIXES: readonly string[] = ['/project', '/website'];

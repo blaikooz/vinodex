@@ -93,7 +93,7 @@ describe('path classification', () => {
   });
 
   it('knows the site from the dex', () => {
-    for (const p of ['/', '/apps', '/who-we-are', '/contact', '/project/focuspond']) {
+    for (const p of ['/', '/apps', '/who-we-are', '/contact', '/privacy', '/terms', '/project/focuspond']) {
       expect(isSitePath(p), p).toBe(true);
       expect(isDexPath(p), p).toBe(false);
     }
@@ -133,7 +133,7 @@ describe('path classification', () => {
 
 describe('the boot decision', () => {
   it('never boots on the site', () => {
-    for (const p of ['/', '/apps', '/who-we-are', '/contact', '/project/focuspond', '/website']) {
+    for (const p of ['/', '/apps', '/who-we-are', '/contact', '/privacy', '/terms', '/project/focuspond', '/website']) {
       expect(bootDecision(null, p), `cold ${p}`).toBe(false);
       expect(bootDecision('/dex', p), `from the dex to ${p}`).toBe(false);
       expect(bootDecision('/', p), `within the site to ${p}`).toBe(false);

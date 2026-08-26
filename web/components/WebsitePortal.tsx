@@ -511,7 +511,7 @@ export const WhoWeAre: React.FC<{ onBack: () => void; onHome: () => void }> = ({
   </InfoPage>
 );
 
-export const ContactUs: React.FC<{ onBack: () => void; onHome: () => void }> = ({ onBack, onHome }) => (
+export const ContactUs: React.FC<{ onBack: () => void; onHome: () => void; onPrivacy: () => void }> = ({ onBack, onHome, onPrivacy }) => (
   <DeviceLayout title="CONTACT US" subtitle="" showBack onBack={onBack} onHome={onHome} showSystemButtons={false} centerHeaderText>
     <div className={`flex-1 min-h-0 w-full flex flex-col relative overflow-hidden ${screenGround}`}>
       <RetroGrid />
@@ -554,7 +554,80 @@ export const ContactUs: React.FC<{ onBack: () => void; onHome: () => void }> = (
           {CONTACT_ADDRESS}
         </a>
 
+        {/* The one place the legal page is offered by hand: the same screen
+            that invites mail is the screen a careful visitor is already on. */}
+        <button
+          type="button"
+          onClick={onPrivacy}
+          className="dex-pressable font-retro text-caption uppercase tracking-widest text-[var(--lcd-subtext)] underline underline-offset-4 hover:text-[var(--lcd-text)]"
+        >
+          PRIVACY + TERMS
+        </button>
+
       </div>
     </div>
   </DeviceLayout>
+);
+
+/**
+ * The legal page — one screen for both, at `/privacy` (v0.6.0).
+ *
+ * Written for the App Store's privacy-policy URL field and for anyone who
+ * clicks the small print, in the site's own voice. Every claim in it is a
+ * fact of the code as shipped: the app keeps everything in the browser's
+ * local storage (see the `web/src/services` stores), has no accounts and
+ * makes no third-party requests — the one same-origin `fetch` in the tree is
+ * `capReink.ts` loading the app's own art. If the app ever grows a network
+ * surface, this page is part of that change, not an afterthought.
+ */
+export const PrivacyAndTerms: React.FC<{ onBack: () => void; onHome: () => void }> = ({ onBack, onHome }) => (
+  <InfoPage title="PRIVACY + TERMS" onBack={onBack} onHome={onHome}>
+    <section className="space-y-3">
+      <h2 className="font-retro text-title uppercase tracking-widest text-[var(--lcd-accent)]">
+        PRIVACY
+      </h2>
+      <p>
+        Vinodex is a local-first app. Your shelves, ratings, streaks, profiles,
+        settings and custom device builds are stored in your browser on your
+        device, and nowhere else. We run no accounts, so there is nothing to
+        sign up for and nothing of yours on a server of ours.
+      </p>
+      <p>
+        The app makes no third-party requests: its data, art and fonts all ship
+        with it, which is also why it works offline once installed. Clearing
+        your browser data for this site erases everything, and SETTINGS offers
+        CLEAR ALL SAVED DATA and a backup file you keep yourself — restoring it
+        is a file you choose, not an upload.
+      </p>
+      <p>
+        If you email us, we see your address and what you wrote, and we use
+        them only to reply. Our host (Vercel) keeps the short-lived technical
+        request logs any web server keeps; we do not use them to identify you.
+        No cookies, no advertising, no sale of data — there is no data to sell.
+      </p>
+    </section>
+
+    <section className="space-y-3">
+      <h2 className="font-retro text-title uppercase tracking-widest text-[var(--lcd-accent)]">
+        TERMS OF USE
+      </h2>
+      <p>
+        Vinodex is free to use, and provided as-is: we work hard on the
+        catalogue, but it is a field guide for the curious, not professional,
+        medical or legal advice. If you drink, drink responsibly and only if
+        you are of legal drinking age where you live.
+      </p>
+      <p>
+        The app's writing, artwork and design are ours; the facts of wine
+        belong to everyone. Links out of the site — our Substacks, the App
+        Store — lead to services with their own terms. We may update the app,
+        this page, or both; the version history in the app says what changed
+        and when.
+      </p>
+      <p>
+        Questions about any of this belong on the CONTACT US page — we read
+        everything.
+      </p>
+    </section>
+  </InfoPage>
 );

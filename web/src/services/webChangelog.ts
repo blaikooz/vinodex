@@ -66,6 +66,20 @@ export interface WebRelease {
  * assertion. It also gives the thing you edit a name.
  */
 const CURRENT: WebRelease = {
+  version: '0.6.0',
+  date: '2026-08-26',
+  headline: 'THE SMALL PRINT',
+  notes: [
+    'PRIVACY + TERMS is a real page now, linked from CONTACT US and living at /privacy.',
+    'It says in plain language what the code does: everything you save lives in your browser, on your device.',
+    'No accounts, no cookies, no third-party requests - the app ships its own data, art and fonts, which is why it works offline.',
+    'The terms are as short as honesty allows: free, as-is, a field guide rather than advice, drink responsibly.',
+    '/terms resolves to the same page, because store forms and people both guess that spelling.',
+  ],
+};
+
+/** The release before this one, promoted when 0.6.0 landed. */
+const PREVIOUS_0_5_0: WebRelease = {
   version: '0.5.0',
   date: '2026-08-26',
   headline: 'THE DEVICE WORKSHOP',
@@ -131,6 +145,7 @@ const PREVIOUS_0_4_2: WebRelease = {
 
 /** Newest first. A new release is prepended by promoting `CURRENT`. */
 const PREVIOUS: WebRelease[] = [
+  PREVIOUS_0_5_0,
   PREVIOUS_0_4_4,
   PREVIOUS_0_4_3,
   PREVIOUS_0_4_2,

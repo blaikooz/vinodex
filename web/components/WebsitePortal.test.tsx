@@ -106,9 +106,11 @@ describe('the Horizon/Godot website', () => {
     expect(founderScroll.getAttribute('tabindex')).toBe('0');
 
     view.unmount();
-    inRouter(<ContactUs onBack={noop} onHome={noop} />);
+    inRouter(<ContactUs onBack={noop} onHome={noop} onPrivacy={noop} />);
     expect(screen.getByText(/Product feedback, collaboration ideas/)).toBeTruthy();
     const contact = screen.getByRole('link', { name: CONTACT_ADDRESS });
     expect(contact.getAttribute('href')).toBe('mailto:vinodex@substack.com');
+    // The legal door (v0.6.0): the screen that invites mail offers the small print.
+    expect(screen.getByRole('button', { name: 'PRIVACY + TERMS' })).toBeTruthy();
   });
 });

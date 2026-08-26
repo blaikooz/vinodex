@@ -79,6 +79,30 @@ test('every v0.2.x /website URL still resolves', async ({ page, consoleErrors })
   }
 });
 
+test('the legal page is reachable, and /terms resolves to it', async ({ page, consoleErrors }) => {
+  void consoleErrors;
+  await seedDevice(page);
+
+  // The small print, from the screen that invites mail (v0.6.0). This is the
+  // URL the App Store's privacy-policy field will carry, so a real browser
+  // walks it: link, content, and the spelling store forms guess.
+  await page.goto('/contact');
+  await page.getByRole('button', { name: 'PRIVACY + TERMS' }).click();
+  await expect(page).toHaveURL(/\/privacy$/);
+  const content = page.getByRole('region', { name: 'PRIVACY + TERMS content' });
+  await expect(content).toBeVisible();
+  await expect(content).toContainText('local-first');
+  await expect(content).toContainText('TERMS OF USE');
+
+  // A site page: HORIZON/GODOT's, and no BIOS on a cold arrival.
+  await expect(page).toHaveTitle('HORIZON/GODOT');
+  await expect(page.getByText(/VINODEX BIOS/)).toHaveCount(0);
+
+  await page.goto('/terms');
+  await page.waitForTimeout(400);
+  expect(new URL(page.url()).pathname, '/terms should land on /privacy').toBe('/privacy');
+});
+
 test('OUR WORK opens Vinodex with no code in the way', async ({ page, consoleErrors }) => {
   void consoleErrors;
   await seedDevice(page);
