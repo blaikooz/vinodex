@@ -50,6 +50,7 @@ describe('the walkthrough sequence', () => {
     expect(coachmarkActionForArrival('/list/STYLES')).toBe(null);
     expect(coachmarkActionForArrival('/detail/G001')).toBe('openedEntry');
     expect(coachmarkActionForArrival('/passport')).toBe('openedPassport');
+    expect(coachmarkActionForArrival('/saved')).toBe('openedPassport');
     expect(coachmarkActionForArrival('/dex')).toBe(null);
   });
 });

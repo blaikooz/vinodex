@@ -1,5 +1,5 @@
 import React from 'react';
-import { Palette, Lock, LockOpen, Bug, Check, Wrench, LogOut, Flag, Crown, Leaf, Sun, Moon, Grid3x3, Globe, Wine, Map as MapIcon, Layers, Vibrate, Volume2, ChevronRight, MemoryStick, Download, Upload, Mail, KeyRound, UserRound, Sparkle, Play } from 'lucide-react';
+import { Palette, Lock, LockOpen, Bug, Check, LogOut, Flag, Crown, Leaf, Sun, Moon, Grid3x3, Globe, Wine, Map as MapIcon, Layers, ChevronRight, Download, Upload, UserRound, Sparkle } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import DeviceLayout from './DeviceLayout';
 // The section vocabulary moved out so `App.tsx` can import it without
@@ -64,6 +64,7 @@ import DexAlert from './DexAlert';
 import { lineageIndexFor } from '../src/services/grapeLineage';
 import { WEB_RELEASES } from '../src/services/webChangelog';
 import { WIPE_KEYS } from '../src/services/storageKeys';
+import IOSGridTile from './IOSGridTile';
 
 
 /**
@@ -106,31 +107,34 @@ function clearAllSavedData(): void {
  * screenful on iOS and the two anyone actually reaches for were below the
  * developer-facing ones. Each tile opens its own panel.
  */
-// Stage 4 (v0.4.3): the six tiles move onto the livery table and the `Tile`
-// primitive — closing (v9#d2) here: the old filled faces put white on
-// full-chroma colour, the exact AA failure v9#b1 measured on the main menu.
-// The hue assignment is iOS's own tileColors (FIRMWARE keeps TUTORIAL's
-// freed green slot, 0.8.92 item 2), and the light half now comes from the
-// livery table instead of a local six-row table.
-const TILE_LIVERY: Record<string, Livery> = {
-  FIRMWARE: 'green',
-  TOOLS: 'amber',
-  CUSTOMIZE: 'red',
-  SETTINGS: 'orange',
-  DATA: 'sky',
-  ACCESS: 'violet',
+// Filled tile faces per section, tuned for pale vs dark grounds — ported from
+// SettingsPanel.swift's tileColors (v0.5.6: each tile unique again).
+const TILE_FACE: Record<string, { dark: [string, string, string]; light: [string, string, string] }> = {
+  // The green TUTORIAL freed when the tour moved into SETTINGS (iOS 0.7.6 F1),
+  // reassigned to FIRMWARE (0.8.92, item 2) — same slot, same livery.
+  FIRMWARE: { dark: ['#22C55E', '#15803D', '#FFFFFF'], light: ['#15803D', '#0B4A24', '#FFFFFF'] },
+  TOOLS: { dark: ['#FACC15', '#CA8A04', '#78350F'], light: ['#B45309', '#7A3606', '#FFFFFF'] },
+  CUSTOMIZE: { dark: ['#EF4444', '#991B1B', '#FFFFFF'], light: ['#B91C1C', '#7A1010', '#FFFFFF'] },
+  SETTINGS: { dark: ['#F97316', '#9A3412', '#FFFFFF'], light: ['#C2410C', '#7C2D12', '#FFFFFF'] },
+  DATA: { dark: ['#2AB5FF', '#136A99', '#FFFFFF'], light: ['#1D6FA8', '#11486E', '#FFFFFF'] },
+  SHOP: { dark: ['#A855F7', '#6B21A8', '#FFFFFF'], light: ['#7E22CE', '#4C1D95', '#FFFFFF'] },
 };
 
-/** A settings grid tile — a `Tile` in the section's livery. */
-const FeatureTile: React.FC<{ title: string; icon: React.ReactNode; onClick: () => void }> = ({ title, icon, onClick }) => (
-  <Tile
-    livery={TILE_LIVERY[title] ?? 'sky'}
-    icon={icon}
-    label={title}
-    onClick={onClick}
-    className="aspect-square"
-  />
-);
+/** A settings-grid tile backed by the same ButtonArt bitmap iOS renders. */
+const FeatureTile: React.FC<{ title: string; art: string; onClick: () => void; isLight: boolean }> = ({ title, art, onClick, isLight }) => {
+  const [face, shadow, ink] = (TILE_FACE[title] ?? TILE_FACE.DATA!)[isLight ? 'light' : 'dark'];
+  return (
+    <IOSGridTile
+      title={title}
+      onClick={onClick}
+      face={face}
+      shadow={shadow}
+      ink={ink}
+      artSrc={`/art/button/${art}.png`}
+      artName={art}
+    />
+  );
+};
 
 /** A mini-chassis preview: body over a dark base, status dots, a panel strip with a marquee bar. */
 /**
@@ -241,12 +245,14 @@ export const SettingsGrid: React.FC<{
           SETTINGS / DATA / ACCESS, with FIRMWARE closing the last pair
           (v6#9). TUTORIAL's tile moved into SETTINGS, as on iOS (0.7.6, F1).
           DEV is a button below, not a peer tile. */}
-      <div className="grid grid-cols-2 gap-3">
-        <FeatureTile title="TOOLS" icon={<Wrench size={30} />} onClick={onMinigames} />
-        {SETTINGS_SECTIONS.filter(s => !s.hidden).map(s => (
-          <FeatureTile key={s.id} title={s.id} icon={s.icon} onClick={() => onSection(s.id)} />
-        ))}
-        <FeatureTile title="FIRMWARE" icon={<MemoryStick size={30} />} onClick={onFirmware} />
+      <div className="ios-grid-shelf" data-ios-grid="system">
+        <FeatureTile title="TOOLS" art="tools" onClick={onMinigames} isLight={isLight} />
+        <FeatureTile title="CUSTOMIZE" art="customize" onClick={() => onSection('CUSTOMIZE')} isLight={isLight} />
+        <FeatureTile title="SETTINGS" art="settings" onClick={() => onSection('SETTINGS')} isLight={isLight} />
+        <FeatureTile title="DATA" art="data" onClick={() => onSection('DATA')} isLight={isLight} />
+        {/* ACCESS is the persisted route id; SHOP is the public-facing iOS label. */}
+        <FeatureTile title="SHOP" art="shop" onClick={() => onSection('ACCESS')} isLight={isLight} />
+        <FeatureTile title="FIRMWARE" art="firmware" onClick={onFirmware} isLight={isLight} />
       </div>
 
       {/*
@@ -390,6 +396,19 @@ const IconToggleRow: React.FC<{ icon: React.ReactNode; title: string; detail: st
       />
     </span>
   </button>
+);
+
+/** Canonical baked iOS art in the standard secondary-control well. */
+const PixelControlGlyph: React.FC<{ family?: 'button' | 'glyph'; stem: string }> = ({ family = 'button', stem }) => (
+  <img
+    src={`/art/${family}/${family === 'glyph' ? `glyph-${stem}` : stem}.png`}
+    alt=""
+    aria-hidden="true"
+    draggable={false}
+    data-control-art={stem}
+    className="w-7 h-7 object-contain"
+    style={{ imageRendering: 'pixelated' }}
+  />
 );
 
 // Glyph + tint per database table, reusing the main-menu symbols so a count
@@ -556,6 +575,8 @@ export const SettingsSectionPanel: React.FC<{
   const [haptics, setHaptics] = React.useState(hapticsEnabled());
   const [confirmingWipe, setConfirmingWipe] = React.useState(false);
   const [offeringTour, setOfferingTour] = React.useState(false);
+  const tourDialogRef = React.useRef<HTMLDivElement>(null);
+  const tourYesRef = React.useRef<HTMLButtonElement>(null);
   const [pendingRestore, setPendingRestore] = React.useState<SavedDataArchive | null>(null);
   const [restoreError, setRestoreError] = React.useState<string | null>(null);
   /** A profile action waiting on its confirm. Every case is destructive.
@@ -577,6 +598,37 @@ export const SettingsSectionPanel: React.FC<{
     if (section !== 'DEV' || examCount !== null) return;
     void import('@/shared/data/exam').then(m => setExamCount(m.EXAM_QUESTIONS.length)).catch(() => setExamCount(0));
   }, [section, examCount]);
+
+  React.useEffect(() => {
+    if (!offeringTour) return;
+    const previous = document.activeElement instanceof HTMLElement ? document.activeElement : null;
+    tourYesRef.current?.focus();
+    const onKeyDown = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') {
+        event.preventDefault();
+        setOfferingTour(false);
+        return;
+      }
+      if (event.key !== 'Tab') return;
+      const controls = [...(tourDialogRef.current?.querySelectorAll<HTMLElement>('button, [href], [tabindex]:not([tabindex="-1"])') ?? [])]
+        .filter(control => !control.hasAttribute('disabled'));
+      if (controls.length === 0) return;
+      const first = controls[0]!;
+      const last = controls[controls.length - 1]!;
+      if (event.shiftKey && document.activeElement === first) {
+        event.preventDefault();
+        last.focus();
+      } else if (!event.shiftKey && document.activeElement === last) {
+        event.preventDefault();
+        first.focus();
+      }
+    };
+    document.addEventListener('keydown', onKeyDown);
+    return () => {
+      document.removeEventListener('keydown', onKeyDown);
+      previous?.focus();
+    };
+  }, [offeringTour]);
 
   useAccess();
   const locked = starterOnly();
@@ -679,7 +731,7 @@ export const SettingsSectionPanel: React.FC<{
 
             <Section title="HAPTICS">
               <IconToggleRow
-                icon={<Vibrate size={20} />}
+                icon={<PixelControlGlyph stem="haptics" />}
                 title="HAPTICS"
                 detail={haptics ? 'Every chassis button clicks in your hand.' : 'The buttons are silent to the hand.'}
                 on={haptics}
@@ -689,7 +741,7 @@ export const SettingsSectionPanel: React.FC<{
 
             <Section title="SOUNDS">
               <IconToggleRow
-                icon={<Volume2 size={20} />}
+                icon={<PixelControlGlyph family="glyph" stem={sounds ? 'sounds-on' : 'sounds-off'} />}
                 title="SOUNDS"
                 detail={sounds ? 'Clicks, pings and stings from the SFX pack.' : 'The device is silent to the ear.'}
                 on={sounds}
@@ -705,11 +757,11 @@ export const SettingsSectionPanel: React.FC<{
                 className="dex-pressable w-full flex items-center gap-3 px-3 py-3 rounded-control border-2 text-left"
                 style={{ backgroundColor: 'var(--lcd-surface)', borderColor: 'var(--lcd-surface-edge)' }}
               >
-                <span style={{ color: 'var(--lcd-subtext)' }}><Flag size={20} /></span>
+                <span><PixelControlGlyph stem="tutorial" /></span>
                 <span className="flex-1 min-w-0">
-                  <span className="block font-sans text-label tracking-widest" style={{ color: 'var(--lcd-text)' }}>TAKE THE TOUR</span>
-                  <span className="block font-sans text-caption normal-case mt-1" style={{ color: 'var(--lcd-subtext)' }}>
-                    A walk round the device — about a minute.
+                  <span className="block font-retro text-[0.6rem] tracking-widest" style={{ color: 'var(--lcd-text)' }}>TUTORIAL</span>
+                  <span className="block font-mono text-sm normal-case mt-1" style={{ color: 'var(--lcd-subtext)' }}>
+                    A guided walk round the device, then a run through your first tasting if you want one.
                   </span>
                 </span>
                 <ChevronRight size={16} style={{ color: 'var(--lcd-subtext)' }} />
@@ -725,7 +777,7 @@ export const SettingsSectionPanel: React.FC<{
                 className="dex-pressable w-full flex items-center gap-3 px-3 py-3 rounded-control border-2 text-left"
                 style={{ backgroundColor: 'var(--lcd-surface)', borderColor: 'var(--lcd-surface-edge)' }}
               >
-                <span style={{ color: 'var(--lcd-subtext)' }}><Mail size={20} /></span>
+                <span><PixelControlGlyph family="glyph" stem="seal" /></span>
                 <span className="flex-1 min-w-0">
                   <span className="block font-sans text-label tracking-widest" style={{ color: 'var(--lcd-text)' }}>SUPPORT</span>
                   <span className="block font-sans text-caption normal-case mt-1" style={{ color: 'var(--lcd-subtext)' }}>
@@ -742,7 +794,7 @@ export const SettingsSectionPanel: React.FC<{
                 className="dex-pressable w-full flex items-center gap-3 px-3 py-3 rounded-control border-2 text-left"
                 style={{ backgroundColor: 'var(--lcd-surface)', borderColor: 'var(--lcd-surface-edge)' }}
               >
-                <span style={{ color: 'var(--lcd-subtext)' }}><KeyRound size={20} /></span>
+                <span><PixelControlGlyph stem="cheatcodes" /></span>
                 <span className="flex-1 min-w-0">
                   <span className="block font-sans text-label tracking-widest" style={{ color: 'var(--lcd-text)' }}>CHEAT CODES</span>
                   <span className="block font-sans text-caption normal-case mt-1" style={{ color: 'var(--lcd-subtext)' }}>
@@ -759,7 +811,7 @@ export const SettingsSectionPanel: React.FC<{
                 className="dex-pressable w-full flex items-center gap-3 px-3 py-3 rounded-control border-2 text-left"
                 style={{ backgroundColor: 'var(--lcd-surface)', borderColor: 'var(--lcd-surface-edge)' }}
               >
-                <span style={{ color: 'var(--lcd-subtext)' }}><Play size={20} /></span>
+                <span><PixelControlGlyph stem="demomode" /></span>
                 <span className="flex-1 min-w-0">
                   <span className="block font-sans text-label tracking-widest" style={{ color: 'var(--lcd-text)' }}>START DEMO</span>
                   <span className="block font-sans text-caption normal-case mt-1" style={{ color: 'var(--lcd-subtext)' }}>
@@ -1189,18 +1241,25 @@ export const SettingsSectionPanel: React.FC<{
       )}
 
       {offeringTour && (
-        <DexAlert
-          tone="green"
-          title="TAKE THE TOUR?"
-          ariaLabel="Take the tour"
-          onDismiss={() => setOfferingTour(false)}
-          actions={[
-            { label: 'NOT NOW', kind: 'cancel', onClick: () => setOfferingTour(false) },
-            { label: 'YES', kind: 'confirm', onClick: () => { setOfferingTour(false); navigate('/walkthrough'); } },
-          ]}
-        >
-          A quick walk round the device — what each button does and where things live. About a minute, and you can leave at any point.
-        </DexAlert>
+        <div className="absolute inset-0 z-30 bg-black/80 flex items-center justify-center p-6">
+          <div
+            ref={tourDialogRef}
+            className="w-full max-w-xs bg-stone-900 border-2 border-green-700 rounded-lg p-5 flex flex-col gap-4 text-center"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="tour-offer-title"
+            aria-describedby="tour-offer-description"
+          >
+            <p id="tour-offer-title" className="font-retro text-xs tracking-widest text-green-300">TAKE THE TOUR?</p>
+            <p id="tour-offer-description" className="font-mono text-sm text-stone-300 normal-case">
+              A quick walk round the device — what each button does and where things live. About a minute, and you can leave at any point.
+            </p>
+            <div className="flex gap-3">
+              <button onClick={() => setOfferingTour(false)} className="flex-1 font-retro text-[0.6rem] tracking-widest text-stone-300 border-2 border-stone-600 rounded py-3">NOT NOW</button>
+              <button ref={tourYesRef} onClick={() => { setOfferingTour(false); navigate('/walkthrough'); }} className="flex-1 font-retro text-[0.6rem] tracking-widest text-white bg-green-700 border-2 border-green-900 rounded py-3">YES</button>
+            </div>
+          </div>
+        </div>
       )}
 
       {confirmingWipe && (

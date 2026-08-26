@@ -27,14 +27,13 @@
 /**
  * Where to write — the portal's CONTACT US page and the dex's SUPPORT screen.
  *
- * PLACEHOLDER. Before W26 there were two of these on two different domains:
+ * Before W26 there were two of these on two different domains:
  * `hello@vinodex.app` on the portal and `hello@vinodex.com` in the support
  * service. Both were rendered as live `mailto:` links, neither domain is
  * registered, and mail to either goes nowhere while telling the sender
  * nothing.
  *
- * **The domain is not chosen here.** Which one the product uses is a business
- * decision; this file only guarantees there is one string to change when it
- * is made. Registered in `releaseBlockers.ts` so it cannot ship unnoticed.
+ * The studio now uses its Vinodex Substack reply address. This file guarantees
+ * the site and the in-app SUPPORT screen continue to read one shared value.
  */
-export const CONTACT_ADDRESS = 'hello@vinodex.com';
+export const CONTACT_ADDRESS = 'vinodex@substack.com';

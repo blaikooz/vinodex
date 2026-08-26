@@ -1,10 +1,16 @@
 import React from 'react';
-import { LayoutGrid, Users, Mail, Database, ChevronRight, Gamepad2, ArrowUpRight } from 'lucide-react';
+import { LayoutGrid, Users, Mail, ChevronRight, Gamepad2, ArrowUpRight } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
 import DeviceLayout from './DeviceLayout';
 import { Card, Tile } from './Card';
 import type { Livery } from './Card';
 import { CONTACT_ADDRESS } from '../src/services/brand';
+
+/* The browser document is intentionally locked because the chassis is the
+   page. These named LCD regions therefore need to be keyboard-focusable so
+   Page Up/Down and arrow keys have a scroll target; `region` is correctly
+   non-interactive, but the generic lint rule cannot represent that exception. */
+/* eslint-disable jsx-a11y/no-noninteractive-tabindex */
 
 /**
  * The studio's other projects, shown under OUR WORK beneath Vinodex. These are
@@ -32,7 +38,13 @@ export interface Project {
   href: string;
   description: string;
   /** Bundled square logo shown in the list row and on the splash. */
-  logo: string;
+  logo?: string;
+  /** Repo-native fallback when a project does not have a bundled logo. */
+  badge?: string;
+  /** Supporting accent; the site keeps one chassis and lets projects tint it. */
+  livery: Livery;
+  /** The studio's lead project gets a little more room in the work list. */
+  featured?: boolean;
   /**
    * Vinodex: the one project that *is* this site's own app, so its splash
    * offers OPEN VINODEX and boots the device rather than leaving for a URL.
@@ -54,9 +66,21 @@ export const PROJECTS: Project[] = [
     blurb: 'Retro wine encyclopedia',
     href: '',
     description:
-      'Vinodex is a retro-handheld encyclopedia of wine — hundreds of grapes, regions, styles and flavours to scan, save, and quiz yourself on, all on a device you can pick up and explore. Open it and the device boots.',
+      'Vinodex turns hundreds of grapes, regions, styles, and flavours into a retro-handheld wine encyclopedia you can explore, save, and quiz yourself on. It grew out of years in wine service and a belief that useful education can still feel like play.',
     logo: '/vinodex-logo.png',
+    livery: 'green',
+    featured: true,
     inApp: true,
+  },
+  {
+    id: 'chateau-earth',
+    name: 'CHÂTEAU',
+    blurb: 'Wine writing from service to table',
+    href: 'https://chateauearth.substack.com/',
+    description:
+      'Château is our wine blog: bottles, regions, service knowledge, and the things we keep learning at the table. It is a place for curious drinking without the gatekeeping.',
+    logo: '/projects/chateau.png',
+    livery: 'amber',
   },
   {
     id: 'focuspond',
@@ -64,8 +88,9 @@ export const PROJECTS: Project[] = [
     blurb: 'Paid focus groups & product tests',
     href: 'https://focuspond.substack.com',
     description:
-      'FocusPond curates legitimate paid market research — focus groups and product-testing opportunities — so you can earn with your opinion, paired with motivational content to keep you focused on your financial goals.',
+      'FocusPond curates legitimate paid market research, from focus groups to product-testing opportunities, so you can earn with your opinion. It pairs those opportunities with practical encouragement for staying focused on your financial goals.',
     logo: '/projects/focuspond.png',
+    livery: 'sky',
   },
   {
     id: 'varied-mix',
@@ -73,8 +98,9 @@ export const PROJECTS: Project[] = [
     blurb: 'A music blog & radio, genre to genre',
     href: 'https://variedmix.substack.com',
     description:
-      'varied/mix is a music blog of themed playlists celebrating diverse artists and genres, with live radio broadcasts, extended mixes, and hours of curated music to explore.',
+      'varied/mix moves genre to genre through themed playlists and music writing that celebrates a wide range of artists. Live radio broadcasts, extended mixes, and hours of curation give every idea room to play out.',
     logo: '/projects/varied-mix.png',
+    livery: 'violet',
   },
 ];
 
@@ -97,15 +123,14 @@ export const getProject = (id: string | undefined): Project | undefined =>
  * marquee lamps follow the same flag — see `DeviceFooter`.
  *
  * Structure:
- *   /               PortalHome  — OUR WORK / WHO WE ARE / CONTACT US / DATA
+ *   /               PortalHome  — OUR WORK / WHO WE ARE / OPEN VINODEX / CONTACT US
  *   /apps           OurAppsList — Vinodex plus the studio's Substacks
  *   /project/:id    ProjectSplash — one project, then out to it
  *   /who-we-are     WhoWeAre
  *   /contact        ContactUs
  *
- * DATA links straight to the existing data settings screen (`/settings/DATA`).
- * That single crossing is sanctioned and is the only one: no dex service is
- * imported here, and no site copy or gating logic goes the other way.
+ * OPEN VINODEX is the one sanctioned crossing into the product. No dex
+ * service is imported here, and no site copy or state goes the other way.
  *
  * The v0.2.x `/website/*` spellings still resolve — App.tsx redirects each to
  * its new home, so nothing linked, bookmarked or shared breaks.
@@ -168,7 +193,7 @@ const screenGround = 'bg-[var(--surface-base)]';
 const primaryAction =
   'dex-pressable inline-flex min-h-11 items-center justify-center gap-2 rounded-control '
   + 'px-6 py-4 bg-[var(--lcd-accent)] text-[var(--lcd-on-accent)] shadow-elev-2 '
-  + 'font-sans text-label uppercase tracking-wide';
+  + 'font-retro text-label uppercase tracking-widest';
 
 // ---------------------------------------------------------------------------
 // Portal home — four tiles, same language as the dex MainMenu.
@@ -176,10 +201,10 @@ const primaryAction =
 
 interface PortalHomeProps {
   onHome: () => void;
+  onOpenApp: () => void;
   onOpenApps: () => void;
   onWhoWeAre: () => void;
   onContactUs: () => void;
-  onData: () => void;
 }
 
 /**
@@ -190,16 +215,14 @@ interface PortalHomeProps {
  * `<br />` and the other two did not. A row per tile makes "one of these is
  * drawn differently from the others" impossible to write by accident.
  *
- * The liveries are `DexTileLivery`'s names, and the assignment is v0.3.0's
- * own: OUR WORK violet, WHO WE ARE green, CONTACT US orange, DATA sky. Only
- * DATA moves, from Tailwind's `blue-500` to the livery table's `sky`, which
- * is the colour iOS has always used for the same job.
+ * The liveries are the shared card system's names: Vinodex green, the work
+ * index violet, the founder story amber, Vinodex green, and contact orange.
  */
 const PORTAL_TILES: { label: string; livery: Livery; icon: LucideIcon; key: keyof PortalHomeProps }[] = [
   { label: 'OUR WORK', livery: 'violet', icon: LayoutGrid, key: 'onOpenApps' },
-  { label: 'WHO WE ARE', livery: 'green', icon: Users, key: 'onWhoWeAre' },
+  { label: 'WHO WE ARE', livery: 'amber', icon: Users, key: 'onWhoWeAre' },
+  { label: 'OPEN VINODEX', livery: 'green', icon: Gamepad2, key: 'onOpenApp' },
   { label: 'CONTACT US', livery: 'orange', icon: Mail, key: 'onContactUs' },
-  { label: 'DATA', livery: 'sky', icon: Database, key: 'onData' },
 ];
 
 export const PortalHome: React.FC<PortalHomeProps> = props => (
@@ -219,15 +242,16 @@ export const PortalHome: React.FC<PortalHomeProps> = props => (
             offset shadow drawn on whatever page the mode supplies, which on
             the pale modes was a smear. Flat, in the mode's own accent, which
             measures 13:1 on DARK and 6.4:1 on LIGHT. */}
-        <div className="text-center shrink-0 pt-1">
+        <div className="text-center shrink-0 pt-1 space-y-1.5">
           <h1 className="font-retro text-xl sm:text-3xl tracking-widest text-[var(--lcd-accent)] leading-none">
             HORIZON/GODOT
           </h1>
-          {/* No strapline under the wordmark (v8#6). CREATING ACROSS
-              MULTITUDES was doing the splash's job of explaining where you had
-              just arrived; this is the landing now, and the page whose job
-              that is has a tile of its own two rows down — WHO WE ARE opens
-              with the same line. */}
+          <p className="font-retro text-label sm:text-heading tracking-widest text-[var(--lcd-text)]">
+            PLAYFUL TOOLS, MADE WELL.
+          </p>
+          <p className="mx-auto max-w-md font-retro text-caption sm:text-label normal-case tracking-wide text-[var(--lcd-subtext)] leading-snug">
+            A two-person NYC studio making useful digital projects with personality.
+          </p>
         </div>
 
         {/* A real grid rather than two flex rows: the tiles are a 2x2 and
@@ -240,7 +264,13 @@ export const PortalHome: React.FC<PortalHomeProps> = props => (
               livery={t.livery}
               label={t.label}
               onClick={props[t.key] as () => void}
-              icon={<t.icon size={36} className="sm:w-11 sm:h-11" aria-hidden="true" />}
+              icon={<t.icon size={44} className="sm:w-14 sm:h-14" aria-hidden="true" />}
+              bareIcon
+              style={{
+                backgroundColor: 'var(--tint-solid)',
+                borderColor: 'var(--tint-border)',
+              }}
+              className="portal-home-tile [&>span:nth-of-type(2)]:font-retro"
             />
           ))}
         </div>
@@ -264,7 +294,12 @@ export const OurAppsList: React.FC<OurAppsListProps> = ({ onBack, onHome, onSele
   <DeviceLayout title="OUR WORK" subtitle="" showBack onBack={onBack} onHome={onHome} showSystemButtons={false} centerHeaderText>
     <div className={`flex-1 min-h-0 w-full flex flex-col relative overflow-hidden ${screenGround}`}>
       <RetroGrid />
-      <div className="relative z-10 flex-1 overflow-y-auto p-[var(--pad-screen)] flex flex-col gap-[var(--gap-grid)]">
+      <div
+        className="site-scroll-region custom-scrollbar relative z-10 min-h-0 flex-1 overflow-y-auto p-[var(--pad-screen)] flex flex-col gap-[var(--gap-grid)]"
+        tabIndex={0}
+        role="region"
+        aria-label="Our work content"
+      >
 
         {/* Every project — the Vinodex app plus the studio's Substacks — opens
             its own in-app splash first. From there Vinodex boots the device
@@ -278,17 +313,18 @@ export const OurAppsList: React.FC<OurAppsListProps> = ({ onBack, onHome, onSele
         {PROJECTS.map(p => (
           <Card
             key={p.id}
-            livery={p.inApp ? 'green' : undefined}
-            elevation={1}
+            livery={p.livery}
+            elevation={p.featured ? 2 : 1}
             onClick={() => onSelectProject(p.id)}
-            className="w-full flex items-center gap-4 p-[var(--pad-card)] group"
+            className={`w-full flex items-center gap-4 p-[var(--pad-card)] group ${p.featured ? 'min-h-24' : ''}`}
           >
-            <span className="w-14 h-14 shrink-0 rounded-control bg-[var(--surface-high)] flex items-center justify-center overflow-hidden">
-              <img src={p.logo} alt="" className="w-full h-full object-cover" />
-            </span>
+            <ProjectMark project={p} />
             <span className="flex-1 min-w-0 text-left">
-              <span className="block font-sans text-heading tracking-wide text-[var(--lcd-text)]">{p.name}</span>
-              <span className="block font-sans text-caption normal-case text-[var(--lcd-subtext)] mt-1">{p.blurb}</span>
+              {p.featured && (
+                <span className="mb-1 block font-retro text-caption tracking-widest text-[var(--lcd-accent)]">FEATURED PROJECT</span>
+              )}
+              <span className="block font-retro text-heading tracking-widest text-[var(--lcd-text)]">{p.name}</span>
+              <span className="block font-retro text-caption normal-case tracking-wide text-[var(--lcd-subtext)] mt-1">{p.blurb}</span>
             </span>
             <span className="flex items-center gap-1 shrink-0 text-[var(--lcd-accent)]">
               {/* The padlock is gone with the gate it stood for (v8#3). The
@@ -319,26 +355,38 @@ interface ProjectSplashProps {
   onOpenApp: () => void;
 }
 
+const ProjectMark: React.FC<{ project: Project; large?: boolean }> = ({ project, large = false }) => (
+  <span
+    className={`${large ? 'w-24 h-24 rounded-card' : 'w-14 h-14 rounded-control'} shrink-0 bg-[var(--surface-high)] flex items-center justify-center overflow-hidden shadow-elev-1`}
+    aria-hidden="true"
+  >
+    {project.logo ? (
+      <img src={project.logo} alt="" className="w-full h-full object-cover" />
+    ) : (
+      <span className="font-retro text-xl tracking-widest text-[var(--lcd-accent)]">{project.badge}</span>
+    )}
+  </span>
+);
+
 export const ProjectSplash: React.FC<ProjectSplashProps> = ({ project, onBack, onHome, onOpenApp }) => (
   <DeviceLayout title={project.name} subtitle="" showBack onBack={onBack} onHome={onHome} showSystemButtons={false} centerHeaderText>
     <div className={`flex-1 min-h-0 w-full flex flex-col relative overflow-hidden ${screenGround}`}>
       <RetroGrid />
-      <div className="relative z-10 flex-1 overflow-y-auto p-[var(--pad-screen)] flex flex-col items-center justify-center gap-5 text-center">
+      <div
+        className="site-scroll-region custom-scrollbar relative z-10 min-h-0 flex-1 overflow-y-auto p-[var(--pad-screen)] flex flex-col items-center justify-center gap-5 text-center"
+        tabIndex={0}
+        role="region"
+        aria-label={`${project.name} project details`}
+      >
 
-        <span className="w-24 h-24 shrink-0 rounded-card bg-[var(--surface-high)] flex items-center justify-center overflow-hidden shadow-elev-2">
-          <img src={project.logo} alt="" className="w-full h-full object-cover" />
-        </span>
+        <ProjectMark project={project} large />
 
         <div className="space-y-1">
-          <h2 className="font-sans text-title tracking-wide text-[var(--lcd-text)]">{project.name}</h2>
-          <p className="font-sans text-caption tracking-wide text-[var(--lcd-subtext)]">{project.blurb}</p>
+          <h2 className="font-retro text-title tracking-widest text-[var(--lcd-text)]">{project.name}</h2>
+          <p className="font-retro text-caption normal-case tracking-wide text-[var(--lcd-subtext)]">{project.blurb}</p>
         </div>
 
-        {/* The blurb is a paragraph, so it is set as one: the sans at body
-            size, sentence case, and `max-w-prose` to keep the measure honest.
-            It was VT323 at `text-sm` inside the LCD's blanket `uppercase`,
-            which is three separate reasons a reader's eye slides off it. */}
-        <p className="font-sans text-body normal-case text-[var(--lcd-body-text)] max-w-prose">
+        <p className="font-retro text-caption normal-case leading-relaxed text-[var(--lcd-body-text)] max-w-prose">
           {project.description}
         </p>
 
@@ -352,7 +400,7 @@ export const ProjectSplash: React.FC<ProjectSplashProps> = ({ project, onBack, o
           </button>
         ) : (
           <a href={project.href} target="_blank" rel="noopener noreferrer" className={primaryAction}>
-            CHECK IT OUT
+            VISIT PUBLICATION
             <ArrowUpRight size={18} className="shrink-0" aria-hidden="true" />
           </a>
         )}
@@ -363,7 +411,7 @@ export const ProjectSplash: React.FC<ProjectSplashProps> = ({ project, onBack, o
 );
 
 // ---------------------------------------------------------------------------
-// Simple content pages. Copy is placeholder — edit freely.
+// Simple content pages.
 // ---------------------------------------------------------------------------
 
 /**
@@ -372,14 +420,19 @@ export const ProjectSplash: React.FC<ProjectSplashProps> = ({ project, onBack, o
  * `normal-case` is the load-bearing class. The LCD wrapper uppercases its
  * whole subtree -- correct for a device readout, wrong for three paragraphs
  * about a studio, and the reason this page has always been hard to read. The
- * sans at body size with a 1.55 line-height and `max-w-prose` is the rest of
- * it. VT323 is a terminal face; it stays for terminal moments.
+ * Pixel type is used throughout the website; the smaller caption scale and
+ * generous line-height keep longer studio copy readable inside the LCD.
  */
 const InfoPage: React.FC<{ title: string; onBack: () => void; onHome: () => void; children: React.ReactNode }> = ({ title, onBack, onHome, children }) => (
   <DeviceLayout title={title} subtitle="" showBack onBack={onBack} onHome={onHome} showSystemButtons={false} centerHeaderText>
     <div className={`flex-1 min-h-0 w-full flex flex-col relative overflow-hidden ${screenGround}`}>
       <RetroGrid />
-      <div className="relative z-10 flex-1 overflow-y-auto p-[var(--pad-screen)] font-sans text-body normal-case text-[var(--lcd-body-text)] max-w-prose space-y-4">
+      <div
+        className="site-scroll-region custom-scrollbar relative z-10 min-h-0 w-full flex-1 overflow-y-auto p-[var(--pad-screen)] pb-[calc(var(--pad-screen)+0.5rem)] font-retro text-caption normal-case leading-relaxed text-[var(--lcd-body-text)] space-y-4"
+        tabIndex={0}
+        role="region"
+        aria-label={`${title} content`}
+      >
         {children}
       </div>
     </div>
@@ -388,22 +441,72 @@ const InfoPage: React.FC<{ title: string; onBack: () => void; onHome: () => void
 
 export const WhoWeAre: React.FC<{ onBack: () => void; onHome: () => void }> = ({ onBack, onHome }) => (
   <InfoPage title="WHO WE ARE" onBack={onBack} onHome={onHome}>
-    {/* The one retro flourish on the page, and it earns it: this line is the
-        studio's strapline, not a sentence. */}
-    <p className="font-retro text-caption uppercase tracking-widest text-[var(--lcd-accent)]">CREATING ACROSS MULTITUDES.</p>
+    <section className="space-y-3">
+      <h2 className="font-retro text-title uppercase tracking-widest text-[var(--lcd-accent)]">
+        AN INDEPENDENT CREATIVE + PRODUCT STUDIO
+      </h2>
+      <p>
+        We are a two-founder NYC studio making useful digital products,
+        publications, and media with personality.
+      </p>
+      <ul className="grid grid-cols-2 gap-2 font-retro text-caption uppercase tracking-wide sm:grid-cols-4">
+        {['NYC BASED', 'SERVICE TRAINED', 'WINE OBSESSED', 'SERIOUS ABOUT PLAY'].map(item => (
+          <li key={item} className="rounded-control border border-[var(--surface-line)] bg-[var(--surface-raised)] px-2 py-2 text-center text-[var(--lcd-text)]">
+            <span aria-hidden="true" className="mr-1 text-[var(--lcd-accent)]">◆</span>
+            {item}
+          </li>
+        ))}
+      </ul>
+    </section>
+
+    <section className="space-y-3">
+      <h2 className="font-retro text-heading uppercase tracking-widest text-[var(--lcd-text)]">THE FOUNDERS</h2>
+      <div className="grid gap-3 sm:grid-cols-2">
+        <Card livery="violet" elevation={1} className="p-[var(--pad-card)]">
+          <h3 className="font-retro text-heading uppercase tracking-widest text-[var(--lcd-text)]">HORIZON</h3>
+          <p className="mt-1 font-retro text-caption uppercase tracking-wide text-[var(--lcd-accent)]">
+            CO-FOUNDER + CREATIVE DIRECTOR
+          </p>
+          <p className="mt-3">
+            Horizon leads product vision, creative direction, UX/UI, brand,
+            editorial, and development.
+          </p>
+          <ul className="mt-3 space-y-1 font-retro text-caption uppercase tracking-wide">
+            <li><span aria-hidden="true" className="text-[var(--lcd-accent)]">→</span> Pixels + prototypes</li>
+            <li><span aria-hidden="true" className="text-[var(--lcd-accent)]">→</span> Wine + service instincts</li>
+            <li><span aria-hidden="true" className="text-[var(--lcd-accent)]">→</span> Music, culture + story</li>
+          </ul>
+        </Card>
+
+        <Card livery="amber" elevation={1} className="p-[var(--pad-card)]">
+          <h3 className="font-retro text-heading uppercase tracking-widest text-[var(--lcd-text)]">GODOT</h3>
+          <p className="mt-1 font-retro text-caption uppercase tracking-wide text-[var(--lcd-accent)]">
+            CO-FOUNDER + DIRECTOR OF STRATEGY &amp; OPERATIONS
+          </p>
+          <p className="mt-3">
+            Godot leads strategy, financial planning, research, product
+            testing, partnerships, and operations.
+          </p>
+          <ul className="mt-3 space-y-1 font-retro text-caption uppercase tracking-wide">
+            <li><span aria-hidden="true" className="text-[var(--lcd-accent)]">→</span> Models + milestones</li>
+            <li><span aria-hidden="true" className="text-[var(--lcd-accent)]">→</span> Partners + pipelines</li>
+            <li><span aria-hidden="true" className="text-[var(--lcd-accent)]">→</span> Systems that scale</li>
+          </ul>
+        </Card>
+      </div>
+    </section>
+
+    <section className="space-y-3">
+      <h2 className="font-retro text-heading uppercase tracking-widest text-[var(--lcd-text)]">HOW WE WORK</h2>
+      <p>
+        Horizon shapes and builds the work. Godot pressure-tests the plan and
+        keeps it moving. Together, we make education useful, welcoming, and fun.
+      </p>
+    </section>
+
     <p>
-      Horizon/Godot is a two-person studio in New York. We're creators and
-      developers, and we build the projects we want to use every day.
-    </p>
-    <p>
-      Vinodex came out of years in wine service and retail, where every reference
-      tool was the same — dry, clunky, no fun to learn from. We wanted one that
-      rewarded curiosity instead of testing patience, so we made it. The aim is
-      simple: make wine knowledge feel like play.
-    </p>
-    <p>
-      Wine is one of many things we make. See what else we're building under OUR
-      WORK.
+      Available for selected creative direction, product design, editorial,
+      research, brand, and strategy collaborations.
     </p>
   </InfoPage>
 );
@@ -412,7 +515,12 @@ export const ContactUs: React.FC<{ onBack: () => void; onHome: () => void }> = (
   <DeviceLayout title="CONTACT US" subtitle="" showBack onBack={onBack} onHome={onHome} showSystemButtons={false} centerHeaderText>
     <div className={`flex-1 min-h-0 w-full flex flex-col relative overflow-hidden ${screenGround}`}>
       <RetroGrid />
-      <div className="relative z-10 flex-1 overflow-y-auto p-[var(--pad-screen)] flex flex-col items-center justify-center gap-6 text-center">
+      <div
+        className="site-scroll-region custom-scrollbar relative z-10 min-h-0 flex-1 overflow-y-auto p-[var(--pad-screen)] flex flex-col items-center justify-center gap-6 text-center"
+        tabIndex={0}
+        role="region"
+        aria-label="Contact content"
+      >
 
         <div className="flex flex-col items-center gap-3">
           <span
@@ -422,14 +530,14 @@ export const ContactUs: React.FC<{ onBack: () => void; onHome: () => void }> = (
           >
             <Mail size={40} />
           </span>
-          <h2 className="font-sans text-display tracking-tight text-[var(--lcd-text)]">
+          <h2 className="font-retro text-display tracking-widest text-[var(--lcd-text)]">
             GET IN TOUCH
           </h2>
         </div>
 
-        <p className="font-sans text-body normal-case text-[var(--lcd-body-text)] max-w-prose">
-          Questions, ideas, feedback on Vinodex, or a project you think we'd like —
-          we read everything.
+        <p className="font-retro text-caption normal-case leading-relaxed text-[var(--lcd-body-text)] max-w-prose">
+          Product feedback, collaboration ideas, project questions, or a good
+          bottle we should know about — we read everything.
         </p>
 
         {/* One address, from one constant (W26). This page and the in-app

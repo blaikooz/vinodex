@@ -1,5 +1,5 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import { cleanup, render, screen, waitFor, within } from '@testing-library/react';
+import { cleanup, fireEvent, render, screen, waitFor, within } from '@testing-library/react';
 import { MemoryRouter } from 'react-router-dom';
 import { SettingsSectionPanel } from './SettingsPanel';
 import { getAllEntries } from '../src/services/wineData';
@@ -142,6 +142,31 @@ describe('<SettingsSectionPanel />', () => {
     it('offers real controls', async () => {
       renderSection('SETTINGS');
       await waitFor(() => expect(screen.getAllByRole('button').length).toBeGreaterThan(5));
+    });
+
+    it('uses the shared iOS art for secondary controls', async () => {
+      renderSection('SETTINGS');
+      await waitFor(() => expect(sectionTitles()).toContain('HAPTICS'));
+      const stems = [...document.querySelectorAll('[data-control-art]')]
+        .map(node => node.getAttribute('data-control-art'));
+      expect(stems[0]).toBe('haptics');
+      expect(stems[1]).toMatch(/^sounds-(?:on|off)$/);
+      expect(stems.slice(2)).toEqual(['tutorial', 'seal', 'cheatcodes', 'demomode']);
+    });
+
+    it('keeps the tour offer modal and returns focus on Escape', async () => {
+      renderSection('SETTINGS');
+      const trigger = await screen.findByRole('button', { name: /TUTORIAL/ });
+      trigger.focus();
+      fireEvent.click(trigger);
+
+      const dialog = screen.getByRole('dialog', { name: 'TAKE THE TOUR?' });
+      const yes = within(dialog).getByRole('button', { name: 'YES' });
+      await waitFor(() => expect(document.activeElement).toBe(yes));
+
+      fireEvent.keyDown(document, { key: 'Escape' });
+      await waitFor(() => expect(screen.queryByRole('dialog', { name: 'TAKE THE TOUR?' })).toBeNull());
+      expect(document.activeElement).toBe(trigger);
     });
   });
 

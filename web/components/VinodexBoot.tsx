@@ -1,6 +1,5 @@
 import React from 'react';
 import { APP_VERSION_DISPLAY } from '../src/services/appVersion';
-import { DEVICE_FRAME_BOX, DEVICE_FRAME_OVERLAY_STYLE, DEVICE_FRAME_STAGE } from '../src/services/deviceFrame';
 
 /**
  * The BIOS power-on boot (iOS `VinodexBootView` / `BootSequence`): a POST that
@@ -11,20 +10,47 @@ import { DEVICE_FRAME_BOX, DEVICE_FRAME_OVERLAY_STYLE, DEVICE_FRAME_STAGE } from
  * Deliberately does NOT read the LCD theme: a BIOS runs before the firmware has
  * loaded the user's colourway, so it keeps its own palette (cream = the system
  * talking about itself, gold = telemetry, magenta = the machine addressing you).
- * Any tap/key advances it; it also auto-advances so it can never trap a launch.
+ * Any tap/key advances it. The final handoff is deliberately manual: the BIOS
+ * is the app's front door, so it waits for the person holding the device.
  */
 
 const INK = {
   bg: '#0E0A0E',
   magenta: '#B0417A',
+  magentaDeep: '#7A2E52',
   cream: '#F2E8D5',
   gold: '#E6A93A',
 };
+
+const BOOT_MARK = {
+  face: '/art/logo/vinodex-mark-face.png',
+  shade: '/art/logo/vinodex-mark-shade.png',
+} as const;
 
 interface Props {
   entries: number;
   onDone: () => void;
 }
+
+interface BootContextValue extends Props {
+  active: boolean;
+}
+
+const BootContext = React.createContext<BootContextValue | null>(null);
+
+/** Keeps the boot state beside the routes while DeviceLayout paints it in the LCD. */
+export const VinodexBootProvider: React.FC<BootContextValue & { children: React.ReactNode }> = ({
+  active,
+  entries,
+  onDone,
+  children,
+}) => {
+  const value = React.useMemo(
+    () => ({ active, entries, onDone }),
+    [active, entries, onDone],
+  );
+  return <BootContext.Provider value={value}>{children}</BootContext.Provider>;
+};
 
 const VinodexBoot: React.FC<Props> = ({ entries, onDone }) => {
   const [lines, setLines] = React.useState(0); // POST lines revealed
@@ -38,14 +64,13 @@ const VinodexBoot: React.FC<Props> = ({ entries, onDone }) => {
   }, [onDone]);
 
   React.useEffect(() => {
-    // Absolute schedule from one start instant (iOS: bounded by ~5.4s; the web
-    // trims it since a boot animation taxes every launch).
+    // Absolute schedule from one start instant. The sequence resolves into a
+    // stable prompt and waits there until a tap or key explicitly enters.
     const t = [
       window.setTimeout(() => setLines(1), 300),
       window.setTimeout(() => setLines(2), 700),
       window.setTimeout(() => setLines(3), 1100),
       window.setTimeout(() => setSplash(true), 1750),
-      window.setTimeout(finish, 3400),
     ];
     return () => t.forEach(window.clearTimeout);
   }, [finish]);
@@ -57,36 +82,16 @@ const VinodexBoot: React.FC<Props> = ({ entries, onDone }) => {
   ];
 
   return (
-    /*
-      The layer is fixed to the viewport; the POST is not (v7#D1).
-      It used to be a single `fixed inset-0` box, which on a phone is the same
-      rectangle as the device and on a 1280px desktop window is emphatically
-      not: the dotted MEMORY/DATABASE/FIRMWARE leaders ran the full 1280px,
-      left-aligned, while the machine they were booting sat in a centred 522px
-      column. A BIOS is the device talking about itself, so it belongs on the
-      device's screen at every size — `DEVICE_FRAME_STAGE` + `DEVICE_FRAME_BOX`
-      are the same two strings `DeviceLayout` centres the chassis with.
-
-      The click/key handler stays on the outer layer, not the box: "any tap
-      advances it" is the promise, and on desktop a click on the surround is
-      still a tap on the machine.
-    */
     <div
-      // `device-stage` rather than a flat fill, so the surround does not jump
-      // when the boot hands the device over (the BIOS's own palette note is
-      // about the LCD, not the room the machine is standing in).
-      className={`fixed inset-0 z-[70] ${DEVICE_FRAME_STAGE} device-stage select-none cursor-pointer overflow-hidden`}
-      style={DEVICE_FRAME_OVERLAY_STYLE}
+      className="bios-boot absolute inset-0 z-[30] flex select-none cursor-pointer overflow-hidden font-mono"
+      style={{ backgroundColor: INK.bg }}
       onClick={finish}
       onKeyDown={finish}
       role="button"
       tabIndex={0}
       aria-label="Skip boot"
     >
-      <div
-        className={`relative ${DEVICE_FRAME_BOX} flex flex-col font-mono overflow-hidden md:rounded-[2.5rem]`}
-        style={{ backgroundColor: INK.bg }}
-      >
+      <div className="relative flex min-h-0 flex-1 flex-col overflow-hidden">
         {/* faint scanlines */}
         <div className="absolute inset-0 pointer-events-none opacity-30 scanlines" />
 
@@ -105,9 +110,36 @@ const VinodexBoot: React.FC<Props> = ({ entries, onDone }) => {
             <span className="mt-2 w-2 h-4 inline-block animate-pulse" style={{ backgroundColor: INK.cream }} aria-hidden="true" />
           </div>
         ) : (
-          <div className="flex-1 flex flex-col items-center justify-center px-6 text-center gap-3">
+          <div className="flex-1 min-h-0 flex flex-col items-center justify-center px-4 sm:px-6 text-center gap-2.5">
+            {/* The canonical iOS BootMark: two white-on-alpha pixel layers,
+                coloured here with the BIOS palette. Its aspect ratio and
+                inline-size cap keep it wholly inside the LCD at every chassis
+                size; the screen remains the only clipping boundary. */}
+            <div
+              className="bios-boot-mark relative shrink-0"
+              data-bios-mark
+              aria-hidden="true"
+            >
+              <span
+                className="bios-boot-mark-layer absolute inset-0"
+                style={{
+                  backgroundColor: INK.magentaDeep,
+                  WebkitMaskImage: `url(${BOOT_MARK.shade})`,
+                  maskImage: `url(${BOOT_MARK.shade})`,
+                }}
+              />
+              <span
+                className="bios-boot-mark-layer absolute inset-0"
+                style={{
+                  background: `linear-gradient(to bottom, ${INK.cream}, rgba(242,232,213,0.72))`,
+                  WebkitMaskImage: `url(${BOOT_MARK.face})`,
+                  maskImage: `url(${BOOT_MARK.face})`,
+                }}
+              />
+            </div>
             <h1
-              className="text-4xl sm:text-5xl font-black italic -skew-x-6 tracking-tight"
+              className="bios-boot-wordmark max-w-full font-retro font-black"
+              data-bios-wordmark
               style={{
                 backgroundImage: `linear-gradient(to bottom, #ffffff, ${INK.cream}, ${INK.gold}, ${INK.cream}, #ffffff)`,
                 WebkitBackgroundClip: 'text',
@@ -137,6 +169,13 @@ const VinodexBoot: React.FC<Props> = ({ entries, onDone }) => {
       </div>
     </div>
   );
+};
+
+/** DeviceLayout's slot for the active sequence. Nothing renders on site routes. */
+export const VinodexBootOverlay: React.FC = () => {
+  const boot = React.useContext(BootContext);
+  if (!boot?.active) return null;
+  return <VinodexBoot entries={boot.entries} onDone={boot.onDone} />;
 };
 
 export default VinodexBoot;

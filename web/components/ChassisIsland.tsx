@@ -58,7 +58,7 @@ const ChassisIsland: React.FC<ChassisIslandProps> = ({ onTitleTap, inert = false
 
   return (
     <div
-      className="island-strip shrink-0 flex items-start justify-between px-5 pt-2.5 pb-1"
+      className="island-strip shrink-0 flex items-center justify-between px-5 pt-2.5 pb-1"
       inert={inert}
     >
       {/*
@@ -139,7 +139,7 @@ const ChassisIsland: React.FC<ChassisIslandProps> = ({ onTitleTap, inert = false
           group is `aria-hidden` and why the pins went on the marquee pair
           instead. Sized by `.island-lamp` so the orb across the strip stays
           exactly their length. */}
-      <div className="flex flex-row gap-[var(--island-gap)] items-center pt-1.5" aria-hidden="true">
+      <div className="flex flex-row gap-[var(--island-gap)] items-center" aria-hidden="true">
         {[1, 2, 3].map((n, i) => (
           <ChassisLamp
             key={n}

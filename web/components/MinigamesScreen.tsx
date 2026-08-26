@@ -1,7 +1,6 @@
 import React from 'react';
-import { MoonStar, BadgeCheck, Flame, EyeOff, Camera, GraduationCap } from 'lucide-react';
 import DeviceLayout from './DeviceLayout';
-import { Tile as CardTile, Livery } from './Card';
+import IOSGridTile from './IOSGridTile';
 
 interface MinigamesScreenProps {
   onScanner: () => void;
@@ -27,7 +26,10 @@ export type ToolId = 'scanner' | 'labelReader' | 'wineExam' | 'dailyChallenge' |
 interface ToolEntry {
   id: ToolId;
   title: string;
-  livery: Livery;
+  face: string;
+  shadow: string;
+  ink: string;
+  art: string;
   comingSoon?: boolean;
 }
 
@@ -44,15 +46,15 @@ interface ToolEntry {
  * be a second table.
  */
 export const TOOL_ROSTER: ToolEntry[] = [
-  { id: 'scanner', title: 'BLIND TASTING', livery: 'green' },
-  { id: 'labelReader', title: 'LABEL SCAN', livery: 'sky', comingSoon: true },
-  { id: 'wineExam', title: 'WINE EXAM', livery: 'violet' },
-  { id: 'dailyChallenge', title: 'DAILY CHALLENGE', livery: 'red' },
+  { id: 'scanner', title: 'BLIND TASTING', face: '#22C55E', shadow: '#15803D', ink: '#FFFFFF', art: '/art/button/blindtasting.png' },
+  { id: 'labelReader', title: 'LABEL SCAN', face: '#3B82F6', shadow: '#1D4ED8', ink: '#FFFFFF', art: '/art/button/labelscanner.png', comingSoon: true },
+  { id: 'wineExam', title: 'WINE EXAM', face: '#A855F7', shadow: '#6B21A8', ink: '#FFFFFF', art: '/art/button/wineexam.png' },
+  { id: 'dailyChallenge', title: 'DAILY CHALLENGE', face: '#EF4444', shadow: '#991B1B', ink: '#FFFFFF', art: '/art/button/dailychallenge.png' },
   // PROF. VINO holds WHAT'S THAT…?'s old slot, exactly as iOS 0.8.93 gave
   // it to him — ruling v6#6 deleted the game outright, and the shelf is the
   // fixed six again.
-  { id: 'profVino', title: 'PROF. VINO', livery: 'amber' },
-  { id: 'moonDial', title: 'MOON DIAL', livery: 'emerald' },
+  { id: 'profVino', title: 'PROF. VINO', face: '#EAB308', shadow: '#A16207', ink: '#FFFFFF', art: '/art/vino/vino-neutral.png' },
+  { id: 'moonDial', title: 'MOON DIAL', face: '#0891B2', shadow: '#155E75', ink: '#FFFFFF', art: '/art/button/moondial.png' },
 ];
 
 export const TOOL_TITLES: string[] = TOOL_ROSTER.map(t => t.title);
@@ -67,34 +69,6 @@ export const toolSentence = (): string => {
   return names.slice(0, -1).join(', ') + ', and ' + last;
 };
 
-interface TileProps {
-  title: string;
-  livery: Livery;
-  icon: React.ReactNode;
-  /**
-   * iOS's announced-but-unbuilt treatment (`ToolsScreen.swift` 0.7.0, I2):
-   * the tile still exists and looks like what it will be, its ink dims, and it
-   * says COMING SOON in words. Not `disabled` — a dead grey tile is
-   * indistinguishable from a paywalled one and from a bug. It stays tappable
-   * and does nothing, because there is nothing yet to explain that the label
-   * has not already said. Stage 4 keeps the words and the dim, drawn on the
-   * card treatment; the hourglass glyph retires with the painted face.
-   */
-  comingSoon?: boolean;
-  onClick: () => void;
-}
-
-const Tile: React.FC<TileProps> = ({ title, livery, icon, comingSoon = false, onClick }) => (
-  <CardTile
-    livery={livery}
-    icon={icon}
-    label={title}
-    caption={comingSoon ? 'Coming soon — not built yet' : undefined}
-    onClick={onClick}
-    className={`aspect-square ${comingSoon ? 'opacity-70' : ''}`}
-  />
-);
-
 /**
  * The Tools hub, ported from `vinodex-ios/Sources/VinodexUI/ToolsScreen.swift`
  * at v0.9.2 (v6#10/#11/#13):
@@ -108,8 +82,7 @@ const Tile: React.FC<TileProps> = ({ title, livery, icon, comingSoon = false, on
  * - LABEL SCAN holds its slot with the COMING SOON treatment until the web
  *   OCR ruling (v6#4/v6#27).
  *
- * The tiles wear the card treatment since stage 4: the livery as accent, the
- * label in the mode's own ink — see TOOL_ROSTER's note for the hue mapping.
+ * Faces, shadows, and inks follow iOS `ToolsScreen`'s current values.
  */
 const MinigamesScreen: React.FC<MinigamesScreenProps> = ({
   onScanner,
@@ -122,20 +95,15 @@ const MinigamesScreen: React.FC<MinigamesScreenProps> = ({
 }) => {
   return (
     <DeviceLayout title="TOOLS" subtitle="" showBack={true} onBack={onBack} onHome={onHome} centerHeaderText={true}>
-      <div className="flex-1 min-h-0 overflow-y-auto custom-scrollbar bg-[var(--surface-base)] p-3">
+      <div
+        className="flex-1 min-h-0 overflow-y-auto custom-scrollbar p-3"
+        style={{ backgroundColor: 'var(--lcd-page)' }}
+      >
         {/* Rows 1–3 as iOS orders them: the two that answer a question about a
             specific glass first, then the quiz family, then the rest. The grid
             *is* the roster — nothing here restates a title or a face. */}
-        <div className="grid grid-cols-2 gap-3">
+        <div className="ios-grid-shelf" data-ios-grid="tools">
           {TOOL_ROSTER.map(tool => {
-            const icon = {
-              scanner: <EyeOff size={32} />,
-              labelReader: <Camera size={32} />,
-              wineExam: <BadgeCheck size={32} />,
-              dailyChallenge: <Flame size={32} />,
-              profVino: <GraduationCap size={32} />,
-              moonDial: <MoonStar size={32} />,
-            }[tool.id];
             const action = {
               scanner: onScanner,
               labelReader: () => {},
@@ -145,11 +113,14 @@ const MinigamesScreen: React.FC<MinigamesScreenProps> = ({
               moonDial: onMoonDial,
             }[tool.id];
             return (
-              <Tile
+              <IOSGridTile
                 key={tool.id}
                 title={tool.title}
-                livery={tool.livery}
-                icon={icon}
+                face={tool.face}
+                shadow={tool.shadow}
+                ink={tool.ink}
+                artSrc={tool.art}
+                artName={tool.id === 'profVino' ? 'vino-neutral' : tool.art.split('/').pop()?.replace('.png', '')}
                 comingSoon={tool.comingSoon}
                 onClick={action}
               />

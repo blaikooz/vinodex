@@ -101,6 +101,21 @@ for (const [name, width, height] of SIZES) {
 
       const strays = await paintedOutside(page, OVERHANG_BY_DESIGN);
       expect(strays, `painted outside the window:\n${strays.join('\n')}`).toEqual([]);
+
+      // The engraved owner mark is clipped by its strip deliberately, but the
+      // lettering itself must fit inside that clip at every supported frame.
+      const wordmark = await page.locator('.bezel-wordmark').evaluate(node => {
+        const mark = node.getBoundingClientRect();
+        const host = node.parentElement!.getBoundingClientRect();
+        return {
+          mark: { left: mark.left, right: mark.right, top: mark.top, bottom: mark.bottom },
+          host: { left: host.left, right: host.right, top: host.top, bottom: host.bottom },
+        };
+      });
+      expect(wordmark.mark.left, 'VINODEX clips at the left edge').toBeGreaterThanOrEqual(wordmark.host.left - 0.5);
+      expect(wordmark.mark.right, 'VINODEX clips at the right edge').toBeLessThanOrEqual(wordmark.host.right + 0.5);
+      expect(wordmark.mark.top, 'VINODEX clips at the top edge').toBeGreaterThanOrEqual(wordmark.host.top - 0.5);
+      expect(wordmark.mark.bottom, 'VINODEX clips at the bottom edge').toBeLessThanOrEqual(wordmark.host.bottom + 0.5);
     });
 
     /**
@@ -160,6 +175,8 @@ for (const [name, width, height] of SIZES) {
 
       const post = page.getByText(/VINODEX BIOS/);
       await expect(post).toBeVisible();
+      await expect(page.locator('.island-strip')).toBeVisible();
+      await expect(page.locator('.bezel-wordmark')).toHaveText('VINODEX');
 
       // Measured before the screenshots, not after: the POST resolves into the
       // identity splash at 1750ms and two full-page captures at 1280px cost
@@ -196,8 +213,35 @@ for (const [name, width, height] of SIZES) {
         expect(geom.box, 'the device frame is not the 522px column on desktop').toBeLessThan(geom.vw * 0.6);
       }
 
-      // It still hands the device over, at every size.
-      await expect(post).toBeHidden({ timeout: 20_000 });
+      // The identity arrives after the POST. Its old italic/skew transform
+      // painted beyond the h1's measured box, where the LCD quite correctly
+      // clipped the first/last letters. Both pieces now carry stable hooks so
+      // this checks painted geometry rather than class-name intent.
+      await expect(page.getByText('PRESS ANY BUTTON TO CONTINUE')).toBeVisible();
+      const identity = await page.evaluate(() => {
+        const wordmark = document.querySelector('[data-bios-wordmark]');
+        const boot = wordmark?.closest('[role="button"]') ?? null;
+        const mark = document.querySelector('[data-bios-mark]');
+        const rect = (node: Element | null) => {
+          if (!node) return null;
+          const r = node.getBoundingClientRect();
+          return { left: r.left, right: r.right, top: r.top, bottom: r.bottom };
+        };
+        return { boot: rect(boot), wordmark: rect(wordmark), mark: rect(mark) };
+      });
+      expect(identity.boot, 'the BIOS identity has no LCD box').not.toBeNull();
+      for (const [name, box] of [['wordmark', identity.wordmark], ['mark', identity.mark]] as const) {
+        expect(box, `${name} has no layout box`).not.toBeNull();
+        expect(box!.left, `${name} clips at the left LCD edge`).toBeGreaterThanOrEqual(identity.boot!.left - 0.5);
+        expect(box!.right, `${name} clips at the right LCD edge`).toBeLessThanOrEqual(identity.boot!.right + 0.5);
+        expect(box!.top, `${name} clips at the top LCD edge`).toBeGreaterThanOrEqual(identity.boot!.top - 0.5);
+        expect(box!.bottom, `${name} clips at the bottom LCD edge`).toBeLessThanOrEqual(identity.boot!.bottom + 0.5);
+      }
+
+      // It waits for and accepts an explicit handoff at every size.
+      const handoff = page.getByRole('button', { name: 'Skip boot' });
+      await handoff.click();
+      await expect(handoff).toBeHidden();
     });
   });
 }

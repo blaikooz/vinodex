@@ -10,6 +10,134 @@
    Excluding prose is the fix rather than rewording the record: the ledger has
    to be able to name what it changed. */
 @source not "../**/*.md";
+
+/* The browser viewport is the chassis. Route content may scroll inside the
+   LCD, but the document itself must never pan the hardware off the stage. */
+html,
+body,
+#root {
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  overscroll-behavior: none;
+}
+
+/* Every route scrolls inside the LCD, never by moving the chassis. A flex
+   item's default min-height:auto can make an `overflow-y-auto` child expand
+   to its content instead of becoming a viewport; iOS Safari also needs the
+   touch intent and momentum stated on the actual scrolling element. */
+.lcd-themed .overflow-y-auto {
+  min-height: 0;
+  overscroll-behavior-y: contain;
+  touch-action: pan-y pinch-zoom;
+  -webkit-overflow-scrolling: touch;
+}
+
+/* Center short empty/loading states, but fall back to the top when their
+   content becomes taller than the LCD. Plain `justify-content:center` places
+   half of an overflowing flex column above scrollTop=0, where it is impossible
+   to reach by scrolling. */
+.lcd-themed .overflow-y-auto.justify-center {
+  justify-content: safe center;
+}
+
+/* The fixed six-button TOOLS and SYSTEM shelves from iOS. On a normal chassis
+   all three rows share the LCD height; on a short viewport the row floor wins
+   and the LCD's existing internal scroller takes over. */
+.ios-grid-shelf {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  grid-template-rows: repeat(3, minmax(9.25rem, 1fr));
+  gap: 0.625rem;
+  min-height: 100%;
+}
+
+.ios-grid-tile {
+  --ios-tile-face: #22c55e;
+  --ios-tile-shadow: #15803d;
+  --ios-tile-ink: #fff;
+  position: relative;
+  isolation: isolate;
+  display: flex;
+  min-width: 0;
+  min-height: 9.25rem;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: clamp(0.55rem, 1.5vh, 0.8rem);
+  overflow: hidden;
+  padding: 0.75rem 0.45rem 1rem;
+  border: 0;
+  border-radius: 0.9rem;
+  background: var(--ios-tile-face);
+  color: var(--ios-tile-ink);
+  box-shadow:
+    inset 0 1px 0 rgb(255 255 255 / 24%),
+    inset 0 -6px 0 var(--ios-tile-shadow),
+    0 2px 0 rgb(0 0 0 / 28%);
+  transition: transform 100ms ease, filter 100ms ease, box-shadow 100ms ease;
+}
+
+.ios-grid-tile::before {
+  content: '';
+  position: absolute;
+  z-index: -1;
+  inset: 0;
+  pointer-events: none;
+  background:
+    linear-gradient(135deg, rgb(255 255 255 / 10%), transparent 48%),
+    repeating-linear-gradient(0deg, rgb(255 255 255 / 8%) 0 2px, rgb(0 0 0 / 4%) 2px 4px);
+}
+
+.ios-grid-tile:hover {
+  filter: brightness(1.06);
+}
+
+.ios-grid-tile:active {
+  transform: translateY(4px) scale(0.98);
+  filter: brightness(0.92);
+  box-shadow:
+    inset 0 2px 4px rgb(0 0 0 / 25%),
+    inset 0 -2px 0 var(--ios-tile-shadow);
+}
+
+.ios-grid-tile:focus-visible {
+  outline: 3px solid var(--lcd-text);
+  outline-offset: -5px;
+}
+
+.ios-grid-tile-art {
+  width: clamp(3.75rem, 32%, 5.4rem);
+  height: clamp(3.75rem, 32%, 5.4rem);
+  object-fit: contain;
+  image-rendering: pixelated;
+  filter: drop-shadow(1px 3px 0 rgb(0 0 0 / 30%));
+}
+
+.ios-grid-tile-label,
+.ios-grid-tile-status {
+  position: relative;
+  font-family: 'Press Start 2P', monospace;
+  text-align: center;
+  text-shadow: 1px 2px 0 rgb(0 0 0 / 32%);
+}
+
+.ios-grid-tile-label {
+  max-width: 100%;
+  padding-inline: 0.15rem;
+  font-size: clamp(0.58rem, 1.45vw, 0.8rem);
+  line-height: 1.35;
+  letter-spacing: 0.055em;
+}
+
+.ios-grid-tile-status {
+  margin-top: -0.2rem;
+  font-size: 0.43rem;
+  line-height: 1.2;
+  letter-spacing: 0.04em;
+  opacity: 0.88;
+}
+
 /* ---------------------------------------------------------------------------
    THE TYPEFACES, SELF-HOSTED (v0.4.0, m1)
 
@@ -218,6 +346,14 @@
   --shadow-elev-3: 0 4px 8px -4px rgb(0 0 0 / 0.24), 0 16px 32px -12px rgb(0 0 0 / 0.32);
 }
 
+/* Studio pages use the pixel face throughout. The descendant selector is
+   deliberate: shared cards carry their own sans-serif defaults, and those
+   should remain intact inside Vinodex while the website overrides them. */
+.site-pixel-copy,
+.site-pixel-copy * {
+  font-family: var(--font-retro);
+}
+
 /* The device frame's height cap (v7#D2).
    Read by `DEVICE_FRAME_BOX` in `web/src/services/deviceFrame.ts`, which is the
    only thing that should reference it — see the note there for why the device
@@ -227,6 +363,48 @@
    sub-`md` phone path never reaches this value at all. */
 :root {
   --device-frame-h: min(850px, calc(100dvh - 2rem));
+}
+
+/* The studio website has its own responsive hardware footprint. On a phone
+   it is a compact square; from tablet upward it becomes a 4:3 landscape
+   display, constrained by both axes of the viewport. The Vinodex application
+   never receives this class and continues to use DEVICE_FRAME_BOX's portrait
+   dimensions. */
+.site-device-frame {
+  flex: none;
+  width: min(100%, 100dvh);
+  height: auto;
+  aspect-ratio: 1 / 1;
+}
+
+/* With the island intentionally absent, the website still needs a visible
+   crown of red moulding above the white screen housing. This padding is
+   site-only; Vinodex keeps its established portrait stack and island height. */
+.site-device-screen-space {
+  padding-top: clamp(0.65rem, 2vw, 1rem);
+}
+
+/* The shared Tile label is deliberately conservative. These two primary
+   navigation surfaces have enough room for one measured step up. */
+.portal-home-tile > span:nth-of-type(2),
+.main-menu-tile > span:nth-of-type(2) {
+  font-size: clamp(0.78rem, 1.35vw, 0.9rem);
+}
+
+/* The category content follows the area left by its concave corner, matching
+   iOS's centroid adjustment rather than sitting partly under Search. */
+.main-menu-tile > span {
+  position: relative;
+  left: var(--dial-shift-x, 0);
+  top: var(--dial-shift-y, 0);
+}
+
+@media (min-width: 768px) {
+  .site-device-frame {
+    width: auto;
+    height: min(768px, calc(100dvh - 2rem), calc(75vw - 1.5rem));
+    aspect-ratio: 4 / 3;
+  }
 }
 
 /* ---------------------------------------------------------------------------
@@ -265,6 +443,43 @@
    --------------------------------------------------------------------------- */
 .device-stage {
   background-color: #171717;
+}
+
+/* BIOS identity stack. The old wordmark was italic and skewed inside the
+   correctly clipped LCD. A transform changes paint but not the element's
+   layout box, so the first/last glyph could be guillotined by overflow-hidden.
+   These dimensions are based on the BIOS container itself (`cqi`), leave a
+   real paint inset, and preserve the canonical mark's 320:262 aspect. */
+.bios-boot {
+  container-type: inline-size;
+}
+
+.bios-boot-mark {
+  width: min(46cqi, 11rem);
+  aspect-ratio: 320 / 262;
+  filter: drop-shadow(0 0 0.875rem rgba(176, 65, 122, 0.72));
+}
+
+.bios-boot-mark-layer {
+  display: block;
+  background-repeat: no-repeat;
+  -webkit-mask-position: center;
+  mask-position: center;
+  -webkit-mask-repeat: no-repeat;
+  mask-repeat: no-repeat;
+  -webkit-mask-size: contain;
+  mask-size: contain;
+  image-rendering: pixelated;
+}
+
+.bios-boot-wordmark {
+  box-sizing: border-box;
+  padding: 0.18em 0.18em 0.12em;
+  font-size: clamp(2.375rem, 12cqi, 3rem);
+  line-height: 1.2;
+  letter-spacing: 0.025em;
+  white-space: nowrap;
+  filter: drop-shadow(0 0 0.5rem rgba(230, 169, 58, 0.4));
 }
 
 @media (min-width: 768px) {
@@ -789,12 +1004,60 @@ body {
   display: inline-flex;
   align-items: center;
   width: max-content;
-  animation: terminal-marquee 25s linear infinite;
+  animation-name: var(--marquee-animation, terminal-marquee);
+  animation-duration: 25s;
+  animation-timing-function: linear;
+  animation-iteration-count: infinite;
   will-change: transform;
 }
 
 .terminal-marquee-slow {
   animation-duration: 15s;
+}
+
+/* The footer display is a lit green plastic panel like the iOS chassis, not a
+   black browser ticker. The grid and scan layer keep it inside the same pixel
+   hardware vocabulary as the LCD while the centered route mark stays legible. */
+.chassis-marquee,
+.chassis-marquee-screen {
+  background-color: var(--livery-green);
+}
+
+.chassis-marquee-screen {
+  background-image:
+    linear-gradient(rgba(0, 54, 28, 0.12) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(0, 54, 28, 0.12) 1px, transparent 1px);
+  background-size: 16px 16px;
+  box-shadow: inset 0 0 16px rgba(0, 62, 30, 0.24);
+}
+
+.chassis-marquee-screen::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: repeating-linear-gradient(
+    to bottom,
+    rgba(255, 255, 255, 0.05) 0,
+    rgba(255, 255, 255, 0.05) 1px,
+    transparent 1px,
+    transparent 4px
+  );
+}
+
+.terminal-marquee.static-marquee {
+  --marquee-animation: none;
+  width: auto;
+  transform: none;
+  will-change: auto;
+}
+
+.chassis-marquee-glyph img {
+  filter: brightness(0) saturate(100%) opacity(0.82);
+}
+
+.chassis-marquee-glyph svg {
+  color: #064e3b;
 }
 
 
@@ -1281,6 +1544,12 @@ body {
   container-type: inline-size;
 }
 
+.lamp-hit:active .recessed-lamp {
+  box-shadow:
+    inset 0 4px 8px rgba(0, 0, 0, 0.38),
+    inset 0 -1px 0 rgba(255, 255, 255, 0.15);
+}
+
 .lamp-hit::after {
   content: '';
   position: absolute;
@@ -1299,6 +1568,11 @@ body {
 .chamfered-panel {
   --panel-corner: 2rem;
   --panel-chamfer: 2.25rem;
+  --panel-rim: 6px;
+  --panel-inner-corner: calc(var(--panel-corner) - var(--panel-rim));
+  --panel-inner-chamfer: calc(var(--panel-chamfer) - 0.25rem);
+  isolation: isolate;
+  background: var(--panel-edge, var(--chassis-panel-edge));
   clip-path: polygon(
     var(--panel-chamfer) 100%,
     100% 100%,
@@ -1312,8 +1586,49 @@ body {
   border-bottom-left-radius: 0;
 }
 
+/* A second, inset copy of the silhouette creates a genuine six-pixel rim on
+   the rounded corners and the diagonal. CSS borders only knew about the
+   element's original rectangle, so the old clipped border disappeared along
+   the chamfer and made the keyed corner look unfinished. */
+.chamfered-panel::before {
+  content: '';
+  position: absolute;
+  inset: var(--panel-rim);
+  z-index: 0;
+  pointer-events: none;
+  background: var(--panel-fill, var(--chassis-panel));
+  clip-path: polygon(
+    var(--panel-inner-chamfer) 100%,
+    100% 100%,
+    100% 0,
+    0 0,
+    0 calc(100% - var(--panel-inner-chamfer))
+  );
+  border-radius: var(--panel-inner-corner);
+  border-bottom-left-radius: 0;
+}
+
+.chamfered-panel > * {
+  z-index: 1;
+}
+
+/* Keep the bottom furniture on the bezel's usable face. The keyed corner cuts
+   through the first 2.25rem of the strip, so generic horizontal padding put
+   the lamp partly on the cut and made its recess appear clipped. The grill has
+   its own safe inset from the rounded corner. The wordmark remains centered
+   against the complete bezel rather than between two unequal ornaments. */
+.bezel-bottom-light {
+  left: calc(var(--panel-chamfer) + 0.25rem);
+  transform: translateY(-50%);
+}
+
+.bezel-grill {
+  right: 1.25rem;
+}
+
 @media (prefers-reduced-motion: reduce) {
   /* Nothing here animates; listed so a future addition to this block is
      considered rather than inherited. */
-  .recessed-lamp { transition: none; }
+  .recessed-lamp,
+  .ios-grid-tile { transition: none; }
 }

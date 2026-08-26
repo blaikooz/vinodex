@@ -277,7 +277,7 @@ test('the orb is the trio long and one lamp tall', async ({ page, consoleErrors 
   const m = await page.evaluate(() => {
     const box = (el: Element) => {
       const b = el.getBoundingClientRect();
-      return { w: +b.width.toFixed(2), h: +b.height.toFixed(2), l: b.left, r: b.right };
+      return { w: +b.width.toFixed(2), h: +b.height.toFixed(2), l: b.left, r: b.right, t: b.top };
     };
     const orb = document.querySelector('.island-orb.recessed-lamp')!;
     const lamps = [...document.querySelectorAll('.island-lamp')];
@@ -290,6 +290,7 @@ test('the orb is the trio long and one lamp tall', async ({ page, consoleErrors 
     .toBeCloseTo(m.lamps[2]!.r - m.lamps[0]!.l, 1);
   // C1. An identity function on purpose, so a preview cannot agree by accident.
   expect(m.orb.h, 'C1: the orb is not one lamp tall').toBeCloseTo(m.lamps[0]!.h, 1);
+  expect(m.orb.t, 'the orb and RGB trio do not share a top edge').toBeCloseTo(m.lamps[0]!.t, 1);
   // And the trio is square, which is what makes "one lamp tall" also mean
   // "one lamp wide" and the two clusters a matched pair.
   for (const l of m.lamps) expect(l.w).toBeCloseTo(l.h, 1);

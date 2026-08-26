@@ -49,10 +49,14 @@ describe('the pin vocabulary', () => {
     for (const pin of MARQUEE_PINS) {
       const section = pinSection(pin);
       expect(pinRoute(pin)).toBe(section ? `/settings/${section}` : '/minigames');
-      expect(pinDisplayName(pin)).toBe(pin);
     }
+    expect(MARQUEE_PINS.map(pinDisplayName)).toEqual([
+      'TOOLS', 'CUSTOMIZE', 'SETTINGS', 'DATA', 'SHOP',
+    ]);
     expect(pinSection('TOOLS')).toBeNull();
     expect(pinRoute('TOOLS')).toBe('/minigames');
+    expect(pinSection('ACCESS')).toBe('ACCESS');
+    expect(pinRoute('ACCESS')).toBe('/settings/ACCESS');
   });
 
   it('is registered as persisted vocabulary', () => {

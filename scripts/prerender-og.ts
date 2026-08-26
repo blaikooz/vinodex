@@ -4,8 +4,9 @@
 // The web app is a Vite SPA, so a crawler fetching a shared /detail/:id link
 // only sees the static index.html and never runs the router — every shared card
 // would unfurl with the generic product title. This writes a per-entry
-// dist/detail/<id>/index.html: a copy of the built shell with the entry's own
-// <title> and OG/Twitter tags injected. Vercel serves the matching static file
+// dist/detail/<id>/index.html: a copy of the built shell with VINODEX as the
+// browser title and the entry's own OG/Twitter tags injected. Vercel serves
+// the matching static file
 // before the SPA rewrite, so crawlers get the entry's card and real visitors
 // still boot into the app (same hashed bundle) at the right route.
 //
@@ -33,11 +34,11 @@ const SHAREABLE = new Set(['GRAPES', 'REGIONS', 'STYLES', 'FLAVORS']);
 const IMAGE = `${BASE}/vinodex-logo.png`;
 
 function pageFor(name: string, description: string, url: string): string {
-  const title = `${name} — Vinodex`;
+  const shareTitle = `${name} — Vinodex`;
   const desc = (description || 'A retro wine field guide.').replace(/\s+/g, ' ').trim().slice(0, 180);
   let html = shell;
 
-  html = html.replace(/<title>[^<]*<\/title>/, `<title>${esc(title)}</title>`);
+  html = html.replace(/<title>[^<]*<\/title>/, '<title>VINODEX</title>');
 
   const setMeta = (attr: 'name' | 'property', key: string, value: string) => {
     const re = new RegExp(`(<meta ${attr}="${key}" content=")[^"]*(")`);
@@ -47,11 +48,11 @@ function pageFor(name: string, description: string, url: string): string {
 
   setMeta('name', 'description', desc);
   setMeta('property', 'og:type', 'article');
-  setMeta('property', 'og:title', title);
+  setMeta('property', 'og:title', shareTitle);
   setMeta('property', 'og:description', desc);
   setMeta('property', 'og:url', url);
   setMeta('property', 'og:image', IMAGE);
-  setMeta('name', 'twitter:title', title);
+  setMeta('name', 'twitter:title', shareTitle);
   setMeta('name', 'twitter:description', desc);
   setMeta('name', 'twitter:image', IMAGE);
 

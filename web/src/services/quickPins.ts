@@ -26,7 +26,8 @@ import type { SettingsSectionId } from './settingsSections';
  *
  * A pin's label, glyph and destination are the section's or the route's, never
  * restated, which is what stops a lamp wearing one name and landing on a
- * screen wearing another.
+ * screen wearing another. ACCESS is the one persisted/display divergence:
+ * its route stays `/settings/ACCESS`, while the device calls that shop SHOP.
  *
  * ## Two rules, both forced by the lamps being physical
  *
@@ -91,19 +92,16 @@ export function pinRoute(pin: MarqueePin): string {
 /**
  * The label, taken from whatever the destination already calls itself.
  *
- * The five ids are the words the tiles and the panel headers already show, so
- * there is nothing to translate — which is the same property iOS relies on to
- * make ACCESS read as its own name without this file knowing about a rename.
+ * Four ids are already their display names. ACCESS is the deliberately stable
+ * storage spelling for the section iOS has displayed as SHOP since 0.7.5.
  *
- * **It is an identity function and it is still called** (`MarqueeLampButton`
- * for the accessible name, the engraved legend and the fitting width;
- * `MarqueeLampChooser` for the chip). That is the point of it: iOS's rule is
- * that a pin's label is never restated, and a seam every caller bypasses
- * documents an invariant it does not enforce. When one of these five stops
- * being the word on screen, this is the one place that changes.
+ * Every visible caller goes through this function: `MarqueeLampButton` for the
+ * accessible name, engraved legend and fitting width, and
+ * `MarqueeLampChooser` for the chip. The stored value and route keep ACCESS;
+ * only the words shown to a person become SHOP.
  */
 export function pinDisplayName(pin: MarqueePin): string {
-  return pin;
+  return pin === 'ACCESS' ? 'SHOP' : pin;
 }
 
 const isPin = (v: string): v is MarqueePin =>

@@ -20,6 +20,11 @@ const files = new Set(
 );
 
 describe('marquee art', () => {
+  it('keeps ACCESS as the route id while SHOP wears its canonical panel', () => {
+    expect(MARQUEE_ART.ACCESS).toBe('marquee-shop');
+    expect(MARQUEE_ART.SHOP).toBe('marquee-shop');
+  });
+
   it('every mapped stem has a file', () => {
     for (const [title, stem] of Object.entries(MARQUEE_ART)) {
       expect(files.has(stem), `${title} -> ${stem}.png is missing`).toBe(true);

@@ -1,6 +1,5 @@
 import { test, expect, enterDex, seedDevice } from './fixtures';
 import { CHASSIS_SKINS } from '../src/services/theme';
-import { SITE_MARK_TITLE, WEB_MARQUEE_ART } from '../src/services/marqueeArt';
 
 /**
  * The company site is the landing, and it is the studio's device — not the
@@ -36,20 +35,21 @@ test('the site is what a visitor lands on', async ({ page, consoleErrors }) => {
   await seedDevice(page);
   await page.goto('/');
   await page.waitForTimeout(600);
+  await expect(page).toHaveTitle('HORIZON/GODOT');
 
   // The four tiles, and no fork. DEX / WEBSITE is gone with the splash (v8#1),
   // so a visitor is never asked which product they meant before being shown
   // either of them.
   await expect(page.getByRole('heading', { name: 'HORIZON/GODOT' })).toBeVisible();
-  for (const tile of ['OUR WORK', 'WHO WE ARE', 'CONTACT US', 'DATA']) {
+  for (const tile of ['OPEN VINODEX', 'OUR WORK', 'WHO WE ARE', 'CONTACT US']) {
     await expect(page.getByRole('button', { name: tile })).toBeVisible();
   }
+  await expect(page.getByText('PLAYFUL TOOLS, MADE WELL.')).toBeVisible();
+  await expect(page.getByRole('button', { name: 'DATA', exact: true })).toHaveCount(0);
   await expect(page.getByRole('button', { name: 'DEX', exact: true })).toHaveCount(0);
   await expect(page.getByRole('button', { name: 'WEBSITE', exact: true })).toHaveCount(0);
 
-  // The strapline under the wordmark is gone (v8#6), and only that: the
-  // wordmark above it stays. Asserted as a pair so a future edit cannot
-  // satisfy this by deleting both.
+  // The old studio line is replaced by a concrete promise.
   await expect(page.getByText('CREATING ACROSS MULTITUDES')).toHaveCount(0);
 });
 
@@ -101,6 +101,19 @@ test('OUR WORK opens Vinodex with no code in the way', async ({ page, consoleErr
   await expect(page).toHaveURL(/\/dex$/);
 });
 
+test('OUR WORK includes Château and hands off safely', async ({ page, consoleErrors }) => {
+  void consoleErrors;
+  await seedDevice(page);
+  await page.goto('/apps');
+
+  await page.getByRole('button', { name: /CHÂTEAU/ }).click();
+  await expect(page).toHaveURL(/\/project\/chateau-earth$/);
+  const publication = page.getByRole('link', { name: /VISIT PUBLICATION/ });
+  await expect(publication).toHaveAttribute('href', 'https://chateauearth.substack.com/');
+  await expect(publication).toHaveAttribute('target', '_blank');
+  await expect(publication).toHaveAttribute('rel', /noopener/);
+});
+
 test('the site wears CLASSIC while the player wears something else', async ({ page, consoleErrors }, testInfo) => {
   void consoleErrors;
   // A stored skin as far from the red shell as the table gets, so "the site is
@@ -134,28 +147,29 @@ test('the site wears CLASSIC while the player wears something else', async ({ pa
   await testInfo.attach('dex-nocturne', { body: await page.screenshot(), contentType: 'image/png' });
 });
 
-test('the bezel names whose device it is, and the marquee says WELCOME', async ({ page, consoleErrors }, testInfo) => {
+test('the site keeps its bezel, removes the footer, and navigates inside the LCD', async ({ page, consoleErrors }) => {
   void consoleErrors;
   await seedDevice(page);
 
-  // The engraved wordmark on the lower bezel, between the grille and the lamp
-  // (v8#7), and the marquee panel above the caps (v8#8).
+  // The engraved wordmark remains part of the hardware, but the website no
+  // longer carries the app's footer controls, marquee, or status lamps.
   await page.goto('/');
   await page.waitForTimeout(600);
+  await expect(page.locator('.island-strip')).toHaveCount(0);
   const bezel = page.locator('.bezel-wordmark');
   await expect(bezel).toHaveCount(1);
   expect((await bezel.textContent())?.trim(), 'the site bezel does not read HORIZON/GODOT')
     .toBe('HORIZON/GODOT');
 
-  const siteMarquee = page.locator('.terminal-marquee');
-  await expect(siteMarquee).toContainText('WELCOME');
-  // Not the screen's name, which is what the panel used to carry here.
-  await expect(siteMarquee).not.toContainText('HORIZON/GODOT');
-  await testInfo.attach('site-bezel-marquee', {
-    body: await page.locator('footer').first().screenshot(),
-    contentType: 'image/png',
-  });
-  await page.locator('footer').first().screenshot({ path: 'web/e2e/.shots/site-footer.png' });
+  await expect(page.locator('footer')).toHaveCount(0);
+  await expect(page.locator('.terminal-marquee')).toHaveCount(0);
+  await expect(page.locator('.lamp-hit')).toHaveCount(0);
+
+  await page.getByRole('button', { name: 'OUR WORK' }).click();
+  const lcdNav = page.getByRole('navigation', { name: 'Screen navigation' });
+  await expect(lcdNav).toBeVisible();
+  await expect(lcdNav.getByRole('button', { name: 'Back' })).toBeVisible();
+  await expect(lcdNav).toContainText('OUR WORK');
 
   // Inside the app it reads VINODEX again, and the dex's own script is
   // untouched: the menu greets once per launch, exactly as before.
@@ -163,6 +177,68 @@ test('the bezel names whose device it is, and the marquee says WELCOME', async (
   await page.waitForTimeout(600);
   expect((await page.locator('.bezel-wordmark').textContent())?.trim(),
     'the dex bezel does not read VINODEX').toBe('VINODEX');
+});
+
+test('the site alone reshapes its chassis for the viewport', async ({ page, consoleErrors }) => {
+  void consoleErrors;
+  await seedDevice(page);
+
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.goto('/');
+  const mobile = await page.locator('.site-device-frame').boundingBox();
+  expect(mobile).not.toBeNull();
+  expect(Math.abs((mobile?.width ?? 0) - (mobile?.height ?? 0))).toBeLessThanOrEqual(1);
+  await expect(page.locator('.island-strip')).toHaveCount(0);
+  const mobileCrown = await page.evaluate(() => {
+    const frame = document.querySelector('.site-device-frame')!.getBoundingClientRect();
+    const panel = document.querySelector('.chamfered-panel')!.getBoundingClientRect();
+    return panel.top - frame.top;
+  });
+  expect(mobileCrown, 'the square website chassis has no top moulding').toBeGreaterThanOrEqual(10);
+
+  await page.setViewportSize({ width: 1280, height: 800 });
+  const desktop = await page.locator('.site-device-frame').boundingBox();
+  expect(desktop).not.toBeNull();
+  expect((desktop?.width ?? 0) / (desktop?.height ?? 1)).toBeCloseTo(4 / 3, 2);
+  const siteFinish = await page.evaluate(() => {
+    const frame = document.querySelector('.site-device-frame')!.getBoundingClientRect();
+    const panel = document.querySelector<HTMLElement>('.chamfered-panel')!;
+    const panelBox = panel.getBoundingClientRect();
+    const outer = getComputedStyle(panel);
+    const inner = getComputedStyle(panel, '::before');
+    const lamp = document.querySelector<HTMLElement>('.bezel-bottom-light')!.getBoundingClientRect();
+    const grill = document.querySelector<HTMLElement>('.bezel-grill')!.getBoundingClientRect();
+    const labels = Array.from(document.querySelectorAll('.portal-home-tile > span:nth-of-type(2)'));
+    return {
+      crown: panelBox.top - frame.top,
+      outerFill: outer.backgroundColor,
+      innerFill: inner.backgroundColor,
+      innerInset: inner.top,
+      outerClip: outer.clipPath,
+      innerClip: inner.clipPath,
+      lampLeft: lamp.left - panelBox.left,
+      grillRight: panelBox.right - grill.right,
+      labels: labels.map(label => Number.parseFloat(getComputedStyle(label).fontSize)),
+    };
+  });
+  expect(siteFinish.crown, 'the landscape website chassis has no top moulding').toBeGreaterThanOrEqual(14);
+  expect(siteFinish.outerFill, 'the chamfer rim has no edge material').not.toBe(siteFinish.innerFill);
+  expect(siteFinish.innerInset, 'the chamfer rim has no inset face').toBe('6px');
+  expect(siteFinish.outerClip).not.toBe('none');
+  expect(siteFinish.innerClip).not.toBe('none');
+  expect(siteFinish.lampLeft, 'the bezel lamp sits in the chamfer cut').toBeGreaterThanOrEqual(40);
+  expect(siteFinish.grillRight, 'the grill crowds the rounded bezel corner').toBeGreaterThanOrEqual(19);
+  expect(siteFinish.labels).toHaveLength(4);
+  for (const size of siteFinish.labels) {
+    expect(size, 'a website tile title stayed at the old small size').toBeGreaterThanOrEqual(14);
+  }
+
+  await enterDex(page, '/dex');
+  const dex = await page.locator('div[class*="md:w-[522px]"]').first().boundingBox();
+  expect(dex).not.toBeNull();
+  expect(dex?.width).toBeCloseTo(522, 0);
+  expect((dex?.height ?? 0)).toBeGreaterThan(dex?.width ?? 0);
+  await expect(page.locator('.island-strip')).toBeVisible();
 });
 
 test('the screensaver never runs on the site', async ({ page, consoleErrors }) => {
@@ -245,18 +321,16 @@ test('Back on the site goes up the site, never into the app', async ({ page, con
   void consoleErrors;
   await seedDevice(page);
   const post = page.getByText(/VINODEX BIOS/);
-  const back = page.getByRole('button', { name: 'Back', exact: true }).first();
 
-  // 1. The landing has no Back to press. `/` is the top of the site, so the
-  //    cap is moulded and inert rather than offering a destination that would
-  //    have to be invented.
+  // 1. The landing has no Back to press. `/` is the top of the site.
   await page.goto('/');
-  await expect(back).toBeDisabled();
+  await expect(page.getByRole('button', { name: 'Back', exact: true })).toHaveCount(0);
   await expect(post).toHaveCount(0);
 
   // 2. COLD on a site sub-page: no history to pop, so the fallback decides —
   //    and it must decide "up the site", not "into the app".
   await page.goto('/who-we-are');
+  let back = page.getByRole('button', { name: 'Back', exact: true });
   await back.click();
   await page.waitForTimeout(400);
   expect(new URL(page.url()).pathname, 'cold Back on a site page left the site').toBe('/');
@@ -267,11 +341,12 @@ test('Back on the site goes up the site, never into the app', async ({ page, con
   //    branch lives again.
   await page.getByRole('button', { name: 'OUR WORK' }).click();
   await expect(page).toHaveURL(/\/apps$/);
+  back = page.getByRole('button', { name: 'Back', exact: true });
   await back.click();
   await page.waitForTimeout(400);
   expect(new URL(page.url()).pathname).toBe('/');
   // Back on the landing again — still nothing to press, still no launch.
-  await expect(back).toBeDisabled();
+  await expect(page.getByRole('button', { name: 'Back', exact: true })).toHaveCount(0);
   await page.waitForTimeout(500);
   await expect(post, 'the device booted from the landing page').toHaveCount(0);
 });
@@ -299,54 +374,20 @@ test('Back inside the app still falls back to the dex menu', async ({ page, cons
   expect(new URL(page.url()).pathname, 'the dex fallback stopped landing on the menu').toBe('/dex');
 });
 
-/**
- * The site stamps its own mark, asserted on the rendered `img` (v8#10, W3).
- *
- * **What this closes.** `DeviceLayout`'s `marqueeMark={onSite ? ... }` was the
- * one branch holding v8#10 up, and nothing pinned it: deleting the ternary
- * left every site screen quietly back on the encyclopedia's wineglass with all
- * 625 vitest and 127 Playwright tests green. The `consoleErrors` fixture
- * cannot see it either — the fallback is an inline lucide SVG, so there is no
- * 404 to catch. That is precisely the silent downgrade v8#10 existed to fix,
- * guarded by nothing.
- *
- * Asserted on **two** screens, deliberately. The landing and a sub-page reach
- * the mark by different routes through `glyphTitle` (the landing's own title
- * *is* `HORIZON/GODOT`, and only its WELCOME text override stops it resolving
- * by accident), so one of them alone could pass while the branch was broken
- * for the other.
- *
- * The expected `src` comes from `WEB_MARQUEE_ART` rather than being written
- * out, so a renamed or re-foldered asset fails here rather than 404-ing in a
- * browser somebody happens to open.
- */
-test('the site marquee stamps the studio mark, not the wineglass', async ({ page, consoleErrors }) => {
+/** The studio uses the larger LCD; the product keeps its hardware controls. */
+test('marquee hardware appears only inside Vinodex', async ({ page, consoleErrors }) => {
   void consoleErrors;
   await seedDevice(page);
-  const expected = WEB_MARQUEE_ART[SITE_MARK_TITLE]!;
-  expect(expected, 'the site mark is not in WEB_MARQUEE_ART').toBeTruthy();
 
-  for (const [route, label] of [['/', 'the landing'], ['/apps', 'OUR WORK']] as const) {
+  for (const route of ['/', '/apps'] as const) {
     await page.goto(route);
-    await page.waitForTimeout(800);
-    const marks = await page.evaluate(() =>
-      [...document.querySelectorAll('.terminal-marquee img')].map(i => new URL((i as HTMLImageElement).src).pathname),
-    );
-    expect(marks.length, `${label} has no marquee mark at all`).toBeGreaterThan(0);
-    for (const src of marks) expect(src, `${label} stamps the wrong mark`).toBe(expected);
-    // And nothing fell through to a lucide glyph beside it.
-    const svgs = await page.locator('.terminal-marquee svg').count();
-    expect(svgs, `${label} still draws a lucide fallback in the marquee`).toBe(0);
+    await expect(page.locator('.terminal-marquee')).toHaveCount(0);
+    await expect(page.locator('footer')).toHaveCount(0);
   }
 
-  // The other side of the claim: the dex is unaffected and keeps its own
-  // mirrored panel, so this pin cannot be satisfied by stamping the site mark
-  // everywhere.
+  // Vinodex keeps its own complete footer and marquee.
   await enterDex(page, '/dex');
   await page.waitForTimeout(600);
-  const dexMarks = await page.evaluate(() =>
-    [...document.querySelectorAll('.terminal-marquee img')].map(i => new URL((i as HTMLImageElement).src).pathname),
-  );
-  expect(dexMarks.length).toBeGreaterThan(0);
-  for (const src of dexMarks) expect(src, 'the site mark reached a dex screen').toMatch(/^\/art\/marquee\//);
+  await expect(page.locator('footer')).toHaveCount(1);
+  await expect(page.locator('.terminal-marquee')).toHaveCount(1);
 });

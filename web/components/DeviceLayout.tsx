@@ -1,12 +1,15 @@
 
 import React, { useMemo, useState } from 'react';
 import { useLocation } from 'react-router-dom';
+import { ChevronLeft } from 'lucide-react';
 import ChassisIsland from './ChassisIsland';
 import DeviceFooter from './DeviceFooter';
 import MarqueeLampChooser from './MarqueeLampChooser';
-import { DEVICE_FOOTER_BOTTOM_PAD, DEVICE_FOOTER_HEIGHT, DEVICE_FRAME_BOX, DEVICE_FRAME_STAGE } from '../src/services/deviceFrame';
-import { SITE_MARQUEE_TITLE, isSiteLanding, isSitePath } from '../src/services/appRoutes';
-import { SITE_MARK_TITLE } from '../src/services/marqueeArt';
+import { IosUpdatesPromptOverlay } from './IosUpdatesPrompt';
+import { VinodexBootOverlay } from './VinodexBoot';
+import { ScreensaverOverlay } from './ScreensaverOverlay';
+import { DEVICE_FOOTER_BOTTOM_PAD, DEVICE_FOOTER_RESERVATION, DEVICE_FRAME_BOX, DEVICE_FRAME_STAGE } from '../src/services/deviceFrame';
+import { isSitePath } from '../src/services/appRoutes';
 import { SITE_SKIN, grilleShape, skinCssVars } from '../src/services/theme';
 import ChassisGrille from './ChassisGrille';
 import { useTheme } from '../src/services/useTheme';
@@ -105,10 +108,9 @@ const DeviceLayout: React.FC<DeviceLayoutProps> = ({
   // Taller than the old single-row band: the footer stacks two controls in
   // each side well (iOS v0.6.9 button band), so it reserves room for a pair.
   //
-  // The two numbers moved to `deviceFrame.ts` (v8#11) because the overlays that
-  // must clear the band now read them too — see `DEVICE_BAND_CLEARANCE`. The
-  // values and this reservation are unchanged.
-  const footerHeight = DEVICE_FOOTER_HEIGHT;
+  // The band is zoomed by the UI furniture setting, so the screen reserves its
+  // resolved painted height rather than only the unscaled base measurement.
+  const footerReservation = DEVICE_FOOTER_RESERVATION;
   const footerBottomPad = DEVICE_FOOTER_BOTTOM_PAD;
 
   return (
@@ -133,11 +135,15 @@ const DeviceLayout: React.FC<DeviceLayoutProps> = ({
     >
       {/* 3D flip container — wraps both faces of the device */}
       <div
-        className={`relative ${DEVICE_FRAME_BOX}`}
+        className={`relative ${DEVICE_FRAME_BOX} ${onSite ? 'site-device-frame' : ''}`}
         style={{
           transformStyle: 'preserve-3d',
           transition: 'transform 700ms cubic-bezier(0.4, 0, 0.2, 1)',
-          transform: isFlipped ? 'rotateY(180deg)' : 'rotateY(0deg)',
+          // Keep the live LCD out of a 3D compositor layer until the user
+          // actually flips the chassis. Chromium can drop wheel scrolling on
+          // nested overflow regions inside an identity 3D transform at the
+          // desktop breakpoint, even though touch scrolling still works.
+          transform: isFlipped ? 'rotateY(180deg)' : 'none',
         }}
       >
         {/* Front face — full device chassis */}
@@ -176,12 +182,14 @@ const DeviceLayout: React.FC<DeviceLayoutProps> = ({
           >
             <div className="flex h-full flex-col">
         
-        {!hideHeader && <ChassisIsland onTitleTap={onTitleTap} inert={behindChooser} />}
+        {/* The studio site gives its full chassis face to the LCD. Vinodex
+            keeps the island hardware and its established portrait geometry. */}
+        {!hideHeader && !onSite && <ChassisIsland onTitleTap={onTitleTap} inert={behindChooser} />}
 
         {/* Screen Container */}
         <div
-          className="flex-1 min-h-0"
-          style={{ paddingBottom: `calc(${footerHeight} + ${footerBottomPad})` }}
+          className={`device-screen-space flex-1 min-h-0 ${onSite ? 'site-device-screen-space' : ''}`}
+          style={{ paddingBottom: onSite ? footerBottomPad : footerReservation }}
         >
           {/*
             The screen housing, with its keyed corner (S4) and NOCTURNE's
@@ -201,13 +209,13 @@ const DeviceLayout: React.FC<DeviceLayoutProps> = ({
             nothing.
           */}
           <div
-            className="chamfered-panel h-full flex flex-col relative m-2 mt-0 border-l-[6px] border-r-[6px] border-b-[6px] border-t-0 shadow-inner"
+            className="chamfered-panel h-full flex flex-col relative m-2 mt-0"
             style={{
-              backgroundColor: 'var(--chassis-panel)',
-              borderColor: 'var(--chassis-panel-edge)',
+              '--panel-fill': 'var(--chassis-panel)',
+              '--panel-edge': 'var(--chassis-panel-edge)',
               boxShadow:
                 '0 0 6px var(--chassis-rim-glow, transparent), 0 0 16px var(--chassis-rim-glow, transparent)',
-            }}
+            } as React.CSSProperties}
           >
 
           {/* The two housing lamps. Fixed red on every shell, matching iOS's
@@ -265,11 +273,36 @@ const DeviceLayout: React.FC<DeviceLayoutProps> = ({
                   as a mount animation because the outgoing screen has already
                   unmounted. The chassis around it never moves. */}
               <div
-                className="lcd-themed screen-enter relative z-0 h-full w-full overflow-hidden flex flex-col uppercase"
+                className={`lcd-themed screen-enter relative z-0 h-full w-full overflow-hidden flex flex-col uppercase ${onSite ? 'site-pixel-copy' : ''}`}
                 inert={behindChooser}
               >
+                {onSite && showBack && onBack && (
+                  <nav
+                    aria-label="Screen navigation"
+                    className="site-lcd-nav grid shrink-0 grid-cols-[1fr_auto_1fr] items-center gap-2 border-b border-[var(--surface-line)] bg-[var(--surface-raised)] px-3 py-2"
+                  >
+                    <button
+                      type="button"
+                      aria-label="Back"
+                      onClick={onBack}
+                      className="dex-pressable inline-flex min-h-11 w-fit items-center gap-1 rounded-control px-2 text-label tracking-widest text-[var(--lcd-accent)]"
+                    >
+                      <ChevronLeft size={18} aria-hidden="true" />
+                      BACK
+                    </button>
+                    <span className="min-w-0 truncate text-center font-retro text-heading tracking-widest text-[var(--lcd-text)] sm:text-title">
+                      {title}
+                    </span>
+                    <span aria-hidden="true" />
+                  </nav>
+                )}
                 {children}
               </div>
+
+              {/* Product-update invitation. It lives beside the routed LCD
+                  content so it inherits the screen palette, clipping and
+                  phosphor treatment instead of floating over the chassis. */}
+              <IosUpdatesPromptOverlay />
 
               {/* The lamp-reassignment chooser.
                   Inside the LCD, above the screen and below the scanlines —
@@ -294,6 +327,12 @@ const DeviceLayout: React.FC<DeviceLayoutProps> = ({
                 className="absolute inset-0 z-20 pointer-events-none"
                 style={{ backgroundColor: 'var(--mono-tint, transparent)', mixBlendMode: 'multiply' }}
               />
+
+              {/* Power-on belongs to this display, not to a second viewport-
+                  sized device. The routed chassis stays visible while the
+                  BIOS owns only the LCD. */}
+              <VinodexBootOverlay />
+              <ScreensaverOverlay />
             </div>
 
           </div>
@@ -308,36 +347,32 @@ const DeviceLayout: React.FC<DeviceLayoutProps> = ({
               Inside the dex it reads VINODEX, as it always has. One wordmark,
               two owners, and the wordmark is how you can tell at a glance
               which one you are holding. */}
-          <div className="shrink-0 relative flex items-center gap-3 px-4 h-7">
+          <div className="bezel-bottom-strip shrink-0 relative h-7">
             {/* `bottomVentDot` (0.75rem), a shade over the pair on the bezel
                 above: iOS's G3 makes them the same bulb at two sizes, and the
                 bottom one is bigger because at `ventDot` "it read as a speck
                 of dirt rather than as a lamp". */}
             <span
-              className="recessed-lamp w-[0.75rem] h-[0.75rem] rounded-full bg-red-500 shrink-0"
+              className="bezel-bottom-light recessed-lamp absolute top-1/2 w-[0.75rem] h-[0.75rem] rounded-full bg-red-500"
               style={{
                 border: '1px solid #991b1b',
                 '--lamp-size': '0.75rem',
                 '--lamp-halo': 'rgba(239,68,68,0.55)',
               } as React.CSSProperties}
             />
-            <div className="flex-1 min-w-0 flex justify-center overflow-hidden">
+            <div className="absolute inset-0 flex min-w-0 items-center justify-center overflow-hidden px-20 pointer-events-none">
               {/* `bezel-wordmark` is a stable hook for the render gate, in the
                   house style of `.lamp-hit` / `.band-pills` / `.island-strip`.
                   The wordmark is `aria-hidden` moulding, so there is no
-                  accessible name to select it by, and finding it in the span
-                  soup by its `scaleX` transform is a selector that breaks the
-                  first time anything else on the bezel is stretched. */}
+                  accessible name to select it by. */}
               <span
                 aria-hidden="true"
-                className="bezel-wordmark font-retro leading-none select-none whitespace-nowrap"
+                className="bezel-wordmark block max-w-full py-0.5 font-retro leading-[1.2] select-none whitespace-nowrap"
                 style={{
                   color: 'var(--chassis-grill)',
                   opacity: 0.85,
-                  fontSize: 'clamp(0.65rem, 3vw, 1rem)',
+                  fontSize: 'clamp(0.58rem, 2.6vw, 0.9rem)',
                   letterSpacing: '0.12em',
-                  transform: 'scaleX(1.3)',
-                  display: 'inline-block',
                 }}
               >
                 {onSite ? 'HORIZON/GODOT' : 'VINODEX'}
@@ -353,32 +388,19 @@ const DeviceLayout: React.FC<DeviceLayoutProps> = ({
         </div>
         </div>
 
-        <DeviceFooter
-          inert={behindChooser}
-          onReassignLamp={setLampSlot}
-          title={title}
-          // **The landing greets; every other site screen names itself**
-          // (v8#8, narrowed). The dex's rotating script — WELCOME! once per
-          // launch, MENU at rest, the nine toasts after a minute idle — is a
-          // dex behaviour and stays entirely in `marqueeScript.ts`, armed only
-          // on the main menu. Undefined here means "the screen's own title",
-          // which is what OUR WORK, WHO WE ARE, CONTACT US and the project
-          // splashes get, on the same rule every dex screen follows.
-          marqueeTitle={isSiteLanding(pathname) ? SITE_MARQUEE_TITLE : undefined}
-          // The *mark*, though, is the studio's on every site screen (v8#10):
-          // whose device this is, rather than which page you are on. Without
-          // it they all fell through to the wineglass.
-          marqueeMark={onSite ? SITE_MARK_TITLE : undefined}
-          skin={skin}
-          // The workshop's fitted parts never reach the site's device (v0.5.0)
-          // — the same rule as the CLASSIC skin override above it.
-          customParts={!onSite}
-          footerCenter={footerCenter}
-          onBack={onBack}
-          showBack={showBack}
-          onHome={onHome}
-          showSystemButtons={showSystemButtons}
-        />
+        {!onSite && (
+          <DeviceFooter
+            inert={behindChooser}
+            onReassignLamp={setLampSlot}
+            title={title}
+            skin={skin}
+            footerCenter={footerCenter}
+            onBack={onBack}
+            showBack={showBack}
+            onHome={onHome}
+            showSystemButtons={showSystemButtons}
+          />
+        )}
           </div>
         </div>
         {/* Back face — steel plate, only rendered when backFace provided */}

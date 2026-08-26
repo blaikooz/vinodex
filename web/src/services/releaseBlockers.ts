@@ -35,12 +35,9 @@
  * silenced check is worse than none. It fails only if the list and reality
  * disagree.
  *
- * ## The contact domain is NOT decided here
- *
- * One constant, one address, so replacing it is one edit. Which domain the
- * product actually uses is a business decision and is not made in this file;
- * `CONTACT_ADDRESS` carries whichever placeholder is current and this entry
- * says out loud that it is unresolved.
+ * The contact-address blocker was removed when the studio selected its
+ * Vinodex Substack reply address. The history above stays because it explains
+ * why both products still read the one shared brand constant.
  */
 
 export interface ReleaseBlocker {
@@ -54,14 +51,6 @@ export interface ReleaseBlocker {
 }
 
 export const RELEASE_BLOCKERS: readonly ReleaseBlocker[] = [
-  {
-    id: 'contact-address',
-    what: 'The contact/support email address is a placeholder on an unregistered domain.',
-    where: 'web/src/services/brand.ts — CONTACT_ADDRESS',
-    resolution:
-      'Decide the domain (vinodex.app and vinodex.com were both in the tree, neither owned), '
-      + 'register it, point MX at a real inbox, and replace the one constant.',
-  },
   {
     id: 'app-store-id',
     what: 'The App Store listing id is a placeholder.',
