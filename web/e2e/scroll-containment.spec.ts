@@ -3,6 +3,12 @@ import { test, expect, enterDex, seedDevice } from './fixtures';
 const assertFounderEndpoint = async (
   page: import('@playwright/test').Page,
 ) => {
+  // The LCD content rides `screen-enter` (v0.4.4): a 4px rise on mount.
+  // getBoundingClientRect reads transforms, so measuring mid-entrance puts
+  // the scroller a hair "beneath the bezel" that it never occupies at rest.
+  await page.locator('.lcd-themed').evaluate(el =>
+    Promise.all(el.getAnimations().map(a => a.finished)),
+  );
   const scroller = page.getByRole('region', { name: 'WHO WE ARE content' });
   await expect(scroller).toBeVisible();
   await scroller.evaluate(el => { el.scrollTop = el.scrollHeight; });
@@ -56,6 +62,11 @@ test.describe('scroll containment', () => {
     scroller: import('@playwright/test').Locator,
   ) => {
     await expect(scroller).toBeVisible();
+    // Same `screen-enter` rule as the founder endpoint below: settle the
+    // LCD's mount animation before measuring boxes or aiming the wheel.
+    await page.locator('.lcd-themed').evaluate(el =>
+      Promise.all(el.getAnimations().map(a => a.finished)),
+    );
     const before = await scroller.evaluate(el => ({
       top: el.scrollTop,
       height: el.clientHeight,

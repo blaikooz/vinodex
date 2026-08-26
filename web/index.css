@@ -399,6 +399,13 @@ body,
   top: var(--dial-shift-y, 0);
 }
 
+/* Search's amber halo. A stylesheet rule on purpose: as an inline style this
+   shadow outranked `.dex-pressable:focus-visible`'s ring and the keyboard had
+   no focus indicator on the dial's centre button. */
+.main-menu-search {
+  box-shadow: 0 0 0.45rem color-mix(in oklab, var(--tint-solid) 40%, transparent), var(--shadow-elev-3);
+}
+
 @media (min-width: 768px) {
   .site-device-frame {
     width: auto;

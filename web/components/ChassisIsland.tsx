@@ -93,7 +93,10 @@ const ChassisIsland: React.FC<ChassisIslandProps> = ({ onTitleTap, inert = false
         index.css, stated once each, which is the form iOS put them in
         for exactly this reason.
       */}
-      <div className="relative shrink-0">
+      {/* `flex`, so the button is blockified: as an inline-block the wrapper
+          grew a line box taller than the orb and the strip centred THAT,
+          floating the orb 3px above the trio it must share a top edge with. */}
+      <div className="relative shrink-0 flex">
         <span
           aria-hidden="true"
           className="island-orb chassis-glow absolute left-1/2 top-1/2 rounded-full pointer-events-none"

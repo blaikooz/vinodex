@@ -380,8 +380,13 @@ const DeviceLayout: React.FC<DeviceLayoutProps> = ({
             </div>
             {/* The grille, in whichever pattern the workshop fitted (v0.5.0).
                 The site's device is always the stock CLASSIC, slats and all —
-                the same rule as its skin override. */}
-            <ChassisGrille shape={onSite ? 'SLATS' : grilleShape()} />
+                the same rule as its skin override. `bezel-grill` and the
+                absolute centring are the bezel's own contract (site.spec
+                measures it, and in flow it would push the wordmark down). */}
+            <ChassisGrille
+              shape={onSite ? 'SLATS' : grilleShape()}
+              className="bezel-grill absolute top-1/2 -translate-y-1/2"
+            />
           </div>
 
         </div>

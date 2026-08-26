@@ -129,7 +129,10 @@ test('every dial quadrant shows a keyboard focus ring despite its mask', async (
   await enterDex(page, '/dex');
   await page.waitForTimeout(600);
 
-  const rows = await walkFocusRings(page, 10);
+  // The chassis now seats nine tab stops before the dial — the footer caps,
+  // the quick pills, the marquee SALE button and the flip control — so the
+  // walk needs room to get through them to all four quadrants.
+  const rows = await walkFocusRings(page, 16);
   assertRings(rows, 'the dex menu');
   // And the four quadrants really are the clipped case, so this cannot pass by
   // the dial quietly losing its scoop.

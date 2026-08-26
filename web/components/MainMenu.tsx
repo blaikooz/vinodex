@@ -297,7 +297,10 @@ const MainMenu: React.FC<MainMenuProps> = ({ onNavigate, onExit }) => {
                 height: 'var(--dial-center)',
                 '--tint': 'var(--livery-amber)',
                 backgroundColor: 'var(--tint-solid)',
-                boxShadow: '0 0 0.45rem color-mix(in oklab, var(--tint-solid) 40%, transparent), var(--shadow-elev-3)',
+                // The amber halo lives in `.main-menu-search` (index.css), NOT
+                // here: an inline box-shadow outranks every stylesheet rule,
+                // including `.dex-pressable:focus-visible`'s ring, which is
+                // how the keyboard lost its place on this button once.
               } as React.CSSProperties
             }
           >
