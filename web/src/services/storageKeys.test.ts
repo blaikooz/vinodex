@@ -11,6 +11,7 @@ import {
   profileSlotKey,
 } from './storageKeys';
 import { MAX_PROFILES } from './userProfiles';
+import { DEVICE_AXES } from './deviceParts';
 
 /**
  * The registry cannot drift (W25).
@@ -113,6 +114,11 @@ const localKeysIn = (src: string): { keys: Set<string>; unresolved: Set<string> 
     // the R-S4 receiver widening — these calls go through `storage.setItem`,
     // which the old scan never saw at all.
     if (/^(?:slotKey|profileSlotKey)\(/.test(arg)) continue;
+    // The Device Workshop's axis table (v0.5.0): `deviceParts.ts` reads and
+    // writes through `axis.storageKey`, whose ten values are the
+    // `DEVICE_AXES` table — checked whole by the dedicated test below, per
+    // the house rule that a new indirection gets its own extractor.
+    if (arg === 'axis.storageKey') continue;
     unresolved.add(arg);
   }
   return { keys, unresolved };
@@ -170,6 +176,16 @@ describe('the storage-key registry', () => {
     // A new indirection is not necessarily wrong, but it is a hole in the
     // check above and has to be taught to this test rather than ignored.
     expect(unresolved, `unresolvable localStorage keys:\n${unresolved.join('\n')}`).toEqual([]);
+  });
+
+  it('registers every device-workshop axis key (the axis.storageKey indirection)', () => {
+    // The extractor above skips `axis.storageKey` because the ten values are
+    // this table — so the table itself is held to the registry here, and an
+    // eleventh axis without a disposition is a red test naming its key.
+    const registered = new Set(ALL_REGISTERED_KEYS);
+    for (const axis of DEVICE_AXES) {
+      expect(registered.has(axis.storageKey), `unregistered axis key: ${axis.storageKey}`).toBe(true);
+    }
   });
 
   it('gives every key exactly one disposition, and no duplicates', () => {

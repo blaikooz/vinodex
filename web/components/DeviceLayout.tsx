@@ -7,7 +7,8 @@ import MarqueeLampChooser from './MarqueeLampChooser';
 import { DEVICE_FOOTER_BOTTOM_PAD, DEVICE_FOOTER_HEIGHT, DEVICE_FRAME_BOX, DEVICE_FRAME_STAGE } from '../src/services/deviceFrame';
 import { SITE_MARQUEE_TITLE, isSiteLanding, isSitePath } from '../src/services/appRoutes';
 import { SITE_MARK_TITLE } from '../src/services/marqueeArt';
-import { SITE_SKIN, skinCssVars } from '../src/services/theme';
+import { SITE_SKIN, grilleShape, skinCssVars } from '../src/services/theme';
+import ChassisGrille from './ChassisGrille';
 import { useTheme } from '../src/services/useTheme';
 
 interface DeviceLayoutProps {
@@ -342,11 +343,10 @@ const DeviceLayout: React.FC<DeviceLayoutProps> = ({
                 {onSite ? 'HORIZON/GODOT' : 'VINODEX'}
               </span>
             </div>
-            <div className="flex flex-col gap-0.5 opacity-50 shrink-0">
-              {[0, 1, 2, 3].map(i => (
-                <div key={i} className="w-14 h-0.5 rounded-full" style={{ backgroundColor: 'var(--chassis-grill)' }}></div>
-              ))}
-            </div>
+            {/* The grille, in whichever pattern the workshop fitted (v0.5.0).
+                The site's device is always the stock CLASSIC, slats and all —
+                the same rule as its skin override. */}
+            <ChassisGrille shape={onSite ? 'SLATS' : grilleShape()} />
           </div>
 
         </div>
@@ -370,6 +370,9 @@ const DeviceLayout: React.FC<DeviceLayoutProps> = ({
           // it they all fell through to the wineglass.
           marqueeMark={onSite ? SITE_MARK_TITLE : undefined}
           skin={skin}
+          // The workshop's fitted parts never reach the site's device (v0.5.0)
+          // — the same rule as the CLASSIC skin override above it.
+          customParts={!onSite}
           footerCenter={footerCenter}
           onBack={onBack}
           showBack={showBack}

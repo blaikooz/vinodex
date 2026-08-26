@@ -26,7 +26,8 @@ export type Entitlement =
   | { kind: 'country'; name: string }
   | { kind: 'flavors' }
   | { kind: 'skins' }
-  | { kind: 'lightMode' };
+  | { kind: 'lightMode' }
+  | { kind: 'workshop' };
 
 /**
  * Bundles are identified by a string rather than by shape alone, so a stored
@@ -39,6 +40,7 @@ export function entitlementId(e: Entitlement): string {
     case 'flavors': return 'flavors';
     case 'skins': return 'skins';
     case 'lightMode': return 'lightMode';
+    case 'workshop': return 'workshop';
   }
 }
 
@@ -49,6 +51,7 @@ export function entitlementTitle(e: Entitlement): string {
     case 'flavors': return 'FLAVOR WHEEL';
     case 'skins': return 'CHASSIS SKINS';
     case 'lightMode': return 'LIGHT MODE';
+    case 'workshop': return 'DEVICE WORKSHOP';
   }
 }
 
@@ -59,6 +62,7 @@ export function entitlementBlurb(e: Entitlement): string {
     case 'flavors': return 'All flavour entries and the full tasting wheel.';
     case 'skins': return 'All chassis colourways beyond the default.';
     case 'lightMode': return 'The paper-white LCD, for reading in daylight.';
+    case 'workshop': return 'Build the device part by part, and save the results.';
   }
 }
 
@@ -71,6 +75,7 @@ export const TESTABLE_ENTITLEMENTS: Entitlement[] = [
   { kind: 'flavors' },
   { kind: 'skins' },
   { kind: 'lightMode' },
+  { kind: 'workshop' },
 ];
 
 const STARTER_KEY = 'starterOnly';

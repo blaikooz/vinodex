@@ -57,6 +57,7 @@ const FirmwareHistoryScreen = lazy(() => import('./components/FirmwareHistoryScr
 const RecommendationsScreen = lazy(() => import('./components/RecommendationsScreen'));
 const SupportScreen = lazy(() => import('./components/SupportScreen'));
 const CheatConsoleScreen = lazy(() => import('./components/CheatConsoleScreen'));
+const DeviceWorkshopScreen = lazy(() => import('./components/DeviceWorkshopScreen'));
 const GrapeLineageScreen = lazy(() => import('./components/GrapeLineageScreen'));
 const ProfVinoScreen = lazy(() => import('./components/ProfVinoScreen'));
 const PassportScreen = lazy(() => import('./components/PassportScreen'));
@@ -894,6 +895,14 @@ const App: React.FC = () => {
           element={
             <Suspense fallback={<ScreenLoading label="LOADING FIRMWARE..." onBack={handleBack} onHome={handleHome} />}>
               <FirmwareHistoryScreen onBack={handleBack} onHome={handleHome} />
+            </Suspense>
+          }
+        />
+        <Route
+          path="/workshop"
+          element={
+            <Suspense fallback={<ScreenLoading label="LOADING WORKSHOP..." onBack={handleBack} onHome={handleHome} />}>
+              <DeviceWorkshopScreen onBack={handleBack} onHome={handleHome} />
             </Suspense>
           }
         />

@@ -414,6 +414,7 @@ const bundleSymbol = (kind: string): React.ReactNode => {
     case 'country': return <Flag size={20} />;
     case 'skins': return <Palette size={20} />;
     case 'lightMode': return <Sun size={20} />;
+    case 'workshop': return <Wrench size={20} />;
     default: return <Lock size={20} />;
   }
 };
@@ -597,6 +598,26 @@ export const SettingsSectionPanel: React.FC<{
       case 'CUSTOMIZE':
         return (
           <>
+            {/* The workshop door (v0.5.0): parts, not presets. Above the two
+                preset grids because a build you made is the more specific
+                choice, exactly as iOS orders CUSTOMIZE. */}
+            <Section title="WORKSHOP">
+              <button
+                onClick={() => navigate('/workshop')}
+                className="dex-pressable w-full flex items-center gap-3 px-3 py-3 rounded-control border-2 text-left"
+                style={{ backgroundColor: 'var(--lcd-surface)', borderColor: 'var(--lcd-surface-edge)' }}
+              >
+                <span style={{ color: 'var(--lcd-subtext)' }}><Wrench size={20} /></span>
+                <span className="flex-1 min-w-0">
+                  <span className="block font-sans text-label tracking-widest" style={{ color: 'var(--lcd-text)' }}>DEVICE WORKSHOP</span>
+                  <span className="block font-sans text-caption normal-case mt-1" style={{ color: 'var(--lcd-subtext)' }}>
+                    Build the device part by part — buttons, lamps, marquee, grille, font — and save it under a name.
+                  </span>
+                </span>
+                <ChevronRight size={16} style={{ color: 'var(--lcd-subtext)' }} />
+              </button>
+            </Section>
+
             {/* Screen mode first, then skins — matching iOS's CUSTOMIZE order.
                 Each is a 3-column grid of preview tiles: a mini-LCD in the
                 mode's own colours (monochrome pass and all) and a mini-chassis

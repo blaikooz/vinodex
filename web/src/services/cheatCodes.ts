@@ -6,10 +6,10 @@ import { Entitlement } from './access';
  *
  * **Every code here does something today.** The iOS table's own rule: a cheat
  * console cannot survive a code that is documented, accepted, reported as
- * unlocked, and changes nothing. iOS carries five; the web ships the three
- * whose effects exist here. MAINFRAME (verbose boot) arrives with the BIOS
- * boot (v6#24) and GARAGISTE (device workshop) with v6#35 — each added when
- * the thing it unlocks is, exactly as iOS added theirs.
+ * unlocked, and changes nothing. iOS carries five; the web ships the four
+ * whose effects exist here. GARAGISTE arrived with the Device Workshop
+ * (v6#35, web v0.5.0) exactly as this note scheduled it; MAINFRAME (verbose
+ * boot) still waits on a verbose boot to unlock.
  *
  * **They grant real entitlements, not a separate "cheats" flag** — an unlock
  * here and an unlock in the ACCESS panel are the same question asked of the
@@ -27,6 +27,7 @@ export const CHEAT_CODES: CheatCode[] = [
   { code: 'CELLARDOOR', grants: { kind: 'skins' }, reveal: 'ALL CHASSIS SKINS' },
   { code: 'PHOSPHOR', grants: { kind: 'lightMode' }, reveal: 'ALL SCREEN MODES' },
   { code: 'GRANDCRU', grants: { kind: 'pro' }, reveal: 'EVERYTHING UNLOCKED' },
+  { code: 'GARAGISTE', grants: { kind: 'workshop' }, reveal: 'THE DEVICE WORKSHOP' },
 ];
 
 /**

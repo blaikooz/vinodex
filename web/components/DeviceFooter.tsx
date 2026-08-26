@@ -2,6 +2,9 @@ import React, { useEffect, useState, useSyncExternalStore } from 'react';
 import { Home, CircleUser, Settings } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import type { ChassisSkinId, FooterCapKind } from '../src/services/theme';
+import { customButtonsPart, subscribeToTheme } from '../src/services/theme';
+import { partControl, partHomeCap } from '../src/services/deviceParts';
+import { customCapUrl } from '../src/services/capReink';
 import { useMarqueeScript } from '../src/services/useMarqueeScript';
 import { marqueeGlyph } from '../src/services/marqueeArt';
 import { pinAt, pinRoute, pinsRevision, subscribeToPins } from '../src/services/quickPins';
@@ -85,6 +88,12 @@ export interface DeviceFooterProps {
    * still press the SETTINGS cap and navigate away from underneath it.
    */
   inert?: boolean;
+  /**
+   * Whether the workshop's fitted parts may paint this band (v0.5.0). Off on
+   * the company site, whose device is always the stock CLASSIC — the same
+   * rule as its skin override.
+   */
+  customParts?: boolean;
 }
 
 /**
@@ -180,10 +189,12 @@ const capArt = (skin: ChassisSkinId | null, kind: FooterCapKind): string | null 
 const CapFace: React.FC<{
   kind: FooterCapKind;
   skin: ChassisSkinId | null;
+  /** A runtime-re-inked cap (the workshop's buttons axis) — wins over baked. */
+  customSrc?: string | null;
   children: React.ReactNode;
-}> = ({ kind, skin, children }) => {
+}> = ({ kind, skin, customSrc = null, children }) => {
   const [failed, setFailed] = useState(false);
-  const src = capArt(skin, kind);
+  const src = customSrc ?? capArt(skin, kind);
   useEffect(() => { setFailed(false); }, [src]);
   if (!src || failed) return <>{children}</>;
   return (
@@ -216,11 +227,44 @@ const DeviceFooter: React.FC<DeviceFooterProps> = ({
   showSystemButtons = true,
   onReassignLamp,
   inert = false,
+  customParts = true,
 }) => {
   const navigate = useNavigate();
   // The lamps repaint when a pin moves, without a provider threaded through
   // the chassis — the same external store the collection buttons use.
   useSyncExternalStore(subscribeToPins, pinsRevision, pinsRevision);
+
+  // The workshop's FOOTER BUTTONS axis (v0.5.0): a fitted PartColor re-inks
+  // the four drawn sprites at runtime — the revisit trigger the bake script
+  // recorded, pulled. The 22 stock skins never enter this path (their 88
+  // baked caps stay the zero-JS answer), and while the re-ink is in flight
+  // the CSS circle underneath is already painted in the part's own colours
+  // through the overridden `--cap-*` tokens, so there is no wrong frame.
+  const buttonsPart = useSyncExternalStore(subscribeToTheme, customButtonsPart, () => null);
+  const [customCaps, setCustomCaps] = useState<Partial<Record<FooterCapKind, string>> | null>(null);
+  useEffect(() => {
+    if (!customParts || !buttonsPart) {
+      setCustomCaps(null);
+      return;
+    }
+    let alive = true;
+    const kinds: FooterCapKind[] = ['back', 'home', 'user', 'settings'];
+    void Promise.all(
+      kinds.map(async kind => {
+        const cap = kind === 'home' ? partHomeCap(buttonsPart) : partControl(buttonsPart);
+        // Ink = the cap's own top, glyph = its glyph — the same pair the bake
+        // hands `reink` for every stock skin.
+        const url = await customCapUrl(kind, cap.top, cap.glyph);
+        return [kind, url] as const;
+      }),
+    ).then(pairs => {
+      if (!alive) return;
+      const out: Partial<Record<FooterCapKind, string>> = {};
+      for (const [kind, url] of pairs) if (url) out[kind] = url;
+      setCustomCaps(Object.keys(out).length > 0 ? out : null);
+    });
+    return () => { alive = false; };
+  }, [customParts, buttonsPart]);
   // The script still runs on `title`, so the hook's "is this the main screen"
   // test is unchanged and the state machine is untouched; the site's override
   // replaces only what is *printed*.
@@ -244,19 +288,19 @@ const DeviceFooter: React.FC<DeviceFooterProps> = ({
     // near-concentric — the rim's own 1px border keeps it a hair off exact —
     // rather than the visible near-miss 0.9rem was.
     <div className="w-full max-w-[16.5rem] min-w-0 rounded-[1.1rem] bg-black px-[0.35rem] py-[0.3rem] border border-white/60 shadow-[inset_0_1px_0_rgba(255,255,255,0.6),0_2px_3px_rgba(0,0,0,0.35),0_6px_12px_-6px_rgba(0,0,0,0.4)]">
-      <div className="flex items-center min-h-[4.1rem] overflow-hidden bg-black rounded-[0.75rem] px-1 shadow-[inset_0_0_18px_rgba(34,197,94,0.16)]">
+      <div className="flex items-center min-h-[4.1rem] overflow-hidden bg-black rounded-[0.75rem] px-1 shadow-[inset_0_0_18px_var(--marquee-glow)]">
         <div className="terminal-marquee whitespace-nowrap flex items-center">
           <span
-            className={`inline-block font-retro ${footerTitleSize} italic tracking-[-0.08em] transform -skew-x-12 leading-none text-green-500 pr-6`}
-            style={{ textShadow: '1px 1px 0px rgba(8, 32, 16, 0.65)' }}
+            className={`inline-block font-retro ${footerTitleSize} italic tracking-[-0.08em] transform -skew-x-12 leading-none pr-6`}
+            style={{ color: 'var(--marquee-text)', textShadow: '1px 1px 0px var(--marquee-shadow)' }}
           >
             {footerTitle}
           </span>
           <span className="pr-6 flex items-center">{marqueeGlyph(glyphTitle, 22)}</span>
           <span
             aria-hidden="true"
-            className={`inline-block font-retro ${footerTitleSize} italic tracking-[-0.08em] transform -skew-x-12 leading-none text-green-500 pr-6`}
-            style={{ textShadow: '1px 1px 0px rgba(8, 32, 16, 0.65)' }}
+            className={`inline-block font-retro ${footerTitleSize} italic tracking-[-0.08em] transform -skew-x-12 leading-none pr-6`}
+            style={{ color: 'var(--marquee-text)', textShadow: '1px 1px 0px var(--marquee-shadow)' }}
           >
             {footerTitle}
           </span>
@@ -292,7 +336,7 @@ const DeviceFooter: React.FC<DeviceFooterProps> = ({
           {/* The drawn cap, with the coloured circle behind it as its own
               fallback. `currentColor` on the glyph so that fallback is
               legible on the pale skins, where a hardcoded white was not. */}
-          <CapFace kind="back" skin={skin}>
+          <CapFace kind="back" skin={skin} customSrc={customCaps?.back ?? null}>
             <svg viewBox="0 0 24 24" className="w-8 h-8 pointer-events-none" fill="none" stroke="currentColor" strokeWidth={4} strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
               <path d="M15 5L7 12l8 7" />
             </svg>
@@ -318,7 +362,7 @@ const DeviceFooter: React.FC<DeviceFooterProps> = ({
             className={`${CAP_CLASS} hover:scale-[1.02]`}
             style={capStyle('user')}
           >
-            <CapFace kind="user" skin={skin}>
+            <CapFace kind="user" skin={skin} customSrc={customCaps?.user ?? null}>
               <CircleUser className="w-7 h-7 pointer-events-none" strokeWidth={2} aria-hidden="true" />
             </CapFace>
           </button>
@@ -382,9 +426,9 @@ const DeviceFooter: React.FC<DeviceFooterProps> = ({
                 key={slot}
                 slot={slot}
                 pin={pinAt(slot)}
-                fill={`var(--chassis-lamp${n})`}
-                rim={`var(--chassis-lamp${n}-edge)`}
-                ink={`var(--chassis-lamp${n}-ink)`}
+                fill={`var(--pill-lamp${n})`}
+                rim={`var(--pill-lamp${n}-edge)`}
+                ink={`var(--pill-lamp${n}-ink)`}
                 onActivate={() => navigate(pinRoute(pinAt(slot)))}
                 onReassign={() => onReassignLamp?.(slot)}
                 hintId="lamp-hint"
@@ -412,8 +456,8 @@ const DeviceFooter: React.FC<DeviceFooterProps> = ({
                 key={n}
                 className="flex-1 h-[var(--band-pill)] rounded-full"
                 size="var(--band-pill)"
-                fill={`var(--chassis-lamp${n})`}
-                rim={`var(--chassis-lamp${n}-edge)`}
+                fill={`var(--pill-lamp${n})`}
+                rim={`var(--pill-lamp${n}-edge)`}
                 bead={false}
                 period={5.7}
                 glow={1}
@@ -447,7 +491,7 @@ const DeviceFooter: React.FC<DeviceFooterProps> = ({
           className={`${CAP_CLASS} ${onHome ? 'hover:scale-[1.02]' : 'opacity-35 cursor-default'}`}
           style={capStyle('home')}
         >
-          <CapFace kind="home" skin={skin}>
+          <CapFace kind="home" skin={skin} customSrc={customCaps?.home ?? null}>
             <Home size={28} className="pointer-events-none" aria-hidden="true" />
           </CapFace>
         </button>
@@ -459,7 +503,7 @@ const DeviceFooter: React.FC<DeviceFooterProps> = ({
             className={`${CAP_CLASS} hover:scale-[1.02]`}
             style={capStyle('settings')}
           >
-            <CapFace kind="settings" skin={skin}>
+            <CapFace kind="settings" skin={skin} customSrc={customCaps?.settings ?? null}>
               <Settings
                 className="w-[50%] h-[50%] pointer-events-none"
                 aria-hidden="true"

@@ -107,6 +107,20 @@ export const STORAGE_KEYS: readonly StorageKeySpec[] = [
   { key: 'uiScale', disposition: 'wipe', note: 'chassis furniture size' },
   { key: 'hapticsEnabled', disposition: 'wipe', note: 'haptics preference' },
   { key: 'soundsEnabled', disposition: 'wipe', note: 'tap-sound preference' },
+  // --- The Device Workshop (v0.5.0). The eight part axes share iOS's exact
+  // key spellings (`DeviceAxis.storageKey`); empty is stored as absence, so
+  // a stock device carries none of them. Wiped with the preferences — iOS
+  // wipes every SavedDataKey and a half-wiped device build would be neither
+  // stock nor the build the player made.
+  { key: 'devicePartButtons', disposition: 'wipe', note: 'workshop: footer buttons colour' },
+  { key: 'devicePartOrb', disposition: 'wipe', note: 'workshop: orb colour' },
+  { key: 'devicePartHeaderLamps', disposition: 'wipe', note: 'workshop: island lamp trio colour' },
+  { key: 'devicePartMarquee', disposition: 'wipe', note: 'workshop: marquee phosphor colour' },
+  { key: 'devicePartMarqueeLamps', disposition: 'wipe', note: 'workshop: marquee pill-lamp colour' },
+  { key: 'devicePartGrille', disposition: 'wipe', note: 'workshop: grille colour' },
+  { key: 'devicePartGrilleShape', disposition: 'wipe', note: 'workshop: grille pattern' },
+  { key: 'devicePartFont', disposition: 'wipe', note: 'workshop: screen ink colour' },
+  { key: 'customDevices', disposition: 'wipe', note: 'workshop: the saved builds, iOS CustomDeviceStore.storageKey' },
   {
     key: 'marqueeQuickPins',
     disposition: 'wipe',

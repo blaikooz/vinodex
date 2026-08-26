@@ -13,6 +13,26 @@
  * combination.
  */
 
+import {
+  DeviceAxisId,
+  DeviceBuild,
+  GrilleShapeId,
+  PART_COLOR_BASE,
+  activeBuild,
+  axisMeta,
+  grilleShapeOf,
+  partColorOf,
+  partControl,
+  partHomeCap,
+  partLampTrio,
+  partMarqueeShadow,
+  partMarqueeText,
+  partOrb,
+  partOrbGlow,
+  readsAsInk,
+  writeBuild,
+} from './deviceParts';
+
 export type ChassisSkinId =
   | 'CLASSIC' | 'MIDNIGHT' | 'ORIGINAL' | 'BURGUNDY' | 'RIESLING'
   | 'VINHO_VERDE' | 'GLOUGLOU' | 'SMART_GRAPE' | 'CHAMPAGNE' | 'CHRISTMAS'
@@ -549,6 +569,55 @@ export const setLcdMode = (id: LcdModeId): void => persist(LCD_KEY, id);
 export const setTextScale = (id: TextScaleId): void => persist(SCALE_KEY, id);
 export const setUiScale = (id: UiScaleId): void => persist(UI_SCALE_KEY, id);
 
+// ---------------------------------------------------------------------------
+// The Device Workshop's axes (v0.5.0, v6#35)
+// ---------------------------------------------------------------------------
+
+/**
+ * The device the player has built, as the ten stored axes — see
+ * `deviceParts.ts` for the model and its invariants. The workshop writes
+ * through these two entry points so a part change repaints through the same
+ * `applyTheme` + notify path a skin change always has; there is one device
+ * and one way to paint it.
+ */
+export const readBuild = (): DeviceBuild => activeBuild();
+
+/** Write one axis. Empty clears the key — absence, not `''`. */
+export function setPart(axis: DeviceAxisId, value: string): void {
+  const key = axisMeta(axis).storageKey;
+  try {
+    const trimmed = value.trim();
+    if (trimmed === '') window.localStorage.removeItem(key);
+    else window.localStorage.setItem(key, trimmed);
+  } catch {
+    /* ignored */
+  }
+  revision += 1;
+  applyTheme();
+  listeners.forEach(fn => fn());
+}
+
+/** Make `build` the device — FIT and REVERT both come through here. */
+export function applyBuild(build: DeviceBuild): void {
+  writeBuild(build);
+  revision += 1;
+  applyTheme();
+  listeners.forEach(fn => fn());
+}
+
+/** The grille pattern in effect (the site always shows stock SLATS). */
+export const grilleShape = (): GrilleShapeId => grilleShapeOf(readBuild().grilleShape);
+
+/** The FOOTER BUTTONS part in effect, if one is fitted. */
+export const customButtonsPart = () => partColorOf(readBuild().buttons);
+
+/** The marquee's stock phosphor — CLASSIC green, as the footer has always drawn it. */
+const MARQUEE_STOCK = {
+  text: '#22c55e',
+  shadow: 'rgba(8, 32, 16, 0.65)',
+  glow: 'rgba(34, 197, 94, 0.16)',
+};
+
 /** Cycles to the next colourway — the chassis itself is tappable on iOS. */
 export function nextSkin(): void {
   const all = Object.keys(CHASSIS_SKINS) as ChassisSkinId[];
@@ -841,7 +910,18 @@ export function skinCssVars(skin: ChassisSkinId): Record<string, string> {
     vars[`--chassis-lamp${i + 1}`] = lamp[0];
     vars[`--chassis-lamp${i + 1}-edge`] = lamp[1];
     vars[`--chassis-lamp${i + 1}-ink`] = lampInk(lamp[1]);
+    // The two marquee pill buttons read their own vars since v0.5.0 (the
+    // workshop's marqueeLamps axis); on a stock shell they are the trio's
+    // outer stops, exactly as before.
+    vars[`--pill-lamp${i + 1}`] = lamp[0];
+    vars[`--pill-lamp${i + 1}-edge`] = lamp[1];
+    vars[`--pill-lamp${i + 1}-ink`] = lampInk(lamp[1]);
   });
+  // The marquee phosphor, stock — shadowed here so a workshop marquee never
+  // reaches the company site's CLASSIC device.
+  vars['--marquee-text'] = '#22c55e';
+  vars['--marquee-shadow'] = 'rgba(8, 32, 16, 0.65)';
+  vars['--marquee-glow'] = 'rgba(34, 197, 94, 0.16)';
   return vars;
 }
 
@@ -855,11 +935,24 @@ export function applyTheme(): void {
   const l = LCD_MODES[lcd];
   const root = document.documentElement;
 
+  // The Device Workshop's part overrides (v0.5.0). Each resolves
+  // `part ?? skin.*` — the web twin of iOS's `ChassisLook`, and for its
+  // reason: one resolver, so an unknown stored colour falls back to the
+  // shell in one place rather than at every read.
+  const build = activeBuild();
+  const buttonsPart = partColorOf(build.buttons);
+  const orbPart = partColorOf(build.orb);
+  const headerLampsPart = partColorOf(build.headerLamps);
+  const marqueePart = partColorOf(build.marquee);
+  const marqueeLampsPart = partColorOf(build.marqueeLamps);
+  const grillePart = partColorOf(build.grilleColor);
+  const fontPart = partColorOf(build.font);
+
   root.style.setProperty('--chassis-body', s.body);
   root.style.setProperty('--chassis-footer', s.footerWash);
   root.style.setProperty('--chassis-panel', s.panel);
   root.style.setProperty('--chassis-panel-edge', s.panelEdge);
-  root.style.setProperty('--chassis-grill', s.grill);
+  root.style.setProperty('--chassis-grill', grillePart ? PART_COLOR_BASE[grillePart] : s.grill);
   root.style.setProperty('--chassis-on-body', s.onBody);
   root.style.setProperty('--chassis-on-body-shadow', s.onBodyShadow);
   root.style.setProperty('--chassis-pattern', s.bodyPattern ? `url(/chassis/${s.bodyPattern}.png)` : 'none');
@@ -868,9 +961,13 @@ export function applyTheme(): void {
 
   // The four footer caps (S1). Four properties each, so the band's buttons
   // are painted by the skin like every other moulded part -- see `footerCap`
-  // for why this is one path rather than four.
+  // for why this is one path rather than four. A fitted FOOTER BUTTONS part
+  // replaces a console livery's whole set outright, per iOS's rule: the
+  // alternative is a device whose buttons are five colours.
   for (const kind of FOOTER_CAP_KINDS) {
-    const cap = footerCap(skin, kind);
+    const cap = buttonsPart
+      ? (kind === 'home' ? partHomeCap(buttonsPart) : partControl(buttonsPart))
+      : footerCap(skin, kind);
     root.style.setProperty(`--cap-${kind}-top`, cap.top);
     root.style.setProperty(`--cap-${kind}-bottom`, cap.bottom);
     root.style.setProperty(`--cap-${kind}-edge`, cap.edge);
@@ -879,9 +976,10 @@ export function applyTheme(): void {
 
   // Orb + status lamps (iOS v0.6.x per-skin lighting).
   const lights = SKIN_LIGHTS[skin];
-  root.style.setProperty('--chassis-orb', lights.orb);
-  root.style.setProperty('--chassis-orb-glow', lights.orbGlow);
-  lights.lamps.forEach((lamp, i) => {
+  root.style.setProperty('--chassis-orb', orbPart ? partOrb(orbPart) : lights.orb);
+  root.style.setProperty('--chassis-orb-glow', orbPart ? partOrbGlow(orbPart) : lights.orbGlow);
+  const headerTrio = headerLampsPart ? partLampTrio(headerLampsPart) : lights.lamps;
+  headerTrio.forEach((lamp, i) => {
     root.style.setProperty(`--chassis-lamp${i + 1}`, lamp[0]);
     root.style.setProperty(`--chassis-lamp${i + 1}-edge`, lamp[1]);
     // The engraved-legend stop for the two marquee lamp buttons. Written for
@@ -889,10 +987,46 @@ export function applyTheme(): void {
     // with a hole in it is a table somebody indexes wrong.
     root.style.setProperty(`--chassis-lamp${i + 1}-ink`, lampInk(lamp[1]));
   });
+  // The two pill buttons take their own axis, falling back to the SHELL's
+  // trio, not the header row's — iOS's own rule, so recolouring the header
+  // cannot silently repaint two buttons at the other end of the device.
+  const pillTrio = marqueeLampsPart ? partLampTrio(marqueeLampsPart) : lights.lamps;
+  pillTrio.forEach((lamp, i) => {
+    root.style.setProperty(`--pill-lamp${i + 1}`, lamp[0]);
+    root.style.setProperty(`--pill-lamp${i + 1}-edge`, lamp[1]);
+    root.style.setProperty(`--pill-lamp${i + 1}-ink`, lampInk(lamp[1]));
+  });
+
+  // The marquee phosphor. Stock is the CLASSIC green the footer has always
+  // drawn; a fitted MARQUEE part re-lights the panel in its own colour, with
+  // the letter shadow the very dark form of the same phosphor (iOS's
+  // `marqueeShadow` derivation) and the glass glow the phosphor at the glass's
+  // own 16%.
+  if (marqueePart) {
+    const text = partMarqueeText(marqueePart);
+    root.style.setProperty('--marquee-text', text);
+    root.style.setProperty('--marquee-shadow', partMarqueeShadow(marqueePart));
+    root.style.setProperty('--marquee-glow', `color-mix(in srgb, ${text} 16%, transparent)`);
+  } else {
+    root.style.setProperty('--marquee-text', MARQUEE_STOCK.text);
+    root.style.setProperty('--marquee-shadow', MARQUEE_STOCK.shadow);
+    root.style.setProperty('--marquee-glow', MARQUEE_STOCK.glow);
+  }
+
+  // The grille pattern, as a data attribute for anything CSS-side; the drawn
+  // slats are a component (`ChassisGrille`) that reads `grilleShape()`.
+  root.dataset.grille = grilleShapeOf(build.grilleShape).toLowerCase();
 
   root.style.setProperty('--lcd-screen', l.screen);
   root.style.setProperty('--lcd-page', l.page);
-  root.style.setProperty('--lcd-text', l.text);
+  // The FONT axis (v0.5.0): a fitted ink replaces the mode's primary text
+  // colour — with iOS's two guards, both load-bearing. A single-phosphor
+  // screen sets the ink itself (the tint owns every colour on it), and an
+  // ink that does not read on this ground is refused rather than applied, so
+  // the unreadable device is not reachable — including by choosing an ink on
+  // a dark screen and then switching to a pale one.
+  const fontInkApplies = fontPart !== null && l.monochromeTint === null && readsAsInk(fontPart, l.isLight);
+  root.style.setProperty('--lcd-text', fontInkApplies ? PART_COLOR_BASE[fontPart] : l.text);
   root.style.setProperty('--lcd-accent', l.accent);
   root.style.setProperty('--lcd-body-text', l.bodyText);
   root.style.setProperty('--lcd-hero-wash', l.heroWash);
