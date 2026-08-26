@@ -226,21 +226,15 @@ describe('design tokens', () => {
   ];
 
   /**
-   * The one kind of literal colour that is not paint.
-   *
-   * `MainMenu`'s dial cuts each quadrant's concave inner corner with a
-   * `radial-gradient` used as a **mask**, and in a mask only the alpha channel
-   * is read: `#000` there means "keep this pixel", nothing more. Theming it
-   * would be meaningless -- there is no screen mode in which the scoop should
-   * be a different shape -- and swapping it for `rgb(0 0 0 / 1)` to slip past
-   * the regex would be worse than either.
+   * The kinds of literal colour that are not paint.
    *
    * Listed per file and per value rather than as a blanket "ignore lines
    * containing `mask`", so an actual paint colour cannot hide behind the
-   * exemption by being on the same line as one.
+   * exemption by being on the same line as one. Each entry is spent, not
+   * standing: MainMenu's former black alpha mask left with the dial's move to
+   * geometric SVG clips, and took its `#000` entry with it.
    */
   const NOT_PAINT: Record<string, string[]> = {
-    'MainMenu.tsx': ['#000'],
     // The CONTINENT chip's colours are chip DATA — a continent's own cyan,
     // fixed on both platforms exactly like the `shared/services/chipColors`
     // country table — not paint that should follow the screen mode.
@@ -252,7 +246,27 @@ describe('design tokens', () => {
     // The skin-preview's stage: a *picture* of the device on its dark desk,
     // drawn in the skin's own data colours. The stage is part of the drawing
     // and does not follow the screen mode, exactly like the chassis itself.
-    'SettingsPanel.tsx': ['#1B1D21'],
+    // Then TILE_FACE: the system grid's face/shadow/ink triples are iOS
+    // `SettingsPanel.swift` tileColors DATA, ported verbatim per mode — the
+    // same both-platforms rule as the chip tables. They already carry their
+    // own pale-vs-dark variants keyed off the screen mode, which is the whole
+    // job the token remap does for paint.
+    'SettingsPanel.tsx': [
+      '#1B1D21',
+      '#22C55E', '#15803D', '#FFFFFF', '#15803D', '#0B4A24', '#FFFFFF',
+      '#FACC15', '#CA8A04', '#78350F', '#B45309', '#7A3606', '#FFFFFF',
+      '#EF4444', '#991B1B', '#FFFFFF', '#B91C1C', '#7A1010', '#FFFFFF',
+      '#F97316', '#9A3412', '#FFFFFF', '#C2410C', '#7C2D12', '#FFFFFF',
+      '#2AB5FF', '#136A99', '#FFFFFF', '#1D6FA8', '#11486E', '#FFFFFF',
+      '#A855F7', '#6B21A8', '#FFFFFF', '#7E22CE', '#4C1D95', '#FFFFFF',
+    ],
+    // TOOL_ROSTER's face/shadow/ink triples are iOS `ToolsScreen`'s current
+    // values — tool DATA shared across platforms, same rule as TILE_FACE.
+    'MinigamesScreen.tsx': [
+      '#22C55E', '#15803D', '#FFFFFF', '#3B82F6', '#1D4ED8', '#FFFFFF',
+      '#A855F7', '#6B21A8', '#FFFFFF', '#EF4444', '#991B1B', '#FFFFFF',
+      '#EAB308', '#A16207', '#FFFFFF', '#0891B2', '#155E75', '#FFFFFF',
+    ],
   };
 
   /**

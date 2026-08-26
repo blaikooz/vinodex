@@ -1020,13 +1020,15 @@ body {
    hardware vocabulary as the LCD while the centered route mark stays legible. */
 .chassis-marquee,
 .chassis-marquee-screen {
-  background-color: var(--livery-green);
+  /* Stock is the livery green; a fitted workshop MARQUEE part re-inks the
+     panel through the --marquee-* overrides theme.ts writes (v0.5.0). */
+  background-color: var(--marquee-ground, var(--livery-green));
 }
 
 .chassis-marquee-screen {
   background-image:
-    linear-gradient(rgba(0, 54, 28, 0.12) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(0, 54, 28, 0.12) 1px, transparent 1px);
+    linear-gradient(var(--marquee-grid, rgba(0, 54, 28, 0.12)) 1px, transparent 1px),
+    linear-gradient(90deg, var(--marquee-grid, rgba(0, 54, 28, 0.12)) 1px, transparent 1px);
   background-size: 16px 16px;
   box-shadow: inset 0 0 16px rgba(0, 62, 30, 0.24);
 }
@@ -1057,7 +1059,7 @@ body {
 }
 
 .chassis-marquee-glyph svg {
-  color: #064e3b;
+  color: var(--marquee-ink, #064e3b);
 }
 
 

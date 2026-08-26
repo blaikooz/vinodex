@@ -25,6 +25,7 @@ import {
   partControl,
   partHomeCap,
   partLampTrio,
+  partMarqueeGrid,
   partMarqueeShadow,
   partMarqueeText,
   partOrb,
@@ -1007,10 +1008,21 @@ export function applyTheme(): void {
     root.style.setProperty('--marquee-text', text);
     root.style.setProperty('--marquee-shadow', partMarqueeShadow(marqueePart));
     root.style.setProperty('--marquee-glow', `color-mix(in srgb, ${text} 16%, transparent)`);
+    // The drawn chassis marquee (the livery panel the footer actually
+    // renders): the part's base colour becomes the panel ground, its light
+    // form the grid, its very dark form the ink — the same triple the old
+    // phosphor derivation used, mapped onto the panel's three surfaces.
+    // Unset on stock so the CSS falls back to the livery defaults.
+    root.style.setProperty('--marquee-ground', text);
+    root.style.setProperty('--marquee-grid', partMarqueeGrid(marqueePart));
+    root.style.setProperty('--marquee-ink', partMarqueeShadow(marqueePart));
   } else {
     root.style.setProperty('--marquee-text', MARQUEE_STOCK.text);
     root.style.setProperty('--marquee-shadow', MARQUEE_STOCK.shadow);
     root.style.setProperty('--marquee-glow', MARQUEE_STOCK.glow);
+    root.style.removeProperty('--marquee-ground');
+    root.style.removeProperty('--marquee-grid');
+    root.style.removeProperty('--marquee-ink');
   }
 
   // The grille pattern, as a data attribute for anything CSS-side; the drawn

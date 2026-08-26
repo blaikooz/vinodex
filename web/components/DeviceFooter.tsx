@@ -195,7 +195,13 @@ const CapFace: React.FC<{
 }> = ({ kind, skin, customSrc = null, children }) => {
   const [failed, setFailed] = useState(false);
   const src = customSrc ?? capArt(skin, kind);
-  useEffect(() => { setFailed(false); }, [src]);
+  // A new src gets a fresh chance to load — adjusted during render rather
+  // than in an effect, so the fallback never flashes for a frame first.
+  const [prevSrc, setPrevSrc] = useState(src);
+  if (prevSrc !== src) {
+    setPrevSrc(src);
+    setFailed(false);
+  }
   if (!src || failed) {
     return (
       <span
@@ -297,13 +303,13 @@ const DeviceFooter: React.FC<DeviceFooterProps> = ({
     // concentric rather than the near-miss 0.9rem was.
     <div className="chassis-marquee flex-1 min-h-0 w-full min-w-0 rounded-[1.1rem] p-[0.3rem] border-[3px] border-emerald-950 shadow-[inset_0_1px_0_rgba(255,255,255,0.28),0_2px_3px_rgba(0,0,0,0.35),0_6px_12px_-6px_rgba(0,0,0,0.4)]">
       <div className="chassis-marquee-screen relative flex h-full min-h-0 items-center justify-center overflow-hidden rounded-[0.7rem] px-1">
-        <div className="terminal-marquee static-marquee flex flex-col items-center justify-center gap-0.5 text-emerald-950">
+        <div className="terminal-marquee static-marquee flex flex-col items-center justify-center gap-0.5" style={{ color: 'var(--marquee-ink, #064e3b)' }}>
           <span className="chassis-marquee-glyph flex items-center justify-center">
             {marqueeGlyph(glyphTitle, 42)}
           </span>
           <span
-            className={`block font-retro ${footerTitleSize} tracking-[-0.05em] leading-none text-emerald-950`}
-            style={{ textShadow: '0 1px 0 rgba(255,255,255,0.18)' }}
+            className={`block font-retro ${footerTitleSize} tracking-[-0.05em] leading-none`}
+            style={{ color: 'var(--marquee-ink, #064e3b)', textShadow: '0 1px 0 rgba(255,255,255,0.18)' }}
           >
             {footerTitle}
           </span>

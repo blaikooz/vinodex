@@ -305,10 +305,17 @@ export const FlavorHeaderTiles: React.FC<{
   const subclassColors = getFlavorSubclassTileColors(entry.details.subclass);
 
   const subclassArtId = flavorSubclassIconId(entry.details.subclass);
-  const FallbackIcon = getLucideIcon(entry.icon || 'default');
+  // `getLucideIcon` answers an existing component from its map — created
+  // once at module load, not during render — but a capitalized local reads
+  // as a render-time component to the linter, so it is rendered directly.
   const subclassIconNode = subclassArtId
     ? <Icon icon={subclassArtId} width={32} height={32} />
-    : <FallbackIcon size={32} fill="currentColor" className="text-current" style={{ color: subclassColors.border }} />;
+    : React.createElement(getLucideIcon(entry.icon || 'default'), {
+        size: 32,
+        fill: 'currentColor',
+        className: 'text-current',
+        style: { color: subclassColors.border },
+      });
 
   // iOS flavor header is two tiles: CLASS + SUBCLASS (no GRAPES count).
   return (

@@ -69,6 +69,7 @@ export const MARQUEE_ART: Record<string, string> = {
   'STAMPS': 'marquee-stamps',
   'TUTORIAL': 'marquee-tutorial',
   'CUSTOMIZE': 'marquee-customize',
+  'WORKSHOP': 'marquee-deviceworkshop',
   'DATA': 'marquee-data',
   'DEV': 'marquee-dev',
   // ACCESS is the stable route/storage id; SHOP is what that route displays.

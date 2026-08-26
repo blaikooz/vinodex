@@ -62,6 +62,7 @@ export const DEX_PREFIXES: readonly string[] = [
   '/cheats',
   '/firmware',
   '/prof-vino',
+  '/workshop',
 ];
 
 /**

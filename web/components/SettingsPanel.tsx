@@ -1,5 +1,5 @@
 import React from 'react';
-import { Palette, Lock, LockOpen, Bug, Check, LogOut, Flag, Crown, Leaf, Sun, Moon, Grid3x3, Globe, Wine, Map as MapIcon, Layers, ChevronRight, Download, Upload, UserRound, Sparkle } from 'lucide-react';
+import { Palette, Lock, LockOpen, Bug, Check, LogOut, Flag, Crown, Leaf, Sun, Moon, Grid3x3, Globe, Wine, Map as MapIcon, Layers, ChevronRight, Download, Upload, UserRound, Sparkle, Wrench } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import DeviceLayout from './DeviceLayout';
 // The section vocabulary moved out so `App.tsx` can import it without
@@ -59,7 +59,6 @@ import {
   saveProfile,
 } from '../src/services/userProfiles';
 import { DEMO_STOPS, demoCycleSeconds, startDemo } from '../src/services/demoMode';
-import { Tile, Livery } from './Card';
 import DexAlert from './DexAlert';
 import { lineageIndexFor } from '../src/services/grapeLineage';
 import { WEB_RELEASES } from '../src/services/webChangelog';
@@ -235,6 +234,8 @@ export const SettingsGrid: React.FC<{
   onBack: () => void;
   onHome: () => void;
 }> = ({ onSection, onMinigames, onFirmware, onExitToSite, onBack, onHome }) => {
+  const theme = useTheme();
+  const isLight = LCD_MODES[theme.lcd].isLight;
   return (
   <DeviceLayout title="SYSTEM" subtitle="" showBack={true} onBack={onBack} onHome={onHome} centerHeaderText={true}>
     <div
@@ -1244,19 +1245,20 @@ export const SettingsSectionPanel: React.FC<{
         <div className="absolute inset-0 z-30 bg-black/80 flex items-center justify-center p-6">
           <div
             ref={tourDialogRef}
-            className="w-full max-w-xs bg-stone-900 border-2 border-green-700 rounded-lg p-5 flex flex-col gap-4 text-center"
+            className="w-full max-w-xs border-2 rounded-lg p-5 flex flex-col gap-4 text-center"
+            style={{ backgroundColor: 'var(--lcd-surface)', borderColor: 'var(--lcd-accent)' }}
             role="dialog"
             aria-modal="true"
             aria-labelledby="tour-offer-title"
             aria-describedby="tour-offer-description"
           >
-            <p id="tour-offer-title" className="font-retro text-xs tracking-widest text-green-300">TAKE THE TOUR?</p>
-            <p id="tour-offer-description" className="font-mono text-sm text-stone-300 normal-case">
+            <p id="tour-offer-title" className="font-retro text-xs tracking-widest" style={{ color: 'var(--lcd-accent)' }}>TAKE THE TOUR?</p>
+            <p id="tour-offer-description" className="font-mono text-sm normal-case" style={{ color: 'var(--lcd-body-text)' }}>
               A quick walk round the device — what each button does and where things live. About a minute, and you can leave at any point.
             </p>
             <div className="flex gap-3">
-              <button onClick={() => setOfferingTour(false)} className="flex-1 font-retro text-[0.6rem] tracking-widest text-stone-300 border-2 border-stone-600 rounded py-3">NOT NOW</button>
-              <button ref={tourYesRef} onClick={() => { setOfferingTour(false); navigate('/walkthrough'); }} className="flex-1 font-retro text-[0.6rem] tracking-widest text-white bg-green-700 border-2 border-green-900 rounded py-3">YES</button>
+              <button onClick={() => setOfferingTour(false)} className="flex-1 font-retro text-[0.6rem] tracking-widest border-2 rounded py-3" style={{ color: 'var(--lcd-text)', borderColor: 'var(--lcd-surface-edge)' }}>NOT NOW</button>
+              <button ref={tourYesRef} onClick={() => { setOfferingTour(false); navigate('/walkthrough'); }} className="flex-1 font-retro text-[0.6rem] tracking-widest rounded py-3 text-[var(--lcd-on-accent)]" style={{ backgroundColor: 'var(--lcd-accent)' }}>YES</button>
             </div>
           </div>
         </div>

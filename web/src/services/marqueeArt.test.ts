@@ -39,7 +39,8 @@ describe('marquee art', () => {
    * "somebody forgot to wire it" are the same observation.
    */
   const DRAWN_AHEAD = new Set([
-    'marquee-deviceworkshop', // v6#35, still open on its own size
+    // marquee-deviceworkshop left this list when the workshop screen wired it
+    // up (v0.5.0).
     'marquee-labelscanner', // v6#27, deferred with reason (no web OCR dep)
   ]);
 
