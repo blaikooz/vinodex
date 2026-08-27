@@ -4,10 +4,15 @@ import { BrowserRouter } from 'react-router-dom';
 import './index.css';
 import App from './App';
 import { applyTheme } from './src/services/theme';
+import { initAnalytics } from './src/services/analytics';
 
 // Before the first render, so the chassis paints in the stored colourway rather
 // than flashing the default red and correcting itself a frame later.
 applyTheme();
+
+// Cookieless visit counting, on real deployments only — a no-op in dev, test,
+// preview and e2e by construction. See `analytics.ts` for the gate.
+initAnalytics();
 
 const rootElement = document.getElementById('root');
 if (!rootElement) {

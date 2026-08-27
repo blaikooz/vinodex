@@ -603,7 +603,13 @@ export const PrivacyAndTerms: React.FC<{ onBack: () => void; onHome: () => void 
         If you email us, we see your address and what you wrote, and we use
         them only to reply. Our host (Vercel) keeps the short-lived technical
         request logs any web server keeps; we do not use them to identify you.
-        No cookies, no advertising, no sale of data — there is no data to sell.
+      </p>
+      <p>
+        We count visits with Vercel&apos;s cookieless analytics: aggregate
+        numbers — how many people saw the site, opened the app, or tapped
+        through to the App Store. No cookies, no identifiers, nothing stored
+        on your device, and nothing that follows you anywhere else. No
+        advertising, no sale of data — there is no data to sell.
       </p>
     </section>
 

@@ -45,6 +45,7 @@ import CoachmarkOverlay from './components/CoachmarkOverlay';
 import { IDLE_ACTIVITY_EVENTS, IDLE_SCREENSAVER_SECONDS } from './src/services/screensaver';
 import { ScreensaverProvider } from './components/ScreensaverOverlay';
 import { bootDecision, browserTitle, isDexPath, isSitePath } from './src/services/appRoutes';
+import { trackEvent } from './src/services/analytics';
 import { IosUpdatesPromptProvider } from './components/IosUpdatesPrompt';
 
 const RetroGlobeScreen = lazy(() => import('./components/RetroGlobeScreen'));
@@ -333,6 +334,19 @@ const App: React.FC = () => {
   // While the boot screen owns the device, the professor holds his tongue —
   // the same suspension seam the in-screen prompts claim.
   useEffect(() => { setSuspended(booting, 'boot'); }, [booting]);
+
+  // The funnel's two app-side stages (v0.6.1), riding facts the app already
+  // computes rather than re-deriving them: the landing is `/` (the site IS the
+  // landing, v8#1), and "someone opened Vinodex" is precisely what `booting`
+  // going true means — `bootDecision` already answers cold launches, site->dex
+  // crossings and the share-page exception, so no second classifier here.
+  // Both are no-ops outside real deployments; see `analytics.ts`.
+  useEffect(() => {
+    if (location.pathname === '/') trackEvent('landing-view');
+  }, [location.pathname]);
+  useEffect(() => {
+    if (booting) trackEvent('open-app');
+  }, [booting]);
 
   // One global listener each rides a tap sound (opt-in) and a haptic
   // (default on) onto every button click.
