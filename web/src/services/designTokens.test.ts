@@ -254,7 +254,7 @@ describe('design tokens', () => {
     'SettingsPanel.tsx': [
       '#1B1D21',
       '#22C55E', '#15803D', '#FFFFFF', '#15803D', '#0B4A24', '#FFFFFF',
-      '#FACC15', '#CA8A04', '#78350F', '#B45309', '#7A3606', '#FFFFFF',
+      '#EAB308', '#A16207', '#FFFFFF', '#B45309', '#7A3606', '#FFFFFF',
       '#EF4444', '#991B1B', '#FFFFFF', '#B91C1C', '#7A1010', '#FFFFFF',
       '#F97316', '#9A3412', '#FFFFFF', '#C2410C', '#7C2D12', '#FFFFFF',
       '#2AB5FF', '#136A99', '#FFFFFF', '#1D6FA8', '#11486E', '#FFFFFF',

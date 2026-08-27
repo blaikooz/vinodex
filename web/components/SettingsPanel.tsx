@@ -107,12 +107,14 @@ function clearAllSavedData(): void {
  * developer-facing ones. Each tile opens its own panel.
  */
 // Filled tile faces per section, tuned for pale vs dark grounds — ported from
-// SettingsPanel.swift's tileColors (v0.5.6: each tile unique again).
+// iOS's `DexTileLivery` table (DexTheme.swift; AUDIT L33 hoisted the old
+// per-screen tileColors into it). Ink is white on every livery in both modes
+// — iOS 0.6.4 retired TOOLS's dark-amber ink, "the odd one out on the grid".
 const TILE_FACE: Record<string, { dark: [string, string, string]; light: [string, string, string] }> = {
   // The green TUTORIAL freed when the tour moved into SETTINGS (iOS 0.7.6 F1),
   // reassigned to FIRMWARE (0.8.92, item 2) — same slot, same livery.
   FIRMWARE: { dark: ['#22C55E', '#15803D', '#FFFFFF'], light: ['#15803D', '#0B4A24', '#FFFFFF'] },
-  TOOLS: { dark: ['#FACC15', '#CA8A04', '#78350F'], light: ['#B45309', '#7A3606', '#FFFFFF'] },
+  TOOLS: { dark: ['#EAB308', '#A16207', '#FFFFFF'], light: ['#B45309', '#7A3606', '#FFFFFF'] },
   CUSTOMIZE: { dark: ['#EF4444', '#991B1B', '#FFFFFF'], light: ['#B91C1C', '#7A1010', '#FFFFFF'] },
   SETTINGS: { dark: ['#F97316', '#9A3412', '#FFFFFF'], light: ['#C2410C', '#7C2D12', '#FFFFFF'] },
   DATA: { dark: ['#2AB5FF', '#136A99', '#FFFFFF'], light: ['#1D6FA8', '#11486E', '#FFFFFF'] },

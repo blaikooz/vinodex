@@ -41,6 +41,12 @@ describe('the iOS updates invitation', () => {
 
     act(() => { vi.advanceTimersByTime(1); });
     expect(screen.getByRole('region', { name: 'Vinodex iOS updates' })).toBeTruthy();
+
+    // The third-party frame must NOT ride the unbidden reveal — PRIVACY +
+    // TERMS promises no third-party requests without a tap. It loads only
+    // after the visitor asks for the form.
+    expect(screen.queryByTitle('Subscribe to Vinodex on Substack')).toBeNull();
+    fireEvent.click(screen.getByRole('button', { name: /SHOW SIGN-UP FORM/ }));
     const embed = screen.getByTitle('Subscribe to Vinodex on Substack');
     expect(embed.getAttribute('src')).toBe(VINODEX_SUBSTACK_EMBED_URL);
     expect(embed.getAttribute('width')).toBe('480');

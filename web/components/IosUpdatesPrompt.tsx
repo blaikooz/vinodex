@@ -81,6 +81,12 @@ export const IosUpdatesPromptProvider: React.FC<{
 /** Rendered by DeviceLayout so the invitation stays inside the LCD. */
 export const IosUpdatesPromptOverlay: React.FC = () => {
   const prompt = React.useContext(PromptContext);
+  // The Substack iframe is third-party — it sets its own cookies the moment
+  // it loads — and this overlay reveals itself unbidden after 90 seconds. An
+  // auto-loaded embed would make PRIVACY + TERMS's "the app makes no
+  // third-party requests" a lie, so the frame waits for a tap: the invitation
+  // is first-party, the embed is opt-in.
+  const [embedLoaded, setEmbedLoaded] = React.useState(false);
   if (!prompt?.visible) return null;
 
   return (
@@ -103,15 +109,28 @@ export const IosUpdatesPromptOverlay: React.FC = () => {
             </p>
           </div>
         </div>
-        <iframe
-          src={VINODEX_SUBSTACK_EMBED_URL}
-          title="Subscribe to Vinodex on Substack"
-          width="480"
-          height="320"
-          frameBorder="0"
-          scrolling="no"
-          className="mt-4 block w-full max-w-full rounded-control border border-[var(--surface-line)] bg-white"
-        />
+        {embedLoaded ? (
+          <iframe
+            src={VINODEX_SUBSTACK_EMBED_URL}
+            title="Subscribe to Vinodex on Substack"
+            width="480"
+            height="320"
+            frameBorder="0"
+            scrolling="no"
+            className="mt-4 block w-full max-w-full rounded-control border border-[var(--surface-line)] bg-white"
+          />
+        ) : (
+          <button
+            type="button"
+            onClick={() => setEmbedLoaded(true)}
+            className="dex-pressable mt-4 flex h-40 w-full flex-col items-center justify-center gap-2 rounded-control border border-[var(--surface-line)] bg-[var(--tint-subtle)]"
+          >
+            <span className="font-retro text-label tracking-widest text-[var(--lcd-text)]">SHOW SIGN-UP FORM</span>
+            <span className="font-sans text-caption normal-case text-[var(--lcd-subtext)]">
+              Loads Substack&apos;s embedded form, which sets its own cookies.
+            </span>
+          </button>
+        )}
         <div className="mt-4 flex flex-wrap justify-end gap-2">
           <button
             type="button"

@@ -65,7 +65,21 @@ export interface WebRelease {
  * the whole one-source-of-truth arrangement would hang off a non-null
  * assertion. It also gives the thing you edit a name.
  */
+// 0.6.10, not 0.6.2: the firmware line owns 0.6.2 through 0.9.2, and the
+// two-clocks test refuses any version the device already wore.
 const CURRENT: WebRelease = {
+  version: '0.6.10',
+  date: '2026-08-27',
+  headline: 'THE SMALL PRINT, KEPT',
+  notes: [
+    'The Substack sign-up form now loads only when you tap for it: the updates card used to load the embed unbidden, cookies and all.',
+    'PRIVACY + TERMS names that one opt-in exception in its own words, so every claim on the page is a fact of the code again.',
+    'The TOOLS system tile wears the amber iOS retired its dark-ink look for in 0.6.4 -- the table cited a symbol iOS no longer has.',
+  ],
+};
+
+/** The release before this one, promoted when 0.6.10 landed. */
+const PREVIOUS_0_6_1: WebRelease = {
   version: '0.6.1',
   date: '2026-08-26',
   headline: 'COUNTING WITHOUT COOKIES',
@@ -159,6 +173,7 @@ const PREVIOUS_0_4_2: WebRelease = {
 
 /** Newest first. A new release is prepended by promoting `CURRENT`. */
 const PREVIOUS: WebRelease[] = [
+  PREVIOUS_0_6_1,
   PREVIOUS_0_6_0,
   PREVIOUS_0_5_0,
   PREVIOUS_0_4_4,

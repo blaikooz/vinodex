@@ -576,9 +576,12 @@ export const ContactUs: React.FC<{ onBack: () => void; onHome: () => void; onPri
  * clicks the small print, in the site's own voice. Every claim in it is a
  * fact of the code as shipped: the app keeps everything in the browser's
  * local storage (see the `web/src/services` stores), has no accounts and
- * makes no third-party requests — the one same-origin `fetch` in the tree is
- * `capReink.ts` loading the app's own art. If the app ever grows a network
- * surface, this page is part of that change, not an afterthought.
+ * makes no third-party requests of its own — the one same-origin `fetch` in
+ * the tree is `capReink.ts` loading the app's own art, and the one
+ * third-party surface is the Substack embed in `IosUpdatesPrompt`, which
+ * loads only behind an explicit tap for exactly this page's sake. If the app
+ * ever grows a network surface, this page is part of that change, not an
+ * afterthought.
  */
 export const PrivacyAndTerms: React.FC<{ onBack: () => void; onHome: () => void }> = ({ onBack, onHome }) => (
   <InfoPage title="PRIVACY + TERMS" onBack={onBack} onHome={onHome}>
@@ -593,11 +596,14 @@ export const PrivacyAndTerms: React.FC<{ onBack: () => void; onHome: () => void 
         sign up for and nothing of yours on a server of ours.
       </p>
       <p>
-        The app makes no third-party requests: its data, art and fonts all ship
-        with it, which is also why it works offline once installed. Clearing
-        your browser data for this site erases everything, and SETTINGS offers
-        CLEAR ALL SAVED DATA and a backup file you keep yourself — restoring it
-        is a file you choose, not an upload.
+        The app makes no third-party requests on its own: its data, art and
+        fonts all ship with it, which is also why it works offline once
+        installed. The one exception is opt-in — if you ask the iOS-updates
+        card to show its sign-up form, that form is Substack&apos;s embed and
+        sets Substack&apos;s own cookies; it never loads until you tap for it.
+        Clearing your browser data for this site erases everything, and
+        SETTINGS offers CLEAR ALL SAVED DATA and a backup file you keep
+        yourself — restoring it is a file you choose, not an upload.
       </p>
       <p>
         If you email us, we see your address and what you wrote, and we use
