@@ -68,6 +68,21 @@ export interface WebRelease {
 // 0.6.1x, not 0.6.2: the firmware line owns 0.6.2 through 0.9.2, and the
 // two-clocks test refuses any version the device already wore.
 const CURRENT: WebRelease = {
+  version: '0.6.12',
+  date: '2026-08-28',
+  headline: 'CHUNKY CORNERS',
+  notes: [
+    'The material inside the LCD is retro again: 8px corners instead of 16, a 2px pixel edge on every card and control, and a hard 2px offset under the soft shadow.',
+    'Presses and screen changes are snappier -- the same spring, half the time.',
+    'The scrollbars follow the screen mode; they were a fixed dark bar down a paper-white page.',
+    'MASTER SEARCH gets the same terminal search well every other search has, with a clear button.',
+    'The collection: press feedback on every control, and the remove button sits inside its card.',
+    'The site tiles keep their labels on one line on a phone.',
+  ],
+};
+
+/** The release before this one, promoted when 0.6.12 landed. */
+const PREVIOUS_0_6_11: WebRelease = {
   version: '0.6.11',
   date: '2026-08-28',
   headline: 'ALL RETRO, ALWAYS',
@@ -186,6 +201,7 @@ const PREVIOUS_0_4_2: WebRelease = {
 
 /** Newest first. A new release is prepended by promoting `CURRENT`. */
 const PREVIOUS: WebRelease[] = [
+  PREVIOUS_0_6_11,
   PREVIOUS_0_6_10,
   PREVIOUS_0_6_1,
   PREVIOUS_0_6_0,

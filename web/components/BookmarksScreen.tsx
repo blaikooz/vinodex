@@ -120,7 +120,7 @@ const BookmarksScreen: React.FC<BookmarksScreenProps> = ({ allEntries, onSelect,
                   placeholder="YOUR NAME"
                   className="flex-1 min-w-0 bg-[var(--lcd-well)] border border-[var(--surface-line-strong)] rounded-control px-2 py-1 text-label text-[var(--lcd-text)] placeholder:text-[var(--lcd-disabled-text)] focus:border-[var(--lcd-accent)] focus:outline-none"
                 />
-                <button onClick={commitName} aria-label="Save name" className="text-[var(--lcd-accent)] p-1">
+                <button onClick={commitName} aria-label="Save name" className="dex-pressable rounded-control text-[var(--lcd-accent)] p-1">
                   <Check size={18} />
                 </button>
               </div>
@@ -129,7 +129,7 @@ const BookmarksScreen: React.FC<BookmarksScreenProps> = ({ allEntries, onSelect,
                 <span className="text-heading text-[var(--lcd-text)] tracking-wide truncate">
                   {name ? name.toUpperCase() : 'TASTER'}
                 </span>
-                <button onClick={startEditName} aria-label="Edit name" className="text-[var(--lcd-subtext)] hover:text-[var(--lcd-accent)] p-1">
+                <button onClick={startEditName} aria-label="Edit name" className="dex-pressable rounded-control text-[var(--lcd-subtext)] hover:text-[var(--lcd-accent)] p-1">
                   <SquarePen size={14} />
                 </button>
               </div>
@@ -164,7 +164,7 @@ const BookmarksScreen: React.FC<BookmarksScreenProps> = ({ allEntries, onSelect,
                   <button
                     key={entry.id}
                     onClick={() => onSelect(entry)}
-                    className="flex flex-col items-center gap-1 w-14 shrink-0"
+                    className="dex-pressable rounded-control flex flex-col items-center gap-1 w-14 shrink-0"
                   >
                     <span className="w-12 h-12 rounded-control border border-[var(--surface-line-strong)] flex items-center justify-center overflow-hidden" style={v.style}>
                       {v.iconNode}
@@ -245,9 +245,9 @@ const BookmarksScreen: React.FC<BookmarksScreenProps> = ({ allEntries, onSelect,
                     <button
                       onClick={() => setPendingRemove(entry)}
                       aria-label={`Remove ${entry.name}`}
-                      className="absolute -top-1.5 -right-1.5 w-11 h-11 flex items-center justify-center group"
+                      className="dex-pressable absolute top-0 right-0 w-11 h-11 flex items-center justify-center rounded-control group"
                     >
-                      <span className="p-1.5 rounded bg-[var(--surface-base)] border border-[var(--surface-line-strong)] text-[var(--lcd-subtext)] group-hover:text-[var(--livery-red)] group-hover:border-[var(--livery-red)] transition-colors">
+                      <span className="p-1.5 rounded-control bg-[var(--surface-base)] border border-[var(--surface-line-strong)] text-[var(--lcd-subtext)] group-hover:text-[var(--livery-red)] group-hover:border-[var(--livery-red)] transition-colors">
                         <XCircle size={16} />
                       </span>
                     </button>

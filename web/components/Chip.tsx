@@ -32,7 +32,7 @@ const Chip: React.FC<ChipProps> = ({ label, color = '', colorStyle, icon, classN
 
   if (onClick) {
     return (
-      <button type="button" onClick={onClick} className={base} style={retro}>
+      <button type="button" onClick={onClick} className={`dex-pressable ${base}`} style={retro}>
         {inner}
       </button>
     );

@@ -41,7 +41,9 @@ const RARITIES = ['COMMON', 'UNCOMMON', 'RARE', 'NOBLE', 'GODFORSAKEN'];
 
 const Section: React.FC<{ title: string; children: React.ReactNode }> = ({ title, children }) => (
   <div className="mb-5">
-    <h2 className="text-label uppercase tracking-widest text-[var(--lcd-accent)] border-b pb-1 mb-3" style={{ borderColor: 'color-mix(in srgb, var(--lcd-accent) 45%, transparent)' }}>{title}</h2>
+    {/* The same 40%-accent rule every other readout section draws
+        (`.dex-section-rule`), rather than a second inline spelling of it. */}
+    <h2 className="text-label uppercase tracking-widest text-[var(--lcd-accent)] dex-section-rule pb-1 mb-3">{title}</h2>
     {children}
   </div>
 );

@@ -570,7 +570,7 @@ const EntryDetail: React.FC<EntryDetailProps> = ({ entry, allEntries, onBack, on
       <div className="relative h-full">
       <div
         ref={scrollRef}
-        className="h-full overflow-y-auto custom-scrollbar p-4 pb-20 text-[15px] md:text-base"
+        className="h-full overflow-y-auto custom-scrollbar p-4 pb-20 text-body"
         style={{ backgroundColor: 'var(--lcd-page)', color: 'var(--lcd-accent)' }}
       >
 

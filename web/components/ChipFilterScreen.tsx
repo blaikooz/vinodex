@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useState } from 'react';
-import { SlidersHorizontal, Filter, ChevronDown, CircleSlash, ChevronRight } from 'lucide-react';
+import { SlidersHorizontal, Filter, ChevronDown, CircleSlash, ChevronRight, Search, X } from 'lucide-react';
 import DeviceLayout from './DeviceLayout';
 import EntryTile from './EntryTile';
 import { WineEntry } from '@/shared/types';
@@ -97,15 +97,37 @@ const ChipFilterScreen: React.FC<ChipFilterScreenProps> = ({ allEntries, onSelec
             whole purpose is typing should not make you tap the field first —
             and since the orb became the only way here (v6#11), every arrival
             is that route. */}
-        <input
-          type="text"
-          autoFocus
-          value={query}
-          onChange={e => setSearch(e.target.value)}
-          placeholder="SEARCH MATCHES…"
-          aria-label="Search matches"
-          className="w-full rounded-control border border-[var(--surface-line-strong)] px-3 py-2 font-mono text-sm text-[var(--lcd-body-text)] placeholder:text-[var(--lcd-disabled-text)] focus:border-[var(--lcd-accent)] focus:outline-none bg-[var(--lcd-well)]"
-        />
+        {/* The same search well the listings draw (core-screen audit,
+            v0.6.12): the mode's own `lcd.well` recess, the accent glass, and
+            the terminal face at the listing's size. It was a plain
+            `text-sm` field on this screen and a 2xl well on every other
+            search, so the one route whose whole purpose is typing had the
+            smallest field in the app. */}
+        <div
+          className="flex items-center h-12 border border-[var(--surface-line-strong)] px-3 shadow-inner rounded-full"
+          style={{ backgroundColor: 'var(--lcd-well)' }}
+        >
+          <Search size={22} className="text-[var(--lcd-accent)] shrink-0" aria-hidden="true" />
+          <input
+            type="text"
+            autoFocus
+            value={query}
+            onChange={e => setSearch(e.target.value)}
+            placeholder="SEARCH MATCHES..."
+            aria-label="Search matches"
+            className="w-full h-full ml-2 pl-2 text-2xl leading-none font-mono font-bold uppercase text-[var(--lcd-accent)] placeholder:text-[var(--lcd-disabled-text)] placeholder:font-bold outline-none bg-transparent"
+          />
+          {query && (
+            <button
+              type="button"
+              aria-label="Clear search"
+              onClick={() => setSearch('')}
+              className="dex-pressable w-11 h-11 -mr-2 shrink-0 flex items-center justify-center rounded-full text-[var(--lcd-accent)]"
+            >
+              <X size={18} />
+            </button>
+          )}
+        </div>
 
         {/* Chip dropdown toggle */}
         <button

@@ -253,7 +253,7 @@ export default function EncyclopediaList({ category, filterMode, filterValue, in
                       setSearchQuery('');
                       searchInputRef.current?.focus();
                     }}
-                    className="w-11 h-11 -mr-2 shrink-0 flex items-center justify-center text-[var(--lcd-accent)] hover:opacity-75 transition-opacity"
+                    className="dex-pressable w-11 h-11 -mr-2 shrink-0 flex items-center justify-center rounded-full text-[var(--lcd-accent)]"
                   >
                     <X size={18} />
                   </button>

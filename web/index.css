@@ -327,9 +327,15 @@ body,
      ground under both. The chassis keeps its own moulded corners -- those are
      ported iOS metrics (`--panel-corner`, `--dial-corner`) and are furniture,
      not UI. */
-  --radius-control: 0.625rem;
-  --radius-card: 1rem;
-  --radius-surface: 1.5rem;
+  --radius-control: 0.375rem;
+  --radius-card: 0.5rem;
+  --radius-surface: 1rem;
+
+  /* Chunked one step in v0.6.12 (the PREMIUM RETRO material pass): 10/16/24px
+     became 6/8/16px. A 16px corner on every row and card was the "round
+     everything into soft modern cards" the direction names as a hard don't;
+     8px is a corner a pixel border can turn. The chassis keeps its own
+     moulded radii, as before. */
 
   /* ELEVATION, three tiers, layered rather than offset.
 
@@ -344,9 +350,16 @@ body,
      how you get the grey halo that makes a light UI look dirty. The alphas are
      tuned so tier 1 is barely perceptible on the dark LCD and still visible on
      the paper-white one. */
-  --shadow-elev-1: 0 1px 1px -0.5px rgb(0 0 0 / 0.16), 0 1px 3px -1px rgb(0 0 0 / 0.14);
-  --shadow-elev-2: 0 2px 4px -2px rgb(0 0 0 / 0.2), 0 6px 14px -6px rgb(0 0 0 / 0.22);
+  --shadow-elev-1: 2px 2px 0 rgb(0 0 0 / 0.18), 0 1px 1px -0.5px rgb(0 0 0 / 0.16), 0 1px 3px -1px rgb(0 0 0 / 0.14);
+  --shadow-elev-2: 3px 3px 0 rgb(0 0 0 / 0.2), 0 2px 4px -2px rgb(0 0 0 / 0.2), 0 6px 14px -6px rgb(0 0 0 / 0.22);
   --shadow-elev-3: 0 4px 8px -4px rgb(0 0 0 / 0.24), 0 16px 32px -12px rgb(0 0 0 / 0.32);
+
+  /* v0.6.12: tiers 1 and 2 lead with a 2px/3px HARD offset -- the retro
+     sticker edge `retro-shadow` used to be -- and keep the two soft layers
+     under it. Blend, not swap: the direction asks for soft layered depth
+     AND the hard retro shadow where it defines the look, and a card is
+     where it does. Tier 3 (overlays, sheets) stays purely soft: a floating
+     sheet with a hard edge reads as a misregistered print. */
 }
 
 /* `.site-pixel-copy` is a marker now, not a rule (v0.6.11). It forced Press
@@ -386,10 +399,13 @@ body,
 }
 
 /* The shared Tile label is deliberately conservative. These two primary
-   navigation surfaces have enough room for one measured step up. */
+   navigation surfaces have enough room for one measured step up -- sized
+   to the tile, not the window: at 390px the site's square chassis gives a
+   tile about 150px, and 0.78rem Press Start wrapped WHO WE ARE, OPEN
+   VINODEX and CONTACT US onto two lines (v0.6.12, audit H1). */
 .portal-home-tile > span:nth-of-type(2),
 .main-menu-tile > span:nth-of-type(2) {
-  font-size: clamp(0.78rem, 1.35vw, 0.9rem);
+  font-size: clamp(0.6rem, 2.6vw, 0.9rem);
 }
 
 /* The category content follows the area left by its concave corner, matching
@@ -583,13 +599,18 @@ body,
   --motion-overlay: 150ms;
   --ease-overlay: cubic-bezier(0, 0, 0.58, 1);
 
-  --motion-crossfade: 550ms;
+  --motion-crossfade: 320ms;
   --ease-crossfade: cubic-bezier(0.42, 0, 0.58, 1);
 
-  --motion-press: 373ms;
+  /* Shortened in v0.6.12 (press 373 -> 180ms, settle 361 -> 220ms,
+     crossfade 550 -> 320ms). The `linear()` curves keep their shape -- the
+     overshoot is the spring and `designTokens.test.ts` still pins it -- but
+     the direction wants snappy and a little pixel-y, not floaty, and the
+     honest iOS durations were the floaty half. */
+  --motion-press: 180ms;
   --ease-press: linear(0, 0.0595, 0.1991, 0.3722, 0.5467, 0.7027, 0.8305, 0.9269, 0.9937, 1.0351, 1.0564, 1.0632, 1.0604, 1.0521, 1.0412, 1.0301, 1.02, 1.0117, 1.0053, 1.0009, 0.998, 0.9965, 0.996, 0.9961, 0.9966, 0.9973, 1);
 
-  --motion-settle: 361ms;
+  --motion-settle: 220ms;
   --ease-settle: linear(0, 0.0409, 0.1378, 0.2609, 0.3905, 0.5142, 0.625, 0.7198, 0.7978, 0.8598, 0.9076, 0.9432, 0.9689, 0.9866, 0.9983, 1.0054, 1.0093, 1.0109, 1.011, 1.0103, 1.0091, 1.0077, 1.0062, 1.0049, 1.0037, 1.0028, 1);
 
   /* How far a control moves when pressed. iOS has two and says why they are
@@ -634,7 +655,7 @@ body,
   --surface-base: var(--lcd-page);
   --surface-raised: var(--lcd-surface);
   --surface-high: color-mix(in oklab, var(--lcd-text) 7%, var(--lcd-surface));
-  --surface-line: color-mix(in oklab, var(--lcd-text) 14%, var(--lcd-surface));
+  --surface-line: color-mix(in oklab, var(--lcd-text) 22%, var(--lcd-surface));
   --surface-line-strong: var(--lcd-surface-edge);
 
   /* -------------------------------------------------------------------------
@@ -747,6 +768,17 @@ body,
   --tint-solid: var(--tint);
 }
 
+/* THE PIXEL EDGE (v0.6.12). Every card and control in the LCD draws a 2px
+   border, not the 1px hairline Tailwind's `border` means. A single rule
+   rather than three hundred `border-2` edits: `.border` on something that
+   wears a card or control radius is a card or control edge, and a card edge
+   on this device is chunky. Chips (`rounded`) and pills (`rounded-full`)
+   are not matched and keep their 1px, which is the right weight at their
+   size. Unlayered, so it beats the utility. */
+.lcd-themed :is(.rounded-card, .rounded-control).border {
+  border-width: 2px;
+}
+
 /* A control that answers a finger, a pointer and a keyboard.
 
    Three states, three mechanisms, on purpose: hover is a pointer-only affair
@@ -843,33 +875,47 @@ body {
   font-family: var(--font-mono);
 }
 
-/* Custom scrollbar for retro feel */
+/* The scrollbars follow the screen mode (core-screen audit, v0.6.12).
+
+   Both rules were fixed hex -- a #232323/#DC0A2D chassis-coloured bar on the
+   document and a #1a1a1a/#4a4a4a one on every `custom-scrollbar` LCD
+   scroller -- which on the four pale modes drew a dark grey bar down the
+   right edge of a paper-white page. Every scroller in the app sits inside the
+   LCD, so the track is the mode's sunken surface and the thumb its strong
+   hairline, the same two tokens a card's ground and edge already use. The
+   `scrollbar-color` pair is the standard property, for Firefox and for any
+   engine that drops the `::-webkit-` pseudo-elements. */
 ::-webkit-scrollbar {
   width: 12px;
-  background: #232323;
+  background: var(--surface-sunken, #232323);
 }
 
 ::-webkit-scrollbar-thumb {
-  background: #DC0A2D;
-  border: 2px solid #232323;
+  background: var(--surface-line-strong, #4a4a4a);
+  border: 2px solid var(--surface-sunken, #232323);
 }
 
-/* Custom scrollbar class */
+.custom-scrollbar {
+  scrollbar-width: thin;
+  scrollbar-color: var(--surface-line-strong) var(--surface-sunken);
+}
+
 .custom-scrollbar::-webkit-scrollbar {
   width: 8px;
+  height: 8px;
 }
 
 .custom-scrollbar::-webkit-scrollbar-track {
-  background: #1a1a1a;
+  background: var(--surface-sunken);
 }
 
 .custom-scrollbar::-webkit-scrollbar-thumb {
-  background: #4a4a4a;
+  background: var(--surface-line-strong);
   border-radius: 4px;
 }
 
 .custom-scrollbar::-webkit-scrollbar-thumb:hover {
-  background: #5a5a5a;
+  background: var(--lcd-subtext);
 }
 
 /* Scanlines overlay effect */
