@@ -42,12 +42,12 @@ const GrapeLineageScreen: React.FC<GrapeLineageScreenProps> = ({ entry, allEntri
     const target = node.entryId ? byId.get(node.entryId) : undefined;
     const label = (
       <span className="flex-1 min-w-0 text-left">
-        <span className="block font-sans text-label tracking-widest text-[var(--lcd-text)] truncate">
+        <span className="block text-label tracking-widest text-[var(--lcd-text)] truncate">
           {node.name}
           {node.contested && <span className="text-[var(--livery-amber)]" title="Contested"> *</span>}
         </span>
         {(node.role || node.via) && (
-          <span className="block font-sans text-caption text-[var(--lcd-subtext)] normal-case mt-0.5">
+          <span className="block text-caption text-[var(--lcd-subtext)] normal-case mt-0.5">
             {node.role ? (node.role === 'mother' ? 'seed parent' : 'pollen parent') : `via ${node.via}`}
           </span>
         )}
@@ -70,7 +70,7 @@ const GrapeLineageScreen: React.FC<GrapeLineageScreenProps> = ({ entry, allEntri
       <div key={key} className="w-full flex items-center gap-2.5 rounded-card border border-[var(--surface-line)] bg-[var(--surface-raised)] opacity-80 px-3 py-2.5">
         <GitBranch size={15} className="text-[var(--lcd-disabled-text)] shrink-0" />
         {label}
-        <span className="font-sans text-caption text-[var(--lcd-subtext)] normal-case shrink-0">not in catalog</span>
+        <span className="text-caption text-[var(--lcd-subtext)] normal-case shrink-0">not in catalog</span>
       </div>
     );
   };
@@ -78,7 +78,7 @@ const GrapeLineageScreen: React.FC<GrapeLineageScreenProps> = ({ entry, allEntri
   const section = (title: string, nodes: LineageNode[]) =>
     nodes.length > 0 && (
       <div key={title}>
-        <h2 className="font-sans text-label uppercase tracking-widest text-[var(--lcd-accent)] border-b pb-1 mb-2" style={{ borderColor: 'color-mix(in srgb, var(--lcd-accent) 45%, transparent)' }}>{title}</h2>
+        <h2 className="text-label uppercase tracking-widest text-[var(--lcd-accent)] border-b pb-1 mb-2" style={{ borderColor: 'color-mix(in srgb, var(--lcd-accent) 45%, transparent)' }}>{title}</h2>
         <div className="flex flex-col gap-1.5">{nodes.map((n, i) => nodeRow(n, `${title}-${i}`))}</div>
       </div>
     );
@@ -90,12 +90,12 @@ const GrapeLineageScreen: React.FC<GrapeLineageScreenProps> = ({ entry, allEntri
         <div className="rounded-card border border-[var(--surface-line-strong)] bg-[var(--surface-raised)] shadow-elev-1 p-3.5 flex items-center gap-3">
           <GitBranch size={22} className="text-[var(--lcd-accent)] shrink-0" />
           <div className="flex-1 min-w-0">
-            <div className="font-sans text-heading font-bold tracking-wide text-[var(--lcd-text)] truncate">{entry.name}</div>
-            <div className="font-sans text-caption text-[var(--lcd-subtext)] normal-case mt-0.5">the pedigree, as the markers record it</div>
+            <div className="text-heading tracking-wide text-[var(--lcd-text)] truncate">{entry.name}</div>
+            <div className="text-caption text-[var(--lcd-subtext)] normal-case mt-0.5">the pedigree, as the markers record it</div>
           </div>
           <button
             onClick={() => onOpenEntry(entry)}
-            className="dex-pressable flex items-center gap-1 rounded-control bg-[var(--lcd-accent)] px-2.5 py-2 font-sans text-caption font-semibold tracking-widest text-[var(--lcd-on-accent)] shrink-0"
+            className="dex-pressable flex items-center gap-1 rounded-control bg-[var(--lcd-accent)] px-2.5 py-2 text-micro tracking-widest text-[var(--lcd-on-accent)] shrink-0"
           >
             <BookOpen size={12} /> ENTRY
           </button>
@@ -105,7 +105,7 @@ const GrapeLineageScreen: React.FC<GrapeLineageScreenProps> = ({ entry, allEntri
           // The statement standing in the place a parent would occupy.
           <div className="flex items-center gap-2.5 rounded-card border border-dashed border-[var(--surface-line-strong)] bg-[var(--surface-raised)] px-3 py-2.5">
             <CircleHelp size={15} className="text-[var(--lcd-subtext)] shrink-0" />
-            <span className="flex-1 font-sans text-caption text-[var(--lcd-text)] normal-case leading-relaxed">
+            <span className="flex-1 text-caption text-[var(--lcd-text)] normal-case leading-relaxed">
               Parentage undetermined — the sources that would know were asked, and no parent pair is established.
             </span>
           </div>
@@ -119,16 +119,16 @@ const GrapeLineageScreen: React.FC<GrapeLineageScreenProps> = ({ entry, allEntri
         {section('RELATED', relatives.related)}
 
         {relativesIsEmpty(relatives) && !relatives.parentageUnknown && (
-          <p className="font-sans text-caption text-[var(--lcd-subtext)] normal-case text-center mt-4">
+          <p className="text-caption text-[var(--lcd-subtext)] normal-case text-center mt-4">
             No recorded relatives yet.
           </p>
         )}
 
         {relatives.notes.length > 0 && (
           <div className="mt-2">
-            <h2 className="font-sans text-label uppercase tracking-widest text-[var(--lcd-subtext)] border-b border-[var(--surface-line)] pb-1 mb-2">NOTES</h2>
+            <h2 className="text-label uppercase tracking-widest text-[var(--lcd-subtext)] border-b border-[var(--surface-line)] pb-1 mb-2">NOTES</h2>
             {relatives.notes.map((note, i) => (
-              <p key={i} className="font-sans text-caption text-[var(--lcd-subtext)] normal-case leading-relaxed mb-1.5">* {note}</p>
+              <p key={i} className="text-caption text-[var(--lcd-subtext)] normal-case leading-relaxed mb-1.5">* {note}</p>
             ))}
           </div>
         )}

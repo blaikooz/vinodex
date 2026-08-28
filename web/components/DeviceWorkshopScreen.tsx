@@ -163,7 +163,7 @@ const DeviceWorkshopScreen: React.FC<DeviceWorkshopScreenProps> = ({ onBack, onH
   };
 
   const sectionHeader = (title: string) => (
-    <h2 className="font-sans text-label uppercase tracking-widest text-[var(--lcd-accent)] border-b-2 pb-1 mb-3" style={{ borderColor: 'var(--lcd-accent)' }}>
+    <h2 className="text-label uppercase tracking-widest text-[var(--lcd-accent)] border-b-2 pb-1 mb-3" style={{ borderColor: 'var(--lcd-accent)' }}>
       {title}
     </h2>
   );
@@ -194,7 +194,7 @@ const DeviceWorkshopScreen: React.FC<DeviceWorkshopScreenProps> = ({ onBack, onH
           </span>
         )}
       </span>
-      <span className="font-sans text-caption leading-tight text-center text-[var(--lcd-text)] break-words w-full">
+      <span className="text-caption leading-tight text-center text-[var(--lcd-text)] break-words w-full">
         {label}
       </span>
     </button>
@@ -225,7 +225,7 @@ const DeviceWorkshopScreen: React.FC<DeviceWorkshopScreenProps> = ({ onBack, onH
     return (
       <>
         {fontNote && (
-          <p className="font-sans text-caption text-[var(--lcd-subtext)] normal-case leading-relaxed mb-2 p-3 rounded-control bg-[var(--surface-raised)]">
+          <p className="text-caption text-[var(--lcd-subtext)] normal-case leading-relaxed mb-2 p-3 rounded-control bg-[var(--surface-raised)]">
             {fontNote}
           </p>
         )}
@@ -304,8 +304,8 @@ const DeviceWorkshopScreen: React.FC<DeviceWorkshopScreenProps> = ({ onBack, onH
       <DeviceLayout title="WORKSHOP" subtitle="" showBack onBack={onBack} onHome={onHome} centerHeaderText>
         <div className="h-full flex flex-col items-center justify-center gap-4 p-6 text-center" style={{ backgroundColor: 'var(--lcd-page)' }}>
           <Lock size={44} className="text-[var(--lcd-subtext)]" />
-          <p className="font-sans text-label tracking-widest text-[var(--lcd-text)]">THE WORKSHOP IS LOCKED</p>
-          <p className="font-sans text-caption text-[var(--lcd-subtext)] normal-case leading-relaxed max-w-[18rem]">
+          <p className="text-label tracking-widest text-[var(--lcd-text)]">THE WORKSHOP IS LOCKED</p>
+          <p className="text-caption text-[var(--lcd-subtext)] normal-case leading-relaxed max-w-[18rem]">
             The free-tier harness is on and this door is a bundle. There is a
             code for it — codes are found, not listed.
           </p>
@@ -355,19 +355,19 @@ const DeviceWorkshopScreen: React.FC<DeviceWorkshopScreenProps> = ({ onBack, onH
             </div>
 
             <div className="flex-1 min-w-0 flex flex-col gap-2">
-              <span className="font-sans text-caption tracking-widest text-[var(--lcd-subtext)]">
+              <span className="text-micro tracking-widest text-[var(--lcd-subtext)]">
                 {chosenCount(build)} OF {DEVICE_AXES.length} PARTS FITTED
               </span>
               {fitted ? (
-                <span className="flex items-center gap-1.5 font-sans text-label tracking-widest text-[var(--lcd-accent)]">
+                <span className="flex items-center gap-1.5 text-label tracking-widest text-[var(--lcd-accent)]">
                   <ShieldCheck size={14} /> {fitted.name}
                 </span>
               ) : isStock(build) ? (
-                <span className="flex items-center gap-1.5 font-sans text-label tracking-widest text-[var(--lcd-subtext)]">
+                <span className="flex items-center gap-1.5 text-label tracking-widest text-[var(--lcd-subtext)]">
                   <PackageCheck size={14} /> FACTORY STOCK
                 </span>
               ) : (
-                <span className="flex items-center gap-1.5 font-sans text-label tracking-widest text-[var(--lcd-subtext)]">
+                <span className="flex items-center gap-1.5 text-label tracking-widest text-[var(--lcd-subtext)]">
                   <Hammer size={14} /> UNSAVED
                 </span>
               )}
@@ -378,7 +378,7 @@ const DeviceWorkshopScreen: React.FC<DeviceWorkshopScreenProps> = ({ onBack, onH
               <button
                 onClick={() => { applyBuild(openedWith ?? STOCK_BUILD); setNotice({ text: 'PARTS BACK AS YOU FOUND THEM.', bad: false }); }}
                 disabled={reverted}
-                className={`dex-pressable flex items-center justify-center gap-1.5 rounded-control border-2 border-red-500 px-3 py-2 font-sans text-caption font-semibold tracking-widest text-red-500 ${reverted ? 'opacity-40 cursor-default' : ''}`}
+                className={`dex-pressable flex items-center justify-center gap-1.5 rounded-control border-2 border-red-500 px-3 py-2 text-micro tracking-widest text-red-500 ${reverted ? 'opacity-40 cursor-default' : ''}`}
               >
                 <RotateCcw size={13} /> REVERT
               </button>
@@ -400,22 +400,22 @@ const DeviceWorkshopScreen: React.FC<DeviceWorkshopScreenProps> = ({ onBack, onH
               maxLength={DEVICE_NAME_LIMIT}
               placeholder="NAME"
               aria-label="Build name"
-              className="flex-1 min-w-0 rounded-control border border-[var(--surface-line-strong)] px-3 py-2.5 font-sans text-label text-[var(--lcd-text)] placeholder:text-[var(--lcd-disabled-text)] focus:border-[var(--lcd-accent)] focus:outline-none"
+              className="flex-1 min-w-0 rounded-control border border-[var(--surface-line-strong)] px-3 py-2.5 text-label text-[var(--lcd-text)] placeholder:text-[var(--lcd-disabled-text)] focus:border-[var(--lcd-accent)] focus:outline-none"
               style={{ backgroundColor: 'var(--lcd-well)' }}
             />
             <button
               onClick={submitSave}
-              className="dex-pressable rounded-control bg-[var(--lcd-accent)] px-5 py-2.5 font-sans text-label tracking-widest text-[var(--lcd-on-accent)] shadow-elev-1"
+              className="dex-pressable rounded-control bg-[var(--lcd-accent)] px-5 py-2.5 text-label tracking-widest text-[var(--lcd-on-accent)] shadow-elev-1"
             >
               SAVE
             </button>
           </div>
           {notice && (
-            <p className={`font-sans text-caption normal-case mt-2 ${notice.bad ? 'text-[var(--livery-red)]' : 'text-[var(--lcd-accent)]'}`} role="status">
+            <p className={`text-caption normal-case mt-2 ${notice.bad ? 'text-[var(--livery-red)]' : 'text-[var(--lcd-accent)]'}`} role="status">
               {notice.text}
             </p>
           )}
-          <p className="font-sans text-caption text-[var(--lcd-subtext)] normal-case leading-relaxed mt-2">
+          <p className="text-caption text-[var(--lcd-subtext)] normal-case leading-relaxed mt-2">
             Saving under a name you have already used replaces that build — which is how you edit one.
           </p>
         </div>
@@ -423,7 +423,7 @@ const DeviceWorkshopScreen: React.FC<DeviceWorkshopScreenProps> = ({ onBack, onH
         <div>
           {sectionHeader('SAVED BUILDS')}
           {savedDevices().length === 0 ? (
-            <p className="font-sans text-caption text-[var(--lcd-subtext)] normal-case leading-relaxed">
+            <p className="text-caption text-[var(--lcd-subtext)] normal-case leading-relaxed">
               Nothing saved yet. Fit some parts, name the result, and it lands here.
             </p>
           ) : (
@@ -436,11 +436,11 @@ const DeviceWorkshopScreen: React.FC<DeviceWorkshopScreenProps> = ({ onBack, onH
                     className={`rounded-card p-3 bg-[var(--surface-raised)] border shadow-elev-1 ${isFitted ? 'border-[var(--lcd-accent)]' : 'border-[var(--surface-line)]'}`}
                   >
                     <div className="flex items-center gap-2">
-                      <span className={`font-sans text-label tracking-widest truncate ${isFitted ? 'text-[var(--lcd-accent)]' : 'text-[var(--lcd-text)]'}`}>
+                      <span className={`text-label tracking-widest truncate ${isFitted ? 'text-[var(--lcd-accent)]' : 'text-[var(--lcd-text)]'}`}>
                         {device.name}
                       </span>
                       {isFitted && (
-                        <span className="font-sans text-caption font-semibold tracking-widest px-1.5 py-0.5 rounded-sm bg-[var(--lcd-accent)] text-[var(--lcd-on-accent)]">
+                        <span className="text-micro tracking-widest px-1.5 py-0.5 rounded-sm bg-[var(--lcd-accent)] text-[var(--lcd-on-accent)]">
                           FITTED
                         </span>
                       )}
@@ -455,7 +455,7 @@ const DeviceWorkshopScreen: React.FC<DeviceWorkshopScreenProps> = ({ onBack, onH
                       <button
                         onClick={() => { applyBuild(device.build); setNotice({ text: `${device.name} FITTED.`, bad: false }); }}
                         disabled={isFitted}
-                        className={`dex-pressable flex-1 rounded-control border border-[var(--lcd-accent)] py-2 font-sans text-caption font-semibold tracking-widest text-[var(--lcd-accent)] ${isFitted ? 'opacity-40 cursor-default' : ''}`}
+                        className={`dex-pressable flex-1 rounded-control border border-[var(--lcd-accent)] py-2 text-micro tracking-widest text-[var(--lcd-accent)] ${isFitted ? 'opacity-40 cursor-default' : ''}`}
                       >
                         FIT
                       </button>
@@ -464,13 +464,13 @@ const DeviceWorkshopScreen: React.FC<DeviceWorkshopScreenProps> = ({ onBack, onH
                           — and re-saving under the name replaces the build. */}
                       <button
                         onClick={() => setTypedName(device.name)}
-                        className="dex-pressable flex-1 rounded-control border border-[var(--surface-line-strong)] py-2 font-sans text-caption font-semibold tracking-widest text-[var(--lcd-subtext)]"
+                        className="dex-pressable flex-1 rounded-control border border-[var(--surface-line-strong)] py-2 text-micro tracking-widest text-[var(--lcd-subtext)]"
                       >
                         EDIT
                       </button>
                       <button
                         onClick={() => setConfirmingDelete(device)}
-                        className="dex-pressable flex-1 rounded-control border border-[var(--livery-red)] py-2 font-sans text-caption font-semibold tracking-widest text-[var(--livery-red)]"
+                        className="dex-pressable flex-1 rounded-control border border-[var(--livery-red)] py-2 text-micro tracking-widest text-[var(--livery-red)]"
                       >
                         DELETE
                       </button>

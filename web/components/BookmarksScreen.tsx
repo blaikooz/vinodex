@@ -118,7 +118,7 @@ const BookmarksScreen: React.FC<BookmarksScreenProps> = ({ allEntries, onSelect,
                   onKeyDown={e => { if (e.key === 'Enter') commitName(); }}
                   maxLength={24}
                   placeholder="YOUR NAME"
-                  className="flex-1 min-w-0 bg-[var(--lcd-well)] border border-[var(--surface-line-strong)] rounded-control px-2 py-1 font-sans text-label text-[var(--lcd-text)] placeholder:text-[var(--lcd-disabled-text)] focus:border-[var(--lcd-accent)] focus:outline-none"
+                  className="flex-1 min-w-0 bg-[var(--lcd-well)] border border-[var(--surface-line-strong)] rounded-control px-2 py-1 text-label text-[var(--lcd-text)] placeholder:text-[var(--lcd-disabled-text)] focus:border-[var(--lcd-accent)] focus:outline-none"
                 />
                 <button onClick={commitName} aria-label="Save name" className="text-[var(--lcd-accent)] p-1">
                   <Check size={18} />
@@ -126,7 +126,7 @@ const BookmarksScreen: React.FC<BookmarksScreenProps> = ({ allEntries, onSelect,
               </div>
             ) : (
               <div className="flex items-center gap-2">
-                <span className="font-sans text-heading font-bold text-[var(--lcd-text)] tracking-wide truncate">
+                <span className="text-heading text-[var(--lcd-text)] tracking-wide truncate">
                   {name ? name.toUpperCase() : 'TASTER'}
                 </span>
                 <button onClick={startEditName} aria-label="Edit name" className="text-[var(--lcd-subtext)] hover:text-[var(--lcd-accent)] p-1">
@@ -139,7 +139,7 @@ const BookmarksScreen: React.FC<BookmarksScreenProps> = ({ allEntries, onSelect,
               {streak > 0 && (
                 <span className="inline-flex items-center gap-1 rounded-full px-2.5 py-1 bg-[var(--surface-raised)] border border-[var(--surface-line)]">
                   <Flame size={12} className="text-[var(--livery-amber)]" />
-                  <span className="font-sans text-caption tracking-widest text-[var(--lcd-text)]">{streak} DAY{streak === 1 ? '' : 'S'}</span>
+                  <span className="text-micro tracking-widest text-[var(--lcd-text)]">{streak} DAY{streak === 1 ? '' : 'S'}</span>
                 </span>
               )}
               <button
@@ -147,7 +147,7 @@ const BookmarksScreen: React.FC<BookmarksScreenProps> = ({ allEntries, onSelect,
                 className="dex-pressable inline-flex items-center gap-1.5 rounded-full px-3 py-1 bg-[var(--lcd-accent)]"
               >
                 <BookOpen size={12} className="text-[var(--lcd-on-accent)]" />
-                <span className="font-sans text-caption font-semibold tracking-widest text-[var(--lcd-on-accent)]">PASSPORT</span>
+                <span className="text-micro tracking-widest text-[var(--lcd-on-accent)]">PASSPORT</span>
               </button>
             </div>
           </div>
@@ -156,7 +156,7 @@ const BookmarksScreen: React.FC<BookmarksScreenProps> = ({ allEntries, onSelect,
         {/* ---- Recently viewed ---- */}
         {recents.length > 0 && (
           <div className="bg-[var(--surface-raised)] border-b border-[var(--surface-line)] px-3 py-2">
-            <h2 className="font-sans text-caption tracking-widest text-[var(--lcd-subtext)] mb-1.5 px-1">RECENTLY VIEWED</h2>
+            <h2 className="text-micro tracking-widest text-[var(--lcd-subtext)] mb-1.5 px-1">RECENTLY VIEWED</h2>
             <div className="flex gap-2 overflow-x-auto custom-scrollbar pb-1">
               {recents.map(entry => {
                 const v = resolveEntryIconVisual(entry, { size: 26, resolver });
@@ -169,7 +169,7 @@ const BookmarksScreen: React.FC<BookmarksScreenProps> = ({ allEntries, onSelect,
                     <span className="w-12 h-12 rounded-control border border-[var(--surface-line-strong)] flex items-center justify-center overflow-hidden" style={v.style}>
                       {v.iconNode}
                     </span>
-                    <span className="font-sans text-caption text-[var(--lcd-text)] leading-tight text-center w-full truncate line-clamp-1">
+                    <span className="text-caption text-[var(--lcd-text)] leading-tight text-center w-full truncate line-clamp-1">
                       {entry.name.toUpperCase()}
                     </span>
                   </button>
@@ -187,7 +187,7 @@ const BookmarksScreen: React.FC<BookmarksScreenProps> = ({ allEntries, onSelect,
               <button
                 key={s}
                 onClick={() => setShelf(s)}
-                className={`dex-pressable flex-1 rounded-control py-2 font-sans text-caption font-semibold tracking-widest ${
+                className={`dex-pressable flex-1 rounded-control py-2  text-micro  tracking-widest ${
                   active ? 'bg-[var(--lcd-accent)] text-[var(--lcd-on-accent)]' : 'bg-[var(--surface-raised)] text-[var(--lcd-subtext)] hover:text-[var(--lcd-text)]'
                 }`}
               >
@@ -199,12 +199,12 @@ const BookmarksScreen: React.FC<BookmarksScreenProps> = ({ allEntries, onSelect,
 
         {/* ---- Shelf header ---- */}
         <div className="flex items-center gap-2 px-4 py-2 bg-[var(--surface-raised)] border-b border-[var(--surface-line)]">
-          <h2 className="font-sans text-label tracking-widest text-[var(--lcd-accent)]">{SHELF_TITLE[shelf]}</h2>
+          <h2 className="text-label tracking-widest text-[var(--lcd-accent)]">{SHELF_TITLE[shelf]}</h2>
           <span className="flex-1" />
           {items.length > 0 && (
             <button
               onClick={() => setConfirmingClear(true)}
-              className="dex-pressable font-sans text-caption font-semibold tracking-widest text-[var(--livery-red)] border border-[var(--livery-red)] rounded-control px-2 py-1"
+              className="dex-pressable text-micro tracking-widest text-[var(--livery-red)] border border-[var(--livery-red)] rounded-control px-2 py-1"
             >
               CLEAR ALL
             </button>
@@ -225,8 +225,8 @@ const BookmarksScreen: React.FC<BookmarksScreenProps> = ({ allEntries, onSelect,
           {items.length === 0 ? (
             <div className="text-center py-16 opacity-70 flex flex-col items-center">
               {EMPTY[shelf].glyph}
-              <p className="font-sans text-label tracking-widest text-[var(--lcd-text)]">{EMPTY[shelf].head}</p>
-              <p className="font-sans text-caption text-[var(--lcd-subtext)] mt-2 normal-case max-w-[15rem] leading-relaxed">{EMPTY[shelf].hint}</p>
+              <p className="text-label tracking-widest text-[var(--lcd-text)]">{EMPTY[shelf].head}</p>
+              <p className="text-caption text-[var(--lcd-subtext)] mt-2 normal-case max-w-[15rem] leading-relaxed">{EMPTY[shelf].hint}</p>
             </div>
           ) : (
             <div className="flex flex-col gap-2 relative z-10 pb-4">
@@ -268,7 +268,7 @@ const BookmarksScreen: React.FC<BookmarksScreenProps> = ({ allEntries, onSelect,
                         </span>
                         {/* Stars only when unrated — iOS shows no placeholder text. */}
                         {rating?.note ? (
-                          <span className="font-sans text-caption text-[var(--lcd-text)] normal-case truncate flex-1 text-left">{rating.note}</span>
+                          <span className="text-caption text-[var(--lcd-text)] normal-case truncate flex-1 text-left">{rating.note}</span>
                         ) : (
                           <span className="flex-1" />
                         )}

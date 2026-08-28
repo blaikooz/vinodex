@@ -69,8 +69,8 @@ export const DexAlert: React.FC<{
       }}
     >
       <div className={`w-full max-w-xs bg-stone-900 border-2 ${t.border} rounded-card p-5 flex flex-col gap-4 text-center`}>
-        <p className={`font-sans text-label tracking-widest ${t.title}`}>{title}</p>
-        <div className="font-sans text-caption leading-relaxed text-stone-300 normal-case">{children}</div>
+        <p className={`text-label tracking-widest ${t.title}`}>{title}</p>
+        <div className="text-caption leading-relaxed text-stone-300 normal-case">{children}</div>
         <div className="flex gap-3">
           {actions.map((a, i) => (
             <button
@@ -79,8 +79,8 @@ export const DexAlert: React.FC<{
               onClick={a.onClick}
               className={
                 a.kind === 'cancel'
-                  ? 'dex-pressable flex-1 font-sans text-caption font-semibold tracking-widest text-stone-300 border-2 border-stone-600 rounded-control py-3'
-                  : `dex-pressable flex-1 font-sans text-caption font-semibold tracking-widest ${t.confirmText} ${t.confirmBg} border-2 ${t.confirmBorder} rounded-control py-3`
+                  ? 'dex-pressable flex-1 text-micro tracking-widest text-stone-300 border-2 border-stone-600 rounded-control py-3'
+                  : `dex-pressable flex-1 text-micro tracking-widest ${t.confirmText} ${t.confirmBg} border-2 ${t.confirmBorder} rounded-control py-3`
               }
             >
               {a.label}

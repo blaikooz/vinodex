@@ -117,7 +117,7 @@ const EntryTile: React.FC<EntryTileProps> = ({ entry, onPress, index, anchorId }
       <div className="flex flex-col flex-1 min-w-0 justify-center h-full items-start py-1">
           {/* Title - the sans heading step. Uppercase stays: an entry name on
               the readout is the product's voice, not a paragraph. */}
-          <h3 className="font-sans text-heading dex-text leading-tight group-hover:text-[var(--lcd-accent)] transition-colors w-full text-left mb-2 tracking-tight whitespace-normal break-words">
+          <h3 className="text-heading dex-text leading-tight group-hover:text-[var(--lcd-accent)] transition-colors w-full text-left mb-2 tracking-tight whitespace-normal break-words">
             {entry.name.toUpperCase()}
           </h3>
 

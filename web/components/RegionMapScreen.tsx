@@ -151,7 +151,7 @@ const RegionMapScreen: React.FC<RegionMapScreenProps> = ({ onSelectContinent, on
                   className="dex-pressable group flex items-center gap-3 px-10 py-3 bg-green-400 text-black border border-green-200 rounded-full hover:bg-green-300 hover:border-white transition-all duration-300 shadow-[0_0_20px_rgba(74,222,128,0.4)]"
                 >
                   <Search size={16} className="group-hover:scale-110 transition-transform" />
-                  <span className="font-sans text-label font-semibold tracking-widest">SEARCH WORLD</span>
+                  <span className="text-label tracking-widest">SEARCH WORLD</span>
                 </button>
               </div>
             </div>

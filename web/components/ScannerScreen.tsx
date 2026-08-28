@@ -95,7 +95,7 @@ const ScannerScreen: React.FC<ScannerScreenProps> = ({ allEntries, onOpen, onBac
   const skipButton = (
     <button
       onClick={advance}
-      className="dex-pressable font-sans text-label tracking-widest text-[var(--lcd-subtext)] border border-[var(--surface-line-strong)] rounded-full px-5 py-3"
+      className="dex-pressable text-label tracking-widest text-[var(--lcd-subtext)] border border-[var(--surface-line-strong)] rounded-full px-5 py-3"
     >
       NOT SURE
     </button>
@@ -106,7 +106,7 @@ const ScannerScreen: React.FC<ScannerScreenProps> = ({ allEntries, onOpen, onBac
       key={label}
       onClick={onClick}
       disabled={disabled}
-      className={`dex-pressable font-sans text-label tracking-wide rounded-card px-4 py-4 border shadow-elev-1 ${
+      className={`dex-pressable  text-label tracking-wide rounded-card px-4 py-4 border shadow-elev-1 ${
         selected
           ? 'bg-[var(--lcd-accent)] border-[var(--lcd-accent)] text-[var(--lcd-on-accent)]'
           : disabled
@@ -120,11 +120,11 @@ const ScannerScreen: React.FC<ScannerScreenProps> = ({ allEntries, onOpen, onBac
 
   const prompt = (text: string, subtitle?: string) => (
     <div className="flex flex-col items-center gap-2">
-      <p className="font-sans text-heading font-semibold tracking-widest text-[var(--lcd-accent)] text-center leading-relaxed">
+      <p className="text-heading tracking-widest text-[var(--lcd-accent)] text-center leading-relaxed">
         {text}
       </p>
       {subtitle && (
-        <p className="font-sans text-caption text-[var(--lcd-subtext)] text-center normal-case leading-relaxed max-w-xs">
+        <p className="text-caption text-[var(--lcd-subtext)] text-center normal-case leading-relaxed max-w-xs">
           {subtitle}
         </p>
       )}
@@ -215,7 +215,7 @@ const ScannerScreen: React.FC<ScannerScreenProps> = ({ allEntries, onOpen, onBac
 
             {/* Flavours are ANDed, so the basket is capped at three — a fourth
                 specific note reliably matches nothing. */}
-            <p className="font-sans text-caption text-[var(--lcd-body-text)] tracking-widest">
+            <p className="text-micro text-[var(--lcd-body-text)] tracking-widest">
               BASKET {criteria.flavorIds.length}/{FLAVOR_LIMIT}
             </p>
 
@@ -245,21 +245,21 @@ const ScannerScreen: React.FC<ScannerScreenProps> = ({ allEntries, onOpen, onBac
             </div>
 
             {searching && searchMatches.length === 0 && (
-              <p className="font-sans text-caption text-[var(--lcd-subtext)]">NO FLAVOR MATCHES THAT.</p>
+              <p className="text-caption text-[var(--lcd-subtext)]">NO FLAVOR MATCHES THAT.</p>
             )}
 
             <div className="flex gap-3">
               {openFlavorClass && (
                 <button
                   onClick={() => setOpenFlavorClass(null)}
-                  className="dex-pressable font-sans text-label tracking-widest text-[var(--lcd-accent)] border border-[var(--surface-line-strong)] rounded-full px-5 py-3"
+                  className="dex-pressable text-label tracking-widest text-[var(--lcd-accent)] border border-[var(--surface-line-strong)] rounded-full px-5 py-3"
                 >
                   CLASSES
                 </button>
               )}
               <button
                 onClick={advance}
-                className="dex-pressable font-sans text-label tracking-widest text-[var(--lcd-on-accent)] bg-[var(--lcd-accent)] rounded-full px-6 py-3 shadow-elev-1"
+                className="dex-pressable text-label tracking-widest text-[var(--lcd-on-accent)] bg-[var(--lcd-accent)] rounded-full px-6 py-3 shadow-elev-1"
               >
                 SCAN
               </button>
@@ -280,23 +280,23 @@ const ScannerScreen: React.FC<ScannerScreenProps> = ({ allEntries, onOpen, onBac
             {criteriaAreEmpty(criteria) ? (
               // A reveal from a blank slate is just a shuffled list; say so
               // rather than presenting all 80 grapes as a deduction.
-              <p className="font-sans text-label tracking-widest text-[var(--livery-amber)] text-center leading-relaxed">
+              <p className="text-label tracking-widest text-[var(--livery-amber)] text-center leading-relaxed">
                 NO CRITERIA
                 <br />
                 EVERY GRAPE MATCHES.
               </p>
             ) : (
-              <p className="font-sans text-label tracking-widest text-[var(--lcd-accent)] text-center">
+              <p className="text-label tracking-widest text-[var(--lcd-accent)] text-center">
                 {matches.length} {matches.length === 1 ? 'MATCH' : 'MATCHES'}
               </p>
             )}
 
             {matches.length === 0 || !best ? (
               <div className="flex flex-col items-center gap-3 rounded-card border-2 border-[var(--livery-amber)] py-8 px-4" style={{ backgroundColor: 'color-mix(in srgb, var(--livery-amber) 10%, transparent)' }}>
-                <p className="font-sans text-heading font-semibold tracking-widest text-[var(--livery-amber)] text-center">
+                <p className="text-heading tracking-widest text-[var(--livery-amber)] text-center">
                   GRAPE NOT FOUND
                 </p>
-                <p className="font-sans text-body text-[var(--lcd-text)] text-center normal-case leading-relaxed max-w-xs">
+                <p className="text-body text-[var(--lcd-text)] text-center normal-case leading-relaxed max-w-xs">
                   You&apos;re drinking rare grapes! Nothing in the database fits all of that —
                   loosen a criterion and scan again, or accept the compliment.
                 </p>
@@ -305,7 +305,7 @@ const ScannerScreen: React.FC<ScannerScreenProps> = ({ allEntries, onOpen, onBac
               <>
                 {/* BEST MATCH hero */}
                 <div className="flex flex-col items-center gap-3 rounded-card border border-[var(--surface-line-strong)] dex-info-wash py-5 px-4 shadow-elev-1">
-                  <p className="font-sans text-caption tracking-widest text-[var(--livery-amber)]">
+                  <p className="text-micro tracking-widest text-[var(--livery-amber)]">
                     {matches.length === 1 ? "IT'S PROBABLY" : 'BEST MATCH'}
                   </p>
                   <div
@@ -313,12 +313,12 @@ const ScannerScreen: React.FC<ScannerScreenProps> = ({ allEntries, onOpen, onBac
                   >
                     {heroVisual?.iconNode}
                   </div>
-                  <p className="font-sans text-title font-bold text-[var(--lcd-text)] text-center break-words px-2">
+                  <p className="text-title text-[var(--lcd-text)] text-center break-words px-2">
                     {best.name.toUpperCase()}
                   </p>
                   <button
                     onClick={() => onOpen(best)}
-                    className="dex-pressable font-sans text-label tracking-widest text-[var(--lcd-on-accent)] bg-[var(--lcd-accent)] rounded-full px-8 py-3 shadow-elev-1"
+                    className="dex-pressable text-label tracking-widest text-[var(--lcd-on-accent)] bg-[var(--lcd-accent)] rounded-full px-8 py-3 shadow-elev-1"
                   >
                     OPEN ENTRY
                   </button>
@@ -326,7 +326,7 @@ const ScannerScreen: React.FC<ScannerScreenProps> = ({ allEntries, onOpen, onBac
 
                 {others.length > 0 && (
                   <div className="flex flex-col gap-2">
-                    <p className="font-sans text-label tracking-widest text-[var(--lcd-accent)]">
+                    <p className="text-label tracking-widest text-[var(--lcd-accent)]">
                       ALSO FITS ({matches.length - 1} MORE)
                     </p>
                     {others.map((entry, index) => (
@@ -339,7 +339,7 @@ const ScannerScreen: React.FC<ScannerScreenProps> = ({ allEntries, onOpen, onBac
 
             <button
               onClick={restart}
-              className="dex-pressable self-center font-sans text-label tracking-widest text-[var(--lcd-accent)] border border-[var(--surface-line-strong)] rounded-full px-6 py-3 mt-2"
+              className="dex-pressable self-center text-label tracking-widest text-[var(--lcd-accent)] border border-[var(--surface-line-strong)] rounded-full px-6 py-3 mt-2"
             >
               SCAN AGAIN
             </button>
@@ -359,7 +359,7 @@ const ScannerScreen: React.FC<ScannerScreenProps> = ({ allEntries, onOpen, onBac
               <ChevronLeft size={22} />
             </button>
           )}
-          <span className="font-sans text-caption tracking-widest text-[var(--lcd-accent)]">
+          <span className="text-micro tracking-widest text-[var(--lcd-accent)]">
             {step === 'reveal' ? 'RESULT' : `STEP ${questionNumber} OF ${STEP_ORDER.length}`}
           </span>
 
@@ -368,7 +368,7 @@ const ScannerScreen: React.FC<ScannerScreenProps> = ({ allEntries, onOpen, onBac
           {!criteriaAreEmpty(criteria) && (
             <button
               onClick={restart}
-              className="ml-auto font-sans text-caption font-semibold tracking-widest text-[var(--lcd-accent)] hover:opacity-75 px-2 py-1 transition-opacity"
+              className="ml-auto text-micro tracking-widest text-[var(--lcd-accent)] hover:opacity-75 px-2 py-1 transition-opacity"
             >
               RESET
             </button>

@@ -18,7 +18,7 @@ const Chip: React.FC<ChipProps> = ({ label, color = '', colorStyle, icon, classN
   // `colorStyle` values come from `shared/services/chipColors`, which is the
   // catalogue's own vocabulary (a country's chip is that country's colour on
   // both platforms) and deliberately does not follow the screen mode.
-  const base = `inline-flex items-center justify-center px-2 py-0.5 rounded border font-sans text-caption uppercase leading-tight ${colorStyle ? '' : color} ${className}`.trim();
+  const base = `inline-flex items-center justify-center px-2 py-0.5 rounded border text-micro uppercase leading-tight ${colorStyle ? '' : color} ${className}`.trim();
   const inlineColors: React.CSSProperties = colorStyle
     ? { backgroundColor: colorStyle.bg, borderColor: colorStyle.border, color: colorStyle.text }
     : {};

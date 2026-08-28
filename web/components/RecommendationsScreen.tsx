@@ -38,10 +38,10 @@ const RecommendationsScreen: React.FC<RecommendationsScreenProps> = ({ allEntrie
     <DeviceLayout title="YOU MIGHT LIKE" subtitle="" showBack onBack={onBack} onHome={onHome} centerHeaderText>
       <div className="h-full overflow-y-auto custom-scrollbar p-3 flex flex-col gap-2.5" style={{ backgroundColor: 'var(--lcd-page)' }}>
         <div>
-          <h2 className="font-sans text-label uppercase tracking-widest text-[var(--lcd-accent)] pb-1 border-b-2" style={{ borderColor: 'color-mix(in srgb, var(--lcd-accent) 45%, transparent)' }}>
+          <h2 className="text-label uppercase tracking-widest text-[var(--lcd-accent)] pb-1 border-b-2" style={{ borderColor: 'color-mix(in srgb, var(--lcd-accent) 45%, transparent)' }}>
             YOU MIGHT LIKE
           </h2>
-          <p className="font-sans text-caption text-[var(--lcd-subtext)] normal-case mt-1.5">
+          <p className="text-caption text-[var(--lcd-subtext)] normal-case mt-1.5">
             {picks.length === 0
               ? 'Ranked against what you have tasted.'
               : `${picks.length} untried, ranked against what you have tasted.`}
@@ -53,8 +53,8 @@ const RecommendationsScreen: React.FC<RecommendationsScreenProps> = ({ allEntrie
           // told enough yet. Said out loud here, because unlike the strip this
           // page was asked for and cannot simply not appear.
           <div className="flex-1 flex flex-col items-center justify-center gap-3 p-6 text-center">
-            <div className="font-sans text-label tracking-widest text-[var(--lcd-accent)]">NOTHING YET</div>
-            <p className="font-sans text-caption text-[var(--lcd-text)] normal-case max-w-[18rem] leading-relaxed">
+            <div className="text-label tracking-widest text-[var(--lcd-accent)]">NOTHING YET</div>
+            <p className="text-caption text-[var(--lcd-text)] normal-case max-w-[18rem] leading-relaxed">
               Mark a few more entries tried and the device will start guessing.
               It would rather say nothing than guess from two.
             </p>

@@ -66,7 +66,7 @@ export const SectionHeader: React.FC<{
 }> = ({ icon, label, gap = 'mb-3' }) => (
   <div className={`flex items-center gap-2 ${gap} dex-section-rule pb-1 text-[var(--lcd-accent)]`}>
     {icon}
-    <h2 className="font-sans text-label uppercase tracking-widest">{label}</h2>
+    <h2 className="text-label uppercase tracking-widest">{label}</h2>
   </div>
 );
 
@@ -134,11 +134,11 @@ export const LinkedEntryTile: React.FC<{
 
       <div className="flex-1 flex items-center gap-2 min-w-0">
         <div className="flex-1">
-          <span className={`font-sans text-heading leading-tight break-words whitespace-normal ${isLinkable ? 'dex-text group-hover:text-[var(--lcd-accent)]' : 'dex-disabled'}`}>
+          <span className={`text-heading leading-tight break-words whitespace-normal ${isLinkable ? 'dex-text group-hover:text-[var(--lcd-accent)]' : 'dex-disabled'}`}>
             {displayName}
           </span>
           {options?.useCountryFlag && classificationLabel && (
-            <span className="font-sans text-caption tracking-widest uppercase text-[var(--lcd-subtext)] block">
+            <span className="text-micro tracking-widest uppercase text-[var(--lcd-subtext)] block">
               {classificationLabel}
             </span>
           )}
@@ -225,7 +225,7 @@ export const LinkedListSection: React.FC<{
               toggleFlag(expandKey.stateKey, expandKey.flag);
               forceRender();
             }}
-            className="dex-pressable w-full flex items-center justify-center gap-2 py-3 rounded-full border border-[var(--surface-line-strong)] hover:border-[var(--lcd-accent)] font-sans text-caption tracking-widest text-[var(--lcd-accent)]"
+            className="dex-pressable w-full flex items-center justify-center gap-2 py-3 rounded-full border border-[var(--surface-line-strong)] hover:border-[var(--lcd-accent)] text-micro tracking-widest text-[var(--lcd-accent)]"
           >
             {expanded ? <ChevronUp size={13} strokeWidth={3} /> : <ChevronDown size={13} strokeWidth={3} />}
             {expanded ? 'SHOW FEWER' : `EXPAND ALL (${items.length})`}

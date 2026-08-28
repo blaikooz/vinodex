@@ -200,7 +200,7 @@ const SkinPreviewTile: React.FC<{ id: ChassisSkinId; selected: boolean; onClick:
         </span>
         {selected && <Check size={12} className="absolute bottom-0.5 right-0.5" style={{ color: s.onBody }} />}
       </span>
-      <span className="font-sans text-caption leading-tight text-center min-h-6 flex items-center justify-center" style={{ color: selected ? 'var(--lcd-on-accent)' : 'var(--lcd-subtext)' }}>{s.displayName}</span>
+      <span className="text-caption leading-tight text-center min-h-6 flex items-center justify-center" style={{ color: selected ? 'var(--lcd-on-accent)' : 'var(--lcd-subtext)' }}>{s.displayName}</span>
     </button>
   );
 };
@@ -223,7 +223,7 @@ const ModePreviewTile: React.FC<{ id: LcdModeId; selected: boolean; onClick: () 
         </span>
         {m.monochromeTint && <span className="absolute inset-0" style={{ backgroundColor: m.monochromeTint, mixBlendMode: 'multiply' }} />}
       </span>
-      <span className="font-sans text-caption text-center" style={{ color: selected ? 'var(--lcd-on-accent)' : 'var(--lcd-subtext)' }}>{m.displayName}</span>
+      <span className="text-caption text-center" style={{ color: selected ? 'var(--lcd-on-accent)' : 'var(--lcd-subtext)' }}>{m.displayName}</span>
     </button>
   );
 };
@@ -270,7 +270,7 @@ export const SettingsGrid: React.FC<{
         style={{ backgroundColor: 'var(--lcd-surface)', borderColor: 'var(--lcd-surface-edge)' }}
       >
         <LogOut size={18} style={{ color: 'var(--lcd-subtext)' }} />
-        <span className="font-sans text-label tracking-widest" style={{ color: 'var(--lcd-text)' }}>
+        <span className="text-label tracking-widest" style={{ color: 'var(--lcd-text)' }}>
           EXIT TO SITE
         </span>
       </button>
@@ -288,7 +288,7 @@ export const SettingsGrid: React.FC<{
 const Section: React.FC<{ title: string; children: React.ReactNode }> = ({ title, children }) => (
   <div className="mb-6">
     <div className="flex items-center gap-2 mb-3 pb-1 border-b-2" style={{ borderColor: 'var(--lcd-accent)' }}>
-      <h2 className="font-sans text-label uppercase tracking-widest" style={{ color: 'var(--lcd-accent)' }}>
+      <h2 className="text-label uppercase tracking-widest" style={{ color: 'var(--lcd-accent)' }}>
         {title}
       </h2>
     </div>
@@ -353,7 +353,7 @@ const ChoiceRow: React.FC<{
         />
       )
     )}
-    <span className="font-sans text-label tracking-widest text-left flex-1">
+    <span className="text-label tracking-widest text-left flex-1">
       {label}
     </span>
     {selected && <Check size={18} />}
@@ -381,10 +381,10 @@ const IconToggleRow: React.FC<{ icon: React.ReactNode; title: string; detail: st
   >
     <span className="shrink-0" style={{ color: on ? 'var(--lcd-accent)' : 'var(--lcd-subtext)' }}>{icon}</span>
     <span className="flex-1 min-w-0">
-      <span className="block font-sans text-label tracking-widest" style={{ color: 'var(--lcd-text)' }}>
+      <span className="block text-label tracking-widest" style={{ color: 'var(--lcd-text)' }}>
         {title}
       </span>
-      <span className="block font-sans text-caption normal-case mt-1" style={{ color: 'var(--lcd-subtext)' }}>
+      <span className="block text-caption normal-case mt-1" style={{ color: 'var(--lcd-subtext)' }}>
         {detail}
       </span>
     </span>
@@ -453,8 +453,8 @@ const StatTile: React.FC<{ label: string; count: number }> = ({ label, count }) 
     >
       <span className="shrink-0 w-6 flex justify-center" style={{ color: glyph.tint }}>{glyph.icon}</span>
       <span className="flex flex-col min-w-0">
-        <span className="font-sans text-heading font-bold" style={{ color: 'var(--lcd-text)' }}>{count}</span>
-        <span className="font-sans text-caption truncate" style={{ color: 'var(--lcd-subtext)' }}>{label}</span>
+        <span className="text-heading" style={{ color: 'var(--lcd-text)' }}>{count}</span>
+        <span className="text-caption truncate" style={{ color: 'var(--lcd-subtext)' }}>{label}</span>
       </span>
     </div>
   );
@@ -524,7 +524,7 @@ const GrowthWave: React.FC<{ milestones: number[] }> = ({ milestones }) => {
         ))}
       </svg>
       <span
-        className="absolute top-1.5 left-2 font-sans text-title leading-none pointer-events-none"
+        className="absolute top-1.5 left-2 text-title leading-none pointer-events-none"
         style={{ color: 'var(--lcd-accent)' }}
       >
         {Math.round(total * t)}
@@ -538,10 +538,10 @@ const StatRow: React.FC<{ label: string; value: string }> = ({ label, value }) =
     className="flex items-center justify-between px-3 py-2.5 rounded border-2 mb-2"
     style={{ backgroundColor: 'var(--lcd-surface)', borderColor: 'var(--lcd-surface-edge)' }}
   >
-    <span className="font-sans text-caption tracking-widest" style={{ color: 'var(--lcd-subtext)' }}>
+    <span className="text-micro tracking-widest" style={{ color: 'var(--lcd-subtext)' }}>
       {label}
     </span>
-    <span className="font-sans text-body font-bold" style={{ color: 'var(--lcd-text)' }}>
+    <span className="text-body" style={{ color: 'var(--lcd-text)' }}>
       {value}
     </span>
   </div>
@@ -554,12 +554,12 @@ const HealthRow: React.FC<{ label: string; ok: boolean; detail: string }> = ({ l
     className="flex items-center justify-between px-3 py-2.5 rounded border-2 mb-2"
     style={{ backgroundColor: 'var(--lcd-surface)', borderColor: 'var(--lcd-surface-edge)' }}
   >
-    <span className="font-sans text-caption tracking-widest" style={{ color: 'var(--lcd-subtext)' }}>
+    <span className="text-micro tracking-widest" style={{ color: 'var(--lcd-subtext)' }}>
       {label}
     </span>
     <span className="flex items-center gap-2">
-      <span className="font-sans text-caption normal-case" style={{ color: 'var(--lcd-subtext)' }}>{detail}</span>
-      <span className="font-sans text-caption font-bold tracking-widest" style={{ color: ok ? 'var(--livery-green)' : 'var(--livery-red)' }}>
+      <span className="text-caption normal-case" style={{ color: 'var(--lcd-subtext)' }}>{detail}</span>
+      <span className="text-micro tracking-widest" style={{ color: ok ? 'var(--livery-green)' : 'var(--livery-red)' }}>
         {ok ? 'OK' : '!!'}
       </span>
     </span>
@@ -664,8 +664,8 @@ export const SettingsSectionPanel: React.FC<{
               >
                 <span style={{ color: 'var(--lcd-subtext)' }}><Wrench size={20} /></span>
                 <span className="flex-1 min-w-0">
-                  <span className="block font-sans text-label tracking-widest" style={{ color: 'var(--lcd-text)' }}>DEVICE WORKSHOP</span>
-                  <span className="block font-sans text-caption normal-case mt-1" style={{ color: 'var(--lcd-subtext)' }}>
+                  <span className="block text-label tracking-widest" style={{ color: 'var(--lcd-text)' }}>DEVICE WORKSHOP</span>
+                  <span className="block text-caption normal-case mt-1" style={{ color: 'var(--lcd-subtext)' }}>
                     Build the device part by part — buttons, lamps, marquee, grille, font — and save it under a name.
                   </span>
                 </span>
@@ -713,7 +713,7 @@ export const SettingsSectionPanel: React.FC<{
                   onClick={() => setTextScale(id)}
                 />
               ))}
-              <p className="font-sans text-caption leading-relaxed normal-case mt-1" style={{ color: 'var(--lcd-subtext)' }}>
+              <p className="text-caption leading-relaxed normal-case mt-1" style={{ color: 'var(--lcd-subtext)' }}>
                 Applies everywhere. Capped so the retro face still fits its tiles.
               </p>
             </Section>
@@ -727,7 +727,7 @@ export const SettingsSectionPanel: React.FC<{
                   onClick={() => setUiScale(id)}
                 />
               ))}
-              <p className="font-sans text-caption leading-relaxed normal-case mt-1" style={{ color: 'var(--lcd-subtext)' }}>
+              <p className="text-caption leading-relaxed normal-case mt-1" style={{ color: 'var(--lcd-subtext)' }}>
                 Buttons, wells and chassis chrome — the text keeps its own size above.
               </p>
             </Section>
@@ -750,7 +750,7 @@ export const SettingsSectionPanel: React.FC<{
                 on={sounds}
                 onToggle={() => { const next = !sounds; setSoundsEnabled(next); setSounds(next); }}
               />
-              <p className="font-sans text-caption leading-relaxed normal-case mt-1" style={{ color: 'var(--lcd-subtext)' }}>
+              <p className="text-caption leading-relaxed normal-case mt-1" style={{ color: 'var(--lcd-subtext)' }}>
                 The ring/silent switch always wins — sounds never interrupt your music.
               </p>
             </Section>
@@ -782,8 +782,8 @@ export const SettingsSectionPanel: React.FC<{
               >
                 <span><PixelControlGlyph family="glyph" stem="seal" /></span>
                 <span className="flex-1 min-w-0">
-                  <span className="block font-sans text-label tracking-widest" style={{ color: 'var(--lcd-text)' }}>SUPPORT</span>
-                  <span className="block font-sans text-caption normal-case mt-1" style={{ color: 'var(--lcd-subtext)' }}>
+                  <span className="block text-label tracking-widest" style={{ color: 'var(--lcd-text)' }}>SUPPORT</span>
+                  <span className="block text-caption normal-case mt-1" style={{ color: 'var(--lcd-subtext)' }}>
                     Something broken, or something it should do? Write in.
                   </span>
                 </span>
@@ -799,8 +799,8 @@ export const SettingsSectionPanel: React.FC<{
               >
                 <span><PixelControlGlyph stem="cheatcodes" /></span>
                 <span className="flex-1 min-w-0">
-                  <span className="block font-sans text-label tracking-widest" style={{ color: 'var(--lcd-text)' }}>CHEAT CODES</span>
-                  <span className="block font-sans text-caption normal-case mt-1" style={{ color: 'var(--lcd-subtext)' }}>
+                  <span className="block text-label tracking-widest" style={{ color: 'var(--lcd-text)' }}>CHEAT CODES</span>
+                  <span className="block text-caption normal-case mt-1" style={{ color: 'var(--lcd-subtext)' }}>
                     Found, not listed. Type one and see.
                   </span>
                 </span>
@@ -816,8 +816,8 @@ export const SettingsSectionPanel: React.FC<{
               >
                 <span><PixelControlGlyph stem="demomode" /></span>
                 <span className="flex-1 min-w-0">
-                  <span className="block font-sans text-label tracking-widest" style={{ color: 'var(--lcd-text)' }}>START DEMO</span>
-                  <span className="block font-sans text-caption normal-case mt-1" style={{ color: 'var(--lcd-subtext)' }}>
+                  <span className="block text-label tracking-widest" style={{ color: 'var(--lcd-text)' }}>START DEMO</span>
+                  <span className="block text-caption normal-case mt-1" style={{ color: 'var(--lcd-subtext)' }}>
                     The unattended tour — {DEMO_STOPS.length} stops, about {Math.round(demoCycleSeconds())}s a lap. Touch anything to take over.
                   </span>
                 </span>
@@ -839,16 +839,16 @@ export const SettingsSectionPanel: React.FC<{
                     >
                       <span style={{ color: 'var(--lcd-subtext)' }}><UserRound size={18} /></span>
                       <span className="flex-1 min-w-0">
-                        <span className="block font-sans text-label tracking-widest truncate" style={{ color: p ? 'var(--lcd-text)' : 'var(--lcd-subtext)' }}>
+                        <span className="block text-label tracking-widest truncate" style={{ color: p ? 'var(--lcd-text)' : 'var(--lcd-subtext)' }}>
                           {p ? p.name : `SLOT ${slot}`}
                         </span>
-                        <span className="block font-sans text-caption normal-case mt-0.5" style={{ color: 'var(--lcd-subtext)' }}>
+                        <span className="block text-caption normal-case mt-0.5" style={{ color: 'var(--lcd-subtext)' }}>
                           {p ? (p.savedAt ? new Date(p.savedAt).toLocaleDateString() : 'seeded — loads fresh') : 'empty'}
                         </span>
                       </span>
                       <button
                         onClick={() => setPendingProfile({ mode: 'save', slot })}
-                        className="dex-pressable font-sans text-caption font-semibold tracking-widest px-2.5 py-2 rounded-control border-2"
+                        className="dex-pressable text-micro tracking-widest px-2.5 py-2 rounded-control border-2"
                         style={{ borderColor: 'var(--lcd-surface-edge)', color: 'var(--lcd-text)' }}
                       >
                         SAVE
@@ -856,7 +856,7 @@ export const SettingsSectionPanel: React.FC<{
                       {p && (
                         <button
                           onClick={() => setPendingProfile({ mode: 'load', slot })}
-                          className="dex-pressable font-sans text-caption font-semibold tracking-widest px-2.5 py-2 rounded-control border-2 border-[var(--livery-amber)] text-[var(--livery-amber)]"
+                          className="dex-pressable text-micro tracking-widest px-2.5 py-2 rounded-control border-2 border-[var(--livery-amber)] text-[var(--livery-amber)]"
                         >
                           LOAD
                         </button>
@@ -871,8 +871,8 @@ export const SettingsSectionPanel: React.FC<{
                 >
                   <span style={{ color: 'var(--lcd-subtext)' }}><Sparkle size={18} /></span>
                   <span className="flex-1 min-w-0">
-                    <span className="block font-sans text-label tracking-widest" style={{ color: 'var(--lcd-text)' }}>{FRESH_PROFILE_NAME}</span>
-                    <span className="block font-sans text-caption normal-case mt-0.5" style={{ color: 'var(--lcd-subtext)' }}>
+                    <span className="block text-label tracking-widest" style={{ color: 'var(--lcd-text)' }}>{FRESH_PROFILE_NAME}</span>
+                    <span className="block text-caption normal-case mt-0.5" style={{ color: 'var(--lcd-subtext)' }}>
                       A fresh install, every time. For walking the first run.
                     </span>
                   </span>
@@ -901,8 +901,8 @@ export const SettingsSectionPanel: React.FC<{
               >
                 <span style={{ color: 'var(--lcd-subtext)' }}><Download size={20} /></span>
                 <span className="flex-1 min-w-0">
-                  <span className="block font-sans text-label tracking-widest" style={{ color: 'var(--lcd-text)' }}>EXPORT BACKUP</span>
-                  <span className="block font-sans text-caption normal-case mt-1" style={{ color: 'var(--lcd-subtext)' }}>
+                  <span className="block text-label tracking-widest" style={{ color: 'var(--lcd-text)' }}>EXPORT BACKUP</span>
+                  <span className="block text-caption normal-case mt-1" style={{ color: 'var(--lcd-subtext)' }}>
                     Shelves, ratings, progress and settings as one file you own.
                   </span>
                 </span>
@@ -913,8 +913,8 @@ export const SettingsSectionPanel: React.FC<{
               >
                 <span style={{ color: 'var(--lcd-subtext)' }}><Upload size={20} /></span>
                 <span className="flex-1 min-w-0">
-                  <span className="block font-sans text-label tracking-widest" style={{ color: 'var(--lcd-text)' }}>RESTORE BACKUP</span>
-                  <span className="block font-sans text-caption normal-case mt-1" style={{ color: 'var(--lcd-subtext)' }}>
+                  <span className="block text-label tracking-widest" style={{ color: 'var(--lcd-text)' }}>RESTORE BACKUP</span>
+                  <span className="block text-caption normal-case mt-1" style={{ color: 'var(--lcd-subtext)' }}>
                     Replaces what is here with a backup file. Purchases never import.
                   </span>
                 </span>
@@ -948,12 +948,12 @@ export const SettingsSectionPanel: React.FC<{
 
               <button
                 onClick={() => setConfirmingWipe(true)}
-                className="dex-pressable w-full py-4 rounded-control border-2 font-sans text-label tracking-widest"
+                className="dex-pressable w-full py-4 rounded-control border-2 text-label tracking-widest"
                 style={{ backgroundColor: 'var(--lcd-surface)', borderColor: 'color-mix(in srgb, var(--livery-red) 55%, transparent)', color: 'var(--livery-red)' }}
               >
                 CLEAR SAVED DATA
               </button>
-              <p className="font-sans text-caption leading-relaxed normal-case mt-2" style={{ color: 'var(--lcd-subtext)' }}>
+              <p className="text-caption leading-relaxed normal-case mt-2" style={{ color: 'var(--lcd-subtext)' }}>
                 Erases bookmarks, tastings and ratings, quiz progress, the daily
                 streak, name and photo, purchases, skin, screen and text settings.
                 The encyclopedia itself is untouched.
@@ -968,8 +968,8 @@ export const SettingsSectionPanel: React.FC<{
               >
                 <span style={{ color: 'var(--lcd-subtext)' }}><Bug size={20} /></span>
                 <span className="flex-1 min-w-0">
-                  <span className="block font-sans text-label tracking-widest" style={{ color: 'var(--lcd-text)' }}>DEV</span>
-                  <span className="block font-sans text-caption normal-case mt-1" style={{ color: 'var(--lcd-subtext)' }}>
+                  <span className="block text-label tracking-widest" style={{ color: 'var(--lcd-text)' }}>DEV</span>
+                  <span className="block text-caption normal-case mt-1" style={{ color: 'var(--lcd-subtext)' }}>
                     Diagnostics, the component gallery and the icon sheet.
                   </span>
                 </span>
@@ -1016,9 +1016,9 @@ export const SettingsSectionPanel: React.FC<{
                 style={{ backgroundColor: 'var(--lcd-surface)', borderColor: 'var(--lcd-surface-edge)' }}
               >
                 <span style={{ color: 'var(--lcd-accent)' }}><Layers size={26} /></span>
-                <span className="font-sans text-title font-bold" style={{ color: 'var(--lcd-text)' }}>{allEntries.length}</span>
+                <span className="text-title" style={{ color: 'var(--lcd-text)' }}>{allEntries.length}</span>
                 <span className="flex-1" />
-                <span className="font-sans text-caption tracking-wide" style={{ color: 'var(--lcd-subtext)' }}>
+                <span className="text-micro tracking-wide" style={{ color: 'var(--lcd-subtext)' }}>
                   ACROSS {categoryLines.length} TABLES
                 </span>
               </div>
@@ -1026,7 +1026,7 @@ export const SettingsSectionPanel: React.FC<{
 
             <Section title="GROWTH">
               <GrowthWave milestones={[0, 25, 186, 281, 342, allEntries.length]} />
-              <p className="font-sans text-caption leading-relaxed normal-case mt-2" style={{ color: 'var(--lcd-subtext)' }}>
+              <p className="text-caption leading-relaxed normal-case mt-2" style={{ color: 'var(--lcd-subtext)' }}>
                 Entries shipped, from the first starter selection to the current
                 build.
               </p>
@@ -1062,7 +1062,7 @@ export const SettingsSectionPanel: React.FC<{
                 on={locked}
                 onToggle={() => setStarterOnly(!locked)}
               />
-              <p className="font-sans text-caption leading-relaxed normal-case mt-2" style={{ color: 'var(--lcd-subtext)' }}>
+              <p className="text-caption leading-relaxed normal-case mt-2" style={{ color: 'var(--lcd-subtext)' }}>
                 Off means everything is open regardless of bundles — turn it on
                 to test the locked experience. This is a test harness, not a
                 paywall: nothing turns it on by itself.
@@ -1084,14 +1084,14 @@ export const SettingsSectionPanel: React.FC<{
               {grantedIds().length > 0 && (
                 <button
                   onClick={revokeAll}
-                  className="dex-pressable w-full mt-2 py-3 rounded-control border-2 border-[var(--livery-red)] font-sans text-caption font-semibold tracking-widest text-[var(--livery-red)]"
+                  className="dex-pressable w-full mt-2 py-3 rounded-control border-2 border-[var(--livery-red)] text-micro tracking-widest text-[var(--livery-red)]"
                 >
                   REVOKE ALL PURCHASES
                 </button>
               )}
             </Section>
 
-            <p className="font-sans text-caption leading-relaxed normal-case" style={{ color: 'var(--lcd-subtext)' }}>
+            <p className="text-caption leading-relaxed normal-case" style={{ color: 'var(--lcd-subtext)' }}>
               iOS ships a free-tier manifest naming which entries are open
               without a purchase. This app ships none, so with the switch on an
               entry counts as browsable only if a bundle you hold covers it.

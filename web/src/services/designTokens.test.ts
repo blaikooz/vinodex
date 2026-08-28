@@ -44,9 +44,9 @@ const css = fs
  */
 const TOKENS = {
   type: [
-    '--font-sans',
+    '--font-retro', '--font-mono',
     '--text-display', '--text-title', '--text-heading',
-    '--text-body', '--text-label', '--text-caption',
+    '--text-label', '--text-micro', '--text-body', '--text-caption',
   ],
   radius: ['--radius-control', '--radius-card', '--radius-surface'],
   elevation: ['--shadow-elev-1', '--shadow-elev-2', '--shadow-elev-3'],
@@ -170,24 +170,93 @@ describe('design tokens', () => {
    * offline hole and the render-gate flake in one line, and would do it
    * silently -- the page would still look right on a machine with a network.
    */
-  it('self-hosts its faces and imports none', () => {
+  it('self-hosts its two faces and imports none', () => {
     expect(css, 'a third-party font @import is back in index.css')
       .not.toMatch(/@import\s+url\(['"]?https:\/\/fonts\.googleapis/);
-    for (const face of ['Inter', 'Press Start 2P', 'VT323']) {
+    for (const face of ['Press Start 2P', 'VT323']) {
       expect(css, `${face} has no @font-face`).toContain(`font-family: '${face}'`);
     }
     const fonts = path.join(WEB_ROOT, 'public', 'fonts');
     for (const file of [
-      'inter-latin.woff2', 'inter-latin-ext.woff2',
       'press-start-2p-latin.woff2', 'press-start-2p-latin-ext.woff2',
       'vt323-latin.woff2', 'vt323-latin-ext.woff2',
     ]) {
       expect(fs.existsSync(path.join(fonts, file)), `public/fonts/${file} is missing`).toBe(true);
     }
     // SIL OFL 1.1 requires the licence to travel with the font.
-    for (const lic of ['OFL-Inter.txt', 'OFL-PressStart2P.txt', 'OFL-VT323.txt']) {
+    for (const lic of ['OFL-PressStart2P.txt', 'OFL-VT323.txt']) {
       expect(fs.existsSync(path.join(fonts, lic)), `public/fonts/${lic} is missing`).toBe(true);
     }
+  });
+
+  /**
+   * ALL RETRO, ALWAYS (v0.6.11 -- the PREMIUM RETRO ruling).
+   *
+   * v0.4.0 added Inter and v0.4.3 made it the body face; the owner reversed
+   * that: "Press Start 2P for headings, labels, chrome. VT323 for body and
+   * reading text. No sans font anywhere." This pins the reversal in four
+   * places a regression could enter -- a face declaration, a preload, the
+   * body default, and a class on any component -- because every one of them
+   * would otherwise be a silent taste drift rather than a failure.
+   */
+  describe('all-retro type', () => {
+    it('declares no sans face and preloads none', () => {
+      expect(css, 'an Inter @font-face is back').not.toContain("font-family: 'Inter'");
+      expect(css, 'a font file for Inter is referenced').not.toMatch(/inter-latin/);
+      // Comments stripped, so the note recording Inter's removal cannot fail
+      // the test that enforces it.
+      const html = fs.readFileSync(path.join(WEB_ROOT, 'index.html'), 'utf8').replace(/<!--[\s\S]*?-->/g, '');
+      expect(html, 'index.html preloads a sans face').not.toMatch(/inter-latin|Inter/);
+      const fonts = path.join(WEB_ROOT, 'public', 'fonts');
+      expect(fs.readdirSync(fonts).filter(f => /inter/i.test(f)), 'Inter files are still shipped').toEqual([]);
+    });
+
+    it('reads in VT323 by default and removes the font-sans utility', () => {
+      const body = /body\s*\{([^}]*)\}/.exec(css);
+      expect(body, 'no body rule').not.toBeNull();
+      expect(body![1], 'the body face is not the terminal face').toMatch(/font-family:\s*var\(--font-mono\)/);
+      expect(css, '`--font-sans: initial` is what stops Tailwind generating `font-sans`')
+        .toMatch(/--font-sans:\s*initial;/);
+    });
+
+    it('gives every type role its face: pixel for chrome, terminal for reading', () => {
+      const pixel = /:where\(([^)]*)\)\s*\{\s*font-family:\s*var\(--font-retro\);/.exec(css);
+      const terminal = /:where\(([^)]*)\)\s*\{\s*font-family:\s*var\(--font-mono\);/.exec(css);
+      expect(pixel, 'no role rule for the pixel face').not.toBeNull();
+      expect(terminal, 'no role rule for the terminal face').not.toBeNull();
+      for (const role of ['.text-display', '.text-title', '.text-heading', '.text-label', '.text-micro']) {
+        expect(pixel![1], `${role} is not Press Start 2P`).toContain(role);
+      }
+      for (const role of ['.text-body', '.text-caption']) {
+        expect(terminal![1], `${role} is not VT323`).toContain(role);
+      }
+    });
+
+    it('carries no font-sans class and no synthetic weight on a role, in any component', () => {
+      const offenders: string[] = [];
+      const walk = (dir: string) => {
+        for (const name of fs.readdirSync(dir)) {
+          const full = path.join(dir, name);
+          if (fs.statSync(full).isDirectory()) { walk(full); continue; }
+          if (!/\.tsx?$/.test(name) || name.includes('.test.')) continue;
+          const src = fs.readFileSync(full, 'utf8').replace(/\/\*[\s\S]*?\*\//g, '');
+          for (const line of src.split('\n')) {
+            if (/^\s*(\*|\/\/)/.test(line)) continue;
+            if (/\bfont-sans\b/.test(line)) offenders.push(`${name}: font-sans`);
+            // Both faces ship one weight; a `font-bold` on a role step is a
+            // faux bold the browser smears onto pixel art.
+            if (/\btext-(display|title|heading|label|micro|body|caption)\b/.test(line)
+              && /\bfont-(semibold|bold|extrabold|medium)\b/.test(line)) {
+              offenders.push(`${name}: synthetic weight on a type role`);
+            }
+          }
+        }
+      };
+      walk(path.join(WEB_ROOT, 'components'));
+      walk(path.join(WEB_ROOT, 'src'));
+      walk(path.join(WEB_ROOT, 'App.tsx').replace(/App\.tsx$/, ''));
+      expect([...new Set(offenders)], 'the sans is back, or a weight is faked').toEqual([]);
+    });
   });
 
   /**

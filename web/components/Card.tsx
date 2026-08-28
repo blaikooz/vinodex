@@ -236,7 +236,7 @@ export const Tile: React.FC<TileProps> = ({
     </span>
 
     {caption ? (
-      <span className="font-sans text-caption normal-case text-[var(--lcd-subtext)]">
+      <span className="text-caption normal-case text-[var(--lcd-subtext)]">
         {caption}
       </span>
     ) : null}

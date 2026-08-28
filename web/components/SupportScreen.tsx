@@ -21,22 +21,22 @@ const SupportScreen: React.FC<SupportScreenProps> = ({ onBack, onHome }) => {
   return (
     <DeviceLayout title="SUPPORT" subtitle="" showBack onBack={onBack} onHome={onHome} centerHeaderText>
       <div className="h-full overflow-y-auto custom-scrollbar p-4 flex flex-col gap-4" style={{ backgroundColor: 'var(--lcd-page)' }}>
-        <h2 className="font-sans text-label uppercase tracking-widest text-[var(--lcd-accent)] pb-1 border-b-2" style={{ borderColor: 'color-mix(in srgb, var(--lcd-accent) 45%, transparent)' }}>
+        <h2 className="text-label uppercase tracking-widest text-[var(--lcd-accent)] pb-1 border-b-2" style={{ borderColor: 'color-mix(in srgb, var(--lcd-accent) 45%, transparent)' }}>
           WRITE IN
         </h2>
 
-        <p className="font-sans text-body text-[var(--lcd-body-text)] normal-case leading-relaxed">{SUPPORT_BLURB}</p>
+        <p className="text-body text-[var(--lcd-body-text)] normal-case leading-relaxed">{SUPPORT_BLURB}</p>
 
         <a
           href={supportMailtoURL(APP_VERSION_DISPLAY)}
-          className="dex-pressable w-full flex items-center justify-center gap-2 rounded-control bg-[var(--lcd-accent)] py-3.5 font-sans text-label tracking-widest text-[var(--lcd-on-accent)] shadow-elev-1"
+          className="dex-pressable w-full flex items-center justify-center gap-2 rounded-control bg-[var(--lcd-accent)] py-3.5 text-label tracking-widest text-[var(--lcd-on-accent)] shadow-elev-1"
         >
           <Mail size={16} /> OPEN MAIL
         </a>
 
         {/* The address in the clear, for anyone whose browser has no mail
             handler — a mailto that silently does nothing would strand them. */}
-        <p className="font-sans text-caption text-[var(--lcd-subtext)] normal-case text-center">
+        <p className="text-caption text-[var(--lcd-subtext)] normal-case text-center">
           or write to <span className="text-[var(--lcd-text)] select-all">{SUPPORT_ADDRESS}</span>
         </p>
       </div>

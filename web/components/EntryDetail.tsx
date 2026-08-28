@@ -277,7 +277,7 @@ const EntryDetail: React.FC<EntryDetailProps> = ({ entry, allEntries, onBack, on
                 <SectionHeader icon={<BookOpen size={18} />} label="ALSO KNOWN AS" />
                 <div className="flex flex-wrap gap-2">
                     {grapeAlternateNames.map((name, i) => (
-                        <span key={i} className="dex-pill px-4 py-2 rounded font-sans text-body font-semibold tracking-wide">
+                        <span key={i} className="dex-pill px-4 py-2 rounded text-body tracking-wide">
                             {name}
                         </span>
                     ))}
@@ -290,7 +290,7 @@ const EntryDetail: React.FC<EntryDetailProps> = ({ entry, allEntries, onBack, on
             <div className="mb-6">
                 <SectionHeader icon={<Star size={24} />} label="RARITY" />
                 <div className="flex items-center gap-2">
-                  <span className="flex-1 flex items-center px-3 py-1.5 rounded-full border-2 font-sans text-body font-extrabold uppercase justify-between" style={{ letterSpacing: '0.1em', backgroundColor: rarityChipColors.bg, borderColor: rarityChipColors.border, color: rarityChipColors.text }}>
+                  <span className="flex-1 flex items-center px-3 py-1.5 rounded-full border-2 text-body uppercase justify-between" style={{ letterSpacing: '0.1em', backgroundColor: rarityChipColors.bg, borderColor: rarityChipColors.border, color: rarityChipColors.text }}>
                     {displayClass}
                     <span className="ml-2 flex items-center">
                       {(() => {
@@ -358,7 +358,7 @@ const EntryDetail: React.FC<EntryDetailProps> = ({ entry, allEntries, onBack, on
                       { label: 'COLOR', value: grapeCard.characteristics.colorIntensity, color: 'var(--livery-orange)' },
                     ]).map(stat => (
                       <div className="flex items-center gap-3" key={stat.label}>
-                          <span className="w-24 font-sans text-label dex-text tracking-widest shrink-0">{stat.label}</span>
+                          <span className="w-24 text-label dex-text tracking-widest shrink-0">{stat.label}</span>
                           <div className="flex-1 h-2 bg-[var(--surface-high)] flex gap-0.5 rounded-sm overflow-hidden">
                               {Array.from({ length: 5 }).map((_, i) => (
                                   <div key={i} className="flex-1 transition-all" style={{ backgroundColor: i < stat.value ? stat.color : 'transparent' }}></div>
@@ -389,7 +389,7 @@ const EntryDetail: React.FC<EntryDetailProps> = ({ entry, allEntries, onBack, on
                   thing worth recognising.
                 */}
                 <div className="flex flex-wrap items-start gap-x-3 gap-y-2">
-                    <span className="px-4 py-2 rounded font-sans text-body font-semibold tracking-wide shrink-0" style={{ backgroundColor: SYSTEM_CHIP_COLOR.bg, border: `1px solid ${SYSTEM_CHIP_COLOR.border}`, color: SYSTEM_CHIP_COLOR.text }}>
+                    <span className="px-4 py-2 rounded text-body tracking-wide shrink-0" style={{ backgroundColor: SYSTEM_CHIP_COLOR.bg, border: `1px solid ${SYSTEM_CHIP_COLOR.border}`, color: SYSTEM_CHIP_COLOR.text }}>
                       {extractTagAbbrev(entry.details.classification || '')}
                     </span>
                     {(() => {
@@ -400,13 +400,13 @@ const EntryDetail: React.FC<EntryDetailProps> = ({ entry, allEntries, onBack, on
                       // it unconditionally would render the chip's text twice.
                       if (!hasAppellationName(short, country)) return null;
                       return (
-                        <span className="flex-1 min-w-0 self-center font-sans text-body text-[var(--lcd-subtext)] normal-case leading-snug">
+                        <span className="flex-1 min-w-0 self-center text-body text-[var(--lcd-subtext)] normal-case leading-snug">
                           {appellationName(short, country)}
                         </span>
                       );
                     })()}
                     {(entry.details as { state?: string }).state && (
-                      <span className="self-center font-sans text-body dex-subtext tracking-widest shrink-0">
+                      <span className="self-center text-body dex-subtext tracking-widest shrink-0">
                         {((entry.details as { state?: string }).state || '').toUpperCase()}
                       </span>
                     )}
@@ -420,7 +420,7 @@ const EntryDetail: React.FC<EntryDetailProps> = ({ entry, allEntries, onBack, on
                 <SectionHeader icon={<Shield size={18} />} label="APPELLATIONS" />
                 <div className="grid grid-cols-2 gap-2">
                     {entry.details.appellations.map((appellation, i) => (
-                        <div key={i} className="dex-pill px-4 py-2 rounded text-center font-sans text-body font-semibold tracking-wide">
+                        <div key={i} className="dex-pill px-4 py-2 rounded text-center text-body tracking-wide">
                             {appellation}
                         </div>
                     ))}
@@ -468,7 +468,7 @@ const EntryDetail: React.FC<EntryDetailProps> = ({ entry, allEntries, onBack, on
                       // iOS wraps the climate icon + name together in the chip-
                       // coloured row, the glyph tinted with the border colour.
                       return (
-                        <span className="inline-flex items-center gap-3 px-4 py-2 rounded font-sans text-body font-semibold tracking-wide" style={{ backgroundColor: sectionClimateColors.bg, border: `1px solid ${sectionClimateColors.border}`, color: sectionClimateColors.text }}>
+                        <span className="inline-flex items-center gap-3 px-4 py-2 rounded text-body tracking-wide" style={{ backgroundColor: sectionClimateColors.bg, border: `1px solid ${sectionClimateColors.border}`, color: sectionClimateColors.text }}>
                           {/* Parity chip (e32a82e) with master's shrink-0 kept: the glyph must not squash when the climate name is long. */}
                           <span className="shrink-0 inline-flex items-center" style={{ color: sectionClimateColors.border }}>
                             {getClimateIcon(entry.climate, 26)}
@@ -502,7 +502,7 @@ const EntryDetail: React.FC<EntryDetailProps> = ({ entry, allEntries, onBack, on
                                     {icon}
                                   </span>
                                 </div>
-                                <span className="font-sans text-caption dex-text uppercase text-center leading-tight">
+                                <span className="text-micro dex-text uppercase text-center leading-tight">
                                   {soil}
                                 </span>
                             </button>
@@ -545,7 +545,7 @@ const EntryDetail: React.FC<EntryDetailProps> = ({ entry, allEntries, onBack, on
                         </div>
                         {/* Name and Chips */}
                         <div className="flex flex-col flex-1 min-w-0 justify-center h-full items-start py-1">
-                          <span className={`font-sans text-heading leading-tight tracking-tight whitespace-normal break-words ${isMatched ? 'dex-text' : 'dex-disabled'}`}>
+                          <span className={`text-heading leading-tight tracking-tight whitespace-normal break-words ${isMatched ? 'dex-text' : 'dex-disabled'}`}>
                             {label.toUpperCase()}
                           </span>
                           <div className="flex gap-1 mt-1">
@@ -570,7 +570,7 @@ const EntryDetail: React.FC<EntryDetailProps> = ({ entry, allEntries, onBack, on
       <div className="relative h-full">
       <div
         ref={scrollRef}
-        className="h-full overflow-y-auto custom-scrollbar p-4 font-sans pb-20 text-[15px] md:text-base"
+        className="h-full overflow-y-auto custom-scrollbar p-4 pb-20 text-[15px] md:text-base"
         style={{ backgroundColor: 'var(--lcd-page)', color: 'var(--lcd-accent)' }}
       >
 
@@ -623,7 +623,7 @@ const EntryDetail: React.FC<EntryDetailProps> = ({ entry, allEntries, onBack, on
                   the wash and the rule carry the hero, the name just reads.
                 */}
                 <h1
-                  className="font-sans text-display tracking-tight leading-tight break-words whitespace-normal uppercase w-full mt-4 mb-2"
+                  className="text-display tracking-tight leading-tight break-words whitespace-normal uppercase w-full mt-4 mb-2"
                   style={{
                     wordBreak: 'break-word',
                     overflowWrap: 'break-word',
@@ -656,7 +656,7 @@ const EntryDetail: React.FC<EntryDetailProps> = ({ entry, allEntries, onBack, on
                     style={shelfStyle(saved)}
                   >
                     <Bookmark size={15} fill={saved ? 'currentColor' : 'none'} />
-                    <span className="font-sans text-caption tracking-widest">{saved ? 'SAVED' : 'SAVE'}</span>
+                    <span className="text-micro tracking-widest">{saved ? 'SAVED' : 'SAVE'}</span>
                   </button>
 
                   {tastable && (
@@ -667,7 +667,7 @@ const EntryDetail: React.FC<EntryDetailProps> = ({ entry, allEntries, onBack, on
                       style={shelfStyle(want)}
                     >
                       <PlusCircle size={15} fill={want ? 'currentColor' : 'none'} />
-                      <span className="font-sans text-caption tracking-widest">{want ? 'WANTED' : 'WANT'}</span>
+                      <span className="text-micro tracking-widest">{want ? 'WANTED' : 'WANT'}</span>
                     </button>
                   )}
 
@@ -702,7 +702,7 @@ const EntryDetail: React.FC<EntryDetailProps> = ({ entry, allEntries, onBack, on
                       style={shelfStyle(tried)}
                     >
                       <CheckCircle2 size={15} fill={tried ? 'currentColor' : 'none'} />
-                      <span className="font-sans text-caption tracking-widest">TRIED</span>
+                      <span className="text-micro tracking-widest">TRIED</span>
                     </button>
                   )}
                 </div>
@@ -724,7 +724,7 @@ const EntryDetail: React.FC<EntryDetailProps> = ({ entry, allEntries, onBack, on
                     aria-label={`Share ${entry.name}`}
                   >
                     <Share2 size={15} />
-                    <span className="font-sans text-caption tracking-widest">{shareMsg ?? 'SHARE'}</span>
+                    <span className="text-micro tracking-widest">{shareMsg ?? 'SHARE'}</span>
                   </button>
                 </div>
 
@@ -742,7 +742,7 @@ const EntryDetail: React.FC<EntryDetailProps> = ({ entry, allEntries, onBack, on
           <div className="mb-6">
               <SectionHeader icon={<BookOpen size={18} />} label="INFO" gap="mb-2" />
               <div className="dex-info-rule dex-info-wash pl-4 py-3">
-                  <p className="font-sans text-body leading-relaxed text-[var(--lcd-body-text)] break-words whitespace-normal normal-case">
+                  <p className="text-body leading-relaxed text-[var(--lcd-body-text)] break-words whitespace-normal normal-case">
                       {grapeCard?.info || entry.description}
                   </p>
               </div>
@@ -777,11 +777,11 @@ const EntryDetail: React.FC<EntryDetailProps> = ({ entry, allEntries, onBack, on
                     aria-label={rating ? 'Edit your rating' : 'Rate this entry'}
                   >
                     <PlusCircle size={14} />
-                    <span className="font-sans text-caption tracking-widest">{rating ? 'EDIT' : 'RATE'}</span>
+                    <span className="text-micro tracking-widest">{rating ? 'EDIT' : 'RATE'}</span>
                   </button>
               </div>
               {rating?.note ? (
-                <p className="mt-3 font-sans text-body text-[var(--lcd-text)] break-words whitespace-normal normal-case">{rating.note}</p>
+                <p className="mt-3 text-body text-[var(--lcd-text)] break-words whitespace-normal normal-case">{rating.note}</p>
               ) : null}
           </div>
         )}
@@ -798,8 +798,8 @@ const EntryDetail: React.FC<EntryDetailProps> = ({ entry, allEntries, onBack, on
             >
               <GitBranch size={18} className="text-[var(--lcd-accent)] shrink-0" />
               <span className="flex-1 min-w-0 text-left">
-                <span className="block font-sans text-label tracking-widest text-[var(--lcd-text)]">LINEAGE</span>
-                <span className="block font-sans text-caption text-[var(--lcd-subtext)] normal-case mt-0.5">
+                <span className="block text-label tracking-widest text-[var(--lcd-text)]">LINEAGE</span>
+                <span className="block text-caption text-[var(--lcd-subtext)] normal-case mt-0.5">
                   {lineageEdges} recorded relative{lineageEdges === 1 ? '' : 's'} — the family tree.
                 </span>
               </span>
@@ -817,7 +817,7 @@ const EntryDetail: React.FC<EntryDetailProps> = ({ entry, allEntries, onBack, on
               className="dex-pressable w-full flex items-center justify-center gap-3 px-6 py-3 bg-[var(--surface-raised)] border border-[var(--surface-line)] hover:border-[var(--lcd-accent)] rounded-card shadow-elev-1 group"
             >
               <MapPinned size={20} className="text-[var(--lcd-accent)]" />
-              <span className="font-sans text-label tracking-widest text-[var(--lcd-accent)]">SEARCH STATES</span>
+              <span className="text-label tracking-widest text-[var(--lcd-accent)]">SEARCH STATES</span>
             </button>
           </div>
         )}
@@ -843,7 +843,7 @@ const EntryDetail: React.FC<EntryDetailProps> = ({ entry, allEntries, onBack, on
               {entry.tags.filter(t => t !== 'STATE').map((system, idx) => {
                 const c = APPELLATION_CHIP_COLORS[idx % 3]!;
                 return (
-                  <span key={idx} className="px-4 py-2 rounded font-sans text-body font-semibold tracking-wide" style={{ backgroundColor: c.bg, border: `1px solid ${c.border}`, color: c.text }}>
+                  <span key={idx} className="px-4 py-2 rounded text-body tracking-wide" style={{ backgroundColor: c.bg, border: `1px solid ${c.border}`, color: c.text }}>
                     {extractTagAbbrev(system)}
                   </span>
                 );
@@ -887,7 +887,7 @@ const EntryDetail: React.FC<EntryDetailProps> = ({ entry, allEntries, onBack, on
                 {entry.tags.filter(tag => tag !== 'COUNTRY').map((system, idx) => {
                   const c = APPELLATION_CHIP_COLORS[idx % 3]!;
                   return (
-                    <span key={idx} className="px-4 py-2 rounded font-sans text-body font-semibold tracking-wide" style={{ backgroundColor: c.bg, border: `1px solid ${c.border}`, color: c.text }}>
+                    <span key={idx} className="px-4 py-2 rounded text-body tracking-wide" style={{ backgroundColor: c.bg, border: `1px solid ${c.border}`, color: c.text }}>
                       {extractTagAbbrev(system)}
                     </span>
                   );

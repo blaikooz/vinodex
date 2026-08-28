@@ -59,9 +59,9 @@ const VinoIntroCard: React.FC<VinoIntroCardProps> = ({ onDone }) => {
               <VinoPortrait expression={ask.expression} size={42} />
             </span>
             <div className="flex-1 min-w-0">
-              <p className="font-sans text-caption font-semibold tracking-widest text-amber-400">PROF. VINO</p>
-              {ask.chirp && <p className="font-sans text-caption text-stone-500 normal-case mt-0.5">{chirpText(ask.chirp)}</p>}
-              <p className="font-sans text-caption text-stone-100 normal-case leading-relaxed mt-1">{renderedLine(ask, null)}</p>
+              <p className="text-micro tracking-widest text-amber-400">PROF. VINO</p>
+              {ask.chirp && <p className="text-caption text-stone-500 normal-case mt-0.5">{chirpText(ask.chirp)}</p>}
+              <p className="text-caption text-stone-100 normal-case leading-relaxed mt-1">{renderedLine(ask, null)}</p>
             </div>
           </div>
 
@@ -82,19 +82,19 @@ const VinoIntroCard: React.FC<VinoIntroCardProps> = ({ onDone }) => {
               autoFocus
               autoCorrect="off"
               spellCheck={false}
-              className="w-full rounded-control bg-black/50 border-2 border-stone-700 px-3 py-2.5 font-sans text-body text-green-200 placeholder:text-stone-600 focus:border-amber-500 focus:outline-none"
+              className="w-full rounded-control bg-black/50 border-2 border-stone-700 px-3 py-2.5 text-body text-green-200 placeholder:text-stone-600 focus:border-amber-500 focus:outline-none"
             />
             <div className="flex gap-3">
               <button
                 type="button"
                 onClick={() => finish(null)}
-                className="dex-pressable flex-1 font-sans text-caption font-semibold tracking-widest text-stone-300 border-2 border-stone-600 rounded-control py-3"
+                className="dex-pressable flex-1 text-micro tracking-widest text-stone-300 border-2 border-stone-600 rounded-control py-3"
               >
                 SKIP
               </button>
               <button
                 type="submit"
-                className="dex-pressable flex-1 font-sans text-caption font-semibold tracking-widest text-black bg-amber-400 rounded-control py-3"
+                className="dex-pressable flex-1 text-micro tracking-widest text-black bg-amber-400 rounded-control py-3"
               >
                 SUBMIT
               </button>

@@ -69,8 +69,8 @@ const CheatConsoleScreen: React.FC<CheatConsoleScreenProps> = ({ onBack, onHome 
       >
         <span className={tintCls}>{icon}</span>
         <span className="flex flex-col gap-0.5">
-          <span className={`font-sans text-label tracking-widest ${tintCls}`}>{title}</span>
-          <span className="font-sans text-caption text-[var(--lcd-text)] normal-case">{detail}</span>
+          <span className={`text-label tracking-widest ${tintCls}`}>{title}</span>
+          <span className="text-caption text-[var(--lcd-text)] normal-case">{detail}</span>
         </span>
       </div>
     );
@@ -79,7 +79,7 @@ const CheatConsoleScreen: React.FC<CheatConsoleScreenProps> = ({ onBack, onHome 
   return (
     <DeviceLayout title="CHEAT CODES" subtitle="" showBack onBack={onBack} onHome={onHome} centerHeaderText>
       <div className="h-full overflow-y-auto custom-scrollbar p-4 flex flex-col gap-4" style={{ backgroundColor: 'var(--lcd-page)' }}>
-        <h2 className="font-sans text-label uppercase tracking-widest text-[var(--lcd-accent)] pb-1 border-b-2" style={{ borderColor: 'color-mix(in srgb, var(--lcd-accent) 45%, transparent)' }}>
+        <h2 className="text-label uppercase tracking-widest text-[var(--lcd-accent)] pb-1 border-b-2" style={{ borderColor: 'color-mix(in srgb, var(--lcd-accent) 45%, transparent)' }}>
           ENTER CODE
         </h2>
 
@@ -106,7 +106,7 @@ const CheatConsoleScreen: React.FC<CheatConsoleScreenProps> = ({ onBack, onHome 
         <button
           onClick={submit}
           disabled={!typed}
-          className={`dex-pressable w-full rounded-control border-2 py-3.5 font-sans text-label tracking-widest ${
+          className={`dex-pressable w-full rounded-control border-2 py-3.5  text-label tracking-widest ${
             typed ? 'bg-[var(--lcd-accent)] border-[var(--lcd-accent)] text-[var(--lcd-on-accent)]' : 'text-[var(--lcd-disabled-text)]'
           }`}
           style={typed ? undefined : { backgroundColor: 'var(--lcd-surface)', borderColor: 'var(--lcd-surface-edge)' }}
@@ -118,12 +118,12 @@ const CheatConsoleScreen: React.FC<CheatConsoleScreenProps> = ({ onBack, onHome 
 
         <div className="flex items-center gap-2.5">
           <KeyRound size={18} className="text-[var(--lcd-subtext)]" />
-          <span className="font-sans text-caption tracking-widest text-[var(--lcd-subtext)]">
+          <span className="text-micro tracking-widest text-[var(--lcd-subtext)]">
             {found} OF {CHEAT_CODES.length} FOUND
           </span>
         </div>
 
-        <p className="font-sans text-caption text-[var(--lcd-subtext)] normal-case leading-relaxed">
+        <p className="text-caption text-[var(--lcd-subtext)] normal-case leading-relaxed">
           Codes are found, not listed. They unlock cosmetics, hidden features
           and the odd thing nobody asked for.
         </p>

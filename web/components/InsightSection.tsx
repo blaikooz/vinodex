@@ -49,21 +49,21 @@ const InsightSection: React.FC<InsightSectionProps> = ({ entry, allEntries }) =>
       <div className="rounded-card border-l-4 p-4" style={{ borderColor: 'var(--lcd-accent)', backgroundColor: 'color-mix(in srgb, var(--lcd-accent) 8%, transparent)' }}>
         <div className="flex items-center gap-2 mb-2.5">
           <Lightbulb size={15} className="text-[var(--lcd-accent)]" />
-          <h2 className="font-sans text-label uppercase tracking-widest text-[var(--lcd-accent)]">INSIGHT</h2>
+          <h2 className="text-label uppercase tracking-widest text-[var(--lcd-accent)]">INSIGHT</h2>
         </div>
         {panel.teaser && (
-          <p className="font-sans text-caption text-[var(--lcd-subtext)] normal-case leading-relaxed">{panel.teaser}</p>
+          <p className="text-caption text-[var(--lcd-subtext)] normal-case leading-relaxed">{panel.teaser}</p>
         )}
         <div className="flex flex-col gap-2">
           {panel.lines.map(line => (
             <div key={line.kind} className="flex items-start gap-2">
-              <span className="font-sans text-caption text-[var(--lcd-accent)]">&#9656;</span>
-              <span className="font-sans text-body text-[var(--lcd-body-text)] normal-case leading-relaxed">{line.text}</span>
+              <span className="text-caption text-[var(--lcd-accent)]">&#9656;</span>
+              <span className="text-body text-[var(--lcd-body-text)] normal-case leading-relaxed">{line.text}</span>
             </div>
           ))}
         </div>
         {panel.nextDepth !== null && panel.toNextDepth > 0 && (
-          <p className="font-sans text-caption tracking-widest text-[var(--lcd-subtext)] mt-3">
+          <p className="text-micro tracking-widest text-[var(--lcd-subtext)] mt-3">
             {panel.toNextDepth === 1
               ? '1 MORE TASTING DEEPENS THIS PANEL.'
               : `${panel.toNextDepth} MORE TASTINGS DEEPEN THIS PANEL.`}

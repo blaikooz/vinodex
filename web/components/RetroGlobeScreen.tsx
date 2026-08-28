@@ -350,7 +350,7 @@ const RetroGlobeScreen: React.FC<RetroGlobeScreenProps> = ({ onBack, onHome, onS
             style={{ backgroundColor: 'var(--lcd-well)' }}
           >
             <Search size={22} className="text-green-500 shrink-0" />
-            <span className="ml-3 font-sans text-label font-semibold uppercase tracking-widest text-green-900">SEARCH WORLD...</span>
+            <span className="ml-3 text-label uppercase tracking-widest text-green-900">SEARCH WORLD...</span>
           </button>
         </div>
 
@@ -387,7 +387,7 @@ const RetroGlobeScreen: React.FC<RetroGlobeScreenProps> = ({ onBack, onHome, onS
                     onClick={() => {
                       onSelectContinent(marker.continentKey);
                     }}
-                    className={`absolute -translate-x-1/2 -translate-y-1/2 w-28 h-[4.5rem] sm:w-32 sm:h-20 rounded-lg border-[3px] transition-all duration-150 font-sans text-label font-semibold flex items-center justify-center text-center leading-tight whitespace-pre-line px-2 hover:scale-105 hover:brightness-125 active:scale-90 active:brightness-150 active:duration-75 ${
+                    className={`absolute -translate-x-1/2 -translate-y-1/2 w-28 h-[4.5rem] sm:w-32 sm:h-20 rounded-lg border-[3px] transition-all duration-150  text-label  flex items-center justify-center text-center leading-tight whitespace-pre-line px-2 hover:scale-105 hover:brightness-125 active:scale-90 active:brightness-150 active:duration-75 ${
                     marker.visible
                       ? 'pointer-events-auto'
                       : 'pointer-events-none'
@@ -411,8 +411,8 @@ const RetroGlobeScreen: React.FC<RetroGlobeScreenProps> = ({ onBack, onHome, onS
         </div>
 
         <div className="relative z-20 text-center space-y-1.5 shrink-0">
-          <p className="font-sans text-label text-green-300 tracking-[0.22em]">DRAG TO SPIN GLOBE</p>
-          <p className="font-sans text-caption text-green-500 tracking-[0.18em]">TAP TO SELECT CONTINENT</p>
+          <p className="text-label text-green-300 tracking-[0.22em]">DRAG TO SPIN GLOBE</p>
+          <p className="text-micro text-green-500 tracking-[0.18em]">TAP TO SELECT CONTINENT</p>
         </div>
       </div>
     </DeviceLayout>

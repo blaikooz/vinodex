@@ -78,15 +78,15 @@ const ChipFilterScreen: React.FC<ChipFilterScreenProps> = ({ allEntries, onSelec
         <div className="rounded-card bg-[var(--surface-raised)] border border-[var(--surface-line-strong)] shadow-elev-1 p-3 flex items-center gap-3">
           <Filter size={26} className="text-[var(--lcd-accent)] shrink-0" />
           <div className="flex-1 min-w-0">
-            <div className="font-sans text-heading font-bold text-[var(--lcd-text)]">{total} {total === 1 ? 'MATCH' : 'MATCHES'}</div>
-            <div className="font-sans text-caption text-[var(--lcd-subtext)] mt-0.5 normal-case">
+            <div className="text-heading text-[var(--lcd-text)]">{total} {total === 1 ? 'MATCH' : 'MATCHES'}</div>
+            <div className="text-caption text-[var(--lcd-subtext)] mt-0.5 normal-case">
               {filterIsEmpty(filter) ? 'Tap chips to narrow the database.' : `${count} chip${count === 1 ? '' : 's'} active`}
             </div>
           </div>
           {!filterIsEmpty(filter) && (
             <button
               onClick={() => setFilter({})}
-              className="dex-pressable font-sans text-caption font-semibold tracking-widest text-[var(--livery-red)] border-2 border-[var(--livery-red)] rounded-full px-3 py-1.5"
+              className="dex-pressable text-micro tracking-widest text-[var(--livery-red)] border-2 border-[var(--livery-red)] rounded-full px-3 py-1.5"
             >
               RESET
             </button>
@@ -113,8 +113,8 @@ const ChipFilterScreen: React.FC<ChipFilterScreenProps> = ({ allEntries, onSelec
           className="dex-pressable w-full flex items-center gap-2 rounded-control bg-[var(--surface-raised)] border border-[var(--surface-line)] px-3 py-2"
         >
           <SlidersHorizontal size={16} className="text-[var(--lcd-accent)]" />
-          <span className="font-sans text-label tracking-widest text-[var(--lcd-text)]">FILTER CHIPS</span>
-          {count > 0 && <span className="font-sans text-caption font-semibold tracking-widest bg-[var(--lcd-accent)] text-[var(--lcd-on-accent)] rounded-full px-2 py-0.5">{count} ON</span>}
+          <span className="text-label tracking-widest text-[var(--lcd-text)]">FILTER CHIPS</span>
+          {count > 0 && <span className="text-micro tracking-widest bg-[var(--lcd-accent)] text-[var(--lcd-on-accent)] rounded-full px-2 py-0.5">{count} ON</span>}
           <span className="flex-1" />
           <ChevronDown size={16} className={`text-[var(--lcd-subtext)] transition-transform ${showsChips ? 'rotate-180' : ''}`} />
         </button>
@@ -124,8 +124,8 @@ const ChipFilterScreen: React.FC<ChipFilterScreenProps> = ({ allEntries, onSelec
           <div className="space-y-4">
             {CHIP_FACETS.map(facet => (
               <div key={facet}>
-                <h2 className="font-sans text-label uppercase tracking-widest text-[var(--lcd-accent)] dex-section-rule pb-1">{FACET_TITLE[facet]}</h2>
-                <div className="font-sans text-caption text-[var(--lcd-subtext)] mt-1 mb-2 normal-case">{FACET_NOTE[facet]}</div>
+                <h2 className="text-label uppercase tracking-widest text-[var(--lcd-accent)] dex-section-rule pb-1">{FACET_TITLE[facet]}</h2>
+                <div className="text-caption text-[var(--lcd-subtext)] mt-1 mb-2 normal-case">{FACET_NOTE[facet]}</div>
                 <div className="flex flex-wrap gap-2">
                   {(options[facet] ?? []).map(o => {
                     const on = isOn(filter, o);
@@ -135,7 +135,7 @@ const ChipFilterScreen: React.FC<ChipFilterScreenProps> = ({ allEntries, onSelec
                       <button
                         key={o.value}
                         onClick={() => setFilter(toggleOption(filter, o))}
-                        className={`dex-pressable rounded-full px-3 py-1.5 border font-sans text-caption tracking-wide ${
+                        className={`dex-pressable rounded-full px-3 py-1.5 border  text-micro tracking-wide ${
                           on ? 'bg-[var(--lcd-accent)] border-[var(--lcd-accent)] text-[var(--lcd-on-accent)]' : dead ? 'bg-[var(--surface-raised)] border-[var(--surface-line)] text-[var(--lcd-disabled-text)]' : 'bg-[var(--surface-raised)] border-[var(--surface-line-strong)] text-[var(--lcd-text)]'
                         }`}
                       >
@@ -150,14 +150,14 @@ const ChipFilterScreen: React.FC<ChipFilterScreenProps> = ({ allEntries, onSelec
         )}
 
         {/* Results */}
-        <h2 className="font-sans text-label uppercase tracking-widest text-[var(--lcd-accent)] dex-section-rule pb-1 pt-1">
+        <h2 className="text-label uppercase tracking-widest text-[var(--lcd-accent)] dex-section-rule pb-1 pt-1">
           {filterIsEmpty(filter) ? 'EVERYTHING' : 'MATCHES'}
         </h2>
         {total === 0 ? (
           <div className="text-center py-12 opacity-60 flex flex-col items-center">
             <CircleSlash size={40} className="text-[var(--lcd-disabled-text)] mb-3" />
-            <p className="font-sans text-label tracking-widest text-[var(--lcd-text)]">NOTHING MATCHES</p>
-            <p className="font-sans text-caption text-[var(--lcd-subtext)] mt-2 normal-case">{q ? 'Nothing fits the chips and the search together.' : 'Those chips have no overlap. Turn one off.'}</p>
+            <p className="text-label tracking-widest text-[var(--lcd-text)]">NOTHING MATCHES</p>
+            <p className="text-caption text-[var(--lcd-subtext)] mt-2 normal-case">{q ? 'Nothing fits the chips and the search together.' : 'Those chips have no overlap. Turn one off.'}</p>
           </div>
         ) : (
           <div className="flex flex-col gap-2 pb-4">
@@ -174,7 +174,7 @@ const ChipFilterScreen: React.FC<ChipFilterScreenProps> = ({ allEntries, onSelec
                   ) : (
                     <span className="w-8 h-6 rounded bg-[var(--surface-high)] shrink-0" />
                   )}
-                  <span className="flex-1 text-left font-sans text-label tracking-wide text-[var(--lcd-text)]">{name.toUpperCase()}</span>
+                  <span className="flex-1 text-left text-label tracking-wide text-[var(--lcd-text)]">{name.toUpperCase()}</span>
                   <ChevronRight size={18} className="text-[var(--lcd-subtext)]" />
                 </button>
               );

@@ -170,7 +170,7 @@ export default function EncyclopediaList({ category, filterMode, filterValue, in
         {showFilterIndicator && (
           <div className="bg-[var(--surface-high)] border-b border-[var(--surface-line)] px-4 py-3 flex items-center gap-3 animate-in slide-in-from-top-2">
             <span className="[&>svg]:!w-6 [&>svg]:!h-6">{getFilterIcon()}</span>
-            <span className="font-sans text-label tracking-widest text-[var(--lcd-text)]">{getFilterText()}</span>
+            <span className="text-label tracking-widest text-[var(--lcd-text)]">{getFilterText()}</span>
           </div>
         )}
 
@@ -265,7 +265,7 @@ export default function EncyclopediaList({ category, filterMode, filterValue, in
           {filteredEntries.length === 0 ? (
             <div className="text-center py-20 opacity-60 flex flex-col items-center">
               <ListChecks size={40} className="text-[var(--livery-red)] mb-4" />
-              <p className="font-sans text-label tracking-widest text-[var(--livery-red)]">NO DATA FOUND</p>
+              <p className="text-label tracking-widest text-[var(--livery-red)]">NO DATA FOUND</p>
             </div>
           ) : (
             <div className="flex flex-col gap-2 relative z-10 pb-4" data-coachmark="listingRow">

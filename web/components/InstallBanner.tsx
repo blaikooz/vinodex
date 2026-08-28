@@ -62,7 +62,7 @@ const InstallBanner: React.FC = () => {
       aria-label="Get the Vinodex iOS app"
     >
       <Apple size={16} className="text-white shrink-0" />
-      <span className="flex-1 min-w-0 font-sans text-caption font-semibold tracking-widest text-green-300 leading-tight">
+      <span className="flex-1 min-w-0 text-micro tracking-widest text-green-300 leading-tight">
         PLAYING IN THE BROWSER?{' '}
         <span className="text-stone-300">GET VINODEX FOR iOS.</span>
       </span>
@@ -78,7 +78,7 @@ const InstallBanner: React.FC = () => {
           trackEvent('install-nudge-click');
           trackEvent('store-tap', { source: 'install-banner' });
         }}
-        className="shrink-0 rounded-full px-3 py-1 bg-green-500 hover:bg-green-400 border border-green-700 font-sans text-caption font-semibold tracking-widest text-white transition-colors"
+        className="shrink-0 rounded-full px-3 py-1 bg-green-500 hover:bg-green-400 border border-green-700 text-micro tracking-widest text-white transition-colors"
       >
         GET APP
       </a>

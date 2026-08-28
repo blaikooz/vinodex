@@ -41,8 +41,8 @@ import type { EntryVisualResolver } from './EntryDetailSections';
  */
 
 const tileBase = 'dex-pressable flex flex-col items-center justify-start pt-1 pb-1 w-full border-0 bg-transparent group relative rounded-control text-[var(--lcd-accent)]';
-const labelStyle = 'font-sans text-caption tracking-widest uppercase text-[var(--lcd-accent)] z-10 whitespace-nowrap leading-none w-full text-center mb-2';
-const chipStyle = 'inline-flex items-center justify-center px-2 py-1 rounded border font-sans text-caption uppercase z-10 text-center mt-2';
+const labelStyle = 'text-micro tracking-widest uppercase text-[var(--lcd-accent)] z-10 whitespace-nowrap leading-none w-full text-center mb-2';
+const chipStyle = 'inline-flex items-center justify-center px-2 py-1 rounded border text-micro uppercase z-10 text-center mt-2';
 const iconRowStyle = 'h-10 flex items-center justify-center mb-1';
 const tileRowStyle = 'grid grid-cols-3 gap-3 px-2 py-1 mb-3';
 const getTileRowClass = (tileCount: number) =>
@@ -178,8 +178,8 @@ export const RegionHeaderTiles: React.FC<{
           }).iconNode}
         </div>
         <div className="flex flex-col min-w-0 flex-1">
-          <span className="font-sans text-caption tracking-widest uppercase text-[var(--lcd-accent)] leading-none mb-1">KEY GRAPE</span>
-          <span className="font-sans text-label leading-tight truncate" style={{ color: keyGrapeInk }}>
+          <span className="text-micro tracking-widest uppercase text-[var(--lcd-accent)] leading-none mb-1">KEY GRAPE</span>
+          <span className="text-label leading-tight truncate" style={{ color: keyGrapeInk }}>
             {formatUpper(mainGrape)}
           </span>
         </div>

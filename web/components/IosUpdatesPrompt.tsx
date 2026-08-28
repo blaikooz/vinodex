@@ -101,10 +101,10 @@ export const IosUpdatesPromptOverlay: React.FC = () => {
             <BellRing size={22} />
           </span>
           <div className="min-w-0 flex-1">
-            <h2 className="font-retro text-heading tracking-widest text-[var(--lcd-text)]">
+            <h2 className="font-retro text-title tracking-widest text-[var(--lcd-text)]">
               WANT VINODEX ON IOS?
             </h2>
-            <p className="mt-2 font-sans text-caption normal-case text-[var(--lcd-body-text)]">
+            <p className="mt-2 text-caption normal-case text-[var(--lcd-body-text)]">
               Subscribe below for iOS launch news and future product updates.
             </p>
           </div>
@@ -125,8 +125,8 @@ export const IosUpdatesPromptOverlay: React.FC = () => {
             onClick={() => setEmbedLoaded(true)}
             className="dex-pressable mt-4 flex h-40 w-full flex-col items-center justify-center gap-2 rounded-control border border-[var(--surface-line)] bg-[var(--tint-subtle)]"
           >
-            <span className="font-retro text-label tracking-widest text-[var(--lcd-text)]">SHOW SIGN-UP FORM</span>
-            <span className="font-sans text-caption normal-case text-[var(--lcd-subtext)]">
+            <span className="font-retro text-heading tracking-widest text-[var(--lcd-text)]">SHOW SIGN-UP FORM</span>
+            <span className="text-caption normal-case text-[var(--lcd-subtext)]">
               Loads Substack&apos;s embedded form, which sets its own cookies.
             </span>
           </button>
@@ -135,7 +135,7 @@ export const IosUpdatesPromptOverlay: React.FC = () => {
           <button
             type="button"
             onClick={prompt.dismiss}
-            className="dex-pressable min-h-11 rounded-control px-4 py-2 font-retro text-label tracking-widest text-[var(--lcd-subtext)]"
+            className="dex-pressable min-h-11 rounded-control px-4 py-2 font-retro text-heading tracking-widest text-[var(--lcd-subtext)]"
           >
             NOT NOW
           </button>
@@ -144,7 +144,7 @@ export const IosUpdatesPromptOverlay: React.FC = () => {
             target="_blank"
             rel="noopener noreferrer"
             onClick={prompt.dismiss}
-            className="dex-pressable inline-flex min-h-11 items-center justify-center gap-2 rounded-control bg-[var(--lcd-accent)] px-4 py-2 font-retro text-label tracking-widest text-[var(--lcd-on-accent)] shadow-elev-2"
+            className="dex-pressable inline-flex min-h-11 items-center justify-center gap-2 rounded-control bg-[var(--lcd-accent)] px-4 py-2 font-retro text-heading tracking-widest text-[var(--lcd-on-accent)] shadow-elev-2"
           >
             OPEN SUBSTACK
             <ArrowUpRight size={17} aria-hidden="true" />

@@ -21,7 +21,7 @@ interface ProfVinoScreenProps {
 
 const Section: React.FC<{ title: string; children: React.ReactNode }> = ({ title, children }) => (
   <div>
-    <h2 className="font-sans text-label uppercase tracking-widest text-[var(--lcd-accent)] border-b pb-1 mb-2.5" style={{ borderColor: 'color-mix(in srgb, var(--lcd-accent) 45%, transparent)' }}>{title}</h2>
+    <h2 className="text-label uppercase tracking-widest text-[var(--lcd-accent)] border-b pb-1 mb-2.5" style={{ borderColor: 'color-mix(in srgb, var(--lcd-accent) 45%, transparent)' }}>{title}</h2>
     {children}
   </div>
 );
@@ -57,8 +57,8 @@ const ProfVinoScreen: React.FC<ProfVinoScreenProps> = ({ onBack, onHome }) => {
             <VinoPortrait expression="neutral" size={56} />
           </span>
           <div className="flex-1 min-w-0">
-            <div className="font-sans text-title font-bold tracking-wide text-[var(--lcd-text)]">PROF. VINO</div>
-            <p className="font-sans text-caption text-[var(--lcd-subtext)] normal-case leading-relaxed mt-1">
+            <div className="text-title tracking-wide text-[var(--lcd-text)]">PROF. VINO</div>
+            <p className="text-caption text-[var(--lcd-subtext)] normal-case leading-relaxed mt-1">
               {name
                 ? `The resident wine professor. He calls you ${name}, and says one useful thing the first time you try something new.`
                 : 'The resident wine professor. He introduces himself on a fresh device, asks your name, and says one useful thing the first time you try something new.'}
@@ -76,14 +76,14 @@ const ProfVinoScreen: React.FC<ProfVinoScreenProps> = ({ onBack, onHome }) => {
         >
           <span className={silenced ? 'text-[var(--lcd-disabled-text)]' : 'text-[var(--livery-amber)]'}><MessageSquare size={20} /></span>
           <span className="flex-1 min-w-0">
-            <span className="block font-sans text-label tracking-widest text-[var(--lcd-text)]">PROFESSOR VINO</span>
-            <span className="block font-sans text-caption text-[var(--lcd-subtext)] normal-case mt-1">
+            <span className="block text-label tracking-widest text-[var(--lcd-text)]">PROFESSOR VINO</span>
+            <span className="block text-caption text-[var(--lcd-subtext)] normal-case mt-1">
               {silenced
                 ? 'Quiet. He still guides the tutorial when you ask for it.'
                 : 'One tip, once, the first time you try something new.'}
             </span>
           </span>
-          <span className={`font-sans text-caption font-semibold tracking-widest ${silenced ? 'text-[var(--lcd-disabled-text)]' : 'text-[var(--lcd-accent)]'}`}>
+          <span className={`text-micro tracking-widest ${silenced ? 'text-[var(--lcd-disabled-text)]' : 'text-[var(--lcd-accent)]'}`}>
             {silenced ? 'OFF' : 'ON'}
           </span>
         </button>
@@ -93,7 +93,7 @@ const ProfVinoScreen: React.FC<ProfVinoScreenProps> = ({ onBack, onHome }) => {
             {VINO_EXPRESSIONS.map(expression => (
               <div key={expression} className="rounded-card border border-[var(--surface-line)] bg-[var(--surface-raised)] p-2.5 flex flex-col items-center gap-1.5">
                 <VinoPortrait expression={expression} size={44} />
-                <span className="font-sans text-caption tracking-widest text-[var(--lcd-text)]">{expression.toUpperCase()}</span>
+                <span className="text-micro tracking-widest text-[var(--lcd-text)]">{expression.toUpperCase()}</span>
               </div>
             ))}
           </div>
@@ -108,15 +108,15 @@ const ProfVinoScreen: React.FC<ProfVinoScreenProps> = ({ onBack, onHome }) => {
               'Offers a first guided tasting at the end of the tour.',
             ].map((text, i) => (
               <li key={i} className="flex items-start gap-2">
-                <span className="font-sans text-caption text-[var(--lcd-accent)] opacity-70">&gt;</span>
-                <span className="font-sans text-caption text-[var(--lcd-text)] normal-case leading-relaxed">{text}</span>
+                <span className="text-caption text-[var(--lcd-accent)] opacity-70">&gt;</span>
+                <span className="text-caption text-[var(--lcd-text)] normal-case leading-relaxed">{text}</span>
               </li>
             ))}
           </ul>
         </Section>
 
         <Section title="HIS LEDGER">
-          <p className="font-sans text-caption text-[var(--lcd-subtext)] normal-case mb-2.5 leading-relaxed">
+          <p className="text-caption text-[var(--lcd-subtext)] normal-case mb-2.5 leading-relaxed">
             Which first-time tips have been spent. A diagnostic readout for now —
             reset it to hear him again, or load the FRESH profile for the whole
             first run.
@@ -129,8 +129,8 @@ const ProfVinoScreen: React.FC<ProfVinoScreenProps> = ({ onBack, onHome }) => {
                   {fired
                     ? <CheckCircle2 size={14} className="text-[var(--lcd-accent)] shrink-0" />
                     : <CircleDashed size={14} className="text-[var(--lcd-disabled-text)] shrink-0" />}
-                  <span className="flex-1 font-sans text-caption text-[var(--lcd-text)] normal-case truncate">{trigger}</span>
-                  <span className={`font-sans text-caption tracking-widest ${fired ? 'text-[var(--lcd-accent)]' : 'text-[var(--lcd-subtext)]'}`}>
+                  <span className="flex-1 text-caption text-[var(--lcd-text)] normal-case truncate">{trigger}</span>
+                  <span className={`text-micro tracking-widest ${fired ? 'text-[var(--lcd-accent)]' : 'text-[var(--lcd-subtext)]'}`}>
                     {fired ? 'SAID' : 'WAITING'}
                   </span>
                 </div>
@@ -139,14 +139,14 @@ const ProfVinoScreen: React.FC<ProfVinoScreenProps> = ({ onBack, onHome }) => {
           </div>
           <button
             onClick={() => setConfirmingReset(true)}
-            className="dex-pressable w-full mt-2.5 py-3 rounded-control border-2 font-sans text-label tracking-widest"
+            className="dex-pressable w-full mt-2.5 py-3 rounded-control border-2 text-label tracking-widest"
             style={{ backgroundColor: 'var(--lcd-surface)', borderColor: 'color-mix(in srgb, var(--livery-amber) 50%, transparent)', color: 'var(--livery-amber)' }}
           >
             RESET HIS TIPS
           </button>
         </Section>
 
-        <p className="font-sans text-caption text-[var(--lcd-subtext)] normal-case text-center pb-2">
+        <p className="text-caption text-[var(--lcd-subtext)] normal-case text-center pb-2">
           Talking to the professor directly lands on this page in a later firmware.
         </p>
       </div>

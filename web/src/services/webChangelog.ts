@@ -65,9 +65,22 @@ export interface WebRelease {
  * the whole one-source-of-truth arrangement would hang off a non-null
  * assertion. It also gives the thing you edit a name.
  */
-// 0.6.10, not 0.6.2: the firmware line owns 0.6.2 through 0.9.2, and the
+// 0.6.1x, not 0.6.2: the firmware line owns 0.6.2 through 0.9.2, and the
 // two-clocks test refuses any version the device already wore.
 const CURRENT: WebRelease = {
+  version: '0.6.11',
+  date: '2026-08-28',
+  headline: 'ALL RETRO, ALWAYS',
+  notes: [
+    'The sans is gone. Every heading, label and control is Press Start 2P again, and every paragraph is VT323 -- the terminal face, a size up so it reads.',
+    'Inter and its two font files leave the bundle; the type scale keeps its seven roles, and each role now carries its own face.',
+    'A test pins it: a sans face, a preload, or a sans class anywhere in the app is a red test, not a taste call.',
+    'The site reads the same way -- pixel headings, terminal prose -- including PRIVACY + TERMS, which was a legal page set entirely in 8-bit caps.',
+  ],
+};
+
+/** The release before this one, promoted when 0.6.11 landed. */
+const PREVIOUS_0_6_10: WebRelease = {
   version: '0.6.10',
   date: '2026-08-27',
   headline: 'THE SMALL PRINT, KEPT',
@@ -173,6 +186,7 @@ const PREVIOUS_0_4_2: WebRelease = {
 
 /** Newest first. A new release is prepended by promoting `CURRENT`. */
 const PREVIOUS: WebRelease[] = [
+  PREVIOUS_0_6_10,
   PREVIOUS_0_6_1,
   PREVIOUS_0_6_0,
   PREVIOUS_0_5_0,

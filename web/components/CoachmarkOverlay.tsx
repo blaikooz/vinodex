@@ -137,23 +137,23 @@ const CoachmarkOverlay: React.FC = () => {
                 <VinoPortrait expression={step.expression} size={34} />
               </span>
               <div className="flex-1 min-w-0">
-                <p className="font-sans text-caption font-semibold tracking-widest text-amber-400">
+                <p className="text-micro tracking-widest text-amber-400">
                   TUTORIAL {position}/{COACHMARK_STEPS.length}
                 </p>
-                <p className="font-sans text-caption text-stone-100 normal-case leading-relaxed mt-1">{text}</p>
+                <p className="text-caption text-stone-100 normal-case leading-relaxed mt-1">{text}</p>
               </div>
             </div>
             <div className="flex gap-2.5">
               <button
                 onClick={skipCoachmarks}
-                className="dex-pressable flex-1 font-sans text-caption font-semibold tracking-widest text-stone-400 border-2 border-stone-700 rounded-control py-2.5"
+                className="dex-pressable flex-1 text-micro tracking-widest text-stone-400 border-2 border-stone-700 rounded-control py-2.5"
               >
                 SKIP
               </button>
               {step.advancesOn === 'acknowledged' && (
                 <button
                   onClick={() => reportCoachmark('acknowledged')}
-                  className="dex-pressable flex-1 font-sans text-caption font-semibold tracking-widest text-black bg-amber-400 rounded-control py-2.5"
+                  className="dex-pressable flex-1 text-micro tracking-widest text-black bg-amber-400 rounded-control py-2.5"
                 >
                   CONTINUE
                 </button>

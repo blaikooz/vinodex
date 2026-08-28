@@ -38,8 +38,8 @@ const RatingPrompt: React.FC<RatingPromptProps> = ({ entryName, initial, onSave,
 
       <div className="relative w-full max-w-[20rem] rounded-2xl border-2 border-green-700 bg-stone-900 p-5 shadow-2xl flex flex-col gap-4">
         <div className="text-center">
-          <div className="font-sans text-label tracking-widest text-green-300">HOW WAS IT?</div>
-          <div className="font-sans text-caption text-stone-300 mt-1 uppercase break-words">
+          <div className="text-label tracking-widest text-green-300">HOW WAS IT?</div>
+          <div className="text-micro text-stone-300 mt-1 uppercase break-words">
             {entryName}
           </div>
         </div>
@@ -70,20 +70,20 @@ const RatingPrompt: React.FC<RatingPromptProps> = ({ entryName, initial, onSave,
           onChange={e => setNote(e.target.value)}
           maxLength={80}
           placeholder="ONE-LINE NOTE…"
-          className="w-full rounded-control bg-black/40 border-2 border-stone-700 px-3 py-2 font-sans text-caption text-green-200 placeholder:text-stone-600 focus:border-green-600 focus:outline-none"
+          className="w-full rounded-control bg-black/40 border-2 border-stone-700 px-3 py-2 text-caption text-green-200 placeholder:text-stone-600 focus:border-green-600 focus:outline-none"
         />
 
         <div className="flex gap-3">
           <button
             onClick={onSkip}
-            className="dex-pressable flex-1 rounded-control bg-stone-800 border-2 border-stone-600 py-2.5 font-sans text-caption font-semibold tracking-widest text-stone-300"
+            className="dex-pressable flex-1 rounded-control bg-stone-800 border-2 border-stone-600 py-2.5 text-micro tracking-widest text-stone-300"
           >
             SKIP
           </button>
           <button
             disabled={stars === 0}
             onClick={() => stars > 0 && onSave(stars, note.trim())}
-            className={`dex-pressable flex-1 rounded-control border-2 py-2.5 font-sans text-caption font-semibold tracking-widest ${
+            className={`dex-pressable flex-1 rounded-control border-2 py-2.5  text-micro  tracking-widest ${
               stars > 0
                 ? 'bg-green-700 border-green-900 text-white'
                 : 'bg-stone-700/50 border-stone-800/50 text-stone-500 cursor-not-allowed'

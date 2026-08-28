@@ -41,7 +41,7 @@ const RARITIES = ['COMMON', 'UNCOMMON', 'RARE', 'NOBLE', 'GODFORSAKEN'];
 
 const Section: React.FC<{ title: string; children: React.ReactNode }> = ({ title, children }) => (
   <div className="mb-5">
-    <h2 className="font-sans text-label uppercase tracking-widest text-[var(--lcd-accent)] border-b pb-1 mb-3" style={{ borderColor: 'color-mix(in srgb, var(--lcd-accent) 45%, transparent)' }}>{title}</h2>
+    <h2 className="text-label uppercase tracking-widest text-[var(--lcd-accent)] border-b pb-1 mb-3" style={{ borderColor: 'color-mix(in srgb, var(--lcd-accent) 45%, transparent)' }}>{title}</h2>
     {children}
   </div>
 );
@@ -50,8 +50,8 @@ const StatTile: React.FC<{ icon: React.ReactNode; value: string; label: string; 
   <div className="rounded-card bg-[var(--surface-raised)] border-2 p-3 flex items-center gap-2.5 shadow-elev-1" style={{ borderColor: `color-mix(in srgb, ${tint} 35%, transparent)` }}>
     <span className="shrink-0" style={{ color: tint }}>{icon}</span>
     <div className="flex flex-col items-start min-w-0">
-      <span className="font-sans text-heading font-bold text-[var(--lcd-text)] truncate">{value}</span>
-      <span className="font-sans text-caption text-[var(--lcd-subtext)] normal-case truncate">{label}</span>
+      <span className="text-heading text-[var(--lcd-text)] truncate">{value}</span>
+      <span className="text-caption text-[var(--lcd-subtext)] normal-case truncate">{label}</span>
     </div>
   </div>
 );
@@ -60,11 +60,11 @@ const ProgressRow: React.FC<{ label: string; done: number; total: number; fill: 
   const pct = total > 0 ? Math.max(done > 0 ? 8 : 0, Math.round((done / total) * 100)) : 0;
   return (
     <div className="flex items-center gap-3 mb-2">
-      <span className="font-sans text-caption text-[var(--lcd-text)] normal-case w-24 shrink-0 truncate">{label}</span>
+      <span className="text-caption text-[var(--lcd-text)] normal-case w-24 shrink-0 truncate">{label}</span>
       <span className="flex-1 h-3 rounded-full bg-[var(--lcd-well)] overflow-hidden">
         <span className="block h-full rounded-full" style={{ width: `${pct}%`, backgroundColor: fill }} />
       </span>
-      <span className="font-sans text-caption text-[var(--lcd-subtext)] w-12 text-right shrink-0">{done}/{total}</span>
+      <span className="text-caption text-[var(--lcd-subtext)] w-12 text-right shrink-0">{done}/{total}</span>
     </div>
   );
 };
@@ -109,10 +109,10 @@ const PassportScreen: React.FC<PassportScreenProps> = ({ allEntries, onSelect, o
             <div className="flex items-center gap-3">
               <ShieldCheck size={30} className="text-[var(--livery-amber)]" />
               <div className="flex-1 min-w-0">
-                <div className="font-sans text-heading font-bold tracking-wide text-[var(--lcd-text)]">
+                <div className="text-heading tracking-wide text-[var(--lcd-text)]">
                   {rank.held ? rank.held.name : 'UNRANKED'}
                 </div>
-                <div className="font-sans text-caption text-[var(--lcd-subtext)] normal-case mt-0.5">
+                <div className="text-caption text-[var(--lcd-subtext)] normal-case mt-0.5">
                   {rank.held ? rank.held.blurb : 'Mark five entries tried to take the first rung.'}
                 </div>
               </div>
@@ -122,7 +122,7 @@ const PassportScreen: React.FC<PassportScreenProps> = ({ allEntries, onSelect, o
                 <div className="h-3 rounded-full bg-[var(--lcd-well)] overflow-hidden">
                   <span className="block h-full rounded-full bg-[var(--livery-amber)]" style={{ width: `${Math.max(rank.fraction > 0 ? 8 : 0, Math.round(rank.fraction * 100))}%` }} />
                 </div>
-                <div className="font-sans text-caption text-[var(--lcd-subtext)] normal-case mt-1 text-right">
+                <div className="text-caption text-[var(--lcd-subtext)] normal-case mt-1 text-right">
                   {tastings}/{rank.next.threshold} toward {rank.next.name}
                 </div>
               </div>
@@ -159,7 +159,7 @@ const PassportScreen: React.FC<PassportScreenProps> = ({ allEntries, onSelect, o
               {recommended.length > RECOMMENDATION_STRIP && (
                 <button
                   onClick={onShowAllRecommendations}
-                  className="dex-pressable w-full flex items-center justify-center gap-1.5 rounded-card bg-[var(--surface-raised)] border border-[var(--surface-line-strong)] px-4 py-2.5 font-sans text-caption font-semibold tracking-widest text-[var(--lcd-accent)] hover:border-[var(--lcd-accent)] shadow-elev-1"
+                  className="dex-pressable w-full flex items-center justify-center gap-1.5 rounded-card bg-[var(--surface-raised)] border border-[var(--surface-line-strong)] px-4 py-2.5 text-micro tracking-widest text-[var(--lcd-accent)] hover:border-[var(--lcd-accent)] shadow-elev-1"
                 >
                   SHOW ALL ({recommended.length}) <ChevronRight size={13} />
                 </button>
@@ -179,8 +179,8 @@ const PassportScreen: React.FC<PassportScreenProps> = ({ allEntries, onSelect, o
                   style={{ border: b.earned ? `2px solid color-mix(in srgb, ${tint} 55%, transparent)` : '1px solid var(--surface-line)', opacity: b.earned ? 1 : 0.7 }}
                 >
                   <StampArt id={b.id} size={40} earned={b.earned} />
-                  <span className="font-sans text-caption font-semibold tracking-widest mt-1" style={{ color: b.earned ? 'var(--lcd-text)' : 'var(--lcd-disabled-text)' }}>{b.title}</span>
-                  <span className="font-sans text-caption text-[var(--lcd-subtext)] leading-tight normal-case">{b.blurb}</span>
+                  <span className="text-micro tracking-widest mt-1" style={{ color: b.earned ? 'var(--lcd-text)' : 'var(--lcd-disabled-text)' }}>{b.title}</span>
+                  <span className="text-caption text-[var(--lcd-subtext)] leading-tight normal-case">{b.blurb}</span>
                 </div>
               );
             })}

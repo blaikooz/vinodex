@@ -79,9 +79,9 @@ const TastingQuizScreen: React.FC<TastingQuizScreenProps> = ({ allEntries, onOpe
       <DeviceLayout title="DAILY CHALLENGE" showBack onBack={onBack} onHome={onHome} centerHeaderText>
         <div className="h-full flex flex-col items-center justify-center gap-4 p-6 text-center" style={{ backgroundColor: 'var(--lcd-page)' }}>
           {passed ? <BadgeCheck size={72} className="text-[var(--livery-green)]" /> : <BadgeX size={72} className="text-[var(--livery-red)]" />}
-          <div className="font-sans text-display text-[var(--lcd-text)]">{session.correct}/{session.length}</div>
-          <div className={`font-sans text-title font-bold tracking-widest ${passed ? 'text-[var(--livery-green)]' : 'text-[var(--livery-red)]'}`}>{passed ? 'PASS' : 'FAIL'}</div>
-          <div className="font-sans text-caption text-[var(--lcd-subtext)] max-w-[16rem] normal-case leading-relaxed">
+          <div className="text-display text-[var(--lcd-text)]">{session.correct}/{session.length}</div>
+          <div className={`text-title tracking-widest ${passed ? 'text-[var(--livery-green)]' : 'text-[var(--livery-red)]'}`}>{passed ? 'PASS' : 'FAIL'}</div>
+          <div className="text-caption text-[var(--lcd-subtext)] max-w-[16rem] normal-case leading-relaxed">
             {currentStreak() > 0
               ? `Streak: ${currentStreak()} day${currentStreak() === 1 ? '' : 's'}.`
               : 'Streak reset — tomorrow is a fresh paper.'}
@@ -89,7 +89,7 @@ const TastingQuizScreen: React.FC<TastingQuizScreenProps> = ({ allEntries, onOpe
           <div className="flex flex-col gap-3 mt-2 w-full max-w-[16rem]">
             <button
               onClick={onBack}
-              className="dex-pressable w-full rounded-control bg-[var(--surface-raised)] border border-[var(--surface-line-strong)] px-5 py-3 font-sans text-label tracking-widest text-[var(--lcd-text)]"
+              className="dex-pressable w-full rounded-control bg-[var(--surface-raised)] border border-[var(--surface-line-strong)] px-5 py-3 text-label tracking-widest text-[var(--lcd-text)]"
             >
               EXIT
             </button>
@@ -108,12 +108,12 @@ const TastingQuizScreen: React.FC<TastingQuizScreenProps> = ({ allEntries, onOpe
         <div className="relative h-full">
           <div className="h-full overflow-y-auto custom-scrollbar p-4 flex flex-col gap-4" style={{ backgroundColor: 'var(--lcd-page)' }}>
             <div className="flex items-center justify-between">
-              <span className="font-sans text-caption tracking-widest text-[var(--lcd-accent)]">
+              <span className="text-micro tracking-widest text-[var(--lcd-accent)]">
                 DAILY · {kindTopic(question.kind)}
               </span>
-              <span className="font-sans text-caption tracking-widest text-[var(--lcd-subtext)]">{Math.min(session.index + 1, session.length)}/{session.length}</span>
+              <span className="text-micro tracking-widest text-[var(--lcd-subtext)]">{Math.min(session.index + 1, session.length)}/{session.length}</span>
             </div>
-            <p className="font-sans text-body font-semibold text-[var(--lcd-text)] normal-case leading-snug">{question.prompt}</p>
+            <p className="text-body text-[var(--lcd-text)] normal-case leading-snug">{question.prompt}</p>
             <div className="flex flex-col gap-2">
               {question.optionIDs.map(id => {
                 const correct = id === question.answerID;
@@ -131,7 +131,7 @@ const TastingQuizScreen: React.FC<TastingQuizScreenProps> = ({ allEntries, onOpe
                     onClick={() => choose(id)}
                     className={`dex-pressable flex items-center gap-2 rounded-card border-2 px-4 py-3 text-left ${cls}`}
                   >
-                    <span className="flex-1 font-sans text-label">{entryName(id).toUpperCase()}</span>
+                    <span className="flex-1 text-label">{entryName(id).toUpperCase()}</span>
                     {answered && correct && <CheckCircle2 size={18} className="text-[var(--livery-green)]" />}
                     {answered && chosen && !correct && <XCircle size={18} className="text-[var(--livery-red)]" />}
                   </button>
@@ -145,15 +145,15 @@ const TastingQuizScreen: React.FC<TastingQuizScreenProps> = ({ allEntries, onOpe
             <div className="absolute inset-0 z-40 flex items-end justify-center p-4">
               <div className="absolute inset-0 bg-black/70" />
               <div className={`relative w-full max-w-sm rounded-card border-2 bg-[var(--surface-raised)] shadow-elev-3 p-4 flex flex-col gap-3 mb-2 ${session.chosenID === question.answerID ? 'border-[var(--livery-green)]' : 'border-[var(--livery-amber)]'}`}>
-                <div className={`font-sans text-label tracking-widest text-center ${session.chosenID === question.answerID ? 'text-[var(--livery-green)]' : 'text-[var(--livery-amber)]'}`}>
+                <div className={`text-label tracking-widest text-center ${session.chosenID === question.answerID ? 'text-[var(--livery-green)]' : 'text-[var(--livery-amber)]'}`}>
                   {session.chosenID === question.answerID ? 'CORRECT' : 'NOT QUITE'}
                 </div>
-                <p className="font-sans text-caption text-[var(--lcd-text)] normal-case leading-relaxed line-clamp-4">{answer.description}</p>
+                <p className="text-caption text-[var(--lcd-text)] normal-case leading-relaxed line-clamp-4">{answer.description}</p>
                 <EntryTile entry={answer} onPress={() => onOpen(answer)} index={0} />
-                <button onClick={() => onOpen(answer)} className="dex-pressable w-full flex items-center justify-center gap-1 rounded-control bg-[var(--lcd-accent)] px-3 py-2.5 font-sans text-label tracking-widest text-[var(--lcd-on-accent)] shadow-elev-1">
+                <button onClick={() => onOpen(answer)} className="dex-pressable w-full flex items-center justify-center gap-1 rounded-control bg-[var(--lcd-accent)] px-3 py-2.5 text-label tracking-widest text-[var(--lcd-on-accent)] shadow-elev-1">
                   <BookOpen size={13} /> LEARN MORE
                 </button>
-                <button onClick={next} className="dex-pressable w-full rounded-control bg-[var(--surface-high)] border border-[var(--surface-line-strong)] px-3 py-2.5 font-sans text-label tracking-widest text-[var(--lcd-text)]">
+                <button onClick={next} className="dex-pressable w-full rounded-control bg-[var(--surface-high)] border border-[var(--surface-line-strong)] px-3 py-2.5 text-label tracking-widest text-[var(--lcd-text)]">
                   {session.index === session.length - 1 ? 'SEE RESULTS' : 'NEXT QUESTION'}
                 </button>
               </div>
@@ -170,11 +170,11 @@ const TastingQuizScreen: React.FC<TastingQuizScreenProps> = ({ allEntries, onOpe
     <DeviceLayout title="DAILY CHALLENGE" showBack onBack={onBack} onHome={onHome} centerHeaderText>
       <div className="h-full flex flex-col items-center justify-center gap-4 p-6 text-center" style={{ backgroundColor: 'var(--lcd-page)' }}>
         <Flame size={64} className={streak > 0 ? 'text-[var(--livery-amber)]' : 'text-[var(--lcd-disabled-text)]'} />
-        <div className="font-sans text-title font-bold text-[var(--lcd-text)]">PAPER COMPLETE</div>
-        <div className="font-sans text-caption text-[var(--lcd-subtext)] max-w-[16rem] normal-case leading-relaxed">
+        <div className="text-title text-[var(--lcd-text)]">PAPER COMPLETE</div>
+        <div className="text-caption text-[var(--lcd-subtext)] max-w-[16rem] normal-case leading-relaxed">
           {streak > 0 ? `Streak: ${streak} day${streak === 1 ? '' : 's'}. Come back tomorrow.` : "Today's paper is done. A new one arrives tomorrow."}
         </div>
-        <button onClick={onBack} className="dex-pressable rounded-control bg-[var(--lcd-accent)] px-6 py-3 font-sans text-label tracking-widest text-[var(--lcd-on-accent)] shadow-elev-1">EXIT</button>
+        <button onClick={onBack} className="dex-pressable rounded-control bg-[var(--lcd-accent)] px-6 py-3 text-label tracking-widest text-[var(--lcd-on-accent)] shadow-elev-1">EXIT</button>
       </div>
     </DeviceLayout>
   );

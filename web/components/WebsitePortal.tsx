@@ -193,7 +193,7 @@ const screenGround = 'bg-[var(--surface-base)]';
 const primaryAction =
   'dex-pressable inline-flex min-h-11 items-center justify-center gap-2 rounded-control '
   + 'px-6 py-4 bg-[var(--lcd-accent)] text-[var(--lcd-on-accent)] shadow-elev-2 '
-  + 'font-retro text-label uppercase tracking-widest';
+  + 'font-retro text-heading uppercase tracking-widest';
 
 // ---------------------------------------------------------------------------
 // Portal home — four tiles, same language as the dex MainMenu.
@@ -246,10 +246,10 @@ export const PortalHome: React.FC<PortalHomeProps> = props => (
           <h1 className="font-retro text-xl sm:text-3xl tracking-widest text-[var(--lcd-accent)] leading-none">
             HORIZON/GODOT
           </h1>
-          <p className="font-retro text-label sm:text-heading tracking-widest text-[var(--lcd-text)]">
+          <p className="font-retro text-heading sm:text-title tracking-widest text-[var(--lcd-text)]">
             PLAYFUL TOOLS, MADE WELL.
           </p>
-          <p className="mx-auto max-w-md font-retro text-caption sm:text-label normal-case tracking-wide text-[var(--lcd-subtext)] leading-snug">
+          <p className="mx-auto max-w-md text-caption sm:text-body normal-case text-[var(--lcd-subtext)] leading-snug">
             A two-person NYC studio making useful digital projects with personality.
           </p>
         </div>
@@ -321,10 +321,10 @@ export const OurAppsList: React.FC<OurAppsListProps> = ({ onBack, onHome, onSele
             <ProjectMark project={p} />
             <span className="flex-1 min-w-0 text-left">
               {p.featured && (
-                <span className="mb-1 block font-retro text-caption tracking-widest text-[var(--lcd-accent)]">FEATURED PROJECT</span>
+                <span className="mb-1 block font-retro text-label tracking-widest text-[var(--lcd-accent)]">FEATURED PROJECT</span>
               )}
-              <span className="block font-retro text-heading tracking-widest text-[var(--lcd-text)]">{p.name}</span>
-              <span className="block font-retro text-caption normal-case tracking-wide text-[var(--lcd-subtext)] mt-1">{p.blurb}</span>
+              <span className="block font-retro text-title tracking-widest text-[var(--lcd-text)]">{p.name}</span>
+              <span className="block text-caption normal-case text-[var(--lcd-subtext)] mt-1">{p.blurb}</span>
             </span>
             <span className="flex items-center gap-1 shrink-0 text-[var(--lcd-accent)]">
               {/* The padlock is gone with the gate it stood for (v8#3). The
@@ -382,11 +382,11 @@ export const ProjectSplash: React.FC<ProjectSplashProps> = ({ project, onBack, o
         <ProjectMark project={project} large />
 
         <div className="space-y-1">
-          <h2 className="font-retro text-title tracking-widest text-[var(--lcd-text)]">{project.name}</h2>
-          <p className="font-retro text-caption normal-case tracking-wide text-[var(--lcd-subtext)]">{project.blurb}</p>
+          <h2 className="font-retro text-display tracking-widest text-[var(--lcd-text)]">{project.name}</h2>
+          <p className="text-body normal-case text-[var(--lcd-subtext)]">{project.blurb}</p>
         </div>
 
-        <p className="font-retro text-caption normal-case leading-relaxed text-[var(--lcd-body-text)] max-w-prose">
+        <p className="text-body normal-case leading-relaxed text-[var(--lcd-body-text)] max-w-prose">
           {project.description}
         </p>
 
@@ -419,16 +419,16 @@ export const ProjectSplash: React.FC<ProjectSplashProps> = ({ project, onBack, o
  *
  * `normal-case` is the load-bearing class. The LCD wrapper uppercases its
  * whole subtree -- correct for a device readout, wrong for three paragraphs
- * about a studio, and the reason this page has always been hard to read. The
- * Pixel type is used throughout the website; the smaller caption scale and
- * generous line-height keep longer studio copy readable inside the LCD.
+ * about a studio, and the reason this page has always been hard to read.
+ * Prose is `text-body` -- the terminal face at its reading size (v0.6.11) --
+ * with generous line-height; the pixel face is kept for the headings.
  */
 const InfoPage: React.FC<{ title: string; onBack: () => void; onHome: () => void; children: React.ReactNode }> = ({ title, onBack, onHome, children }) => (
   <DeviceLayout title={title} subtitle="" showBack onBack={onBack} onHome={onHome} showSystemButtons={false} centerHeaderText>
     <div className={`flex-1 min-h-0 w-full flex flex-col relative overflow-hidden ${screenGround}`}>
       <RetroGrid />
       <div
-        className="site-scroll-region custom-scrollbar relative z-10 min-h-0 w-full flex-1 overflow-y-auto p-[var(--pad-screen)] pb-[calc(var(--pad-screen)+0.5rem)] font-retro text-caption normal-case leading-relaxed text-[var(--lcd-body-text)] space-y-4"
+        className="site-scroll-region custom-scrollbar relative z-10 min-h-0 w-full flex-1 overflow-y-auto p-[var(--pad-screen)] pb-[calc(var(--pad-screen)+0.5rem)] text-body normal-case leading-relaxed text-[var(--lcd-body-text)] space-y-4"
         tabIndex={0}
         role="region"
         aria-label={`${title} content`}
@@ -442,14 +442,14 @@ const InfoPage: React.FC<{ title: string; onBack: () => void; onHome: () => void
 export const WhoWeAre: React.FC<{ onBack: () => void; onHome: () => void }> = ({ onBack, onHome }) => (
   <InfoPage title="WHO WE ARE" onBack={onBack} onHome={onHome}>
     <section className="space-y-3">
-      <h2 className="font-retro text-title uppercase tracking-widest text-[var(--lcd-accent)]">
+      <h2 className="font-retro text-display uppercase tracking-widest text-[var(--lcd-accent)]">
         AN INDEPENDENT CREATIVE + PRODUCT STUDIO
       </h2>
       <p>
         We are a two-founder NYC studio making useful digital products,
         publications, and media with personality.
       </p>
-      <ul className="grid grid-cols-2 gap-2 font-retro text-caption uppercase tracking-wide sm:grid-cols-4">
+      <ul className="grid grid-cols-2 gap-2 font-retro text-label uppercase tracking-wide sm:grid-cols-4">
         {['NYC BASED', 'SERVICE TRAINED', 'WINE OBSESSED', 'SERIOUS ABOUT PLAY'].map(item => (
           <li key={item} className="rounded-control border border-[var(--surface-line)] bg-[var(--surface-raised)] px-2 py-2 text-center text-[var(--lcd-text)]">
             <span aria-hidden="true" className="mr-1 text-[var(--lcd-accent)]">◆</span>
@@ -460,18 +460,18 @@ export const WhoWeAre: React.FC<{ onBack: () => void; onHome: () => void }> = ({
     </section>
 
     <section className="space-y-3">
-      <h2 className="font-retro text-heading uppercase tracking-widest text-[var(--lcd-text)]">THE FOUNDERS</h2>
+      <h2 className="font-retro text-title uppercase tracking-widest text-[var(--lcd-text)]">THE FOUNDERS</h2>
       <div className="grid gap-3 sm:grid-cols-2">
         <Card livery="violet" elevation={1} className="p-[var(--pad-card)]">
-          <h3 className="font-retro text-heading uppercase tracking-widest text-[var(--lcd-text)]">HORIZON</h3>
-          <p className="mt-1 font-retro text-caption uppercase tracking-wide text-[var(--lcd-accent)]">
+          <h3 className="font-retro text-title uppercase tracking-widest text-[var(--lcd-text)]">HORIZON</h3>
+          <p className="mt-1 font-retro text-label uppercase tracking-wide text-[var(--lcd-accent)]">
             CO-FOUNDER + CREATIVE DIRECTOR
           </p>
           <p className="mt-3">
             Horizon leads product vision, creative direction, UX/UI, brand,
             editorial, and development.
           </p>
-          <ul className="mt-3 space-y-1 font-retro text-caption uppercase tracking-wide">
+          <ul className="mt-3 space-y-1 font-retro text-label uppercase tracking-wide">
             <li><span aria-hidden="true" className="text-[var(--lcd-accent)]">→</span> Pixels + prototypes</li>
             <li><span aria-hidden="true" className="text-[var(--lcd-accent)]">→</span> Wine + service instincts</li>
             <li><span aria-hidden="true" className="text-[var(--lcd-accent)]">→</span> Music, culture + story</li>
@@ -479,15 +479,15 @@ export const WhoWeAre: React.FC<{ onBack: () => void; onHome: () => void }> = ({
         </Card>
 
         <Card livery="amber" elevation={1} className="p-[var(--pad-card)]">
-          <h3 className="font-retro text-heading uppercase tracking-widest text-[var(--lcd-text)]">GODOT</h3>
-          <p className="mt-1 font-retro text-caption uppercase tracking-wide text-[var(--lcd-accent)]">
+          <h3 className="font-retro text-title uppercase tracking-widest text-[var(--lcd-text)]">GODOT</h3>
+          <p className="mt-1 font-retro text-label uppercase tracking-wide text-[var(--lcd-accent)]">
             CO-FOUNDER + DIRECTOR OF STRATEGY &amp; OPERATIONS
           </p>
           <p className="mt-3">
             Godot leads strategy, financial planning, research, product
             testing, partnerships, and operations.
           </p>
-          <ul className="mt-3 space-y-1 font-retro text-caption uppercase tracking-wide">
+          <ul className="mt-3 space-y-1 font-retro text-label uppercase tracking-wide">
             <li><span aria-hidden="true" className="text-[var(--lcd-accent)]">→</span> Models + milestones</li>
             <li><span aria-hidden="true" className="text-[var(--lcd-accent)]">→</span> Partners + pipelines</li>
             <li><span aria-hidden="true" className="text-[var(--lcd-accent)]">→</span> Systems that scale</li>
@@ -497,7 +497,7 @@ export const WhoWeAre: React.FC<{ onBack: () => void; onHome: () => void }> = ({
     </section>
 
     <section className="space-y-3">
-      <h2 className="font-retro text-heading uppercase tracking-widest text-[var(--lcd-text)]">HOW WE WORK</h2>
+      <h2 className="font-retro text-title uppercase tracking-widest text-[var(--lcd-text)]">HOW WE WORK</h2>
       <p>
         Horizon shapes and builds the work. Godot pressure-tests the plan and
         keeps it moving. Together, we make education useful, welcoming, and fun.
@@ -535,7 +535,7 @@ export const ContactUs: React.FC<{ onBack: () => void; onHome: () => void; onPri
           </h2>
         </div>
 
-        <p className="font-retro text-caption normal-case leading-relaxed text-[var(--lcd-body-text)] max-w-prose">
+        <p className="text-body normal-case leading-relaxed text-[var(--lcd-body-text)] max-w-prose">
           Product feedback, collaboration ideas, project questions, or a good
           bottle we should know about — we read everything.
         </p>
@@ -559,7 +559,7 @@ export const ContactUs: React.FC<{ onBack: () => void; onHome: () => void; onPri
         <button
           type="button"
           onClick={onPrivacy}
-          className="dex-pressable font-retro text-caption uppercase tracking-widest text-[var(--lcd-subtext)] underline underline-offset-4 hover:text-[var(--lcd-text)]"
+          className="dex-pressable font-retro text-label uppercase tracking-widest text-[var(--lcd-subtext)] underline underline-offset-4 hover:text-[var(--lcd-text)]"
         >
           PRIVACY + TERMS
         </button>
@@ -586,7 +586,7 @@ export const ContactUs: React.FC<{ onBack: () => void; onHome: () => void; onPri
 export const PrivacyAndTerms: React.FC<{ onBack: () => void; onHome: () => void }> = ({ onBack, onHome }) => (
   <InfoPage title="PRIVACY + TERMS" onBack={onBack} onHome={onHome}>
     <section className="space-y-3">
-      <h2 className="font-retro text-title uppercase tracking-widest text-[var(--lcd-accent)]">
+      <h2 className="font-retro text-display uppercase tracking-widest text-[var(--lcd-accent)]">
         PRIVACY
       </h2>
       <p>
@@ -620,7 +620,7 @@ export const PrivacyAndTerms: React.FC<{ onBack: () => void; onHome: () => void 
     </section>
 
     <section className="space-y-3">
-      <h2 className="font-retro text-title uppercase tracking-widest text-[var(--lcd-accent)]">
+      <h2 className="font-retro text-display uppercase tracking-widest text-[var(--lcd-accent)]">
         TERMS OF USE
       </h2>
       <p>
