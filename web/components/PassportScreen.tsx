@@ -63,8 +63,10 @@ const ProgressRow: React.FC<{ label: string; done: number; total: number; fill: 
   return (
     <div className="flex items-center gap-3 mb-2">
       <span className="text-caption text-[var(--lcd-text)] normal-case w-24 shrink-0 truncate">{label}</span>
-      <span className="flex-1 h-3 rounded-full bg-[var(--lcd-well)] overflow-hidden">
-        <span className="block h-full rounded-full" style={{ width: `${pct}%`, backgroundColor: fill }} />
+      {/* A segment gauge, not a pill (audit P2): square-cornered well with
+          the LCD's 2px edge, like the CHARACTERISTICS bars on the readout. */}
+      <span className="flex-1 h-3.5 rounded-sm border-2 border-[var(--surface-line-strong)] bg-[var(--lcd-well)] overflow-hidden">
+        <span className="block h-full" style={{ width: `${pct}%`, backgroundColor: fill }} />
       </span>
       <span className="text-caption text-[var(--lcd-subtext)] w-12 text-right shrink-0">{done}/{total}</span>
     </div>
@@ -121,8 +123,8 @@ const PassportScreen: React.FC<PassportScreenProps> = ({ allEntries, onSelect, o
             </div>
             {rank.next && (
               <div className="mt-3">
-                <div className="h-3 rounded-full bg-[var(--lcd-well)] overflow-hidden">
-                  <span className="block h-full rounded-full bg-[var(--livery-amber)]" style={{ width: `${Math.max(rank.fraction > 0 ? 8 : 0, Math.round(rank.fraction * 100))}%` }} />
+                <div className="h-3.5 rounded-sm border-2 border-[var(--surface-line-strong)] bg-[var(--lcd-well)] overflow-hidden">
+                  <span className="block h-full bg-[var(--livery-amber)]" style={{ width: `${Math.max(rank.fraction > 0 ? 8 : 0, Math.round(rank.fraction * 100))}%` }} />
                 </div>
                 <div className="text-caption text-[var(--lcd-subtext)] normal-case mt-1 text-right">
                   {tastings}/{rank.next.threshold} toward {rank.next.name}

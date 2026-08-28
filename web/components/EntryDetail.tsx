@@ -646,9 +646,12 @@ const EntryDetail: React.FC<EntryDetailProps> = ({ entry, allEntries, onBack, on
                   const shelfStyle = (on: boolean): React.CSSProperties => on
                     ? { backgroundColor: 'var(--lcd-accent)', borderColor: 'var(--lcd-accent)', color: 'var(--lcd-page)' }
                     : { backgroundColor: 'var(--lcd-well)', borderColor: 'var(--lcd-accent)', color: 'var(--lcd-accent)' };
-                  const shelfClass = 'dex-pressable flex items-center gap-1.5 rounded-full px-4 py-2 border-2';
+                  // Tight enough that the three shelves share one row on a
+                  // 390px phone (audit D2): at `px-4` / `gap-2` the hero was
+                  // three rows of buttons under a two-line name.
+                  const shelfClass = 'dex-pressable flex items-center gap-1 rounded-full px-3 py-2 border-2';
                   return (
-                <div className="flex flex-wrap items-center justify-center gap-2">
+                <div className="flex flex-wrap items-center justify-center gap-1.5">
                   <button
                     onClick={() => toggleBookmark(entry.id)}
                     aria-pressed={saved}
