@@ -103,3 +103,66 @@ export const bouncePosition = (
     y: fold(distanceAt(time, BOUNCE_VELOCITY.y, travelY, start.y), travelY),
   };
 };
+
+/**
+ * How many walls have been hit by `time`, on both axes together — the other
+ * half of `ScreensaverBounce.swift`, ported in v0.6.14.
+ *
+ * Drives the colour change: the mark takes a new hue on every bounce, which
+ * is the half of the effect people actually remember. **Counted, not
+ * detected**, so the colour is a pure function of time exactly as the
+ * position is, and the two cannot drift out of step — the hue changes at the
+ * wall because both are read off the same `distanceAt`.
+ *
+ * Counted from the start rather than from the origin (iOS 0.7.6, A2): the
+ * walls a non-zero phase has notionally already passed are subtracted, so a
+ * run that begins mid-flight still opens on `palette[0]` — the LCD's own
+ * accent — and takes its second colour at its own first real bounce.
+ */
+export const bounceCount = (
+  time: number,
+  box: { width: number; height: number },
+  mark: { width: number; height: number },
+  start: ScreensaverStart = CORNER_START,
+): number => {
+  const travelX = box.width - mark.width;
+  const travelY = box.height - mark.height;
+  return walls(time, BOUNCE_VELOCITY.x, travelX, start.x) + walls(time, BOUNCE_VELOCITY.y, travelY, start.y);
+};
+
+/** Walls hit on one axis between the start and `time`: one per half-cycle.
+ *  `floor`, not `round` — the wall at the exact instant of contact has not
+ *  been left yet. */
+const walls = (time: number, velocity: number, span: number, phase: number): number => {
+  if (span <= 0) return 0;
+  const now = distanceAt(time, velocity, span, phase);
+  const began = distanceAt(0, velocity, span, phase);
+  return Math.floor(now / span) - Math.floor(began / span);
+};
+
+/**
+ * The hues the mark cycles through, one per bounce — `Screensaver.swift`'s
+ * `palette`, verbatim: the LCD's own accent first, then the app's chip
+ * palette (`Dex.red500`, `Dex.amber400`, `Dex.green500`, `Dex.blue`,
+ * `Dex.cyan300`). Not a rainbow: the screensaver still has to look like this
+ * device's screen, and a saturated spectrum over an amber phosphor reads as
+ * a fault. The monochrome modes flatten it anyway — `--lcd-grayscale` sits
+ * over the whole LCD — so on VINTAGE and AMBER the mark simply changes value,
+ * which is the correct answer for a one-colour display.
+ *
+ * The first entry is the token rather than a hex so the opening colour is
+ * whichever accent the player's mode has; the five fixed ones are the chip
+ * palette's, the same on both platforms.
+ */
+export const SCREENSAVER_PALETTE: readonly string[] = [
+  'var(--lcd-accent)',
+  '#ef4444',
+  '#fbbf24',
+  '#22c55e',
+  '#2AB5FF',
+  '#67e8f9',
+];
+
+/** The mark's colour after `bounces` walls: the palette, cycled. */
+export const tintForBounce = (bounces: number): string =>
+  SCREENSAVER_PALETTE[((bounces % SCREENSAVER_PALETTE.length) + SCREENSAVER_PALETTE.length) % SCREENSAVER_PALETTE.length]!;

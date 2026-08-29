@@ -68,6 +68,19 @@ export interface WebRelease {
 // 0.6.1x, not 0.6.2: the firmware line owns 0.6.2 through 0.9.2, and the
 // two-clocks test refuses any version the device already wore.
 const CURRENT: WebRelease = {
+  version: '0.6.14',
+  date: '2026-08-28',
+  headline: 'A NEW HUE EVERY WALL',
+  notes: [
+    'The screensaver mark takes a new colour from the palette on every wall it hits, the way the phone does -- the LCD accent first, then red, amber, green, blue, cyan.',
+    'The colour is read off the same clock as the position, so a bounce and its hue can never disagree.',
+    'The mark is the wordmark itself, drawn as two hard-edged layers and tinted -- no more fixed red tile -- and it is sized from the LCD, so it fits the site chassis too.',
+    'Under reduced motion it sits still in the accent, as before.',
+  ],
+};
+
+/** The release before this one, promoted when 0.6.14 landed. */
+const PREVIOUS_0_6_13: WebRelease = {
   version: '0.6.13',
   date: '2026-08-28',
   headline: 'THE SHELVES IN A ROW',
@@ -212,6 +225,7 @@ const PREVIOUS_0_4_2: WebRelease = {
 
 /** Newest first. A new release is prepended by promoting `CURRENT`. */
 const PREVIOUS: WebRelease[] = [
+  PREVIOUS_0_6_13,
   PREVIOUS_0_6_12,
   PREVIOUS_0_6_11,
   PREVIOUS_0_6_10,
