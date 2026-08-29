@@ -2,6 +2,7 @@ import { cleanup, render, screen } from '@testing-library/react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { DEVICE_FRAME_BOX } from '../src/services/deviceFrame';
 import ScreensaverOverlay, { ScreensaverProvider } from './ScreensaverOverlay';
+import { SCREENSAVER_PALETTE } from '../src/services/screensaver';
 
 describe('<ScreensaverOverlay />', () => {
   beforeEach(() => {
@@ -43,5 +44,31 @@ describe('<ScreensaverOverlay />', () => {
     const duplicates = [...overlay.querySelectorAll<HTMLElement>('*')]
       .filter(node => node.classList.contains(frameToken));
     expect(duplicates).toHaveLength(0);
+  });
+
+  /**
+   * The mark is the two-layer wordmark, tinted (v0.6.14) — iOS parity for
+   * the colour effect. A raster `<img>` cannot change colour, which is why
+   * the web's saver bounced a fixed red tile for six releases.
+   */
+  it('draws the wordmark as two tintable layers, opening on the accent', () => {
+    render(
+      <ScreensaverProvider active onDismiss={vi.fn()}>
+        <ScreensaverOverlay />
+      </ScreensaverProvider>,
+    );
+    const mark = document.querySelector('svg[data-screensaver-mark]');
+    expect(mark, 'the mark is not an inline SVG').not.toBeNull();
+    expect(document.querySelector('img'), 'a raster mark is back').toBeNull();
+    const face = mark!.querySelector('path[data-mark-face]')!;
+    const shade = mark!.querySelector('path[data-mark-shade]')!;
+    // Opens on palette[0] -- the LCD's own accent -- on every raise.
+    expect(face.getAttribute('fill')).toBe(SCREENSAVER_PALETTE[0]);
+    expect(shade.getAttribute('fill')).toBe(SCREENSAVER_PALETTE[0]);
+    // The shade is the same ink dimmed, never a second colour.
+    expect(shade.getAttribute('fill-opacity')).toBe('0.45');
+    // Pixel art with hard corners: no anti-aliasing on either layer.
+    expect(face.getAttribute('shape-rendering')).toBe('crispEdges');
+    expect(shade.getAttribute('shape-rendering')).toBe('crispEdges');
   });
 });
