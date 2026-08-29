@@ -68,6 +68,19 @@ export interface WebRelease {
 // 0.6.1x, not 0.6.2: the firmware line owns 0.6.2 through 0.9.2, and the
 // two-clocks test refuses any version the device already wore.
 const CURRENT: WebRelease = {
+  version: '0.6.15',
+  date: '2026-08-28',
+  headline: 'A CARD FOR EVERY PAGE',
+  notes: [
+    'Sharing a site page -- the studio, OUR WORK, WHO WE ARE, CONTACT US, PRIVACY + TERMS -- unfurls with that page\'s own title and description, the way an entry link already did.',
+    'A sitemap lists every site page and every shareable entry; robots.txt points at it and keeps crawlers out of the app\'s own screens.',
+    'Every prerendered page carries a canonical link and a large-image card.',
+    'What the crawler is told is pinned to the route table: a site page that appears in one and not the other fails a test.',
+  ],
+};
+
+/** The release before this one, promoted when 0.6.15 landed. */
+const PREVIOUS_0_6_14: WebRelease = {
   version: '0.6.14',
   date: '2026-08-28',
   headline: 'A NEW HUE EVERY WALL',
@@ -225,6 +238,7 @@ const PREVIOUS_0_4_2: WebRelease = {
 
 /** Newest first. A new release is prepended by promoting `CURRENT`. */
 const PREVIOUS: WebRelease[] = [
+  PREVIOUS_0_6_14,
   PREVIOUS_0_6_13,
   PREVIOUS_0_6_12,
   PREVIOUS_0_6_11,
