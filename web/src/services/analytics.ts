@@ -13,14 +13,23 @@
  *
  * ## The funnel
  *
- * Four stages, matching the product's acquisition shape (see `shareLink.ts`:
- * the web is the top of the funnel, the App Store is the bottom):
+ * Four live stages, matching the product's acquisition shape (see
+ * `shareLink.ts`: the web is the top of the funnel). The bottom of the funnel
+ * is **Substack** for now (v0.6.16): the iOS app is TestFlight-only, so the
+ * conversion is a subscriber who will get the invite, not an App Store tap.
  *
- *   `landing-view`         — the site's front page is seen
- *   `open-app`             — the device boots: someone opened Vinodex
- *   `install-nudge-click`  — the GET APP nudge is pressed
- *   `store-tap`            — an App Store link is followed (`source` says
- *                            which surface; today only the install banner)
+ *   `landing-view`           — the site's front page is seen
+ *   `open-app`               — the device boots: someone opened Vinodex
+ *   `subscribe-nudge-click`  — the iOS-updates card's SHOW SIGN-UP FORM is
+ *                              pressed: the visitor asked for the form
+ *   `substack-tap`           — a link to the publication is followed
+ *                              (`source` says which surface)
+ *
+ * One dormant stage, kept for the day the listing is live:
+ *
+ *   `store-tap`              — an App Store link is followed. Fires from the
+ *                              install banner, which renders for nobody while
+ *                              `APP_STORE_LISTING_IS_LIVE` is false.
  *
  * ## Why the gate is the host, not just the build mode
  *
@@ -36,10 +45,16 @@
 const LOCAL_HOSTS = new Set(['localhost', '127.0.0.1', '0.0.0.0', '[::1]']);
 
 /** The closed set of event names — the funnel, and only the funnel. */
-export type FunnelEvent = 'landing-view' | 'open-app' | 'install-nudge-click' | 'store-tap';
+export type FunnelEvent = 'landing-view' | 'open-app' | 'subscribe-nudge-click' | 'substack-tap' | 'store-tap';
+
+/** Where a Substack tap came from: the in-dex card, or the landing's link. */
+export type SubstackTapSource = 'updates-card' | 'landing';
 
 /** Where a store tap came from, for when there is more than one surface. */
 export type StoreTapSource = 'install-banner';
+
+/** The closed set of `source` values — nothing user-authored, ever. */
+export type EventSource = SubstackTapSource | StoreTapSource;
 
 /** True only where sending a beacon is both possible and wanted. */
 export const analyticsEnabled = (): boolean => {
@@ -67,7 +82,7 @@ export const initAnalytics = (): void => {
 };
 
 /** Record one funnel stage. A no-op everywhere `analyticsEnabled` says so. */
-export const trackEvent = (name: FunnelEvent, props?: { source: StoreTapSource }): void => {
+export const trackEvent = (name: FunnelEvent, props?: { source: EventSource }): void => {
   if (!analyticsEnabled()) return;
   void import('@vercel/analytics')
     .then(({ track }) => track(name, props))

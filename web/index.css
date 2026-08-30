@@ -408,6 +408,17 @@ body,
   font-size: clamp(0.6rem, 2.6vw, 0.9rem);
 }
 
+/* The site's tiles alone take one more step down on a phone (v0.6.16): the
+   pitch above them grew by a line and a link, so the 2x2 is ~65px tall at
+   390px and a wrapped OPEN VINODEX no longer has a second line to wrap
+   onto. 2.3vw is 9px there -- twelve tracked characters fit a ~130px tile
+   on one line -- and the clamp still lands at 0.9rem from tablet up, so
+   nothing above a phone changes. The dex's MainMenu keeps the size above. */
+.portal-home-tile > span:nth-of-type(2) {
+  font-size: clamp(0.55rem, 2.3vw, 0.9rem);
+  white-space: nowrap;
+}
+
 /* The category content follows the area left by its concave corner, matching
    iOS's centroid adjustment rather than sitting partly under Search. */
 .main-menu-tile > span {

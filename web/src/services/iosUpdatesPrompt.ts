@@ -1,14 +1,18 @@
+import { VINODEX_SUBSTACK_URL } from './brand';
+
 /** Active in-app time before offering the optional iOS updates publication. */
 export const IOS_UPDATES_PROMPT_DELAY_MS = 90_000;
 
 /**
  * Substack owns the subscription form, consent, confirmation, and subscriber
- * data; Vinodex only links to the product's dedicated publication.
+ * data; Vinodex only links to the product's dedicated publication. The URL
+ * itself lives in `brand.ts` since v0.6.16, because the landing links to it
+ * too; re-exported so this module's callers keep one import.
  */
-export const VINODEX_SUBSTACK_URL = 'https://vinodex.substack.com/';
+export { VINODEX_SUBSTACK_URL };
 
 /** Official Substack-hosted signup form supplied by the publication owner. */
-export const VINODEX_SUBSTACK_EMBED_URL = 'https://vinodex.substack.com/embed';
+export const VINODEX_SUBSTACK_EMBED_URL = `${VINODEX_SUBSTACK_URL}embed`;
 
 /**
  * Browser-level acknowledgement, not player data. Once the invitation has

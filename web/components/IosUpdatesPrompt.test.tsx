@@ -7,6 +7,13 @@ import {
   VINODEX_SUBSTACK_EMBED_URL,
   VINODEX_SUBSTACK_URL,
 } from '../src/services/iosUpdatesPrompt';
+import { trackEvent } from '../src/services/analytics';
+
+// The funnel's bottom stage rides this card (v0.6.16). The module is mocked
+// rather than spied because `analyticsEnabled()` is false under vitest by
+// design (see analytics.test.ts), so the real function would no-op and prove
+// nothing about which surface fired what.
+vi.mock('../src/services/analytics', () => ({ trackEvent: vi.fn() }));
 
 const Harness: React.FC<{ active?: boolean }> = ({ active = true }) => (
   <IosUpdatesPromptProvider active={active}>
@@ -25,6 +32,7 @@ describe('the iOS updates invitation', () => {
     window.localStorage.clear();
     hidden = false;
     vi.spyOn(document, 'hidden', 'get').mockImplementation(() => hidden);
+    vi.mocked(trackEvent).mockClear();
   });
 
   afterEach(() => {
@@ -89,6 +97,20 @@ describe('the iOS updates invitation', () => {
     expect(screen.queryByRole('region', { name: 'Vinodex iOS updates' })).toBeNull();
     act(() => { vi.advanceTimersByTime(1); });
     expect(screen.getByRole('region', { name: 'Vinodex iOS updates' })).toBeTruthy();
+  });
+
+  it('records the funnel: asking for the form, and following the link', () => {
+    render(<Harness />);
+    act(() => { vi.advanceTimersByTime(IOS_UPDATES_PROMPT_DELAY_MS); });
+    // Appearing is not counted: the card shows up unbidden.
+    expect(trackEvent).not.toHaveBeenCalled();
+
+    fireEvent.click(screen.getByRole('button', { name: /SHOW SIGN-UP FORM/ }));
+    expect(trackEvent).toHaveBeenCalledWith('subscribe-nudge-click');
+
+    fireEvent.click(screen.getByRole('link', { name: /OPEN SUBSTACK/ }));
+    expect(trackEvent).toHaveBeenCalledWith('substack-tap', { source: 'updates-card' });
+    expect(trackEvent).toHaveBeenCalledTimes(2);
   });
 
   it('can be dismissed and never rearms once marked as seen', () => {

@@ -44,7 +44,9 @@ test('the site is what a visitor lands on', async ({ page, consoleErrors }) => {
   for (const tile of ['OPEN VINODEX', 'OUR WORK', 'WHO WE ARE', 'CONTACT US']) {
     await expect(page.getByRole('button', { name: tile })).toBeVisible();
   }
-  await expect(page.getByText('PLAYFUL TOOLS, MADE WELL.')).toBeVisible();
+  // The hero sells the product, not the studio (v0.6.16).
+  await expect(page.getByText('EVERY GRAPE, REGION AND STYLE, IN YOUR POCKET.')).toBeVisible();
+  await expect(page.getByRole('link', { name: /GET iOS UPDATES/ })).toBeVisible();
   await expect(page.getByRole('button', { name: 'DATA', exact: true })).toHaveCount(0);
   await expect(page.getByRole('button', { name: 'DEX', exact: true })).toHaveCount(0);
   await expect(page.getByRole('button', { name: 'WEBSITE', exact: true })).toHaveCount(0);

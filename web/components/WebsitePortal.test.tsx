@@ -10,7 +10,10 @@ import {
   ProjectSplash,
   WhoWeAre,
 } from './WebsitePortal';
-import { CONTACT_ADDRESS } from '../src/services/brand';
+import { CONTACT_ADDRESS, VINODEX_SUBSTACK_URL } from '../src/services/brand';
+import { trackEvent } from '../src/services/analytics';
+
+vi.mock('../src/services/analytics', () => ({ trackEvent: vi.fn() }));
 
 const inRouter = (node: React.ReactNode) => render(<MemoryRouter>{node}</MemoryRouter>);
 const noop = () => undefined;
@@ -28,7 +31,17 @@ describe('the Horizon/Godot website', () => {
       />,
     );
 
-    expect(screen.getByText('PLAYFUL TOOLS, MADE WELL.')).toBeTruthy();
+    // The hero sells the product (v0.6.16): one value line, one sentence.
+    expect(screen.getByText('EVERY GRAPE, REGION AND STYLE, IN YOUR POCKET.')).toBeTruthy();
+    expect(screen.getByText(/Play it right here in your browser/)).toBeTruthy();
+    expect(screen.queryByText('PLAYFUL TOOLS, MADE WELL.')).toBeNull();
+    // The quiet Substack door, and the funnel event it records.
+    const updates = screen.getByRole('link', { name: /GET iOS UPDATES/ });
+    expect(updates.getAttribute('href')).toBe(VINODEX_SUBSTACK_URL);
+    expect(updates.getAttribute('target')).toBe('_blank');
+    expect(updates.getAttribute('rel')).toContain('noopener');
+    fireEvent.click(updates);
+    expect(trackEvent).toHaveBeenCalledWith('substack-tap', { source: 'landing' });
     const actions = ['OUR WORK', 'WHO WE ARE', 'OPEN VINODEX', 'CONTACT US'];
     for (const action of actions) {
       expect(screen.getByRole('button', { name: action })).toBeTruthy();

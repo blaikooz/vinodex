@@ -7,6 +7,7 @@ import {
   VINODEX_SUBSTACK_EMBED_URL,
   VINODEX_SUBSTACK_URL,
 } from '../src/services/iosUpdatesPrompt';
+import { trackEvent } from '../src/services/analytics';
 
 interface PromptContextValue {
   visible: boolean;
@@ -122,7 +123,13 @@ export const IosUpdatesPromptOverlay: React.FC = () => {
         ) : (
           <button
             type="button"
-            onClick={() => setEmbedLoaded(true)}
+            // The funnel's bottom stage (v0.6.16): asking for the form is the
+            // conversion this card exists for, so it is the event. The card
+            // appearing is not counted -- it appears unbidden.
+            onClick={() => {
+              trackEvent('subscribe-nudge-click');
+              setEmbedLoaded(true);
+            }}
             className="dex-pressable mt-4 flex h-40 w-full flex-col items-center justify-center gap-2 rounded-control border border-[var(--surface-line)] bg-[var(--tint-subtle)]"
           >
             <span className="font-retro text-heading tracking-widest text-[var(--lcd-text)]">SHOW SIGN-UP FORM</span>
@@ -143,7 +150,10 @@ export const IosUpdatesPromptOverlay: React.FC = () => {
             href={VINODEX_SUBSTACK_URL}
             target="_blank"
             rel="noopener noreferrer"
-            onClick={prompt.dismiss}
+            onClick={() => {
+              trackEvent('substack-tap', { source: 'updates-card' });
+              prompt.dismiss();
+            }}
             className="dex-pressable inline-flex min-h-11 items-center justify-center gap-2 rounded-control bg-[var(--lcd-accent)] px-4 py-2 font-retro text-heading tracking-widest text-[var(--lcd-on-accent)] shadow-elev-2"
           >
             OPEN SUBSTACK

@@ -46,7 +46,7 @@ export const SITE_PAGES: readonly SitePage[] = [
   {
     path: '/',
     title: 'HORIZON/GODOT — Playful tools, made well.',
-    description: 'A two-person NYC studio making playful digital tools. Home of Vinodex, a retro-handheld wine encyclopedia you can play in the browser.',
+    description: 'Every grape, region and style, in your pocket. Vinodex is a wine encyclopedia that looks like a 90s handheld, from a NYC studio. Play it in your browser.',
   },
   {
     path: '/apps',

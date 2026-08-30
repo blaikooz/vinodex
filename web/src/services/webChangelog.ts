@@ -68,6 +68,19 @@ export interface WebRelease {
 // 0.6.1x, not 0.6.2: the firmware line owns 0.6.2 through 0.9.2, and the
 // two-clocks test refuses any version the device already wore.
 const CURRENT: WebRelease = {
+  version: '0.6.16',
+  date: '2026-08-29',
+  headline: 'IN YOUR POCKET',
+  notes: [
+    'The front page sells the product: one value line -- every grape, region and style, in your pocket -- and one sentence saying what Vinodex is and that it plays right here.',
+    'A quiet GET iOS UPDATES link under the pitch opens the Vinodex Substack, where the TestFlight invite will go.',
+    'The funnel now ends at Substack rather than the App Store: the iOS-updates card records when you ask for its form or follow its link, and the shared card copy matches.',
+    'The privacy page says so in as many words; the App Store bar stays parked until the listing is real.',
+  ],
+};
+
+/** The release before this one, promoted when 0.6.16 landed. */
+const PREVIOUS_0_6_15: WebRelease = {
   version: '0.6.15',
   date: '2026-08-28',
   headline: 'A CARD FOR EVERY PAGE',
@@ -238,6 +251,7 @@ const PREVIOUS_0_4_2: WebRelease = {
 
 /** Newest first. A new release is prepended by promoting `CURRENT`. */
 const PREVIOUS: WebRelease[] = [
+  PREVIOUS_0_6_15,
   PREVIOUS_0_6_14,
   PREVIOUS_0_6_13,
   PREVIOUS_0_6_12,

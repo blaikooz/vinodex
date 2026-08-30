@@ -4,7 +4,8 @@ import type { LucideIcon } from 'lucide-react';
 import DeviceLayout from './DeviceLayout';
 import { Card, Tile } from './Card';
 import type { Livery } from './Card';
-import { CONTACT_ADDRESS } from '../src/services/brand';
+import { CONTACT_ADDRESS, VINODEX_SUBSTACK_URL } from '../src/services/brand';
+import { trackEvent } from '../src/services/analytics';
 
 /* The browser document is intentionally locked because the chassis is the
    page. These named LCD regions therefore need to be keyboard-focusable so
@@ -242,16 +243,44 @@ export const PortalHome: React.FC<PortalHomeProps> = props => (
             offset shadow drawn on whatever page the mode supplies, which on
             the pale modes was a smear. Flat, in the mode's own accent, which
             measures 13:1 on DARK and 6.4:1 on LIGHT. */}
-        <div className="text-center shrink-0 pt-1 space-y-1.5">
+        {/* The hero is the link that converts (v0.6.16, road-to-1.x item 2):
+            the studio keeps its mark, and the two lines under it now sell the
+            product rather than the studio -- one value line, one sentence
+            saying what it is and that it plays right here. The studio's own
+            line moved to WHO WE ARE, where it always also lived. */}
+        {/* Sized for the 390px square LCD, where the pitch shares the screen
+            with four tiles that must keep their labels: the value line is
+            two pixel-font lines at `text-label` on a phone (`text-title` from
+            `sm`), the sentence is one clause, and the link row is 1.5rem.
+            v0.6.16's first draft put three lines of each here and clipped
+            every tile label under it. */}
+        <div className="text-center shrink-0 pt-1 space-y-1 sm:space-y-1.5">
           <h1 className="font-retro text-xl sm:text-3xl tracking-widest text-[var(--lcd-accent)] leading-none">
             HORIZON/GODOT
           </h1>
-          <p className="font-retro text-heading sm:text-title tracking-widest text-[var(--lcd-text)]">
-            PLAYFUL TOOLS, MADE WELL.
+          <p className="mx-auto max-w-md sm:max-w-none font-retro text-label sm:text-title tracking-widest text-[var(--lcd-text)] leading-relaxed sm:leading-normal">
+            EVERY GRAPE, REGION AND STYLE, IN YOUR POCKET.
           </p>
           <p className="mx-auto max-w-md text-caption sm:text-body normal-case text-[var(--lcd-subtext)] leading-snug">
-            A two-person NYC studio making useful digital projects with personality.
+            A wine encyclopedia that looks like a 90s handheld. Play it right here in your browser.
           </p>
+          {/* The funnel's bottom, offered quietly (v0.6.16): the iOS app is
+              TestFlight-only, so the ask is a subscriber, not a store tap.
+              A text link, not a fifth tile -- the tiles are the site's four
+              doors and this is a footnote to the pitch. */}
+          <a
+            href={VINODEX_SUBSTACK_URL}
+            target="_blank"
+            rel="noopener noreferrer"
+            onClick={() => trackEvent('substack-tap', { source: 'landing' })}
+            // Not `.dex-pressable`: that class is the card language (and the
+            // a11y gate's definition of a card control -- the landing has
+            // four). A text link gets a text link's focus: the outline.
+            className="inline-flex min-h-6 items-center gap-1 rounded-control font-retro text-label tracking-widest text-[var(--lcd-accent)] underline underline-offset-4 hover:text-[var(--lcd-text)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--lcd-accent)]"
+          >
+            GET iOS UPDATES
+            <ArrowUpRight size={14} aria-hidden="true" />
+          </a>
         </div>
 
         {/* A real grid rather than two flex rows: the tiles are a 2x2 and
@@ -613,7 +642,7 @@ export const PrivacyAndTerms: React.FC<{ onBack: () => void; onHome: () => void 
       <p>
         We count visits with Vercel&apos;s cookieless analytics: aggregate
         numbers — how many people saw the site, opened the app, or tapped
-        through to the App Store. No cookies, no identifiers, nothing stored
+        through to our Substack. No cookies, no identifiers, nothing stored
         on your device, and nothing that follows you anywhere else. No
         advertising, no sale of data — there is no data to sell.
       </p>

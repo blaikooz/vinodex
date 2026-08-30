@@ -70,14 +70,11 @@ const InstallBanner: React.FC = () => {
         href={APP_STORE_URL}
         target="_blank"
         rel="noopener noreferrer"
-        // The funnel's bottom two stages (v0.6.1). On this bar they are one
-        // act — pressing the nudge IS following the store link — so both fire
-        // here. A future store surface that is not a nudge (a settings row,
-        // say) records only `store-tap`, with its own `source`.
-        onClick={() => {
-          trackEvent('install-nudge-click');
-          trackEvent('store-tap', { source: 'install-banner' });
-        }}
+        // The dormant store stage (v0.6.1; the funnel's live bottom is the
+        // Substack card since v0.6.16). Pressing this bar IS following the
+        // store link, so it records one `store-tap` with this surface as its
+        // source; it can only fire once the listing is real.
+        onClick={() => trackEvent('store-tap', { source: 'install-banner' })}
         className="shrink-0 rounded-full px-3 py-1 bg-green-500 hover:bg-green-400 border border-green-700 text-micro tracking-widest text-white transition-colors"
       >
         GET APP

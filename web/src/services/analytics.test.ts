@@ -24,7 +24,9 @@ describe('analytics', () => {
       initAnalytics();
       trackEvent('landing-view');
       trackEvent('open-app');
-      trackEvent('install-nudge-click');
+      trackEvent('subscribe-nudge-click');
+      trackEvent('substack-tap', { source: 'updates-card' });
+      trackEvent('substack-tap', { source: 'landing' });
       trackEvent('store-tap', { source: 'install-banner' });
     }).not.toThrow();
   });

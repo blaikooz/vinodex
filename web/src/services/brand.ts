@@ -37,3 +37,14 @@
  * the site and the in-app SUPPORT screen continue to read one shared value.
  */
 export const CONTACT_ADDRESS = 'vinodex@substack.com';
+
+/**
+ * The Vinodex publication on Substack — where iOS launch news goes, and the
+ * bottom of the web funnel while the app is TestFlight-only (v0.6.16).
+ *
+ * Here rather than in `iosUpdatesPrompt.ts` because the landing links to it
+ * too, and the site may not import a dex service. Substack owns the form,
+ * the consent, the confirmation and the subscriber data; both products only
+ * link out to it.
+ */
+export const VINODEX_SUBSTACK_URL = 'https://vinodex.substack.com/';
