@@ -68,6 +68,17 @@ export interface WebRelease {
 // 0.6.1x, not 0.6.2: the firmware line owns 0.6.2 through 0.9.2, and the
 // two-clocks test refuses any version the device already wore.
 const CURRENT: WebRelease = {
+  version: '0.6.23',
+  date: '2026-08-30',
+  headline: 'HOW IT WORKS',
+  notes: [
+    'The Vinodex page under OUR WORK explains the device in four lines -- browse, scan, quiz, keep -- above OPEN VINODEX. The front page stays the studio\'s.',
+    'Every control on the site is a full-size touch target now: PRIVACY + TERMS and the install bar\'s close button reach 44px without moving anything.',
+  ],
+};
+
+/** The release before this one, promoted when 0.6.23 landed. */
+const PREVIOUS_0_6_22: WebRelease = {
   version: '0.6.22',
   date: '2026-08-30',
   headline: 'KEEP THE DEVICE',
@@ -321,6 +332,7 @@ const PREVIOUS_0_4_2: WebRelease = {
 
 /** Newest first. A new release is prepended by promoting `CURRENT`. */
 const PREVIOUS: WebRelease[] = [
+  PREVIOUS_0_6_22,
   PREVIOUS_0_6_21,
   PREVIOUS_0_6_20,
   PREVIOUS_0_6_19,

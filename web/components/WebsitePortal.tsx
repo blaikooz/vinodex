@@ -40,6 +40,10 @@ export interface Project {
   description: string;
   /** Bundled square logo shown in the list row and on the splash. */
   logo?: string;
+  /** How it works, in three or four lines -- the `inApp` project's only
+   *  (v0.6.23, Phase 3). Each is `LABEL -- what it does`; the label is drawn
+   *  in the pixel face, the rest in the terminal face. */
+  howItWorks?: readonly string[];
   /** Repo-native fallback when a project does not have a bundled logo. */
   badge?: string;
   /** Supporting accent; the site keeps one chassis and lets projects tint it. */
@@ -71,6 +75,12 @@ export const PROJECTS: Project[] = [
     logo: '/vinodex-logo.png',
     livery: 'green',
     featured: true,
+    howItWorks: [
+      'BROWSE -- 440 grapes, regions, styles and flavours, every one cross-linked',
+      'SCAN -- four questions about the glass in front of you, then a deduction',
+      'QUIZ -- the Wine Exam and a daily challenge, with a passport of stamps to earn',
+      'KEEP -- shelves and ratings live in your browser; no account, nothing uploaded',
+    ],
     inApp: true,
   },
   {
@@ -422,6 +432,28 @@ export const ProjectSplash: React.FC<ProjectSplashProps> = ({ project, onBack, o
           {project.description}
         </p>
 
+        {/* HOW IT WORKS (v0.6.23): the block Phase 2 asked for on the landing,
+            placed here by the owner's ruling so the front page stays the
+            studio's. A list, not prose -- four verbs a visitor can scan. */}
+        {project.howItWorks && project.howItWorks.length > 0 && (
+          <section aria-labelledby="how-it-works" className="w-full max-w-prose text-left">
+            <h3 id="how-it-works" className="font-retro text-label tracking-widest text-[var(--lcd-accent)] dex-section-rule pb-1">
+              HOW IT WORKS
+            </h3>
+            <ul className="mt-2 space-y-1.5">
+              {project.howItWorks.map(line => {
+                const [label, rest] = line.split(' -- ');
+                return (
+                  <li key={line} className="flex gap-2 text-body normal-case leading-snug text-[var(--lcd-body-text)]">
+                    <span className="shrink-0 font-retro text-label uppercase tracking-widest text-[var(--lcd-text)]">{label}</span>
+                    <span>{rest}</span>
+                  </li>
+                );
+              })}
+            </ul>
+          </section>
+        )}
+
         {project.inApp ? (
           // Vinodex opens here. Named for what it does, rather than borrowing
           // the outbound rows' CHECK IT OUT: this button does not take you to
@@ -591,7 +623,7 @@ export const ContactUs: React.FC<{ onBack: () => void; onHome: () => void; onPri
         <button
           type="button"
           onClick={onPrivacy}
-          className="dex-pressable font-retro text-label uppercase tracking-widest text-[var(--lcd-subtext)] underline underline-offset-4 hover:text-[var(--lcd-text)]"
+          className="dex-pressable inline-flex min-h-11 items-center px-3 font-retro text-label uppercase tracking-widest text-[var(--lcd-subtext)] underline underline-offset-4 hover:text-[var(--lcd-text)]"
         >
           PRIVACY + TERMS
         </button>

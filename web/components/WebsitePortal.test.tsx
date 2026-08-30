@@ -89,6 +89,24 @@ describe('the Horizon/Godot website', () => {
     expect(screen.getByRole('button', { name: 'Back' })).toBeTruthy();
   });
 
+  it('explains how Vinodex works on its own splash, and only there (v0.6.23)', () => {
+    const vinodex = PROJECTS.find(p => p.id === 'vinodex')!;
+    const view = inRouter(<ProjectSplash project={vinodex} onBack={noop} onHome={noop} onOpenApp={noop} />);
+    const page = within(view.container);
+    expect(page.getByRole('heading', { name: 'HOW IT WORKS' })).toBeTruthy();
+    const items = page.getAllByRole('listitem').map(li => li.textContent ?? '');
+    expect(items).toHaveLength(4);
+    expect(items[0]).toMatch(/^BROWSE/);
+    expect(items[1]).toMatch(/^SCAN/);
+    expect(items[2]).toMatch(/^QUIZ/);
+    expect(items[3]).toMatch(/^KEEP/);
+    view.unmount();
+    const chateau = PROJECTS.find(p => p.id === 'chateau-earth')!;
+    const other = inRouter(<ProjectSplash project={chateau} onBack={noop} onHome={noop} onOpenApp={noop} />);
+    expect(within(other.container).queryByRole('heading', { name: 'HOW IT WORKS' })).toBeNull();
+    other.unmount();
+  });
+
   it('shows a clear, safe outbound handoff for publications', () => {
     const project = PROJECTS.find(candidate => candidate.id === 'chateau-earth');
     if (!project) throw new Error('missing Château fixture');

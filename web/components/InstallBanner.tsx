@@ -82,7 +82,8 @@ const InstallBanner: React.FC = () => {
       <button
         onClick={dismiss}
         aria-label="Dismiss"
-        className="shrink-0 p-1 text-stone-400 hover:text-white transition-colors"
+        // 44px target (a11y, Phase 3) inside a 36px bar: reach, not size.
+        className="shrink-0 -my-2 inline-flex min-h-11 min-w-11 items-center justify-center text-stone-400 hover:text-white transition-colors"
       >
         <X size={16} />
       </button>
