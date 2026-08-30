@@ -68,6 +68,17 @@ export interface WebRelease {
 // 0.6.1x, not 0.6.2: the firmware line owns 0.6.2 through 0.9.2, and the
 // two-clocks test refuses any version the device already wore.
 const CURRENT: WebRelease = {
+  version: '0.6.47',
+  date: '2026-08-30',
+  headline: 'MARKS OF OUR OWN',
+  notes: [
+    'PX wears the Vinodex sigil -- a wine glass in three strokes -- and HALLOWINE its jack-o-lantern, drawn marks of our own where borrowed ones would not do.',
+    'The back plate\'s barcode and SALE tag are the drawn decals now, the same aged paper the phone ships.',
+  ],
+};
+
+/** The release before this one, promoted when 0.6.47 landed. */
+const PREVIOUS_0_6_46: WebRelease = {
   version: '0.6.46',
   date: '2026-08-30',
   headline: 'RANGES, NOT SWATCHES',
@@ -582,6 +593,7 @@ const PREVIOUS_0_4_2: WebRelease = {
 
 /** Newest first. A new release is prepended by promoting `CURRENT`. */
 const PREVIOUS: WebRelease[] = [
+  PREVIOUS_0_6_46,
   PREVIOUS_0_6_45,
   PREVIOUS_0_6_44,
   PREVIOUS_0_6_43,

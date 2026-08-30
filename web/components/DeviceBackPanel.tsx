@@ -231,41 +231,27 @@ const DeviceBackPanel: React.FC<DeviceBackPanelProps> = ({ onReturn }) => {
       <Screw className="absolute bottom-3 left-3 md:bottom-4 md:left-4" colors={plate.screw} rim={plate.screwRim} />
       <Screw className="absolute bottom-3 right-3 md:bottom-4 md:right-4" colors={plate.screw} rim={plate.screwRim} />
 
-      {/* Factory leavings (mirrors DeviceBackPlate.swift): a faded barcode
-          sticker at bottom-left and a torn SALE price tag at top-right — a
-          device that has been on a shelf, not in a renderer. Decorative. */}
-      <div
+      {/* Factory leavings (iOS PlateDecal, drawn art since v0.6.47): the
+          faded barcode at bottom-left and the torn SALE tag at top-right are
+          the shipped stamp-barcode / stamp-price-tag drawings -- the same
+          files iOS prefers, with the old CSS versions retired rather than
+          kept as a second rendering of the same objects. Decorative. */}
+      <ArtImage
+        src="/art/stamp/stamp-barcode.png"
+        alt=""
+        aria-hidden="true"
+        draggable={false}
         className="absolute bottom-24 left-8 pointer-events-none select-none"
-        style={{ transform: 'rotate(-4deg)', opacity: 0.9 }}
+        style={{ width: 104, height: 'auto', transform: 'rotate(-4deg)', imageRendering: 'pixelated', opacity: 0.92 }}
+      />
+      <ArtImage
+        src="/art/stamp/stamp-price-tag.png"
+        alt=""
         aria-hidden="true"
-      >
-        <div className="px-2 py-1.5 rounded-[3px] bg-[#E9E6DA] shadow-[0_1px_2px_rgba(0,0,0,0.25)] flex flex-col items-center gap-1">
-          <div
-            className="h-6 w-24"
-            style={{
-              backgroundImage:
-                'repeating-linear-gradient(90deg, rgba(0,0,0,0.55) 0, rgba(0,0,0,0.55) 1px, transparent 1px, transparent 3px, rgba(0,0,0,0.55) 3px, rgba(0,0,0,0.55) 5px, transparent 5px, transparent 6px, rgba(0,0,0,0.55) 6px, rgba(0,0,0,0.55) 9px, transparent 9px, transparent 12px)',
-            }}
-          />
-          <div className="font-mono text-[0.5rem] tracking-[0.2em] text-black/60">4 71332 90815</div>
-        </div>
-      </div>
-      <div
+        draggable={false}
         className="absolute top-20 right-8 pointer-events-none select-none"
-        style={{ transform: 'rotate(8deg)', opacity: 0.9 }}
-        aria-hidden="true"
-      >
-        <div
-          className="pl-2.5 pr-6 py-1.5 bg-[#F5A8C4] shadow-[0_1px_2px_rgba(0,0,0,0.25)] flex flex-col items-start"
-          style={{
-            clipPath:
-              'polygon(0 0, 92% 0, 84% 18%, 95% 32%, 78% 45%, 90% 60%, 74% 74%, 86% 88%, 70% 100%, 0 100%)',
-          }}
-        >
-          <div className="font-retro text-[0.5rem] tracking-[0.2em]" style={{ color: '#8F2D56' }}>SALE</div>
-          <div className="font-mono text-lg leading-none" style={{ color: '#6B1D40' }}>$4.99</div>
-        </div>
-      </div>
+        style={{ width: 72, height: 'auto', transform: 'rotate(8deg)', imageRendering: 'pixelated', opacity: 0.92 }}
+      />
 
       {/* Engraved content */}
       <div className="relative h-full w-full flex flex-col items-center justify-center px-6 py-10 gap-8 font-mono select-none" style={{ color: plate.ink }}>
