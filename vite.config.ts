@@ -37,6 +37,13 @@ export default defineConfig({
     react(),
     VitePWA({
       registerType: 'autoUpdate',
+      // `script-defer` rather than the default synchronous `<script src=
+      // "/registerSW.js">` in <head>: the registration is 400 bytes but it
+      // is a render-blocking request on the critical path of every route,
+      // and Lighthouse charged it ~300ms of LCP on a throttled phone
+      // (v0.6.18). Deferred, it runs after parse and the worker registers
+      // exactly as before -- `registerType: 'autoUpdate'` is unaffected.
+      injectRegister: 'script-defer',
       includeAssets: ['vinodex-logo.png'],
       manifest: {
         name: 'VINODEX',

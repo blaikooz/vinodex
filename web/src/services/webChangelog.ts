@@ -68,6 +68,17 @@ export interface WebRelease {
 // 0.6.1x, not 0.6.2: the firmware line owns 0.6.2 through 0.9.2, and the
 // two-clocks test refuses any version the device already wore.
 const CURRENT: WebRelease = {
+  version: '0.6.18',
+  date: '2026-08-30',
+  headline: 'OFF THE CRITICAL PATH',
+  notes: [
+    'The service-worker registration no longer blocks the first paint: it loads deferred, after the page, and registers exactly as before.',
+    'Measured on a throttled phone, first paint moved from 2.4s to about 2.2s and the landing scores 0.89-0.90; the rest of the wait is the app bundle itself, which is a later job.',
+  ],
+};
+
+/** The release before this one, promoted when 0.6.18 landed. */
+const PREVIOUS_0_6_17: WebRelease = {
   version: '0.6.17',
   date: '2026-08-29',
   headline: 'A LIT ROOM',
@@ -262,6 +273,7 @@ const PREVIOUS_0_4_2: WebRelease = {
 
 /** Newest first. A new release is prepended by promoting `CURRENT`. */
 const PREVIOUS: WebRelease[] = [
+  PREVIOUS_0_6_17,
   PREVIOUS_0_6_16,
   PREVIOUS_0_6_15,
   PREVIOUS_0_6_14,
