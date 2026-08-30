@@ -60,3 +60,13 @@ if (typeof window !== 'undefined' && !window.matchMedia) {
     dispatchEvent: () => false,
   })) as unknown as typeof window.matchMedia;
 }
+
+
+/**
+ * The catalogue is a dynamic import in the app (v0.6.31) and `getAllEntries()`
+ * throws until it has landed. Component suites render dex screens directly,
+ * without `App`'s gate, so the tables are loaded here once per file -- the
+ * one line that keeps "render a whole screen" a one-line thing to do.
+ */
+import { loadAllEntries } from './src/services/wineData';
+await loadAllEntries();

@@ -18,7 +18,7 @@ import DeviceLayout from './components/DeviceLayout';
 import InstallBanner from './components/InstallBanner';
 import { VinodexBootProvider } from './components/VinodexBoot';
 import { WineEntry, EntryCategory } from '@/shared/types';
-import { getAllEntries } from './src/services/wineData';
+import { useCatalogue } from './src/services/useCatalogue';
 import { clear as clearScreenState } from './src/services/screenState';
 import { SETTINGS_SECTIONS, SettingsSectionId } from './src/services/settingsSections';
 import { installGlobalTapSound } from './src/services/sound';
@@ -291,10 +291,17 @@ const LegacyProjectRedirect: React.FC = () => {
 };
 
 
+/** A referentially stable empty catalogue for the site side of the fork. */
+const NO_ENTRIES: WineEntry[] = [];
+
 const App: React.FC = () => {
   const navigate = useNavigate();
   const location = useLocation();
-  const allEntries = useMemo(() => getAllEntries(), []);
+  // The catalogue is its own chunk (v0.6.31): `null` until it lands, and the
+  // dex routes below are held back until then. The site never waits for it.
+  const onDexPath = isDexPath(location.pathname);
+  const catalogue = useCatalogue(onDexPath);
+  const allEntries = catalogue ?? NO_ENTRIES;
 
   useEffect(() => {
     document.title = browserTitle(location.pathname);
@@ -451,6 +458,11 @@ const App: React.FC = () => {
   const prevPath = useRef(location.pathname);
   useEffect(() => {
     const path = location.pathname;
+    // A shared entry link arrives before the catalogue chunk (v0.6.31). The
+    // arrival owes its grape line, so it waits for the tables rather than
+    // firing with no entry -- the LCD is a spinner until then anyway, and the
+    // bookkeeping below runs once, when the screen is really there.
+    if (path.startsWith('/detail/') && !catalogue) return;
     if (prevPath.current === '/dex' && path !== '/dex') applyLeftMainScreen();
     if (prevPath.current !== path) clearVino();
     prevPath.current = path;
@@ -487,7 +499,7 @@ const App: React.FC = () => {
       startCoachmarks();
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [location.pathname, introDone, vinoIdle, booting]);
+  }, [location.pathname, introDone, vinoIdle, booting, catalogue]);
 
   const showIntroCard =
     location.pathname === '/dex' && !booting && !hasFired('firstLaunch') && !isVinoSilenced() && !introDone && !demoActive;
@@ -749,6 +761,16 @@ const App: React.FC = () => {
         <Route path="/website/contact" element={<Navigate to="/contact" replace />} />
         <Route path="/website/unlock" element={<Navigate to="/dex" replace />} />
 
+        {/* Every dex route waits for the catalogue chunk (v0.6.31). On a cold
+            arrival the BIOS boot is running in front of this anyway; the one
+            route that skips the boot, a shared entry link, shows the LCD's
+            spinner for the beat the tables take to arrive. Site paths never
+            reach here: their routes are above, and the site's 404 is below. */}
+        {!catalogue && onDexPath && (
+          <Route path="*" element={<ScreenLoading label="LOADING..." onBack={handleBack} onHome={handleHome} />} />
+        )}
+        {catalogue && (
+          <>
         <Route
           path="/dex"
           element={
@@ -1013,6 +1035,8 @@ const App: React.FC = () => {
             />
           }
         />
+          </>
+        )}
         {/* A URL that matches nothing is an outside arrival, so it lands on the
             company site — unlike the in-app fallbacks above, which go to
             "/dex". Nothing boots on the way through: an unknown path is in

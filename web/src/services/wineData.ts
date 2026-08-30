@@ -1,5 +1,4 @@
 import { GrapeCard, GrapeEntry, WineEntry, isGrapeEntry } from '@/shared/types';
-import { buildWineEntries } from '@/shared/constants';
 
 let cachedEntries: WineEntry[] | null = null;
 let inFlight: Promise<WineEntry[]> | null = null;
@@ -76,30 +75,50 @@ function canonicalizeEntry<T extends WineEntry>(entry: T): T {
 const canonicalizeEntries = (entries: WineEntry[]) => entries.map(canonicalizeEntry);
 
 /**
- * Synchronously return the canonicalized wine entries. The first call performs
- * canonicalization; subsequent calls return the cached array.
+ * The canonicalized catalogue, synchronously — **after** {@link loadAllEntries}
+ * has resolved once. Every dex screen renders behind that gate (`App` holds
+ * the dex routes back until the catalogue is in), so a dex component may call
+ * this freely; the throw is for the case the gate was bypassed, and it names
+ * the fix rather than returning an empty list that would render as "no data".
+ *
+ * **Why not just build it here (v0.6.31, Phase 6 LCP).** `@/shared/constants`
+ * pulls every grape, region, country and style table -- ~300 KB of source --
+ * and a static import put all of it in the first chunk of every route, the
+ * studio landing included. The landing never reads an entry. The table now
+ * arrives by dynamic import, as its own chunk, only when a dex route asks.
  */
 export function getAllEntries(): WineEntry[] {
   if (!cachedEntries) {
-    // `buildWineEntries()` replaced the pre-built `WINE_ENTRIES` array in the
-    // v0.9.x shared master (iOS selects subsets via `EntrySelection`; the web
-    // always wants everything). Built once here — this module is the cache.
-    cachedEntries = canonicalizeEntries(buildWineEntries());
+    throw new Error('wineData: the catalogue is not loaded yet -- await loadAllEntries() (App gates the dex routes on it) before calling getAllEntries()');
   }
   return cachedEntries;
 }
 
+/** The catalogue if it has been loaded, else `null`. Never triggers a load. */
+export const peekEntries = (): WineEntry[] | null => cachedEntries;
+
 /**
- * Async wrapper around {@link getAllEntries}. Kept so existing async call sites
- * (e.g. EncyclopediaList) don't have to change.
+ * Load the catalogue: one dynamic import of the shared tables, canonicalized
+ * once, cached for the life of the page. Concurrent callers share the flight.
  */
-export async function loadAllEntries(): Promise<WineEntry[]> {
-  if (cachedEntries) return cachedEntries;
+export function loadAllEntries(): Promise<WineEntry[]> {
+  // Not `async`: an async wrapper would hand every caller its own promise,
+  // and "concurrent callers share the flight" is a claim the test checks.
+  if (cachedEntries) return Promise.resolve(cachedEntries);
   if (inFlight) return inFlight;
 
-  inFlight = Promise.resolve().then(() => getAllEntries()).finally(() => {
-    inFlight = null;
-  });
+  inFlight = import('@/shared/constants')
+    .then(({ buildWineEntries }) => {
+      // `buildWineEntries()` replaced the pre-built `WINE_ENTRIES` array in
+      // the v0.9.x shared master (iOS selects subsets via `EntrySelection`;
+      // the web always wants everything). Built once here -- this module is
+      // the cache.
+      cachedEntries = canonicalizeEntries(buildWineEntries());
+      return cachedEntries;
+    })
+    .finally(() => {
+      inFlight = null;
+    });
 
   return inFlight;
 }
