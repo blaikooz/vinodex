@@ -27,7 +27,10 @@ export type Entitlement =
   | { kind: 'flavors' }
   | { kind: 'skins' }
   | { kind: 'lightMode' }
-  | { kind: 'workshop' };
+  | { kind: 'workshop' }
+  // iOS `.easterEgg(id)`: a cosmetic unlock the console grants -- verboseBoot
+  // is the only resident so far (0.7.3 A4, web v0.6.46).
+  | { kind: 'easterEgg'; id: string };
 
 /**
  * Bundles are identified by a string rather than by shape alone, so a stored
@@ -41,6 +44,7 @@ export function entitlementId(e: Entitlement): string {
     case 'skins': return 'skins';
     case 'lightMode': return 'lightMode';
     case 'workshop': return 'workshop';
+    case 'easterEgg': return `easterEgg:${e.id}`;
   }
 }
 
@@ -52,6 +56,7 @@ export function entitlementTitle(e: Entitlement): string {
     case 'skins': return 'CHASSIS SKINS';
     case 'lightMode': return 'LIGHT MODE';
     case 'workshop': return 'DEVICE WORKSHOP';
+    case 'easterEgg': return e.id === 'verboseBoot' ? 'VERBOSE BOOT' : e.id.toUpperCase();
   }
 }
 
@@ -63,6 +68,7 @@ export function entitlementBlurb(e: Entitlement): string {
     case 'skins': return 'All chassis colourways beyond the default.';
     case 'lightMode': return 'The paper-white LCD, for reading in daylight.';
     case 'workshop': return 'Build the device part by part, and save the results.';
+    case 'easterEgg': return e.id === 'verboseBoot' ? 'Two more POST lines, for those who like to watch the machine think.' : 'An easter egg.';
   }
 }
 

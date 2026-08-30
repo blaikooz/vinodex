@@ -68,6 +68,18 @@ export interface WebRelease {
 // 0.6.1x, not 0.6.2: the firmware line owns 0.6.2 through 0.9.2, and the
 // two-clocks test refuses any version the device already wore.
 const CURRENT: WebRelease = {
+  version: '0.6.46',
+  date: '2026-08-30',
+  headline: 'RANGES, NOT SWATCHES',
+  notes: [
+    'The two cosmetic pickers read as ranges now: shells grouped CLASSIC, WINES, VESSEL, RETROFIT, CLEARTECH and FESTIVE, screen modes grouped CLASSIC, RETRO and EMULATOR -- twenty-two tiles in one flat grid was a swatch book.',
+    'The fifth cheat code ships with the thing it unlocks: type it and the boot gets two more POST lines. Codes are found, not listed.',
+    'And answers buzz in the hand as well as the ear -- one firm pulse for right, a stutter for wrong.',
+  ],
+};
+
+/** The release before this one, promoted when 0.6.46 landed. */
+const PREVIOUS_0_6_45: WebRelease = {
   version: '0.6.45',
   date: '2026-08-30',
   headline: 'PAPER, STORIES, SLEEP',
@@ -570,6 +582,7 @@ const PREVIOUS_0_4_2: WebRelease = {
 
 /** Newest first. A new release is prepended by promoting `CURRENT`. */
 const PREVIOUS: WebRelease[] = [
+  PREVIOUS_0_6_45,
   PREVIOUS_0_6_44,
   PREVIOUS_0_6_43,
   PREVIOUS_0_6_42,

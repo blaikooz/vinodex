@@ -35,6 +35,7 @@ import { QuizTier, QUIZ_TIERS, isTierUnlocked, tierRank } from '../src/services/
 import { dayIndex, revealCursor } from '../src/services/dailyPick';
 import { query as ssQuery, setQuery as ssSetQuery } from '../src/services/screenState';
 import { playCorrect, playWrong } from '../src/services/sound';
+import { answerHaptic } from '../src/services/haptics';
 import { artSprite } from '../src/services/artSprites';
 import { classArtNode } from '../src/services/classArt';
 import iconManifest from '../src/data/iconManifest.json';
@@ -145,16 +146,20 @@ const WineExamScreen: React.FC<WineExamScreenProps> = ({ onBack, onHome }) => {
   const commit = (answer: ExamAnswer) => {
     if (!run || !prompt || run.submitted) return;
     const next = submit(draft(run, answer), prompt);
-    if (next.marks[next.marks.length - 1]) playCorrect();
+    const right = !!next.marks[next.marks.length - 1];
+    if (right) playCorrect();
     else playWrong();
+    answerHaptic(right);
     setRun(next);
   };
 
   const submitDraft = () => {
     if (!run || !prompt || run.submitted || !run.answer) return;
     const next = submit(run, prompt);
-    if (next.marks[next.marks.length - 1]) playCorrect();
+    const right = !!next.marks[next.marks.length - 1];
+    if (right) playCorrect();
     else playWrong();
+    answerHaptic(right);
     setRun(next);
   };
 

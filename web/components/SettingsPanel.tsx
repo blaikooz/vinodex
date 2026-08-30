@@ -27,6 +27,7 @@ import {
 } from '../src/services/theme';
 import { useTheme } from '../src/services/useTheme';
 import { SKIN_EMBLEM } from '../src/services/skinEmblem';
+import { LCD_SECTIONS, SKIN_SECTIONS } from '../src/services/pickerSections';
 import { soundsEnabled, setSoundsEnabled } from '../src/services/sound';
 import { keepAwakeEnabled, setKeepAwakeEnabled } from '../src/services/screenWake';
 import { requestChassisFlip } from '../src/services/chassisFlip';
@@ -707,22 +708,37 @@ export const SettingsSectionPanel: React.FC<{
                 Each is a 3-column grid of preview tiles: a mini-LCD in the
                 mode's own colours (monochrome pass and all) and a mini-chassis
                 in the skin's shell. */}
+            {/* Grouped, not flat (iOS 0.7.0 B2): three headed ranges rather
+                than nine tiles in a row. Membership from pickerSections.ts,
+                held as a partition by its test. */}
             <Section title="SCREEN MODE">
-              <div className="grid grid-cols-3 gap-2">
-                {(Object.keys(LCD_MODES) as LcdModeId[]).map(id => (
-                  <ModePreviewTile key={id} id={id} selected={theme.lcd === id} onClick={() => setLcdMode(id)} />
-                ))}
-              </div>
+              {LCD_SECTIONS.map(group => (
+                <div key={group.title} className="mb-3 last:mb-0">
+                  <p className="text-micro tracking-widest mb-1.5" style={{ color: 'var(--lcd-subtext)' }}>{group.title}</p>
+                  <div className="grid grid-cols-3 gap-2">
+                    {group.modes.map(id => (
+                      <ModePreviewTile key={id} id={id} selected={theme.lcd === id} onClick={() => setLcdMode(id)} />
+                    ))}
+                  </div>
+                </div>
+              ))}
             </Section>
 
             {/* "CHASSIS SKINS", not "SHELL SKINS" — the rest of the app calls this
                 part of the device the chassis. */}
             <Section title="CHASSIS SKINS">
-              <div className="grid grid-cols-3 gap-2">
-                {(Object.keys(CHASSIS_SKINS) as ChassisSkinId[]).map(id => (
-                  <SkinPreviewTile key={id} id={id} selected={theme.skin === id} onClick={() => setSkin(id)} />
-                ))}
-              </div>
+              {/* "Twenty-two shells in one flat grid is a swatch book, not a
+                  range" (iOS 0.7.0 B1). */}
+              {SKIN_SECTIONS.map(group => (
+                <div key={group.title} className="mb-3 last:mb-0">
+                  <p className="text-micro tracking-widest mb-1.5" style={{ color: 'var(--lcd-subtext)' }}>{group.title}</p>
+                  <div className="grid grid-cols-3 gap-2">
+                    {group.skins.map(id => (
+                      <SkinPreviewTile key={id} id={id} selected={theme.skin === id} onClick={() => setSkin(id)} />
+                    ))}
+                  </div>
+                </div>
+              ))}
             </Section>
 
           </>

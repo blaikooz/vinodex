@@ -1,5 +1,6 @@
 import React from 'react';
 import { APP_VERSION_DISPLAY } from '../src/services/appVersion';
+import { isGranted } from '../src/services/access';
 
 /**
  * The BIOS power-on boot (iOS `VinodexBootView` / `BootSequence`): a POST that
@@ -63,23 +64,36 @@ const VinodexBoot: React.FC<Props> = ({ entries, onDone }) => {
     onDone();
   }, [onDone]);
 
+  // MAINFRAME's whole prize (iOS 0.7.3 A4, web v0.6.46): two more POST
+  // lines, slotted where a real POST would put them. A lazy initializer, so
+  // the store is read once per boot and never during a re-render.
+  const [verbose] = React.useState(() => isGranted({ kind: 'easterEgg', id: 'verboseBoot' }));
+
   React.useEffect(() => {
-    // Absolute schedule from one start instant. The sequence resolves into a
-    // stable prompt and waits there until a tap or key explicitly enters.
+    // Absolute schedule from one start instant, the same instants as iOS's
+    // `at:` values x1000. The sequence resolves into a stable prompt and
+    // waits there until a tap or key explicitly enters.
+    const at = verbose ? [300, 500, 700, 900, 1100] : [300, 700, 1100];
     const t = [
-      window.setTimeout(() => setLines(1), 300),
-      window.setTimeout(() => setLines(2), 700),
-      window.setTimeout(() => setLines(3), 1100),
+      ...at.map((ms, i) => window.setTimeout(() => setLines(i + 1), ms)),
       window.setTimeout(() => setSplash(true), 1750),
     ];
     return () => t.forEach(window.clearTimeout);
-  }, [finish]);
+  }, [finish, verbose]);
 
-  const post: [string, string][] = [
-    ['MEMORY', '640K OK'],
-    ['DATABASE', entries > 0 ? `${entries} ENTRIES` : 'NO DATA'],
-    ['FIRMWARE', APP_VERSION_DISPLAY],
-  ];
+  const post: [string, string][] = verbose
+    ? [
+        ['MEMORY', '640K OK'],
+        ['DISPLAY', 'LCD OK'],
+        ['DATABASE', entries > 0 ? `${entries} ENTRIES` : 'NO DATA'],
+        ['CATALOG', 'MOUNTED'],
+        ['FIRMWARE', APP_VERSION_DISPLAY],
+      ]
+    : [
+        ['MEMORY', '640K OK'],
+        ['DATABASE', entries > 0 ? `${entries} ENTRIES` : 'NO DATA'],
+        ['FIRMWARE', APP_VERSION_DISPLAY],
+      ];
 
   return (
     <div

@@ -18,6 +18,7 @@ import { dailySession, recordDaily, isTodayDone, currentStreak, dailyMarks, dail
 import { dayIndex } from '../src/services/dailyPick';
 import { query as ssQuery, setQuery as ssSetQuery } from '../src/services/screenState';
 import { playCorrect, playWrong } from '../src/services/sound';
+import { answerHaptic } from '../src/services/haptics';
 
 interface TastingQuizScreenProps {
   allEntries: WineEntry[];
@@ -75,8 +76,10 @@ const TastingQuizScreen: React.FC<TastingQuizScreenProps> = ({ allEntries, onOpe
 
   const choose = (id: string) => {
     if (session && question && !isAnswered(session)) {
-      if (id === question.answerID) playCorrect();
+      const right = id === question.answerID;
+      if (right) playCorrect();
       else playWrong();
+      answerHaptic(right);
       setSession(chooseAnswer(session, id, question));
     }
   };
