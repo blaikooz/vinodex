@@ -16,7 +16,7 @@
  * fitted build that has one part changed simply stops matching.
  */
 
-import { DeviceBuild, buildsEqual, sanitizeBuild, isStock } from './deviceParts';
+import { DeviceBuild, buildsEqual, sanitizeBuild } from './deviceParts';
 
 export interface CustomDevice {
   /** A UUID string, so renaming a build is a rename rather than a re-save. */
@@ -49,8 +49,7 @@ export type SaveOutcome =
   | { kind: 'saved'; id: string }
   | { kind: 'replaced'; id: string }
   | { kind: 'needsName' }
-  | { kind: 'full' }
-  | { kind: 'nameTaken' };
+  | { kind: 'full' };
 
 let revision = 0;
 const listeners = new Set<() => void>();
@@ -118,12 +117,6 @@ function persist(devices: CustomDevice[]): void {
   notify();
 }
 
-export const deviceNamed = (raw: string): CustomDevice | undefined => {
-  const name = normalizeDeviceName(raw);
-  if (!name) return undefined;
-  return savedDevices().find(d => d.name === name);
-};
-
 /** The saved build the device is wearing right now, if any. Derived. */
 export const matchingDevice = (build: DeviceBuild): CustomDevice | undefined =>
   savedDevices().find(d => buildsEqual(d.build, build));
@@ -148,28 +141,8 @@ export function saveDevice(rawName: string, build: DeviceBuild): SaveOutcome {
   return { kind: 'saved', id: device.id };
 }
 
-/**
- * Give a saved build a different name. Refuses a name another build already
- * holds rather than silently merging two builds into one.
- */
-export function renameDevice(id: string, rawName: string): SaveOutcome {
-  const name = normalizeDeviceName(rawName);
-  if (!name) return { kind: 'needsName' };
-  const devices = savedDevices();
-  const index = devices.findIndex(d => d.id === id);
-  if (index < 0) return { kind: 'needsName' };
-  if (devices.some(d => d.id !== id && d.name === name)) return { kind: 'nameTaken' };
-  devices[index] = { ...devices[index]!, name };
-  persist(devices);
-  return { kind: 'replaced', id };
-}
-
 export function deleteDevice(id: string): void {
   const devices = savedDevices().filter(d => d.id !== id);
   persist(devices);
 }
 
-export const devicesFull = (): boolean => savedDevices().length >= DEVICE_CAPACITY;
-
-/** True when a build is worth saving at all (the stock device is not). */
-export const isSaveable = (build: DeviceBuild): boolean => !isStock(build);

@@ -85,8 +85,20 @@ export const enterDex = async (page: Page, route: string) => {
   // A beat for the first paint, so "no boot" is an answer rather than a race.
   await page.waitForTimeout(250);
   if (await skip.count()) {
-    await skip.click({ force: true });
-    await expect(skip).toHaveCount(0);
+    // Two races live here under a loaded runner: the click can lose to the
+    // boot finishing on its own (the overlay is still in the DOM but no
+    // longer clickable), and a click can misfire while the overlay is mid
+    // transition. So: try, give it a beat, try again -- and the assertion of
+    // record is that the boot ends, clicked or not, inside the time the POST
+    // takes to run itself out.
+    for (let attempt = 0; attempt < 3 && (await skip.count()); attempt += 1) {
+      await skip.click({ force: true }).catch(() => undefined);
+      const gone = await expect(skip)
+        .toHaveCount(0, { timeout: 3_000 })
+        .then(() => true, () => false);
+      if (gone) break;
+    }
+    await expect(skip).toHaveCount(0, { timeout: 15_000 });
   }
 };
 

@@ -38,15 +38,14 @@
  */
 
 // Constants — ChassisCapArt.swift's, names kept so the three ports diff by eye.
-export const LIT_FLOOR = 0.55;
-export const GLYPH_VALUE = 0.60;
-export const GLYPH_INNER_REACH = 0.20;
-export const GLYPH_OUTER_LIMIT = 0.78;
-export const EDGE_FEATHER = 1.5;
-export const OUTLINE_CEILING = 0.06;
+const LIT_FLOOR = 0.55;
+const GLYPH_VALUE = 0.60;
+const GLYPH_INNER_REACH = 0.20;
+const GLYPH_OUTER_LIMIT = 0.78;
+const EDGE_FEATHER = 1.5;
+const OUTLINE_CEILING = 0.06;
 
 export type CapStem = 'back' | 'home' | 'user' | 'settings';
-export const CAP_STEMS: CapStem[] = ['back', 'home', 'user', 'settings'];
 
 export interface FittedCap {
   /** 0–1 edge-feather ramp per pixel; 0 outside the moulded part. */
@@ -202,7 +201,7 @@ export function fitCap(rgba: Uint8ClampedArray, w: number, h: number): FittedCap
 type Hsv = [h: number, s: number, v: number];
 
 /** `#rrggbb` or `rgba(r,g,b,a)` → (h, s, v); anything else → neutral white. */
-export function hsvOfCss(colour: string): Hsv {
+function hsvOfCss(colour: string): Hsv {
   let r: number;
   let g: number;
   let b: number;

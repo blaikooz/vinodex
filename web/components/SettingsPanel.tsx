@@ -113,7 +113,14 @@ function clearAllSavedData(): void {
 // iOS's `DexTileLivery` table (DexTheme.swift; AUDIT L33 hoisted the old
 // per-screen tileColors into it). Ink is white on every livery in both modes
 // — iOS 0.6.4 retired TOOLS's dark-amber ink, "the odd one out on the grid".
-const TILE_FACE: Record<string, { dark: [string, string, string]; light: [string, string, string] }> = {
+/**
+ * The system grid's six tiles, closed (v0.6.34, mirroring iOS's hoist): an
+ * unknown title is a compile error here, not a tile silently wearing DATA's
+ * blue. iOS made the same move when FIRMWARE joined the grid (0.8.92).
+ */
+type TileTitle = 'TOOLS' | 'CUSTOMIZE' | 'SETTINGS' | 'DATA' | 'SHOP' | 'FIRMWARE';
+
+const TILE_FACE: Record<TileTitle, { dark: [string, string, string]; light: [string, string, string] }> = {
   // The green TUTORIAL freed when the tour moved into SETTINGS (iOS 0.7.6 F1),
   // reassigned to FIRMWARE (0.8.92, item 2) — same slot, same livery.
   FIRMWARE: { dark: ['#22C55E', '#15803D', '#FFFFFF'], light: ['#15803D', '#0B4A24', '#FFFFFF'] },
@@ -125,8 +132,8 @@ const TILE_FACE: Record<string, { dark: [string, string, string]; light: [string
 };
 
 /** A settings-grid tile backed by the same ButtonArt bitmap iOS renders. */
-const FeatureTile: React.FC<{ title: string; art: string; onClick: () => void; isLight: boolean }> = ({ title, art, onClick, isLight }) => {
-  const [face, shadow, ink] = (TILE_FACE[title] ?? TILE_FACE.DATA!)[isLight ? 'light' : 'dark'];
+const FeatureTile: React.FC<{ title: TileTitle; art: string; onClick: () => void; isLight: boolean }> = ({ title, art, onClick, isLight }) => {
+  const [face, shadow, ink] = TILE_FACE[title][isLight ? 'light' : 'dark'];
   return (
     <IOSGridTile
       title={title}

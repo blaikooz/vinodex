@@ -6,7 +6,6 @@ import {
   deleteDevice,
   matchingDevice,
   normalizeDeviceName,
-  renameDevice,
   sanitizeDevices,
   saveDevice,
   savedDevices,
@@ -49,15 +48,6 @@ describe('customDevices', () => {
     expect(saveDevice('ONE MORE', build('COBALT')).kind).toBe('full');
     // But replacing an existing name still works on a full list.
     expect(saveDevice('BUILD 3', build('COBALT')).kind).toBe('replaced');
-  });
-
-  it('renames, and refuses a name another build already holds', () => {
-    const a = saveDevice('ALPHA', build('VIOLET')) as { id: string };
-    saveDevice('BETA', build('COBALT'));
-    expect(renameDevice(a.id, 'GAMMA').kind).toBe('replaced');
-    expect(savedDevices().map(d => d.name).sort()).toEqual(['BETA', 'GAMMA']);
-    // A rename that ate an unrelated build would be a delete nobody asked for.
-    expect(renameDevice(a.id, 'beta').kind).toBe('nameTaken');
   });
 
   it('derives which build is fitted, and never stores it', () => {

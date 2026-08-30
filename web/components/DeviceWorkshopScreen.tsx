@@ -126,9 +126,6 @@ const DeviceWorkshopScreen: React.FC<DeviceWorkshopScreenProps> = ({ onBack, onH
       case 'full':
         setNotice({ text: `${DEVICE_CAPACITY} BUILDS ALREADY SAVED. DELETE ONE.`, bad: true });
         break;
-      case 'nameTaken':
-        setNotice({ text: 'ANOTHER BUILD ALREADY HAS THAT NAME.', bad: true });
-        break;
     }
   };
 

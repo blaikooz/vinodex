@@ -622,8 +622,6 @@ export const customButtonsPart = () => partColorOf(readBuild().buttons);
 /** The marquee's stock phosphor — CLASSIC green, as the footer has always drawn it. */
 const MARQUEE_STOCK = {
   text: '#22c55e',
-  shadow: 'rgba(8, 32, 16, 0.65)',
-  glow: 'rgba(34, 197, 94, 0.16)',
 };
 
 /** Cycles to the next colourway — the chassis itself is tappable on iOS. */
@@ -928,8 +926,6 @@ export function skinCssVars(skin: ChassisSkinId): Record<string, string> {
   // The marquee phosphor, stock — shadowed here so a workshop marquee never
   // reaches the company site's CLASSIC device.
   vars['--marquee-text'] = '#22c55e';
-  vars['--marquee-shadow'] = 'rgba(8, 32, 16, 0.65)';
-  vars['--marquee-glow'] = 'rgba(34, 197, 94, 0.16)';
   return vars;
 }
 
@@ -1007,14 +1003,11 @@ export function applyTheme(): void {
 
   // The marquee phosphor. Stock is the CLASSIC green the footer has always
   // drawn; a fitted MARQUEE part re-lights the panel in its own colour, with
-  // the letter shadow the very dark form of the same phosphor (iOS's
-  // `marqueeShadow` derivation) and the glass glow the phosphor at the glass's
-  // own 16%.
+  // (`--marquee-shadow`/`--marquee-glow` were written here for two releases
+  // and read by nothing; deleted rather than documented, v0.6.34.)
   if (marqueePart) {
     const text = partMarqueeText(marqueePart);
     root.style.setProperty('--marquee-text', text);
-    root.style.setProperty('--marquee-shadow', partMarqueeShadow(marqueePart));
-    root.style.setProperty('--marquee-glow', `color-mix(in srgb, ${text} 16%, transparent)`);
     // The drawn chassis marquee (the livery panel the footer actually
     // renders): the part's base colour becomes the panel ground, its light
     // form the grid, its very dark form the ink — the same triple the old
@@ -1025,8 +1018,6 @@ export function applyTheme(): void {
     root.style.setProperty('--marquee-ink', partMarqueeShadow(marqueePart));
   } else {
     root.style.setProperty('--marquee-text', MARQUEE_STOCK.text);
-    root.style.setProperty('--marquee-shadow', MARQUEE_STOCK.shadow);
-    root.style.setProperty('--marquee-glow', MARQUEE_STOCK.glow);
     root.style.removeProperty('--marquee-ground');
     root.style.removeProperty('--marquee-grid');
     root.style.removeProperty('--marquee-ink');
