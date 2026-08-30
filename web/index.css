@@ -519,16 +519,26 @@ body,
 
 @media (min-width: 768px) {
   .device-stage {
-    background-color: #101013;
+    background-color: #0e0e11;
     background-image:
       /* The vignette. Centred a little above the middle, where the light is. */
-      radial-gradient(115% 90% at 50% 44%, rgba(0, 0, 0, 0) 55%, rgba(0, 0, 0, 0.55) 100%),
-      /* The key light, in the shell's own plastic. 30%/oklab measured against
-         the darkest shell in the table (NOCTURNE) as the least that still
-         reads as light from the machine rather than a grey haze. */
-      radial-gradient(60% 70% at 50% 46%, color-mix(in oklab, var(--chassis-body, #DC0A2D) 30%, transparent) 0%, transparent 74%),
+      radial-gradient(120% 95% at 50% 42%, rgba(0, 0, 0, 0) 50%, rgba(0, 0, 0, 0.6) 100%),
+      /* The key light, in the shell's own plastic. 30%/oklab was measured
+         against the darkest shell in the table (NOCTURNE) as the least that
+         still reads as light from the machine rather than a grey haze; the
+         v0.6.17 refinement takes it to 38% and widens it, because at 1280x800
+         the v0.4.2 stage photographed as a black void with a device in it
+         (Phase 2, "desktop stage polish"). NOCTURNE still reads as a lit room
+         rather than grey: the mix is in oklab, so a near-black shell tints
+         almost nothing whatever the percentage. */
+      radial-gradient(72% 80% at 50% 44%, color-mix(in oklab, var(--chassis-body, #DC0A2D) 38%, transparent) 0%, transparent 72%),
+      /* The pool under the machine: the floor catching the shell's colour,
+         which is the one cue that says "standing on a surface" and was
+         missing. A background layer, not a reflection element -- see the
+         viewport-gate note above for why no decoration may have a box. */
+      radial-gradient(44% 10% at 50% 100%, color-mix(in oklab, var(--chassis-body, #DC0A2D) 30%, transparent) 0%, transparent 100%),
       /* The floor sheen: enough light at the bottom edge to read as a surface. */
-      linear-gradient(to top, rgba(255, 255, 255, 0.045) 0%, rgba(255, 255, 255, 0) 26%);
+      linear-gradient(to top, rgba(255, 255, 255, 0.06) 0%, rgba(255, 255, 255, 0) 30%);
   }
 }
 
