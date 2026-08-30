@@ -65,7 +65,7 @@ const VinoIntroCard: React.FC<VinoIntroCardProps> = ({ onDone }) => {
             </span>
             <div className="flex-1 min-w-0">
               <p className="text-micro tracking-widest text-amber-400">PROF. VINO</p>
-              {ask.chirp && <p className="text-caption text-stone-500 normal-case mt-0.5">{chirpText(ask.chirp)}</p>}
+              {ask.chirp && <p className="text-caption text-stone-400 normal-case mt-0.5">{chirpText(ask.chirp)}</p>}
               <p className="text-caption text-stone-100 normal-case leading-relaxed mt-1">{renderedLine(ask, null)}</p>
             </div>
           </div>

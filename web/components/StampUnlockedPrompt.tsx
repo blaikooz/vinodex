@@ -45,7 +45,7 @@ const StampUnlockedPrompt: React.FC<StampUnlockedPromptProps> = ({ celebration, 
         <p className="text-caption text-stone-300 normal-case leading-relaxed">
           {isTier ? celebration.tier!.blurb : badge?.blurb}
         </p>
-        {!isTier && <p className="text-micro tracking-widest text-stone-500">ADDED TO YOUR COLLECTION.</p>}
+        {!isTier && <p className="text-micro tracking-widest text-stone-400">ADDED TO YOUR COLLECTION.</p>}
         <button
           onClick={onDismiss}
           className="dex-pressable w-full mt-1 rounded-control bg-green-600 px-5 py-3 text-label tracking-widest text-white shadow-elev-1"

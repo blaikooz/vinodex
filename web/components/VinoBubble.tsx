@@ -78,10 +78,10 @@ const VinoBubble: React.FC = () => {
           <span className="flex-1 min-w-0">
             <span className="block text-micro tracking-widest text-amber-400">PROF. VINO</span>
             {line.chirp && (
-              <span className="block text-caption text-stone-500 normal-case mt-0.5">{chirpText(line.chirp)}</span>
+              <span className="block text-caption text-stone-400 normal-case mt-0.5">{chirpText(line.chirp)}</span>
             )}
             <span className="block text-caption text-stone-100 normal-case leading-relaxed mt-0.5">{text}</span>
-            <span className="block text-micro tracking-widest text-stone-500 mt-1.5">TAP TO DISMISS</span>
+            <span className="block text-micro tracking-widest text-stone-400 mt-1.5">TAP TO DISMISS</span>
           </span>
         </button>
       </div>

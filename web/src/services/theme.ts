@@ -663,16 +663,67 @@ export function nextSkin(): void {
  * rather than printed on it: a shade the lamp is already wearing, one stop
  * below the rim it is drawn with.
  */
-export function lampInk(edge: string): string {
-  const m = /^#([0-9a-fA-F]{6})$/.exec(edge.trim());
-  // Every `edge` in `SKIN_LIGHTS` is a plain six-digit hex, and `lampInk`'s own
-  // test holds that true — but a table that grew an `rgba()` should darken
-  // nothing rather than emit `#NaNNaNNaN`.
-  if (!m) return edge;
+/** WCAG relative luminance of a six-digit hex colour. */
+const relLum = (r: number, g: number, b: number): number => {
+  const lin = (c: number) => {
+    const v = c / 255;
+    return v <= 0.03928 ? v / 12.92 : Math.pow((v + 0.055) / 1.055, 2.4);
+  };
+  return 0.2126 * lin(r) + 0.7152 * lin(g) + 0.0722 * lin(b);
+};
+
+const contrastOf = (a: [number, number, number], b: [number, number, number]): number => {
+  const la = relLum(...a);
+  const lb = relLum(...b);
+  return (Math.max(la, lb) + 0.05) / (Math.min(la, lb) + 0.05);
+};
+
+const hexTriple = (hexStr: string): [number, number, number] | null => {
+  const m = /^#([0-9a-fA-F]{6})$/.exec(hexStr.trim());
+  if (!m) return null;
   const n = parseInt(m[1]!, 16);
-  const mix = (c: number) => Math.round(c * 0.55);
-  const [r, g, b] = [mix((n >> 16) & 255), mix((n >> 8) & 255), mix(n & 255)];
-  return `#${((r << 16) | (g << 8) | b).toString(16).padStart(6, '0')}`;
+  return [(n >> 16) & 255, (n >> 8) & 255, n & 255];
+};
+
+const toHex = (rgb: [number, number, number]): string =>
+  `#${((rgb[0] << 16) | (rgb[1] << 8) | rgb[2]).toString(16).padStart(6, '0')}`;
+
+/** The legend ink must actually read against the pill (WCAG AA, 4.5:1). */
+const LEGEND_CONTRAST = 4.5;
+
+/**
+ * The legend ink for a lamp: the edge colour pushed until it reads.
+ *
+ * The original derivation was a flat `edge x 0.55` -- the right look on a lit
+ * lamp, and kept exactly for every lamp where it already meets AA. But a dark
+ * shell's lamps (WALDGLAS's forest, HALLOWEEN's ember) have nowhere darker to
+ * go: their legend was 2.2:1 at its worst, and the axe sweep said so
+ * (v0.6.36). So the derivation now *searches*: darker and darker along the
+ * edge's own hue first, and when the dark side cannot reach 4.5:1 against
+ * the fill, out the other way -- the edge mixed toward white -- so a dark
+ * lamp gets a pale legend the way real backlit hardware does. The fallback,
+ * for a fill neither side can beat, is whichever of black or white reads
+ * better. Hue is kept wherever hue can read.
+ */
+export function lampInk(edge: string, fill: string): string {
+  const e = hexTriple(edge);
+  const f = hexTriple(fill);
+  // A table that grew an `rgba()` should darken nothing rather than emit
+  // `#NaNNaNNaN` -- same guard as always.
+  if (!e || !f) return edge;
+  const scaled = (t: number): [number, number, number] =>
+    [Math.round(e[0] * t), Math.round(e[1] * t), Math.round(e[2] * t)];
+  const paled = (t: number): [number, number, number] =>
+    [Math.round(e[0] + (255 - e[0]) * t), Math.round(e[1] + (255 - e[1]) * t), Math.round(e[2] + (255 - e[2]) * t)];
+  for (let t = 0.55; t >= 0; t -= 0.05) {
+    const ink = scaled(t);
+    if (contrastOf(ink, f) >= LEGEND_CONTRAST) return toHex(ink);
+  }
+  for (let t = 0.55; t <= 1; t += 0.05) {
+    const ink = paled(t);
+    if (contrastOf(ink, f) >= LEGEND_CONTRAST) return toHex(ink);
+  }
+  return contrastOf([0, 0, 0], f) >= contrastOf([255, 255, 255], f) ? '#000000' : '#ffffff';
 }
 
 export type Lamp = [fill: string, edge: string];
@@ -915,13 +966,13 @@ export function skinCssVars(skin: ChassisSkinId): Record<string, string> {
   lights.lamps.forEach((lamp, i) => {
     vars[`--chassis-lamp${i + 1}`] = lamp[0];
     vars[`--chassis-lamp${i + 1}-edge`] = lamp[1];
-    vars[`--chassis-lamp${i + 1}-ink`] = lampInk(lamp[1]);
+    vars[`--chassis-lamp${i + 1}-ink`] = lampInk(lamp[1], lamp[0]);
     // The two marquee pill buttons read their own vars since v0.5.0 (the
     // workshop's marqueeLamps axis); on a stock shell they are the trio's
     // outer stops, exactly as before.
     vars[`--pill-lamp${i + 1}`] = lamp[0];
     vars[`--pill-lamp${i + 1}-edge`] = lamp[1];
-    vars[`--pill-lamp${i + 1}-ink`] = lampInk(lamp[1]);
+    vars[`--pill-lamp${i + 1}-ink`] = lampInk(lamp[1], lamp[0]);
   });
   // The marquee phosphor, stock — shadowed here so a workshop marquee never
   // reaches the company site's CLASSIC device.
@@ -989,7 +1040,7 @@ export function applyTheme(): void {
     // The engraved-legend stop for the two marquee lamp buttons. Written for
     // all three even though only the outer two are pilled, because a table
     // with a hole in it is a table somebody indexes wrong.
-    root.style.setProperty(`--chassis-lamp${i + 1}-ink`, lampInk(lamp[1]));
+    root.style.setProperty(`--chassis-lamp${i + 1}-ink`, lampInk(lamp[1], lamp[0]));
   });
   // The two pill buttons take their own axis, falling back to the SHELL's
   // trio, not the header row's — iOS's own rule, so recolouring the header
@@ -998,7 +1049,7 @@ export function applyTheme(): void {
   pillTrio.forEach((lamp, i) => {
     root.style.setProperty(`--pill-lamp${i + 1}`, lamp[0]);
     root.style.setProperty(`--pill-lamp${i + 1}-edge`, lamp[1]);
-    root.style.setProperty(`--pill-lamp${i + 1}-ink`, lampInk(lamp[1]));
+    root.style.setProperty(`--pill-lamp${i + 1}-ink`, lampInk(lamp[1], lamp[0]));
   });
 
   // The marquee phosphor. Stock is the CLASSIC green the footer has always

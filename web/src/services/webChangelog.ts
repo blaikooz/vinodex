@@ -68,6 +68,17 @@ export interface WebRelease {
 // 0.6.1x, not 0.6.2: the firmware line owns 0.6.2 through 0.9.2, and the
 // two-clocks test refuses any version the device already wore.
 const CURRENT: WebRelease = {
+  version: '0.6.36',
+  date: '2026-08-30',
+  headline: 'READS ON EVERY LAMP',
+  notes: [
+    'The lamp legends meet WCAG AA on all twenty-two shells now: a lamp with nowhere darker to go gets a pale legend instead of an unreadable one, the way real backlit hardware does.',
+    'The professor\'s small print stepped up a shade for the same reason, and an axe-core accessibility sweep now guards eleven screens in both screen modes on every build.',
+  ],
+};
+
+/** The release before this one, promoted when 0.6.36 landed. */
+const PREVIOUS_0_6_35: WebRelease = {
   version: '0.6.35',
   date: '2026-08-30',
   headline: 'WORKSHOP ON RECORD',
@@ -463,6 +474,7 @@ const PREVIOUS_0_4_2: WebRelease = {
 
 /** Newest first. A new release is prepended by promoting `CURRENT`. */
 const PREVIOUS: WebRelease[] = [
+  PREVIOUS_0_6_35,
   PREVIOUS_0_6_34,
   PREVIOUS_0_6_33,
   PREVIOUS_0_6_32,

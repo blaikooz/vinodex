@@ -211,14 +211,6 @@ const lampTokens = (page: import('@playwright/test').Page) =>
     return out;
   });
 
-/** Relative luminance, for "the ink is a further stop down from the edge". */
-const lum = (hex: string): number => {
-  const m = /^#([0-9a-fA-F]{6})$/.exec(hex);
-  if (!m) return 1;
-  const n = parseInt(m[1]!, 16);
-  return (0.2126 * ((n >> 16) & 255) + 0.7152 * ((n >> 8) & 255) + 0.0722 * (n & 255)) / 255;
-};
-
 for (const skin of ALL_SKINS) {
   test(`the ${skin} lamps are painted by the skin`, async ({ page, consoleErrors }, testInfo) => {
     void consoleErrors;
@@ -234,11 +226,13 @@ for (const skin of ALL_SKINS) {
       expect(tokens[`lamp${n}-edge`], `${skin}/lamp${n} edge`).toBe(edge);
       // Derived rather than authored, so this checks the derivation and not a
       // second copy of the table.
-      expect(tokens[`lamp${n}-ink`], `${skin}/lamp${n} ink`).toBe(lampInk(edge));
-      expect(
-        lum(tokens[`lamp${n}-ink`]!),
-        `${skin}/lamp${n}: the ink is not a stop below its own rim`,
-      ).toBeLessThan(lum(edge) + 0.001);
+      expect(tokens[`lamp${n}-ink`], `${skin}/lamp${n} ink`).toBe(lampInk(edge, fill));
+      // Since v0.6.36 the ink may go light on a dark lamp, so "a stop below
+      // the rim" stopped being the invariant. The real one -- 4.5:1 against
+      // the fill for all 66 lamps -- is WCAG arithmetic and lives in
+      // `lampInk.test.ts`; this file's `lum` is a plain luma for ordering,
+      // not WCAG luminance, and must not fake a contrast number. The
+      // equality above already proves the page carries the derivation.
     }
 
     // The two marquee lamps are the OUTER two of the trio, and they are
