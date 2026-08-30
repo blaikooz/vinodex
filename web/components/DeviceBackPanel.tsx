@@ -10,7 +10,7 @@ import { computePassport, type BadgeId } from '../src/services/passport';
 import { stampFor } from '../src/services/stampCatalog';
 import { skinStickerStem } from '../src/services/skinSticker';
 import { useTheme } from '../src/services/useTheme';
-import { CHASSIS_SKINS } from '../src/services/theme';
+import { CHASSIS_SKINS, type ChassisSkin } from '../src/services/theme';
 import ChassisInternals from './ChassisInternals';
 import ArtImage from './ArtImage';
 
@@ -59,12 +59,73 @@ const SERIAL = `SN: VDX-${COPYRIGHT_YEAR}-001`;
 const engravedTextShadow =
   '0 1px 0 rgba(255,255,255,0.55), 0 -1px 0 rgba(0,0,0,0.45), inset 0 0 2px rgba(0,0,0,0.4)';
 
-const Screw: React.FC<{ className?: string }> = ({ className = '' }) => (
+/**
+ * This shell's plate material -- iOS `ChassisSkin.backPlate` (0.7.0 F1).
+ *
+ * CLASSIC is the exception in both directions: written out in literals,
+ * because those literals are the plate as it shipped, and deriving the
+ * reference would move the baseline. Every other shell derives: the gradient
+ * runs panel-body-body-panel on the same 135deg diagonal the steel sheet
+ * does, the edge and the engraving ink are the skin's own panelEdge, the
+ * screws turn in the shell's three colours, and the finish follows the
+ * *front's* -- OAKED is walnut on both faces, WINE XMAS stays wrapped,
+ * STAINLESS keeps its brush -- because a walnut device is walnut front and
+ * back or it is two devices. No front treatment means plain moulding, which
+ * is what plastic looks like from behind.
+ */
+interface PlateStyle {
+  background: string;
+  brushed: boolean;
+  patternUrl?: string;
+  edge: string;
+  ink: string;
+  inkDeep: string;
+  washFrom: string;
+  washTo: string;
+  rule: string;
+  screw: [string, string, string];
+  screwRim: string;
+}
+
+const plateStyleFor = (s: ChassisSkin): PlateStyle =>
+  s.id === 'CLASSIC'
+    ? {
+        background: 'linear-gradient(135deg, #cdcfd2 0%, #9ea1a5 35%, #7e8186 60%, #b8babd 100%)',
+        brushed: true,
+        edge: '#44403c',
+        ink: '#44403c',
+        inkDeep: '#292524',
+        washFrom: 'rgba(120, 113, 108, 0.4)',
+        washTo: 'rgba(68, 64, 60, 0.4)',
+        rule: 'rgba(41, 37, 36, 0.4)',
+        screw: ['#e7e5e4', '#a8a29e', '#57534e'],
+        screwRim: '#44403c',
+      }
+    : {
+        background: `linear-gradient(135deg, ${s.panel} 0%, ${s.body} 35%, ${s.body} 60%, ${s.panel} 100%)`,
+        brushed: false,
+        patternUrl: s.bodyPattern ? `/chassis/${s.bodyPattern}.png` : undefined,
+        edge: s.panelEdge,
+        ink: s.panelEdge,
+        inkDeep: s.panelEdge,
+        washFrom: `color-mix(in srgb, ${s.panelEdge} 28%, transparent)`,
+        washTo: `color-mix(in srgb, ${s.panelEdge} 45%, transparent)`,
+        rule: `color-mix(in srgb, ${s.panelEdge} 40%, transparent)`,
+        screw: [s.panel, s.body, s.panelEdge],
+        screwRim: s.panelEdge,
+      };
+
+const Screw: React.FC<{ className?: string; colors?: [string, string, string]; rim?: string }> = ({
+  className = '',
+  colors = ['#e7e5e4', '#a8a29e', '#57534e'],
+  rim = '#44403c',
+}) => (
   <div
-    className={`w-4 h-4 md:w-5 md:h-5 rounded-full bg-gradient-to-br from-stone-200 via-stone-400 to-stone-600 border border-stone-700 shadow-[inset_0_1px_2px_rgba(255,255,255,0.7),inset_0_-1px_2px_rgba(0,0,0,0.5),0_1px_2px_rgba(0,0,0,0.4)] flex items-center justify-center ${className}`}
+    className={`w-4 h-4 md:w-5 md:h-5 rounded-full border shadow-[inset_0_1px_2px_rgba(255,255,255,0.7),inset_0_-1px_2px_rgba(0,0,0,0.5),0_1px_2px_rgba(0,0,0,0.4)] flex items-center justify-center ${className}`}
+    style={{ background: `linear-gradient(135deg, ${colors[0]}, ${colors[1]}, ${colors[2]})`, borderColor: rim }}
     aria-hidden="true"
   >
-    <div className="w-[70%] h-[1.5px] bg-stone-800/70 rounded-full rotate-45" />
+    <div className="w-[70%] h-[1.5px] rounded-full rotate-45" style={{ backgroundColor: `color-mix(in srgb, ${rim} 70%, transparent)` }} />
   </div>
 );
 
@@ -80,18 +141,19 @@ const DeviceBackPanel: React.FC<DeviceBackPanelProps> = ({ onReturn }) => {
   // `DeviceBackPlate`). Stamps and screws still sit on the outside.
   const skin = CHASSIS_SKINS[useTheme().skin];
   const clear = !!skin.translucent;
+  const plate = plateStyleFor(skin);
   return (
     <button
       type="button"
       onClick={onReturn}
       aria-label="Flip device back to front"
-      className="w-full h-full md:rounded-[2.5rem] overflow-hidden relative border-[3px] border-stone-700 ring-1 ring-white/10 shadow-[inset_-10px_-10px_30px_rgba(0,0,0,0.35),inset_10px_10px_30px_rgba(255,255,255,0.08)] cursor-pointer focus:outline-none active:brightness-95 transition"
+      className="w-full h-full md:rounded-[2.5rem] overflow-hidden relative border-[3px] ring-1 ring-white/10 shadow-[inset_-10px_-10px_30px_rgba(0,0,0,0.35),inset_10px_10px_30px_rgba(255,255,255,0.08)] cursor-pointer focus:outline-none active:brightness-95 transition"
       style={{
-        background: clear
-          ? '#14161A'
-          : 'linear-gradient(135deg, #cdcfd2 0%, #9ea1a5 35%, #7e8186 60%, #b8babd 100%)',
+        background: clear ? '#14161A' : plate.background,
+        borderColor: clear ? '#44403c' : plate.edge,
       }}
       data-back-clear={clear ? 'on' : undefined}
+      data-plate-finish={clear ? 'internals' : plate.patternUrl ? 'pattern' : plate.brushed ? 'brushed' : 'moulded'}
     >
       {clear ? (
         <>
@@ -100,14 +162,23 @@ const DeviceBackPanel: React.FC<DeviceBackPanelProps> = ({ onReturn }) => {
         </>
       ) : (
         <>
-          {/* Brushed metal texture: fine vertical striations */}
-          <div
-            className="absolute inset-0 pointer-events-none opacity-40 mix-blend-overlay"
-            style={{
-              backgroundImage:
-                'repeating-linear-gradient(90deg, rgba(255,255,255,0.18) 0px, rgba(255,255,255,0.18) 1px, rgba(0,0,0,0.18) 1px, rgba(0,0,0,0.18) 2px)',
-            }}
-          />
+          {plate.brushed && (
+            /* Brushed metal texture: fine vertical striations */
+            <div
+              className="absolute inset-0 pointer-events-none opacity-40 mix-blend-overlay"
+              style={{
+                backgroundImage:
+                  'repeating-linear-gradient(90deg, rgba(255,255,255,0.18) 0px, rgba(255,255,255,0.18) 1px, rgba(0,0,0,0.18) 1px, rgba(0,0,0,0.18) 2px)',
+              }}
+            />
+          )}
+          {plate.patternUrl && (
+            /* The front's own tile, on the back of the same device. */
+            <div
+              className="absolute inset-0 pointer-events-none"
+              style={{ backgroundImage: `url(${plate.patternUrl})`, backgroundSize: '96px 96px', opacity: 0.9 }}
+            />
+          )}
 
           {/* Subtle radial highlight */}
           <div
@@ -145,10 +216,10 @@ const DeviceBackPanel: React.FC<DeviceBackPanelProps> = ({ onReturn }) => {
       )}
 
       {/* Corner screws */}
-      <Screw className="absolute top-3 left-3 md:top-4 md:left-4" />
-      <Screw className="absolute top-3 right-3 md:top-4 md:right-4" />
-      <Screw className="absolute bottom-3 left-3 md:bottom-4 md:left-4" />
-      <Screw className="absolute bottom-3 right-3 md:bottom-4 md:right-4" />
+      <Screw className="absolute top-3 left-3 md:top-4 md:left-4" colors={plate.screw} rim={plate.screwRim} />
+      <Screw className="absolute top-3 right-3 md:top-4 md:right-4" colors={plate.screw} rim={plate.screwRim} />
+      <Screw className="absolute bottom-3 left-3 md:bottom-4 md:left-4" colors={plate.screw} rim={plate.screwRim} />
+      <Screw className="absolute bottom-3 right-3 md:bottom-4 md:right-4" colors={plate.screw} rim={plate.screwRim} />
 
       {/* Factory leavings (mirrors DeviceBackPlate.swift): a faded barcode
           sticker at bottom-left and a torn SALE price tag at top-right — a
@@ -187,19 +258,19 @@ const DeviceBackPanel: React.FC<DeviceBackPanelProps> = ({ onReturn }) => {
       </div>
 
       {/* Engraved content */}
-      <div className="relative h-full w-full flex flex-col items-center justify-center px-6 py-10 gap-8 text-stone-700 font-mono select-none">
+      <div className="relative h-full w-full flex flex-col items-center justify-center px-6 py-10 gap-8 font-mono select-none" style={{ color: plate.ink }}>
         {/* Nameplate — recessed */}
         <div
           className="px-8 py-5 rounded-md border border-stone-700/50 bg-gradient-to-b from-stone-500/40 to-stone-700/40 shadow-[inset_0_2px_6px_rgba(0,0,0,0.5),0_1px_0_rgba(255,255,255,0.5)] flex flex-col items-center"
         >
           <div
-            className="font-retro text-[2rem] md:text-[2.5rem] tracking-[0.25em] leading-none text-stone-800"
-            style={{ textShadow: engravedTextShadow }}
+            className="font-retro text-[2rem] md:text-[2.5rem] tracking-[0.25em] leading-none"
+            style={{ color: plate.inkDeep, textShadow: engravedTextShadow }}
           >
             {APP_NAME}
           </div>
           <div
-            className="mt-2 text-base md:text-lg tracking-[0.5em] text-stone-700"
+            className="mt-2 text-base md:text-lg tracking-[0.5em]"
             style={{ textShadow: engravedTextShadow }}
           >
             {APP_VERSION_DISPLAY}
@@ -207,10 +278,10 @@ const DeviceBackPanel: React.FC<DeviceBackPanelProps> = ({ onReturn }) => {
         </div>
 
         {/* Divider */}
-        <div className="w-2/3 h-px bg-gradient-to-r from-transparent via-stone-800/40 to-transparent shadow-[0_1px_0_rgba(255,255,255,0.4)]" />
+        <div className="w-2/3 h-px shadow-[0_1px_0_rgba(255,255,255,0.4)]" style={{ backgroundImage: `linear-gradient(to right, transparent, ${plate.rule}, transparent)` }} />
 
         {/* Spec / serial / copyright block */}
-        <div className="flex flex-col items-center gap-2.5 text-sm md:text-base tracking-[0.25em] text-stone-700">
+        <div className="flex flex-col items-center gap-2.5 text-sm md:text-base tracking-[0.25em]">
           <div style={{ textShadow: engravedTextShadow }}>{SERIAL}</div>
           <div style={{ textShadow: engravedTextShadow }}>
             &copy; {COPYRIGHT_YEAR} {CREATOR}
@@ -219,7 +290,8 @@ const DeviceBackPanel: React.FC<DeviceBackPanelProps> = ({ onReturn }) => {
         </div>
 
         {/* Return hint */}
-        <div className="absolute bottom-12 left-1/2 -translate-x-1/2 flex items-center gap-2 text-sm md:text-base tracking-[0.4em] text-stone-800/80 animate-pulse">
+        <div style={{ color: `color-mix(in srgb, ${plate.inkDeep} 80%, transparent)` }}
+          className="absolute bottom-12 left-1/2 -translate-x-1/2 flex items-center gap-2 text-sm md:text-base tracking-[0.4em] animate-pulse">
           <Hand aria-hidden="true" size={18} strokeWidth={2} />
           <span style={{ textShadow: engravedTextShadow }}>TAP TO RETURN</span>
         </div>

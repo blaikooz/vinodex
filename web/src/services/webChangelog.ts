@@ -68,6 +68,16 @@ export interface WebRelease {
 // 0.6.1x, not 0.6.2: the firmware line owns 0.6.2 through 0.9.2, and the
 // two-clocks test refuses any version the device already wore.
 const CURRENT: WebRelease = {
+  version: '0.6.43',
+  date: '2026-08-30',
+  headline: 'ONE DEVICE, BOTH FACES',
+  notes: [
+    'The back plate wears the chosen shell now: a walnut device is walnut front and back, WINE XMAS stays wrapped, and every shell engraves its nameplate and turns its screws in its own colours. VINODEX CLASSIC keeps the steel plate exactly as it shipped.',
+  ],
+};
+
+/** The release before this one, promoted when 0.6.43 landed. */
+const PREVIOUS_0_6_42: WebRelease = {
   version: '0.6.42',
   date: '2026-08-30',
   headline: 'THE WHOLE COUNTRY',
@@ -539,6 +549,7 @@ const PREVIOUS_0_4_2: WebRelease = {
 
 /** Newest first. A new release is prepended by promoting `CURRENT`. */
 const PREVIOUS: WebRelease[] = [
+  PREVIOUS_0_6_42,
   PREVIOUS_0_6_41,
   PREVIOUS_0_6_40,
   PREVIOUS_0_6_39,
