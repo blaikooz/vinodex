@@ -25,6 +25,13 @@
  *   `substack-tap`           — a link to the publication is followed
  *                              (`source` says which surface)
  *
+ * **The North Star, by ruling (2026-08-30, Phase 4): opens of the app** --
+ * `open-app` per `landing-view`. It measures play, which is what the web
+ * exists to offer while the iOS app is TestFlight-only; the Substack stages
+ * below are the conversion the play is meant to lead to, and are read
+ * alongside it, not instead of it. Vercel Analytics is the dashboard: both
+ * events are custom events there, and the ratio is the number.
+ *
  * One dormant stage, kept for the day the listing is live:
  *
  *   `store-tap`              — an App Store link is followed. Fires from the

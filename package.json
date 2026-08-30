@@ -1,7 +1,7 @@
 {
   "name": "vinodex",
   "private": true,
-  "version": "0.6.23",
+  "version": "0.6.24",
   "type": "module",
   "scripts": {
     "dev": "vite",
@@ -17,6 +17,7 @@
     "build:encyclopedia:reference": "ts-node --esm scripts/buildEncyclopediaReference.ts",
     "check:refs": "esbuild scripts/find-missing-refs.ts --bundle --platform=node --format=esm --log-level=error | node --input-type=module",
     "release": "esbuild scripts/release.ts --bundle --platform=node --format=esm --log-level=error | node --input-type=module -",
+    "og:manifest": "esbuild scripts/og-manifest.ts --bundle --platform=node --format=esm --log-level=error | node --input-type=module",
     "prerender:og": "esbuild scripts/prerender-og.ts --bundle --platform=node --format=esm --log-level=error | node --input-type=module",
     "postbuild": "npm run prerender:og",
     "test:e2e": "playwright test",

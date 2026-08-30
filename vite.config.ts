@@ -81,7 +81,9 @@ export default defineConfig({
         // whole set into the service-worker install (which otherwise pushes the
         // precache past 6 MB). Runtime rule below caches each art PNG on first
         // view. The glyph icon bundle stays precached (offline-first).
-        globIgnores: ['**/art/**'],
+        // `og/` too (v0.6.24): 440 share cards, 8 MB, fetched by crawlers
+        // and never by the app. Precaching them would triple the install.
+        globIgnores: ['**/art/**', '**/og/**'],
         runtimeCaching: [
           {
             urlPattern: /\/art\/.*\.png$/i,

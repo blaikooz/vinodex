@@ -14,7 +14,6 @@ import {
   getStyleClassType,
   getStyleColorType,
   isVariousOrigin,
-  normalizeLabel,
 } from '@/shared/services/entryUtils';
 import {
   getFlavorSubclassIconColor,
@@ -26,6 +25,7 @@ import {
   resolveGrapeArtStem,
   resolveStyleArtStem,
 } from './artSprites';
+import { normalizeCountryKey, outlineStemFor } from './outlineArt';
 
 export interface EntryVisualResolver {
 	entries: WineEntry[];
@@ -216,22 +216,8 @@ const COUNTRY_SHAPE_ICON_MAP: Record<string, string> = {
 	switzerland: 'game-icons:switzerland',
 };
 
-const normalizeCountryKey = (origin: string) => normalizeLabel(origin).trim();
-
-// Full-colour ClassArt country/state outlines (v0.5.7 `art:outline-*`), keyed
-// by normalized place name. iOS draws these as the region/country icon; the web
-// prefers them over the shaped-flag mask (which only covered a handful).
-const OUTLINE_ART_KEYS = [
-	'france', 'germany', 'italy', 'greece', 'portugal', 'spain', 'hungary', 'austria',
-	'croatia', 'california', 'oregon', 'washington', 'new york', 'georgia', 'switzerland',
-	'romania', 'south africa', 'morocco', 'usa', 'canada', 'argentina', 'chile', 'uruguay',
-	'new zealand', 'australia', 'japan', 'china', 'india',
-];
-const OUTLINE_ART: Record<string, string> = Object.fromEntries(
-	OUTLINE_ART_KEYS.map(k => [k, `outline-${k.replace(/ /g, '-')}`]),
-);
-const outlineStemFor = (name?: string): string | undefined =>
-	name ? OUTLINE_ART[normalizeCountryKey(name)] : undefined;
+// The outline list lives in `outlineArt.ts` since v0.6.24 (shared with the
+// share-card manifest); `normalizeCountryKey` and `outlineStemFor` come from there.
 const outlineNode = (
 	stem: string,
 	size: number,

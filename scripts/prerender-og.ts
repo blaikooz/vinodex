@@ -23,7 +23,7 @@
 //
 // Run after `vite build` (npm postbuild).
 
-import { readFileSync, writeFileSync, mkdirSync } from 'node:fs';
+import { readFileSync, writeFileSync, mkdirSync, existsSync } from 'node:fs';
 import { join } from 'node:path';
 import { buildWineEntries } from '../shared/constants';
 import {
@@ -39,6 +39,14 @@ import {
 const DIST = join(process.cwd(), 'dist');
 const shell = readFileSync(join(DIST, 'index.html'), 'utf8');
 
+// The baked share cards (v0.6.24): `web/public/og/manifest.json` lists every
+// card `bake-og-cards.py` wrote, and `ogCards.test.ts` holds it current. An
+// entry with a card unfurls with it; one without falls back to the logo.
+const OG_MANIFEST = join(process.cwd(), 'web/public/og/manifest.json');
+const cards: Record<string, string> = existsSync(OG_MANIFEST)
+  ? (JSON.parse(readFileSync(OG_MANIFEST, 'utf8')) as { files: Record<string, string> }).files
+  : {};
+
 const writePage = (routePath: string, html: string) => {
   const dir = routePath === '/' ? DIST : join(DIST, routePath);
   mkdirSync(dir, { recursive: true });
@@ -50,7 +58,7 @@ const entryIds: string[] = [];
 for (const e of buildWineEntries()) {
   if (!SHAREABLE_CATEGORIES.has(e.category)) continue;
   entryIds.push(e.id);
-  writePage(`/detail/${e.id}`, injectMeta(shell, entryPageMeta(e.id, e.name, e.description)));
+  writePage(`/detail/${e.id}`, injectMeta(shell, entryPageMeta(e.id, e.name, e.description, e.id in cards)));
 }
 
 // The site's pages. The landing IS the shell, so its tags are written into
@@ -63,6 +71,7 @@ for (const page of SITE_PAGES) {
 writeFileSync(join(DIST, 'sitemap.xml'), sitemapXml(entryIds));
 writeFileSync(join(DIST, 'robots.txt'), robotsTxt());
 
+const carded = entryIds.filter(id => id in cards).length;
 console.log(
-  `prerender-og: wrote ${entryIds.length} entry pages, ${SITE_PAGES.length} site pages, sitemap.xml (${entryIds.length + SITE_PAGES.length} urls) and robots.txt`,
+  `prerender-og: wrote ${entryIds.length} entry pages (${carded} with their own card), ${SITE_PAGES.length} site pages, sitemap.xml (${entryIds.length + SITE_PAGES.length} urls) and robots.txt`,
 );

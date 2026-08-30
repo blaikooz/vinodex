@@ -1,0 +1,5285 @@
+{
+ "digest": "5720e10fa06b3e00772a0f72dbc254c11efd7fa36c2ead6b81850c4f189440a7",
+ "cards": [
+  {
+   "id": "G001",
+   "name": "Cabernet Sauvignon",
+   "category": "GRAPES",
+   "livery": {
+    "solid": "#7937bd",
+    "deep": "#492988"
+   },
+   "art": "/art/grape/red-full-noble.png",
+   "artKind": "sprite",
+   "blurb": "The undisputed king of red wines, producing full-bodied wines with blackcurrant, cedar, and spice notes."
+  },
+  {
+   "id": "G002",
+   "name": "Pinot Noir",
+   "category": "GRAPES",
+   "livery": {
+    "solid": "#7937bd",
+    "deep": "#492988"
+   },
+   "art": "/art/grape/red-light-noble.png",
+   "artKind": "sprite",
+   "blurb": "Known as the heartbreak grape for its difficulty to grow, it produces elegant wines with cherry and earthy notes."
+  },
+  {
+   "id": "G003",
+   "name": "Chardonnay",
+   "category": "GRAPES",
+   "livery": {
+    "solid": "#7937bd",
+    "deep": "#492988"
+   },
+   "art": "/art/grape/green-full-noble.png",
+   "artKind": "sprite",
+   "blurb": "The world's most versatile white grape, acting as a canvas for winemakers to craft everything from crisp to buttery styles."
+  },
+  {
+   "id": "G004",
+   "name": "Merlot",
+   "category": "GRAPES",
+   "livery": {
+    "solid": "#7937bd",
+    "deep": "#492988"
+   },
+   "art": "/art/grape/red-medium-noble.png",
+   "artKind": "sprite",
+   "blurb": "A soft and velvety red grape that produces approachable wines with plum and chocolate flavors."
+  },
+  {
+   "id": "G005",
+   "name": "Syrah",
+   "category": "GRAPES",
+   "livery": {
+    "solid": "#7937bd",
+    "deep": "#492988"
+   },
+   "art": "/art/grape/red-full-noble.png",
+   "artKind": "sprite",
+   "blurb": "A powerful grape producing intense wines with pepper, smoke, and dark fruit characteristics."
+  },
+  {
+   "id": "G006",
+   "name": "Sauvignon Blanc",
+   "category": "GRAPES",
+   "livery": {
+    "solid": "#7937bd",
+    "deep": "#492988"
+   },
+   "art": "/art/grape/green-light-noble.png",
+   "artKind": "sprite",
+   "blurb": "A zesty and herbaceous white grape known for its crisp acidity and distinctive citrus and green notes."
+  },
+  {
+   "id": "G007",
+   "name": "Riesling",
+   "category": "GRAPES",
+   "livery": {
+    "solid": "#7937bd",
+    "deep": "#492988"
+   },
+   "art": "/art/grape/green-light-noble.png",
+   "artKind": "sprite",
+   "blurb": "An aromatic white grape with exceptional purity and high acidity that ages remarkably well."
+  },
+  {
+   "id": "G008",
+   "name": "Nebbiolo",
+   "category": "GRAPES",
+   "livery": {
+    "solid": "#7937bd",
+    "deep": "#492988"
+   },
+   "art": "/art/grape/red-full-noble.png",
+   "artKind": "sprite",
+   "blurb": "A legendary Italian grape producing pale-colored wines with massive tannins and floral aromas of tar and roses."
+  },
+  {
+   "id": "G009",
+   "name": "Sangiovese",
+   "category": "GRAPES",
+   "livery": {
+    "solid": "#7937bd",
+    "deep": "#492988"
+   },
+   "art": "/art/grape/red-medium-common.png",
+   "artKind": "sprite",
+   "blurb": "Italy's most planted red grape, producing savory wines with vibrant cherry and tomato leaf characters."
+  },
+  {
+   "id": "G010",
+   "name": "Grenache",
+   "category": "GRAPES",
+   "livery": {
+    "solid": "#7937bd",
+    "deep": "#492988"
+   },
+   "art": "/art/grape/red-medium-common.png",
+   "artKind": "sprite",
+   "blurb": "A sweet red fruit-driven grape that produces wines high in alcohol with strawberry and raspberry flavors."
+  },
+  {
+   "id": "G011",
+   "name": "Tempranillo",
+   "category": "GRAPES",
+   "livery": {
+    "solid": "#7937bd",
+    "deep": "#492988"
+   },
+   "art": "/art/grape/red-medium-common.png",
+   "artKind": "sprite",
+   "blurb": "Spain's noble grape variety, producing elegant wines with leather, tobacco, and red berry notes."
+  },
+  {
+   "id": "G012",
+   "name": "Malbec",
+   "category": "GRAPES",
+   "livery": {
+    "solid": "#7937bd",
+    "deep": "#492988"
+   },
+   "art": "/art/grape/red-full-common.png",
+   "artKind": "sprite",
+   "blurb": "Originally from Cahors, France, this dark and inky grape has become Argentina's signature variety."
+  },
+  {
+   "id": "G013",
+   "name": "Cabernet Franc",
+   "category": "GRAPES",
+   "livery": {
+    "solid": "#7937bd",
+    "deep": "#492988"
+   },
+   "art": "/art/grape/red-medium-rare.png",
+   "artKind": "sprite",
+   "blurb": "The parent grape of Cabernet Sauvignon, known for its herbaceous character with bell pepper and raspberry notes."
+  },
+  {
+   "id": "G014",
+   "name": "Chenin Blanc",
+   "category": "GRAPES",
+   "livery": {
+    "solid": "#7937bd",
+    "deep": "#492988"
+   },
+   "art": "/art/grape/green-light-rare.png",
+   "artKind": "sprite",
+   "blurb": "An incredibly versatile chameleon grape capable of producing dry, sweet, and sparkling wines."
+  },
+  {
+   "id": "G015",
+   "name": "Viognier",
+   "category": "GRAPES",
+   "livery": {
+    "solid": "#7937bd",
+    "deep": "#492988"
+   },
+   "art": "/art/grape/green-full-rare.png",
+   "artKind": "sprite",
+   "blurb": "A perfumed and aromatic white grape producing full-bodied wines with peach, tangerine, and honeysuckle notes."
+  },
+  {
+   "id": "G016",
+   "name": "Gamay",
+   "category": "GRAPES",
+   "livery": {
+    "solid": "#7937bd",
+    "deep": "#492988"
+   },
+   "art": "/art/grape/red-light-rare.png",
+   "artKind": "sprite",
+   "blurb": "A fruity and fresh grape that produces light, gulpable wines perfect for serving slightly chilled."
+  },
+  {
+   "id": "G017",
+   "name": "Zinfandel",
+   "category": "GRAPES",
+   "livery": {
+    "solid": "#7937bd",
+    "deep": "#492988"
+   },
+   "art": "/art/grape/red-full-common.png",
+   "artKind": "sprite",
+   "blurb": "A bold and jammy grape that produces high-alcohol wines with ripe berry and spice characteristics."
+  },
+  {
+   "id": "G018",
+   "name": "Semillon",
+   "category": "GRAPES",
+   "livery": {
+    "solid": "#7937bd",
+    "deep": "#492988"
+   },
+   "art": "/art/grape/green-medium-rare.png",
+   "artKind": "sprite",
+   "blurb": "A golden-hued grape often blended with Sauvignon Blanc, producing waxy whites with lemon curd and lanolin notes."
+  },
+  {
+   "id": "G019",
+   "name": "Mourvèdre",
+   "category": "GRAPES",
+   "livery": {
+    "solid": "#7937bd",
+    "deep": "#492988"
+   },
+   "art": "/art/grape/red-full-rare.png",
+   "artKind": "sprite",
+   "blurb": "A meaty and herbal red grape that produces full-bodied wines with game, black fruit, and herb flavors."
+  },
+  {
+   "id": "G020",
+   "name": "Barbera",
+   "category": "GRAPES",
+   "livery": {
+    "solid": "#7937bd",
+    "deep": "#492988"
+   },
+   "art": "/art/grape/red-medium-common.png",
+   "artKind": "sprite",
+   "blurb": "A juicy and high-acid Italian grape that produces everyday drinking wines with sour cherry and herb flavors."
+  },
+  {
+   "id": "G021",
+   "name": "Pinot Gris",
+   "category": "GRAPES",
+   "livery": {
+    "solid": "#7937bd",
+    "deep": "#492988"
+   },
+   "art": "/art/grape/green-pink-light-common.png",
+   "artKind": "sprite",
+   "blurb": "A mutation of Pinot Noir that produces white wines ranging from zesty Italian Pinot Grigio to rich Alsatian styles."
+  },
+  {
+   "id": "G022",
+   "name": "Petit Verdot",
+   "category": "GRAPES",
+   "livery": {
+    "solid": "#7937bd",
+    "deep": "#492988"
+   },
+   "art": "/art/grape/red-full-rare.png",
+   "artKind": "sprite",
+   "blurb": "A late-ripening Bordeaux blending grape that adds violet aromas and deep color to wines."
+  },
+  {
+   "id": "G023",
+   "name": "Carmenère",
+   "category": "GRAPES",
+   "livery": {
+    "solid": "#7937bd",
+    "deep": "#492988"
+   },
+   "art": "/art/grape/red-medium-rare.png",
+   "artKind": "sprite",
+   "blurb": "Once thought extinct in Bordeaux, this lost grape found a new home in Chile where it produces distinctive wines."
+  },
+  {
+   "id": "G024",
+   "name": "Torrontés",
+   "category": "GRAPES",
+   "livery": {
+    "solid": "#7937bd",
+    "deep": "#492988"
+   },
+   "art": "/art/grape/green-medium-rare.png",
+   "artKind": "sprite",
+   "blurb": "Argentina's signature white grape that smells sweet but tastes dry, often deceiving the senses."
+  },
+  {
+   "id": "G025",
+   "name": "Moscato",
+   "category": "GRAPES",
+   "livery": {
+    "solid": "#7937bd",
+    "deep": "#492988"
+   },
+   "art": "/art/grape/gold-light-rare.png",
+   "artKind": "sprite",
+   "blurb": "One of the world's oldest grape families, known for its sweet, fizzy, and intensely aromatic wines."
+  },
+  {
+   "id": "G026",
+   "name": "Gewürztraminer",
+   "category": "GRAPES",
+   "livery": {
+    "solid": "#7937bd",
+    "deep": "#492988"
+   },
+   "art": "/art/grape/green-pink-rare.png",
+   "artKind": "sprite",
+   "blurb": "A highly aromatic grape with distinctive lychee and rose petal aromas that is unmistakable in blind tastings."
+  },
+  {
+   "id": "G027",
+   "name": "Albariño",
+   "category": "GRAPES",
+   "livery": {
+    "solid": "#7937bd",
+    "deep": "#492988"
+   },
+   "art": "/art/grape/green-light-rare.png",
+   "artKind": "sprite",
+   "blurb": "Spain's coastal Atlantic white grape that produces crisp, refreshing wines with apricot and sea salt notes."
+  },
+  {
+   "id": "G028",
+   "name": "Grüner Veltliner",
+   "category": "GRAPES",
+   "livery": {
+    "solid": "#7937bd",
+    "deep": "#492988"
+   },
+   "art": "/art/grape/green-light-rare.png",
+   "artKind": "sprite",
+   "blurb": "Austria's pride and most planted grape, known for its distinctive white pepper and green pea notes."
+  },
+  {
+   "id": "G029",
+   "name": "Vermentino",
+   "category": "GRAPES",
+   "livery": {
+    "solid": "#7937bd",
+    "deep": "#492988"
+   },
+   "art": "/art/grape/green-light-rare.png",
+   "artKind": "sprite",
+   "blurb": "A Mediterranean white grape that thrives along coastal regions, producing citrus-driven wines with herbal hints."
+  },
+  {
+   "id": "G030",
+   "name": "Verdejo",
+   "category": "GRAPES",
+   "livery": {
+    "solid": "#7937bd",
+    "deep": "#492988"
+   },
+   "art": "/art/grape/green-light-rare.png",
+   "artKind": "sprite",
+   "blurb": "An aromatic Spanish white grape that produces herbal wines with fennel and grapefruit characteristics."
+  },
+  {
+   "id": "G031",
+   "name": "Roussanne",
+   "category": "GRAPES",
+   "livery": {
+    "solid": "#7937bd",
+    "deep": "#492988"
+   },
+   "art": "/art/grape/green-full-rare.png",
+   "artKind": "sprite",
+   "blurb": "A golden Rhône white grape that produces full-bodied wines with herbal tea and pear flavors."
+  },
+  {
+   "id": "G032",
+   "name": "Marsanne",
+   "category": "GRAPES",
+   "livery": {
+    "solid": "#7937bd",
+    "deep": "#492988"
+   },
+   "art": "/art/grape/green-full-rare.png",
+   "artKind": "sprite",
+   "blurb": "A rich white Rhône grape that produces nutty, full-bodied wines with almond and marzipan notes."
+  },
+  {
+   "id": "G033",
+   "name": "Trebbiano",
+   "category": "GRAPES",
+   "livery": {
+    "solid": "#7937bd",
+    "deep": "#492988"
+   },
+   "art": "/art/grape/green-light-rare.png",
+   "artKind": "sprite",
+   "blurb": "A light and neutral Italian workhorse grape that produces high-volume, everyday white wines."
+  },
+  {
+   "id": "G034",
+   "name": "Fiano",
+   "category": "GRAPES",
+   "livery": {
+    "solid": "#7937bd",
+    "deep": "#492988"
+   },
+   "art": "/art/grape/green-medium-rare.png",
+   "artKind": "sprite",
+   "blurb": "An aromatic Italian white grape from Campania that produces wines with hazelnut and honey notes."
+  },
+  {
+   "id": "G035",
+   "name": "Assyrtiko",
+   "category": "GRAPES",
+   "livery": {
+    "solid": "#7937bd",
+    "deep": "#492988"
+   },
+   "art": "/art/grape/green-medium-rare.png",
+   "artKind": "sprite",
+   "blurb": "A Greek grape from Santorini with intense mineral character and very high acidity."
+  },
+  {
+   "id": "G036",
+   "name": "Aglianico",
+   "category": "GRAPES",
+   "livery": {
+    "solid": "#7937bd",
+    "deep": "#492988"
+   },
+   "art": "/art/grape/red-full-rare.png",
+   "artKind": "sprite",
+   "blurb": "A powerful Italian red grape from southern Italy producing tannic, age-worthy wines with plum and leather notes."
+  },
+  {
+   "id": "G037",
+   "name": "Nero d'Avola",
+   "category": "GRAPES",
+   "livery": {
+    "solid": "#7937bd",
+    "deep": "#492988"
+   },
+   "art": "/art/grape/red-full-rare.png",
+   "artKind": "sprite",
+   "blurb": "Sicily's most important red grape, producing rich wines with black cherry, plum, and spice flavors."
+  },
+  {
+   "id": "G038",
+   "name": "Touriga Nacional",
+   "category": "GRAPES",
+   "livery": {
+    "solid": "#7937bd",
+    "deep": "#492988"
+   },
+   "art": "/art/grape/red-full-rare.png",
+   "artKind": "sprite",
+   "blurb": "Portugal's noblest grape and the backbone of Port wine, producing intensely colored wines with violet and dark fruit notes."
+  },
+  {
+   "id": "G039",
+   "name": "Tannat",
+   "category": "GRAPES",
+   "livery": {
+    "solid": "#7937bd",
+    "deep": "#492988"
+   },
+   "art": "/art/grape/red-full-rare.png",
+   "artKind": "sprite",
+   "blurb": "A tannic powerhouse grape that has become Uruguay's national variety."
+  },
+  {
+   "id": "G040",
+   "name": "Furmint",
+   "category": "GRAPES",
+   "livery": {
+    "solid": "#7937bd",
+    "deep": "#492988"
+   },
+   "art": "/art/grape/green-medium-rare.png",
+   "artKind": "sprite",
+   "blurb": "The primary grape of Hungary's famous Tokaji sweet wines with very high acidity and citrus notes."
+  },
+  {
+   "id": "G041",
+   "name": "Marselan",
+   "category": "GRAPES",
+   "livery": {
+    "solid": "#7937bd",
+    "deep": "#492988"
+   },
+   "art": "/art/grape/red-full-rare.png",
+   "artKind": "sprite",
+   "blurb": "A 1961 INRA crossing of Cabernet Sauvignon and Grenache, bred at Marseillan on the French coast and largely ignored there — then adopted by"
+  },
+  {
+   "id": "G042",
+   "name": "Cabernet Gernischt",
+   "category": "GRAPES",
+   "livery": {
+    "solid": "#7937bd",
+    "deep": "#492988"
+   },
+   "art": "/art/grape/red-medium-rare.png",
+   "artKind": "sprite",
+   "blurb": "Not a variety of its own: DNA has confirmed that the vine China grows under this name is Carmenère, carried from Bordeaux to Shandong in the"
+  },
+  {
+   "id": "G043",
+   "name": "Koshu",
+   "category": "GRAPES",
+   "livery": {
+    "solid": "#7937bd",
+    "deep": "#492988"
+   },
+   "art": "/art/grape/green-light-rare.png",
+   "artKind": "sprite",
+   "blurb": "Japan's signature pale-purple skinned grape that yields delicate, mineral-driven whites."
+  },
+  {
+   "id": "G044",
+   "name": "Muscat Bailey A",
+   "category": "GRAPES",
+   "livery": {
+    "solid": "#7937bd",
+    "deep": "#492988"
+   },
+   "art": "/art/grape/red-light-rare.png",
+   "artKind": "sprite",
+   "blurb": "A hybrid created in Japan combining Muscat of Hamburg and Bailey, producing aromatic, softly tannic reds with strawberry candy notes."
+  },
+  {
+   "id": "G046",
+   "name": "Saperavi",
+   "category": "GRAPES",
+   "livery": {
+    "solid": "#7937bd",
+    "deep": "#492988"
+   },
+   "art": "/art/grape/red-full-rare.png",
+   "artKind": "sprite",
+   "blurb": "Georgia's flagship teinturier red with intense black fruit, savory spice, and the structure to age gracefully."
+  },
+  {
+   "id": "G047",
+   "name": "Rkatsiteli",
+   "category": "GRAPES",
+   "livery": {
+    "solid": "#7937bd",
+    "deep": "#492988"
+   },
+   "art": "/art/grape/green-full-rare.png",
+   "artKind": "sprite",
+   "blurb": "Ancient Georgian white grape famed for amber qvevri wines with quince, tea, and honeyed depth."
+  },
+  {
+   "id": "G048",
+   "name": "Kisi",
+   "category": "GRAPES",
+   "livery": {
+    "solid": "#7937bd",
+    "deep": "#492988"
+   },
+   "art": "/art/grape/green-medium-rare.png",
+   "artKind": "sprite",
+   "blurb": "Fragrant Georgian white offering apricot, white flowers, and subtle tannin when fermented on skins."
+  },
+  {
+   "id": "G049",
+   "name": "Dolcetto",
+   "category": "GRAPES",
+   "livery": {
+    "solid": "#7937bd",
+    "deep": "#492988"
+   },
+   "art": "/art/grape/red-medium-rare.png",
+   "artKind": "sprite",
+   "blurb": "A Piedmontese red grape known for juicy black fruit, low acidity, and soft tannins, making it ideal for early drinking."
+  },
+  {
+   "id": "G050",
+   "name": "Pinotage",
+   "category": "GRAPES",
+   "livery": {
+    "solid": "#7937bd",
+    "deep": "#492988"
+   },
+   "art": "/art/grape/red-full-rare.png",
+   "artKind": "sprite",
+   "blurb": "South Africa's signature crossing of Pinot Noir and Cinsault, producing deeply colored wines with dark berry fruit, smoke, and earthy spice."
+  },
+  {
+   "id": "G051",
+   "name": "Montepulciano",
+   "category": "GRAPES",
+   "livery": {
+    "solid": "#7937bd",
+    "deep": "#492988"
+   },
+   "art": "/art/grape/red-full-common.png",
+   "artKind": "sprite",
+   "blurb": "A widely planted central Italian red grape that gives plush, fruit-forward wines with moderate tannin and herbal depth."
+  },
+  {
+   "id": "G052",
+   "name": "Corvina",
+   "category": "GRAPES",
+   "livery": {
+    "solid": "#7937bd",
+    "deep": "#492988"
+   },
+   "art": "/art/grape/red-medium-rare.png",
+   "artKind": "sprite",
+   "blurb": "The principal red grape of Valpolicella, prized for sour-cherry brightness and herbal lift."
+  },
+  {
+   "id": "G053",
+   "name": "Rondinella",
+   "category": "GRAPES",
+   "livery": {
+    "solid": "#7937bd",
+    "deep": "#492988"
+   },
+   "art": "/art/grape/red-medium-rare.png",
+   "artKind": "sprite",
+   "blurb": "A reliable blending grape from Veneto commonly paired with Corvina in Valpolicella and Amarone."
+  },
+  {
+   "id": "G054",
+   "name": "Pinot Blanc",
+   "category": "GRAPES",
+   "livery": {
+    "solid": "#7937bd",
+    "deep": "#492988"
+   },
+   "art": "/art/grape/green-light-rare.png",
+   "artKind": "sprite",
+   "blurb": "A white mutation of Pinot Noir producing crisp wines with orchard fruit, almond, and gentle floral notes."
+  },
+  {
+   "id": "G055",
+   "name": "Pinot Meunier",
+   "category": "GRAPES",
+   "livery": {
+    "solid": "#7937bd",
+    "deep": "#492988"
+   },
+   "art": "/art/grape/red-light-rare.png",
+   "artKind": "sprite",
+   "blurb": "A key Champagne grape that brings ripe fruit, approachability, and early charm to sparkling blends."
+  },
+  {
+   "id": "G056",
+   "name": "Petite Sirah",
+   "category": "GRAPES",
+   "livery": {
+    "solid": "#7937bd",
+    "deep": "#492988"
+   },
+   "art": "/art/grape/red-full-rare.png",
+   "artKind": "sprite",
+   "blurb": "A deeply colored, full-bodied red grape known for bold blackberry fruit, pepper, and firm tannins."
+  },
+  {
+   "id": "G057",
+   "name": "Palomino",
+   "category": "GRAPES",
+   "livery": {
+    "solid": "#7937bd",
+    "deep": "#492988"
+   },
+   "art": "/art/grape/green-light-rare.png",
+   "artKind": "sprite",
+   "blurb": "The principal white grape of Jerez, valued for its neutral profile and ability to transmit the effects of biological and oxidative aging in Sherry."
+  },
+  {
+   "id": "G058",
+   "name": "Baga",
+   "category": "GRAPES",
+   "livery": {
+    "solid": "#7937bd",
+    "deep": "#492988"
+   },
+   "art": "/art/grape/red-full-rare.png",
+   "artKind": "sprite",
+   "blurb": "Portugal's structured red grape from Bairrada, producing high-acid, high-tannin wines with dark berries, tobacco, and earthy complexity."
+  },
+  {
+   "id": "G059",
+   "name": "Teroldego",
+   "category": "GRAPES",
+   "livery": {
+    "solid": "#7937bd",
+    "deep": "#492988"
+   },
+   "art": "/art/grape/red-full-rare.png",
+   "artKind": "sprite",
+   "blurb": "An alpine red from Trentino known for vivid color, dark berry fruit, and firm but polished tannins."
+  },
+  {
+   "id": "G060",
+   "name": "Lagrein",
+   "category": "GRAPES",
+   "livery": {
+    "solid": "#7937bd",
+    "deep": "#492988"
+   },
+   "art": "/art/grape/red-full-rare.png",
+   "artKind": "sprite",
+   "blurb": "A deeply pigmented grape from Alto Adige producing structured wines with blackberry, cocoa, and smoky spice."
+  },
+  {
+   "id": "G061",
+   "name": "Aligoté",
+   "category": "GRAPES",
+   "livery": {
+    "solid": "#7937bd",
+    "deep": "#492988"
+   },
+   "art": "/art/grape/green-light-rare.png",
+   "artKind": "sprite",
+   "blurb": "Burgundy's bright, high-acid white grape offering lemon, green apple, and chalky mineral notes."
+  },
+  {
+   "id": "G062",
+   "name": "Melon de Bourgogne",
+   "category": "GRAPES",
+   "livery": {
+    "solid": "#7937bd",
+    "deep": "#492988"
+   },
+   "art": "/art/grape/green-light-rare.png",
+   "artKind": "sprite",
+   "blurb": "The grape behind Muscadet, the Loire's seafood white — every bottle of Muscadet is Melon de Bourgogne."
+  },
+  {
+   "id": "G063",
+   "name": "Xinomavro",
+   "category": "GRAPES",
+   "livery": {
+    "solid": "#7937bd",
+    "deep": "#492988"
+   },
+   "art": "/art/grape/red-full-rare.png",
+   "artKind": "sprite",
+   "blurb": "Greece's age-worthy northern red known for high acidity, firm tannins, and aromas of sour cherry, olive, and sun-dried tomato."
+  },
+  {
+   "id": "G064",
+   "name": "Agiorgitiko",
+   "category": "GRAPES",
+   "livery": {
+    "solid": "#7937bd",
+    "deep": "#492988"
+   },
+   "art": "/art/grape/red-medium-rare.png",
+   "artKind": "sprite",
+   "blurb": "A versatile Greek red from Nemea producing plush wines with red berry fruit, warm spice, and supple tannins."
+  },
+  {
+   "id": "G065",
+   "name": "Glera",
+   "category": "GRAPES",
+   "livery": {
+    "solid": "#7937bd",
+    "deep": "#492988"
+   },
+   "art": "/art/grape/green-light-rare.png",
+   "artKind": "sprite",
+   "blurb": "The principal grape of Prosecco, prized for fresh pear, apple, and white blossom aromas with lively but gentle acidity."
+  },
+  {
+   "id": "G066",
+   "name": "Carignan",
+   "category": "GRAPES",
+   "livery": {
+    "solid": "#7937bd",
+    "deep": "#492988"
+   },
+   "art": "/art/grape/red-full-rare.png",
+   "artKind": "sprite",
+   "blurb": "A Mediterranean red grape known for deep color, savory dark fruit, and naturally high acidity."
+  },
+  {
+   "id": "G067",
+   "name": "Cinsault",
+   "category": "GRAPES",
+   "livery": {
+    "solid": "#7937bd",
+    "deep": "#492988"
+   },
+   "art": "/art/grape/red-light-rare.png",
+   "artKind": "sprite",
+   "blurb": "A soft, aromatic red grape prized for red-fruit perfume and supple tannins."
+  },
+  {
+   "id": "G068",
+   "name": "Falanghina",
+   "category": "GRAPES",
+   "livery": {
+    "solid": "#7937bd",
+    "deep": "#492988"
+   },
+   "art": "/art/grape/green-light-rare.png",
+   "artKind": "sprite",
+   "blurb": "A southern Italian white grape delivering bright citrus, apple, and floral aromas with refreshing acidity."
+  },
+  {
+   "id": "G069",
+   "name": "Verdicchio",
+   "category": "GRAPES",
+   "livery": {
+    "solid": "#7937bd",
+    "deep": "#492988"
+   },
+   "art": "/art/grape/green-medium-rare.png",
+   "artKind": "sprite",
+   "blurb": "A classic central Italian white grape known for citrus zest, bitter-almond finish, and subtle saline minerality."
+  },
+  {
+   "id": "G070",
+   "name": "Müller-Thurgau",
+   "category": "GRAPES",
+   "livery": {
+    "solid": "#7937bd",
+    "deep": "#492988"
+   },
+   "art": "/art/grape/green-light-rare.png",
+   "artKind": "sprite",
+   "blurb": "A crossing of Riesling and Madeleine Royale that produces aromatic, easy-drinking whites with gentle acidity."
+  },
+  {
+   "id": "G071",
+   "name": "Silvaner",
+   "category": "GRAPES",
+   "livery": {
+    "solid": "#7937bd",
+    "deep": "#492988"
+   },
+   "art": "/art/grape/green-light-rare.png",
+   "artKind": "sprite",
+   "blurb": "A traditional Central European white grape offering understated aromatics, savory texture, and marked site expression."
+  },
+  {
+   "id": "G072",
+   "name": "Godello",
+   "category": "GRAPES",
+   "livery": {
+    "solid": "#7937bd",
+    "deep": "#492988"
+   },
+   "art": "/art/grape/green-medium-rare.png",
+   "artKind": "sprite",
+   "blurb": "A rising Spanish white grape from Galicia and Bierzo with citrus, orchard fruit, and mineral depth."
+  },
+  {
+   "id": "G073",
+   "name": "Verdelho",
+   "category": "GRAPES",
+   "livery": {
+    "solid": "#7937bd",
+    "deep": "#492988"
+   },
+   "art": "/art/grape/green-light-rare.png",
+   "artKind": "sprite",
+   "blurb": "A versatile white grape associated with Madeira and Australian coastal regions, showing tropical citrus, herbal hints, and bright freshness."
+  },
+  {
+   "id": "G074",
+   "name": "Arinto",
+   "category": "GRAPES",
+   "livery": {
+    "solid": "#7937bd",
+    "deep": "#492988"
+   },
+   "art": "/art/grape/green-light-rare.png",
+   "artKind": "sprite",
+   "blurb": "A Portuguese white grape prized for naturally high acidity and citrus-mineral precision, even in warm climates."
+  },
+  {
+   "id": "G075",
+   "name": "Zweigelt",
+   "category": "GRAPES",
+   "livery": {
+    "solid": "#7937bd",
+    "deep": "#492988"
+   },
+   "art": "/art/grape/red-medium-common.png",
+   "artKind": "sprite",
+   "blurb": "Austria's most planted red grape, combining juicy cherry fruit with peppery spice and bright acidity."
+  },
+  {
+   "id": "G076",
+   "name": "Blaufränkisch",
+   "category": "GRAPES",
+   "livery": {
+    "solid": "#7937bd",
+    "deep": "#492988"
+   },
+   "art": "/art/grape/red-full-rare.png",
+   "artKind": "sprite",
+   "blurb": "A central European red with vivid acidity, dark berry fruit and a spicy, mineral edge, capable of real age in cooler sites."
+  },
+  {
+   "id": "G077",
+   "name": "Nerello Mascalese",
+   "category": "GRAPES",
+   "livery": {
+    "solid": "#7937bd",
+    "deep": "#492988"
+   },
+   "art": "/art/grape/red-medium-rare.png",
+   "artKind": "sprite",
+   "blurb": "Sicily's Etna flagship red, delivering pale color but firm structure with red fruit, herbs, and volcanic minerality."
+  },
+  {
+   "id": "G078",
+   "name": "Primitivo",
+   "category": "GRAPES",
+   "livery": {
+    "solid": "#7937bd",
+    "deep": "#492988"
+   },
+   "art": "/art/grape/red-full-common.png",
+   "artKind": "sprite",
+   "blurb": "A warm-climate red grape known for ripe black fruit, jammy richness, and generous alcohol."
+  },
+  {
+   "id": "G079",
+   "name": "Friulano",
+   "category": "GRAPES",
+   "livery": {
+    "solid": "#7937bd",
+    "deep": "#492988"
+   },
+   "art": "/art/grape/green-light-rare.png",
+   "artKind": "sprite",
+   "blurb": "A northeastern Italian white grape with citrus, almond, and subtle herbal notes, often textured and dry."
+  },
+  {
+   "id": "G080",
+   "name": "Fer Servadou",
+   "category": "GRAPES",
+   "livery": {
+    "solid": "#7937bd",
+    "deep": "#492988"
+   },
+   "art": "/art/grape/red-medium-rare.png",
+   "artKind": "sprite",
+   "blurb": "A southwest French red grape valued for brisk acidity, black fruit, and peppery herbal character."
+  },
+  {
+   "id": "G081",
+   "name": "Moschofilero",
+   "category": "GRAPES",
+   "livery": {
+    "solid": "#7937bd",
+    "deep": "#492988"
+   },
+   "art": "/art/grape/green-light-rare.png",
+   "artKind": "sprite",
+   "blurb": "An aromatic Greek pink-skinned grape used for fragrant white wines with rose, citrus, and spice notes."
+  },
+  {
+   "id": "G082",
+   "name": "Pedro Ximénez",
+   "category": "GRAPES",
+   "livery": {
+    "solid": "#7937bd",
+    "deep": "#492988"
+   },
+   "art": "/art/grape/gold-full-rare.png",
+   "artKind": "sprite",
+   "blurb": "The sherry grape behind the world's darkest dessert wine, sun-dried on mats until its juice pours like syrup."
+  },
+  {
+   "id": "G083",
+   "name": "Ribolla Gialla",
+   "category": "GRAPES",
+   "livery": {
+    "solid": "#7937bd",
+    "deep": "#492988"
+   },
+   "art": "/art/grape/green-light-rare.png",
+   "artKind": "sprite",
+   "blurb": "A Friulian white with bright acidity and a citrus-and-flowers profile that turns golden and textural with skin contact."
+  },
+  {
+   "id": "G084",
+   "name": "Savagnin",
+   "category": "GRAPES",
+   "livery": {
+    "solid": "#7937bd",
+    "deep": "#492988"
+   },
+   "art": "/art/grape/green-medium-rare.png",
+   "artKind": "sprite",
+   "blurb": "Jura's ancient white grape, famous for Vin Jaune aged for years under a veil of yeast into something nutty, saline and unforgettable."
+  },
+  {
+   "id": "G085",
+   "name": "Touriga Franca",
+   "category": "GRAPES",
+   "livery": {
+    "solid": "#7937bd",
+    "deep": "#492988"
+   },
+   "art": "/art/grape/red-full-rare.png",
+   "artKind": "sprite",
+   "blurb": "The Douro's most planted grape and the perfumed, supple counterpart to Touriga Nacional in Port blends."
+  },
+  {
+   "id": "G086",
+   "name": "Frappato",
+   "category": "GRAPES",
+   "livery": {
+    "solid": "#7937bd",
+    "deep": "#492988"
+   },
+   "art": "/art/grape/red-light-rare.png",
+   "artKind": "sprite",
+   "blurb": "Sicily's brightest red: pale, perfumed and strawberry-fresh, often blended with Nero d'Avola in Cerasuolo di Vittoria."
+  },
+  {
+   "id": "G087",
+   "name": "Garganega",
+   "category": "GRAPES",
+   "livery": {
+    "solid": "#7937bd",
+    "deep": "#492988"
+   },
+   "art": "/art/grape/green-light-rare.png",
+   "artKind": "sprite",
+   "blurb": "The grape of Soave, giving dry whites of pear, almond and white blossom from volcanic hills east of Verona."
+  },
+  {
+   "id": "G088",
+   "name": "Graciano",
+   "category": "GRAPES",
+   "livery": {
+    "solid": "#7937bd",
+    "deep": "#492988"
+   },
+   "art": "/art/grape/red-full-rare.png",
+   "artKind": "sprite",
+   "blurb": "Rioja's seasoning grape: low-yielding, intensely aromatic, and prized for the acidity and violet lift it brings to Tempranillo blends."
+  },
+  {
+   "id": "G089",
+   "name": "Greco",
+   "category": "GRAPES",
+   "livery": {
+    "solid": "#7937bd",
+    "deep": "#492988"
+   },
+   "art": "/art/grape/green-medium-rare.png",
+   "artKind": "sprite",
+   "blurb": "An ancient Campanian white, at its peak in Greco di Tufo: stony, peachy and firm, with more grip than most Italian whites."
+  },
+  {
+   "id": "G090",
+   "name": "Grillo",
+   "category": "GRAPES",
+   "livery": {
+    "solid": "#7937bd",
+    "deep": "#492988"
+   },
+   "art": "/art/grape/green-light-rare.png",
+   "artKind": "sprite",
+   "blurb": "Sicily's sun-proof white, once the backbone of Marsala and now the island's crisp, grapefruit-and-jasmine seafood wine."
+  },
+  {
+   "id": "G091",
+   "name": "Hárslevelű",
+   "category": "GRAPES",
+   "livery": {
+    "solid": "#7937bd",
+    "deep": "#492988"
+   },
+   "art": "/art/grape/green-medium-rare.png",
+   "artKind": "sprite",
+   "blurb": "Tokaj's second grape, the linden-scented partner to Furmint in Aszú blends, adding honeyed perfume and spice to the world's oldest classified sweet wine."
+  },
+  {
+   "id": "G092",
+   "name": "Lambrusco",
+   "category": "GRAPES",
+   "livery": {
+    "solid": "#7937bd",
+    "deep": "#492988"
+   },
+   "art": "/art/grape/red-medium-common.png",
+   "artKind": "sprite",
+   "blurb": "Emilia's family of sparkling red grapes, frothing violet-scented and sour-cherry dry — the real thing is a world away from the sweet export cliché."
+  },
+  {
+   "id": "G093",
+   "name": "Loureiro",
+   "category": "GRAPES",
+   "livery": {
+    "solid": "#7937bd",
+    "deep": "#492988"
+   },
+   "art": "/art/grape/green-light-rare.png",
+   "artKind": "sprite",
+   "blurb": "The laurel-scented white of Vinho Verde's Lima valley, all citrus blossom, bay leaf and Atlantic salt."
+  },
+  {
+   "id": "G094",
+   "name": "Negroamaro",
+   "category": "GRAPES",
+   "livery": {
+    "solid": "#7937bd",
+    "deep": "#492988"
+   },
+   "art": "/art/grape/red-full-rare.png",
+   "artKind": "sprite",
+   "blurb": "Puglia's 'black and bitter' grape, though the wines are more plush than the name warns: dark cherry, dried herbs and a savory, faintly saline finish."
+  },
+  {
+   "id": "G095",
+   "name": "Poulsard",
+   "category": "GRAPES",
+   "livery": {
+    "solid": "#7937bd",
+    "deep": "#492988"
+   },
+   "art": "/art/grape/red-light-rare.png",
+   "artKind": "sprite",
+   "blurb": "A ghost-pale Jura red with barely more pigment than a rosé, trading power for perfume: pomegranate, rose and forest floor."
+  },
+  {
+   "id": "G096",
+   "name": "Trousseau",
+   "category": "GRAPES",
+   "livery": {
+    "solid": "#7937bd",
+    "deep": "#492988"
+   },
+   "art": "/art/grape/red-light-rare.png",
+   "artKind": "sprite",
+   "blurb": "The sturdier of Jura's two red grapes, giving translucent wines with red cherry, pepper and a woodland earthiness."
+  },
+  {
+   "id": "G097",
+   "name": "Vidal",
+   "category": "GRAPES",
+   "livery": {
+    "solid": "#7937bd",
+    "deep": "#492988"
+   },
+   "art": "/art/grape/gold-medium-rare.png",
+   "artKind": "sprite",
+   "blurb": "A thick-skinned French hybrid that found its destiny frozen solid on Canadian vines: Vidal icewine pours apricot, honey and tropical fruit over electric acidity."
+  },
+  {
+   "id": "G098",
+   "name": "Chinuri",
+   "category": "GRAPES",
+   "livery": {
+    "solid": "#7937bd",
+    "deep": "#492988"
+   },
+   "art": "/art/grape/green-light-rare.png",
+   "artKind": "sprite",
+   "blurb": "Kartli's high-valley white, picked late for sparkling wine and vinified fresh or in qvevri for the table."
+  },
+  {
+   "id": "G099",
+   "name": "Goruli Mtsvane",
+   "category": "GRAPES",
+   "livery": {
+    "solid": "#7937bd",
+    "deep": "#492988"
+   },
+   "art": "/art/grape/green-light-rare.png",
+   "artKind": "sprite",
+   "blurb": "Kartli's own 'green' grape, distinct from Kakheti's Mtsvane, bringing quince, white flowers and stony freshness to still and sparkling wines alike."
+  },
+  {
+   "id": "G100",
+   "name": "Mtsvane",
+   "category": "GRAPES",
+   "livery": {
+    "solid": "#7937bd",
+    "deep": "#492988"
+   },
+   "art": "/art/grape/green-medium-rare.png",
+   "artKind": "sprite",
+   "blurb": "Kakheti's aromatic white, often married to Rkatsiteli in qvevri for perfume the sturdier grape lacks."
+  },
+  {
+   "id": "G101",
+   "name": "Otskhanuri Sapere",
+   "category": "GRAPES",
+   "livery": {
+    "solid": "#7937bd",
+    "deep": "#492988"
+   },
+   "art": "/art/grape/red-medium-rare.png",
+   "artKind": "sprite",
+   "blurb": "Imereti's rare, deeply colored red, fermented in clay churi for wines of sour cherry bite, violet lift and wild-country earth."
+  },
+  {
+   "id": "G102",
+   "name": "Tsolikouri",
+   "category": "GRAPES",
+   "livery": {
+    "solid": "#7937bd",
+    "deep": "#492988"
+   },
+   "art": "/art/grape/green-medium-rare.png",
+   "artKind": "sprite",
+   "blurb": "Western Georgia's workhorse white, brighter and leaner than Kakheti's amber giants, with pear, honeyed blossom and wet-stone minerality."
+  },
+  {
+   "id": "G103",
+   "name": "Romorantin",
+   "category": "GRAPES",
+   "livery": {
+    "solid": "#7937bd",
+    "deep": "#492988"
+   },
+   "art": "/art/grape/green-light-rare.png",
+   "artKind": "sprite",
+   "blurb": "The only grape of tiny Cour-Cheverny, planted in the Loire on the orders of François I five centuries ago and grown nowhere else on earth."
+  },
+  {
+   "id": "G104",
+   "name": "Pineau d'Aunis",
+   "category": "GRAPES",
+   "livery": {
+    "solid": "#7937bd",
+    "deep": "#492988"
+   },
+   "art": "/art/grape/red-light-rare.png",
+   "artKind": "sprite",
+   "blurb": "A medieval Loire red once poured for Plantagenet kings, now a handful of hectares of peppery, kirsch-pale wine."
+  },
+  {
+   "id": "G105",
+   "name": "Vaccarèse",
+   "category": "GRAPES",
+   "livery": {
+    "solid": "#7937bd",
+    "deep": "#492988"
+   },
+   "art": "/art/grape/red-medium-rare.png",
+   "artKind": "sprite",
+   "blurb": "One of Châteauneuf-du-Pape's forgotten thirteen, kept alive by a few faithful estates for the floral lift it lends Grenache."
+  },
+  {
+   "id": "G106",
+   "name": "Muscardin",
+   "category": "GRAPES",
+   "livery": {
+    "solid": "#7937bd",
+    "deep": "#492988"
+   },
+   "art": "/art/grape/red-light-rare.png",
+   "artKind": "sprite",
+   "blurb": "The rarest of Châteauneuf's authorized varieties, down to a scatter of rows across the whole appellation."
+  },
+  {
+   "id": "G107",
+   "name": "Terret Noir",
+   "category": "GRAPES",
+   "livery": {
+    "solid": "#7937bd",
+    "deep": "#492988"
+   },
+   "art": "/art/grape/red-light-rare.png",
+   "artKind": "sprite",
+   "blurb": "An old Languedoc vine that earned one of Châteauneuf's thirteen seats for the acidity and herbal snap it brings to sun-heavy blends."
+  },
+  {
+   "id": "G108",
+   "name": "Picardan",
+   "category": "GRAPES",
+   "livery": {
+    "solid": "#7937bd",
+    "deep": "#492988"
+   },
+   "art": "/art/grape/green-light-rare.png",
+   "artKind": "sprite",
+   "blurb": "Châteauneuf-du-Pape's least-planted white, a discreet salted-lemon seasoning surviving on single rows kept for the appellation's honor."
+  },
+  {
+   "id": "G109",
+   "name": "Picpoul",
+   "category": "GRAPES",
+   "livery": {
+    "solid": "#7937bd",
+    "deep": "#492988"
+   },
+   "art": "/art/grape/green-light-rare.png",
+   "artKind": "sprite",
+   "blurb": "The 'lip-stinger' of the Languedoc coast, all screaming citrus and salt, built for oyster beds an hour away."
+  },
+  {
+   "id": "G110",
+   "name": "Counoise",
+   "category": "GRAPES",
+   "livery": {
+    "solid": "#7937bd",
+    "deep": "#492988"
+   },
+   "art": "/art/grape/red-medium-rare.png",
+   "artKind": "sprite",
+   "blurb": "The southern Rhône's quiet seasoning grape, prized in Châteauneuf blends for plummy fruit, pepper and acidity that Grenache burns off."
+  },
+  {
+   "id": "G111",
+   "name": "Clairette",
+   "category": "GRAPES",
+   "livery": {
+    "solid": "#7937bd",
+    "deep": "#492988"
+   },
+   "art": "/art/grape/green-medium-rare.png",
+   "artKind": "sprite",
+   "blurb": "One of the Rhône's oldest whites, blossomy and low in acid, long used to soften and perfume southern blends."
+  },
+  {
+   "id": "G112",
+   "name": "Bourboulenc",
+   "category": "GRAPES",
+   "livery": {
+    "solid": "#7937bd",
+    "deep": "#492988"
+   },
+   "art": "/art/grape/green-light-rare.png",
+   "artKind": "sprite",
+   "blurb": "A late-ripening Mediterranean white threaded through the southern Rhône and Languedoc, bringing citrus and a saline snap to blends that woul"
+  },
+  {
+   "id": "G113",
+   "name": "Pelaverga",
+   "category": "GRAPES",
+   "livery": {
+    "solid": "#7937bd",
+    "deep": "#492988"
+   },
+   "art": "/art/grape/red-light-rare.png",
+   "artKind": "sprite",
+   "blurb": "Verduno's own pale-ruby secret, a single village's grape making strawberry-and-white-pepper reds beside some of Barolo's grandest crus."
+  },
+  {
+   "id": "G114",
+   "name": "Ruché",
+   "category": "GRAPES",
+   "livery": {
+    "solid": "#7937bd",
+    "deep": "#492988"
+   },
+   "art": "/art/grape/red-medium-rare.png",
+   "artKind": "sprite",
+   "blurb": "Castagnole Monferrato's aromatic red riddle: rose-petal perfume over dark cherry, from a grape legend says a monk carried over the Alps."
+  },
+  {
+   "id": "G115",
+   "name": "Timorasso",
+   "category": "GRAPES",
+   "livery": {
+    "solid": "#7937bd",
+    "deep": "#492988"
+   },
+   "art": "/art/grape/green-medium-rare.png",
+   "artKind": "sprite",
+   "blurb": "Rescued from a few abandoned rows in the Colli Tortonesi, Piedmont's great lost white makes dense, mineral wines that age like fine Riesling."
+  },
+  {
+   "id": "G116",
+   "name": "Nascetta",
+   "category": "GRAPES",
+   "livery": {
+    "solid": "#7937bd",
+    "deep": "#492988"
+   },
+   "art": "/art/grape/green-medium-rare.png",
+   "artKind": "sprite",
+   "blurb": "The village of Novello's half-forgotten white, once vinified sweet for special occasions and revived dry only in the 1990s."
+  },
+  {
+   "id": "G117",
+   "name": "Vespaiolo",
+   "category": "GRAPES",
+   "livery": {
+    "solid": "#7937bd",
+    "deep": "#492988"
+   },
+   "art": "/art/grape/green-light-rare.png",
+   "artKind": "sprite",
+   "blurb": "Breganze's high-acid white, named for the wasps that mob its sugar-rich berries at harvest."
+  },
+  {
+   "id": "G118",
+   "name": "Pignolo",
+   "category": "GRAPES",
+   "livery": {
+    "solid": "#7937bd",
+    "deep": "#492988"
+   },
+   "art": "/art/grape/red-full-rare.png",
+   "artKind": "sprite",
+   "blurb": "Friuli's sternest red, saved from two surviving vines against an abbey wall in the 1970s."
+  },
+  {
+   "id": "G119",
+   "name": "Sagrantino",
+   "category": "GRAPES",
+   "livery": {
+    "solid": "#7937bd",
+    "deep": "#492988"
+   },
+   "art": "/art/grape/red-full-rare.png",
+   "artKind": "sprite",
+   "blurb": "Montefalco's ferocious red, holder of the highest tannin levels of any major grape, once made only as a sacramental sweet wine."
+  },
+  {
+   "id": "G120",
+   "name": "Grignolino",
+   "category": "GRAPES",
+   "livery": {
+    "solid": "#7937bd",
+    "deep": "#492988"
+   },
+   "art": "/art/grape/red-light-rare.png",
+   "artKind": "sprite",
+   "blurb": "Piedmont's contrarian: a pale, nervy red with prominent tannin from its many pips — the name derives from dialect for them."
+  },
+  {
+   "id": "G121",
+   "name": "Pignoletto",
+   "category": "GRAPES",
+   "livery": {
+    "solid": "#7937bd",
+    "deep": "#492988"
+   },
+   "art": "/art/grape/green-light-rare.png",
+   "artKind": "sprite",
+   "blurb": "Bologna's own frothy white from the Colli Bolognesi, almost always lightly sparkling and poured beside mortadella."
+  },
+  {
+   "id": "G122",
+   "name": "Schioppettino",
+   "category": "GRAPES",
+   "livery": {
+    "solid": "#7937bd",
+    "deep": "#492988"
+   },
+   "art": "/art/grape/red-medium-rare.png",
+   "artKind": "sprite",
+   "blurb": "A Friulian border red that 'crackles' on the tongue — the name says so — rescued by one village's petition after phylloxera nearly ended it."
+  },
+  {
+   "id": "G123",
+   "name": "Carricante",
+   "category": "GRAPES",
+   "livery": {
+    "solid": "#7937bd",
+    "deep": "#492988"
+   },
+   "art": "/art/grape/green-light-rare.png",
+   "artKind": "sprite",
+   "blurb": "Etna's ancient white, grown up the volcano's eastern slope where a thousand metres of altitude keep its acidity electric."
+  },
+  {
+   "id": "G124",
+   "name": "Hondarrabi Zuri",
+   "category": "GRAPES",
+   "livery": {
+    "solid": "#7937bd",
+    "deep": "#492988"
+   },
+   "art": "/art/grape/green-light-rare.png",
+   "artKind": "sprite",
+   "blurb": "The white grape of Txakoli, poured theatrically from height into tumblers along the Basque coast."
+  },
+  {
+   "id": "G125",
+   "name": "Hondarrabi Beltza",
+   "category": "GRAPES",
+   "livery": {
+    "solid": "#7937bd",
+    "deep": "#492988"
+   },
+   "art": "/art/grape/red-light-rare.png",
+   "artKind": "sprite",
+   "blurb": "The red of the Basque coast, mostly vinified into rosé-pink, faintly fizzy Txakoli or brisk, crunchy reds served cool."
+  },
+  {
+   "id": "G126",
+   "name": "Xarel·lo",
+   "category": "GRAPES",
+   "livery": {
+    "solid": "#7937bd",
+    "deep": "#492988"
+   },
+   "art": "/art/grape/green-medium-rare.png",
+   "artKind": "sprite",
+   "blurb": "The backbone of Cava and the most structured of its trio, increasingly bottled alone as Catalonia's serious still white."
+  },
+  {
+   "id": "G127",
+   "name": "Bobal",
+   "category": "GRAPES",
+   "livery": {
+    "solid": "#7937bd",
+    "deep": "#492988"
+   },
+   "art": "/art/grape/red-full-rare.png",
+   "artKind": "sprite",
+   "blurb": "Spain's secret workhorse — long the country's second most planted red, almost none of it ever labeled."
+  },
+  {
+   "id": "G128",
+   "name": "Mencía",
+   "category": "GRAPES",
+   "livery": {
+    "solid": "#7937bd",
+    "deep": "#492988"
+   },
+   "art": "/art/grape/red-medium-rare.png",
+   "artKind": "sprite",
+   "blurb": "The perfumed red of Spain's misty northwest, remade in a generation from jug wine into Bierzo's graphite-edged answer to fine Burgundy."
+  },
+  {
+   "id": "G129",
+   "name": "Trepat",
+   "category": "GRAPES",
+   "livery": {
+    "solid": "#7937bd",
+    "deep": "#492988"
+   },
+   "art": "/art/grape/red-light-rare.png",
+   "artKind": "sprite",
+   "blurb": "Conca de Barberà's pale local red, long hidden inside rosé Cava and only recently trusted with its own label."
+  },
+  {
+   "id": "G130",
+   "name": "Muscat Blanc à Petits Grains",
+   "category": "GRAPES",
+   "livery": {
+    "solid": "#7937bd",
+    "deep": "#492988"
+   },
+   "art": "/art/grape/green-light-rare.png",
+   "artKind": "sprite",
+   "blurb": "The oldest and finest of the Muscat family, the rare grape whose wine actually smells of the grape itself."
+  },
+  {
+   "id": "G131",
+   "name": "Grenache Blanc",
+   "category": "GRAPES",
+   "livery": {
+    "solid": "#7937bd",
+    "deep": "#492988"
+   },
+   "art": "/art/grape/green-full-common.png",
+   "artKind": "sprite",
+   "blurb": "The white workhorse of the southern Rhône and Roussillon: fleshy, low-acid and quietly herbal, the padding in countless white blends."
+  },
+  {
+   "id": "G132",
+   "name": "Colombard",
+   "category": "GRAPES",
+   "livery": {
+    "solid": "#7937bd",
+    "deep": "#492988"
+   },
+   "art": "/art/grape/green-light-rare.png",
+   "artKind": "sprite",
+   "blurb": "Gascony's crisp everyday white, once distilled into Armagnac and now poured young, cold and unapologetically simple."
+  },
+  {
+   "id": "G133",
+   "name": "Mondeuse",
+   "category": "GRAPES",
+   "livery": {
+    "solid": "#7937bd",
+    "deep": "#492988"
+   },
+   "art": "/art/grape/red-medium-rare.png",
+   "artKind": "sprite",
+   "blurb": "Savoie's peppery mountain red, deep-coloured and wiry, tasting of dark cherries rolled in cracked pepper."
+  },
+  {
+   "id": "G134",
+   "name": "Négrette",
+   "category": "GRAPES",
+   "livery": {
+    "solid": "#7937bd",
+    "deep": "#492988"
+   },
+   "art": "/art/grape/red-medium-rare.png",
+   "artKind": "sprite",
+   "blurb": "The floral dark grape of Fronton, north of Toulouse, making supple violet-scented reds almost nowhere else on earth."
+  },
+  {
+   "id": "G135",
+   "name": "Jacquère",
+   "category": "GRAPES",
+   "livery": {
+    "solid": "#7937bd",
+    "deep": "#492988"
+   },
+   "art": "/art/grape/green-light-rare.png",
+   "artKind": "sprite",
+   "blurb": "The featherweight white of Savoie's ski villages, grown under limestone peaks and drunk within sight of them."
+  },
+  {
+   "id": "G136",
+   "name": "Cortese",
+   "category": "GRAPES",
+   "livery": {
+    "solid": "#7937bd",
+    "deep": "#492988"
+   },
+   "art": "/art/grape/green-light-rare.png",
+   "artKind": "sprite",
+   "blurb": "The grape behind Gavi, Piedmont's coolly precise white — pale, citrus-edged and faintly bitter-almond at the finish."
+  },
+  {
+   "id": "G137",
+   "name": "Arneis",
+   "category": "GRAPES",
+   "livery": {
+    "solid": "#7937bd",
+    "deep": "#492988"
+   },
+   "art": "/art/grape/green-medium-common.png",
+   "artKind": "sprite",
+   "blurb": "Roero's 'little rascal', a white so tricky to grow that Piedmont nearly let it die out in the 1960s."
+  },
+  {
+   "id": "G138",
+   "name": "Pecorino",
+   "category": "GRAPES",
+   "livery": {
+    "solid": "#7937bd",
+    "deep": "#492988"
+   },
+   "art": "/art/grape/green-medium-common.png",
+   "artKind": "sprite",
+   "blurb": "Not the cheese: a sharp-boned mountain white from the Marche and Abruzzo, named for the sheep that grazed its hillsides."
+  },
+  {
+   "id": "G139",
+   "name": "Vernaccia",
+   "category": "GRAPES",
+   "livery": {
+    "solid": "#7937bd",
+    "deep": "#492988"
+   },
+   "art": "/art/grape/green-light-rare.png",
+   "artKind": "sprite",
+   "blurb": "The white of San Gimignano's towers, praised by Dante and licensed as Italy's first DOC in 1966."
+  },
+  {
+   "id": "G140",
+   "name": "Catarratto",
+   "category": "GRAPES",
+   "livery": {
+    "solid": "#7937bd",
+    "deep": "#492988"
+   },
+   "art": "/art/grape/green-medium-common.png",
+   "artKind": "sprite",
+   "blurb": "Sicily's most-planted grape, long boiled down anonymously for Marsala and vermouth, now bottled on its own terms."
+  },
+  {
+   "id": "G141",
+   "name": "Cesanese",
+   "category": "GRAPES",
+   "livery": {
+    "solid": "#7937bd",
+    "deep": "#492988"
+   },
+   "art": "/art/grape/red-medium-rare.png",
+   "artKind": "sprite",
+   "blurb": "Lazio's own red, grown in the hills southeast of Rome since imperial times and mostly drunk before it ever reaches the city gates."
+  },
+  {
+   "id": "G142",
+   "name": "Airén",
+   "category": "GRAPES",
+   "livery": {
+    "solid": "#7937bd",
+    "deep": "#492988"
+   },
+   "art": "/art/grape/green-light-rare.png",
+   "artKind": "sprite",
+   "blurb": "The quiet giant of La Mancha's endless plateau — for decades the most-planted wine grape on earth, and almost nobody outside Spain has heard of it."
+  },
+  {
+   "id": "G143",
+   "name": "Macabeo",
+   "category": "GRAPES",
+   "livery": {
+    "solid": "#7937bd",
+    "deep": "#492988"
+   },
+   "art": "/art/grape/green-light-rare.png",
+   "artKind": "sprite",
+   "blurb": "Rioja calls it Viura and makes its whites from it; Penedès calls it Macabeo and puts it in the Cava trio with Xarel·lo and Parellada."
+  },
+  {
+   "id": "G144",
+   "name": "Parellada",
+   "category": "GRAPES",
+   "livery": {
+    "solid": "#7937bd",
+    "deep": "#492988"
+   },
+   "art": "/art/grape/green-light-rare.png",
+   "artKind": "sprite",
+   "blurb": "The finesse of the Cava trio, grown highest on the Penedès slopes and picked first."
+  },
+  {
+   "id": "G145",
+   "name": "Garnacha Blanca",
+   "category": "GRAPES",
+   "livery": {
+    "solid": "#7937bd",
+    "deep": "#492988"
+   },
+   "art": "/art/grape/green-full-common.png",
+   "artKind": "sprite",
+   "blurb": "Grenache Blanc under its home flag: Spain's fleshy white Garnacha, at its grandest in Terra Alta's old bush vines and a quiet stiffener in white Rioja."
+  },
+  {
+   "id": "G146",
+   "name": "Listán Negro",
+   "category": "GRAPES",
+   "livery": {
+    "solid": "#7937bd",
+    "deep": "#492988"
+   },
+   "art": "/art/grape/red-medium-rare.png",
+   "artKind": "sprite",
+   "blurb": "The volcanic red of the Canary Islands, trained in braided cordons across black ash fields that never knew phylloxera."
+  },
+  {
+   "id": "G147",
+   "name": "Treixadura",
+   "category": "GRAPES",
+   "livery": {
+    "solid": "#7937bd",
+    "deep": "#492988"
+   },
+   "art": "/art/grape/green-medium-rare.png",
+   "artKind": "sprite",
+   "blurb": "Ribeiro's aristocrat, the peach-and-blossom white of Galicia's oldest wine valley, usually leading a local field blend."
+  },
+  {
+   "id": "G148",
+   "name": "Abouriou",
+   "category": "GRAPES",
+   "livery": {
+    "solid": "#7937bd",
+    "deep": "#492988"
+   },
+   "art": "/art/grape/red-medium-rare.png",
+   "artKind": "sprite",
+   "blurb": "A Garonne-valley red that ripens before anything around it and tastes like it was picked in a hurry — brisk, peppery, light on tannin."
+  },
+  {
+   "id": "G149",
+   "name": "Alicante Bouschet",
+   "category": "GRAPES",
+   "livery": {
+    "solid": "#7937bd",
+    "deep": "#492988"
+   },
+   "art": "/art/grape/red-full-common.png",
+   "artKind": "sprite",
+   "blurb": "Henri Bouschet’s 1855 crossing of Petit Bouschet and Grenache, and the rare teinturier whose flesh runs as red as its skin — a grape bred to"
+  },
+  {
+   "id": "G150",
+   "name": "Alfrocheiro",
+   "category": "GRAPES",
+   "livery": {
+    "solid": "#7937bd",
+    "deep": "#492988"
+   },
+   "art": "/art/grape/red-medium-rare.png",
+   "artKind": "sprite",
+   "blurb": "A Dão native that lends colour and blackberry depth to blends most drinkers never see it named in."
+  },
+  {
+   "id": "G151",
+   "name": "Arinto dos Açores",
+   "category": "GRAPES",
+   "livery": {
+    "solid": "#7937bd",
+    "deep": "#492988"
+   },
+   "art": "/art/grape/green-light-rare.png",
+   "artKind": "sprite",
+   "blurb": "The Azores’ own white, unrelated to mainland Arinto and called Terrantez da Terceira until a 2012 decree settled the name."
+  },
+  {
+   "id": "G152",
+   "name": "Babić",
+   "category": "GRAPES",
+   "livery": {
+    "solid": "#7937bd",
+    "deep": "#492988"
+   },
+   "art": "/art/grape/red-full-rare.png",
+   "artKind": "sprite",
+   "blurb": "Dalmatia’s stony red, grown on the terraced karst above Primošten in vineyards so laboriously walled that a photograph of them hangs at the United Nations."
+  },
+  {
+   "id": "G153",
+   "name": "Brancellao",
+   "category": "GRAPES",
+   "livery": {
+    "solid": "#7937bd",
+    "deep": "#492988"
+   },
+   "art": "/art/grape/red-light-rare.png",
+   "artKind": "sprite",
+   "blurb": "A pale, perfumed Galician red that gives almost no colour and an enormous amount of scent — rose and raspberry on a frame you can see through."
+  },
+  {
+   "id": "G154",
+   "name": "Cabernet Pfeffer",
+   "category": "GRAPES",
+   "livery": {
+    "solid": "#7937bd",
+    "deep": "#492988"
+   },
+   "art": "/art/grape/red-medium-rare.png",
+   "artKind": "sprite",
+   "blurb": "Under twenty acres survive, most of them old vines in San Benito and the Santa Clara Valley, and UC Davis has settled what they are: Mourtao"
+  },
+  {
+   "id": "G155",
+   "name": "Caíño Tinto",
+   "category": "GRAPES",
+   "livery": {
+    "solid": "#7937bd",
+    "deep": "#492988"
+   },
+   "art": "/art/grape/red-medium-rare.png",
+   "artKind": "sprite",
+   "blurb": "The sharpest of the Caíño family, and the one people mean when they just say Caíño: late, thick-skinned and so acidic that growers spent decades pulling it out."
+  },
+  {
+   "id": "G156",
+   "name": "Callet",
+   "category": "GRAPES",
+   "livery": {
+    "solid": "#7937bd",
+    "deep": "#492988"
+   },
+   "art": "/art/grape/red-medium-rare.png",
+   "artKind": "sprite",
+   "blurb": "Mallorca’s soft-spoken red, pale and low in alcohol in a place where neither is expected."
+  },
+  {
+   "id": "G157",
+   "name": "Canaiolo",
+   "category": "GRAPES",
+   "livery": {
+    "solid": "#7937bd",
+    "deep": "#492988"
+   },
+   "art": "/art/grape/red-medium-rare.png",
+   "artKind": "sprite",
+   "blurb": "Chianti’s old second grape, written into Ricasoli’s nineteenth-century formula to soften Sangiovese’s edges and then quietly replaced by French varieties."
+  },
+  {
+   "id": "G158",
+   "name": "Castelão",
+   "category": "GRAPES",
+   "livery": {
+    "solid": "#7937bd",
+    "deep": "#492988"
+   },
+   "art": "/art/grape/red-medium-common.png",
+   "artKind": "sprite",
+   "blurb": "Portugal’s great southern workhorse, known as Periquita after the vineyard that first bottled it."
+  },
+  {
+   "id": "G159",
+   "name": "Colorino",
+   "category": "GRAPES",
+   "livery": {
+    "solid": "#7937bd",
+    "deep": "#492988"
+   },
+   "art": "/art/grape/red-full-rare.png",
+   "artKind": "sprite",
+   "blurb": "A Tuscan teinturier kept for exactly one purpose — colour — and blended in at a few percent to darken Chianti."
+  },
+  {
+   "id": "G160",
+   "name": "Corvinone",
+   "category": "GRAPES",
+   "livery": {
+    "solid": "#7937bd",
+    "deep": "#492988"
+   },
+   "art": "/art/grape/red-medium-rare.png",
+   "artKind": "sprite",
+   "blurb": "Long assumed to be a big-berried Corvina and shown by DNA to be nothing of the kind."
+  },
+  {
+   "id": "G161",
+   "name": "Croatina",
+   "category": "GRAPES",
+   "livery": {
+    "solid": "#7937bd",
+    "deep": "#492988"
+   },
+   "art": "/art/grape/red-full-rare.png",
+   "artKind": "sprite",
+   "blurb": "Italian despite the name, and confusingly sold as Bonarda in the Oltrepò Pavese — which has nothing to do with Argentina’s Bonarda."
+  },
+  {
+   "id": "G162",
+   "name": "Espadeiro",
+   "category": "GRAPES",
+   "livery": {
+    "solid": "#7937bd",
+    "deep": "#492988"
+   },
+   "art": "/art/grape/red-light-rare.png",
+   "artKind": "sprite",
+   "blurb": "A Vinho Verde red grown for rosé more often than for red wine, all sharp raspberry and no weight at all."
+  },
+  {
+   "id": "G163",
+   "name": "Freisa",
+   "category": "GRAPES",
+   "livery": {
+    "solid": "#7937bd",
+    "deep": "#492988"
+   },
+   "art": "/art/grape/red-medium-rare.png",
+   "artKind": "sprite",
+   "blurb": "A confirmed child of Nebbiolo — the relationship was read the other way round until 2020 — and Piedmont’s most divisive grape: strawberry an"
+  },
+  {
+   "id": "G164",
+   "name": "Grolleau",
+   "category": "GRAPES",
+   "livery": {
+    "solid": "#7937bd",
+    "deep": "#492988"
+   },
+   "art": "/art/grape/red-light-rare.png",
+   "artKind": "sprite",
+   "blurb": "The Loire’s rosé engine, planted by the thousand hectares for Rosé d’Anjou and almost never named on a label."
+  },
+  {
+   "id": "G165",
+   "name": "Negramoll",
+   "category": "GRAPES",
+   "livery": {
+    "solid": "#7937bd",
+    "deep": "#492988"
+   },
+   "art": "/art/grape/red-medium-rare.png",
+   "artKind": "sprite",
+   "blurb": "Madeira’s real workhorse, behind the great majority of the island’s wine while Sercial and Verdelho take the credit."
+  },
+  {
+   "id": "G166",
+   "name": "Nerello Cappuccio",
+   "category": "GRAPES",
+   "livery": {
+    "solid": "#7937bd",
+    "deep": "#492988"
+   },
+   "art": "/art/grape/red-medium-rare.png",
+   "artKind": "sprite",
+   "blurb": "Etna’s other Nerello, named for the hood its canopy throws over the fruit, and no relation to Mascalese — nerello is only dialect for a dark-berried vine."
+  },
+  {
+   "id": "G167",
+   "name": "País",
+   "category": "GRAPES",
+   "livery": {
+    "solid": "#7937bd",
+    "deep": "#492988"
+   },
+   "art": "/art/grape/red-light-common.png",
+   "artKind": "sprite",
+   "blurb": "The grape Spain carried to the Americas: Listán Prieto at home, Mission in California, Criolla Chica in Argentina, País in Chile."
+  },
+  {
+   "id": "G168",
+   "name": "Sciaccarellu",
+   "category": "GRAPES",
+   "livery": {
+    "solid": "#7937bd",
+    "deep": "#492988"
+   },
+   "art": "/art/grape/red-medium-rare.png",
+   "artKind": "sprite",
+   "blurb": "Corsica’s peppery red, and the same variety Tuscany calls Mammolo — an identity France’s official catalogue records from both ampelographic"
+  },
+  {
+   "id": "G169",
+   "name": "St. Laurent",
+   "category": "GRAPES",
+   "livery": {
+    "solid": "#7937bd",
+    "deep": "#492988"
+   },
+   "art": "/art/grape/red-medium-rare.png",
+   "artKind": "sprite",
+   "blurb": "A dark, cherry-scented Austrian red, and a child of Pinot Noir rather than a clone of it — the second parent has never been found."
+  },
+  {
+   "id": "G170",
+   "name": "Sumoll",
+   "category": "GRAPES",
+   "livery": {
+    "solid": "#7937bd",
+    "deep": "#492988"
+   },
+   "art": "/art/grape/red-medium-rare.png",
+   "artKind": "sprite",
+   "blurb": "A Catalan red down to its last few dozen hectares, pulled out across the twentieth century for the crime of not making Cava."
+  },
+  {
+   "id": "G171",
+   "name": "Valdiguié",
+   "category": "GRAPES",
+   "livery": {
+    "solid": "#7937bd",
+    "deep": "#492988"
+   },
+   "art": "/art/grape/red-light-rare.png",
+   "artKind": "sprite",
+   "blurb": "Sold in California as Napa Gamay for decades before anyone checked, at which point it turned out to be a declining Languedoc bulk grape with"
+  },
+  {
+   "id": "G172",
+   "name": "Vinhão",
+   "category": "GRAPES",
+   "livery": {
+    "solid": "#7937bd",
+    "deep": "#492988"
+   },
+   "art": "/art/grape/red-full-rare.png",
+   "artKind": "sprite",
+   "blurb": "The red that stains the glass: a Minho teinturier making the near-black, teeth-rasping vinho verde tinto that outsiders almost never meet."
+  },
+  {
+   "id": "G173",
+   "name": "Sercial",
+   "category": "GRAPES",
+   "livery": {
+    "solid": "#7937bd",
+    "deep": "#492988"
+   },
+   "art": "/art/grape/green-full-rare.png",
+   "artKind": "sprite",
+   "blurb": "The driest rung of the Madeira ladder and the last of the noble whites to ripen, grown high and cold enough that the acidity never softens."
+  },
+  {
+   "id": "G174",
+   "name": "Boal",
+   "category": "GRAPES",
+   "livery": {
+    "solid": "#7937bd",
+    "deep": "#492988"
+   },
+   "art": "/art/grape/green-full-rare.png",
+   "artKind": "sprite",
+   "blurb": "Madeira's medium-rich style, picked lower and warmer than Sercial and sweeter by exactly that margin, with a nutty marmalade weight behind the island acidity."
+  },
+  {
+   "id": "G175",
+   "name": "Malvasia de São Jorge",
+   "category": "GRAPES",
+   "livery": {
+    "solid": "#7937bd",
+    "deep": "#492988"
+   },
+   "art": "/art/grape/green-full-rare.png",
+   "artKind": "sprite",
+   "blurb": "The grape behind Malmsey, the sweetest and darkest rung of the Madeira ladder, all coffee, dried fig and burnt sugar cut by acidity that refuses to let it cloy."
+  },
+  {
+   "id": "G176",
+   "name": "Gouais Blanc",
+   "category": "GRAPES",
+   "livery": {
+    "solid": "#7937bd",
+    "deep": "#492988"
+   },
+   "art": "/art/grape/green-light-rare.png",
+   "artKind": "sprite",
+   "blurb": "The most important grape almost nobody drinks: crossed with Pinot it fathered Chardonnay, Gamay and Aligoté, and its confirmed children run"
+  },
+  {
+   "id": "G177",
+   "name": "Plavac Mali",
+   "category": "GRAPES",
+   "livery": {
+    "solid": "#7937bd",
+    "deep": "#492988"
+   },
+   "art": "/art/grape/red-full-rare.png",
+   "artKind": "sprite",
+   "blurb": "Dalmatia's flagship red, worked by hand on coastal slopes too steep for a tractor, giving dark, high-alcohol wines of dried fig, pepper and sea air."
+  },
+  {
+   "id": "G178",
+   "name": "Manto Negro",
+   "category": "GRAPES",
+   "livery": {
+    "solid": "#7937bd",
+    "deep": "#492988"
+   },
+   "art": "/art/grape/red-medium-rare.png",
+   "artKind": "sprite",
+   "blurb": "Mallorca's principal red and the island's own, pale in the glass and low in acid, built for drinking young rather than keeping."
+  },
+  {
+   "id": "R001",
+   "name": "Bordeaux",
+   "category": "REGIONS",
+   "livery": {
+    "solid": "#2f7d46",
+    "deep": "#194829"
+   },
+   "art": "/art/class/outline-france.png",
+   "artKind": "outline",
+   "blurb": "The world's most famous wine region, renowned for its prestigious blends of Cabernet Sauvignon and Merlot."
+  },
+  {
+   "id": "R002",
+   "name": "Burgundy",
+   "category": "REGIONS",
+   "livery": {
+    "solid": "#2f7d46",
+    "deep": "#194829"
+   },
+   "art": "/art/class/outline-france.png",
+   "artKind": "outline",
+   "blurb": "The spiritual home of Pinot Noir and Chardonnay, where terroir is expressed with unmatched precision."
+  },
+  {
+   "id": "R003",
+   "name": "Champagne",
+   "category": "REGIONS",
+   "livery": {
+    "solid": "#2f7d46",
+    "deep": "#194829"
+   },
+   "art": "/art/class/outline-france.png",
+   "artKind": "outline",
+   "blurb": "The only region that can legally produce true Champagne, using the traditional method of secondary fermentation in bottle."
+  },
+  {
+   "id": "R004",
+   "name": "Rhône Valley",
+   "category": "REGIONS",
+   "livery": {
+    "solid": "#2f7d46",
+    "deep": "#194829"
+   },
+   "art": "/art/class/outline-france.png",
+   "artKind": "outline",
+   "blurb": "A sun-drenched region divided into the elegant Northern Rhône and the broader Southern Rhône."
+  },
+  {
+   "id": "R005",
+   "name": "Loire Valley",
+   "category": "REGIONS",
+   "livery": {
+    "solid": "#2f7d46",
+    "deep": "#194829"
+   },
+   "art": "/art/class/outline-france.png",
+   "artKind": "outline",
+   "blurb": "Known as the Garden of France, this diverse region stretches along the Loire River."
+  },
+  {
+   "id": "R006",
+   "name": "Alsace",
+   "category": "REGIONS",
+   "livery": {
+    "solid": "#2f7d46",
+    "deep": "#194829"
+   },
+   "art": "/art/class/outline-france.png",
+   "artKind": "outline",
+   "blurb": "A unique French region with Germanic influence, known for its aromatic white wines in distinctive tall bottles."
+  },
+  {
+   "id": "R007",
+   "name": "Provence",
+   "category": "REGIONS",
+   "livery": {
+    "solid": "#2f7d46",
+    "deep": "#194829"
+   },
+   "art": "/art/class/outline-france.png",
+   "artKind": "outline",
+   "blurb": "The world's most famous rosé-producing region, blessed with Mediterranean sunshine and maritime breezes."
+  },
+  {
+   "id": "R008",
+   "name": "Beaujolais",
+   "category": "REGIONS",
+   "livery": {
+    "solid": "#2f7d46",
+    "deep": "#194829"
+   },
+   "art": "/art/class/outline-france.png",
+   "artKind": "outline",
+   "blurb": "The home of Gamay grape, producing bright, fruity wines that range from simple Nouveau to age-worthy Cru wines."
+  },
+  {
+   "id": "R009",
+   "name": "Languedoc",
+   "category": "REGIONS",
+   "livery": {
+    "solid": "#2f7d46",
+    "deep": "#194829"
+   },
+   "art": "/art/class/outline-france.png",
+   "artKind": "outline",
+   "blurb": "France's largest wine region, offering exceptional value and increasingly high quality wines."
+  },
+  {
+   "id": "R010",
+   "name": "Chablis",
+   "category": "REGIONS",
+   "livery": {
+    "solid": "#2f7d46",
+    "deep": "#194829"
+   },
+   "art": "/art/class/outline-france.png",
+   "artKind": "outline",
+   "blurb": "A northern outpost of Burgundy famous for mineral, unoaked Chardonnay that expresses pure chalky terroir."
+  },
+  {
+   "id": "R011",
+   "name": "Sauternes",
+   "category": "REGIONS",
+   "livery": {
+    "solid": "#2f7d46",
+    "deep": "#194829"
+   },
+   "art": "/art/class/outline-france.png",
+   "artKind": "outline",
+   "blurb": "The world's most celebrated sweet wine region, where noble rot transforms Sémillon and Sauvignon Blanc into liquid gold."
+  },
+  {
+   "id": "R012",
+   "name": "Jura",
+   "category": "REGIONS",
+   "livery": {
+    "solid": "#2f7d46",
+    "deep": "#194829"
+   },
+   "art": "/art/class/outline-france.png",
+   "artKind": "outline",
+   "blurb": "A quirky French region known for its unique oxidative wines like Vin Jaune and distinctive local grapes."
+  },
+  {
+   "id": "R013",
+   "name": "Napa Valley",
+   "category": "REGIONS",
+   "livery": {
+    "solid": "#2f7d46",
+    "deep": "#194829"
+   },
+   "art": "/art/class/outline-california.png",
+   "artKind": "outline",
+   "blurb": "America's most prestigious wine region, known for powerful Cabernet Sauvignon that rivals Bordeaux."
+  },
+  {
+   "id": "R014",
+   "name": "Sonoma",
+   "category": "REGIONS",
+   "livery": {
+    "solid": "#2f7d46",
+    "deep": "#194829"
+   },
+   "art": "/art/class/outline-california.png",
+   "artKind": "outline",
+   "blurb": "Napa's diverse coastal neighbor, producing excellent wines from numerous varieties across varied microclimates."
+  },
+  {
+   "id": "R015",
+   "name": "Willamette Valley",
+   "category": "REGIONS",
+   "livery": {
+    "solid": "#2f7d46",
+    "deep": "#194829"
+   },
+   "art": "/art/class/outline-oregon.png",
+   "artKind": "outline",
+   "blurb": "Oregon's cool-climate paradise for Pinot Noir, producing elegant wines that rival Burgundy."
+  },
+  {
+   "id": "R016",
+   "name": "Paso Robles",
+   "category": "REGIONS",
+   "livery": {
+    "solid": "#2f7d46",
+    "deep": "#194829"
+   },
+   "art": "/art/class/outline-california.png",
+   "artKind": "outline",
+   "blurb": "California's hub for Rhône varieties, producing bold Syrahs and GSM blends in a warm, inland climate."
+  },
+  {
+   "id": "R017",
+   "name": "Walla Walla",
+   "category": "REGIONS",
+   "livery": {
+    "solid": "#2f7d46",
+    "deep": "#194829"
+   },
+   "art": "/art/class/outline-washington.png",
+   "artKind": "outline",
+   "blurb": "Washington State's premium wine valley, known for elegant Syrah and refined Cabernet Sauvignon."
+  },
+  {
+   "id": "R018",
+   "name": "Santa Barbara",
+   "category": "REGIONS",
+   "livery": {
+    "solid": "#2f7d46",
+    "deep": "#194829"
+   },
+   "art": "/art/class/outline-california.png",
+   "artKind": "outline",
+   "blurb": "Cool-climate California wine country made famous by the film Sideways."
+  },
+  {
+   "id": "R019",
+   "name": "Finger Lakes",
+   "category": "REGIONS",
+   "livery": {
+    "solid": "#2f7d46",
+    "deep": "#194829"
+   },
+   "art": "/art/class/outline-new-york.png",
+   "artKind": "outline",
+   "blurb": "New York State's premier wine region, producing world-class Riesling from steep lakeside vineyards."
+  },
+  {
+   "id": "R020",
+   "name": "Lodi",
+   "category": "REGIONS",
+   "livery": {
+    "solid": "#2f7d46",
+    "deep": "#194829"
+   },
+   "art": "/art/class/outline-california.png",
+   "artKind": "outline",
+   "blurb": "California's treasure trove of old vine Zinfandel, some over 100 years old."
+  },
+  {
+   "id": "R021",
+   "name": "Tuscany",
+   "category": "REGIONS",
+   "livery": {
+    "solid": "#2f7d46",
+    "deep": "#194829"
+   },
+   "art": "/art/class/outline-italy.png",
+   "artKind": "outline",
+   "blurb": "Italy's most beloved wine region, where Sangiovese reigns supreme across varied terroirs."
+  },
+  {
+   "id": "R022",
+   "name": "Piedmont",
+   "category": "REGIONS",
+   "livery": {
+    "solid": "#2f7d46",
+    "deep": "#194829"
+   },
+   "art": "/art/class/outline-italy.png",
+   "artKind": "outline",
+   "blurb": "The home of Nebbiolo, producing Italy's greatest red wines including Barolo and Barbaresco."
+  },
+  {
+   "id": "R023",
+   "name": "Veneto",
+   "category": "REGIONS",
+   "livery": {
+    "solid": "#2f7d46",
+    "deep": "#194829"
+   },
+   "art": "/art/class/outline-italy.png",
+   "artKind": "outline",
+   "blurb": "Italy's most productive wine region, home to Prosecco, Amarone, and Soave."
+  },
+  {
+   "id": "R024",
+   "name": "Sicily",
+   "category": "REGIONS",
+   "livery": {
+    "solid": "#2f7d46",
+    "deep": "#194829"
+   },
+   "art": "/art/class/outline-italy.png",
+   "artKind": "outline",
+   "blurb": "Italy's largest wine island, producing increasingly impressive wines from ancient native varieties."
+  },
+  {
+   "id": "R025",
+   "name": "Campania",
+   "category": "REGIONS",
+   "livery": {
+    "solid": "#2f7d46",
+    "deep": "#194829"
+   },
+   "art": "/art/class/outline-italy.png",
+   "artKind": "outline",
+   "blurb": "Southern Italy's jewel of ancient grape varieties grown on volcanic soils near Naples."
+  },
+  {
+   "id": "R026",
+   "name": "Friuli-Venezia Giulia",
+   "category": "REGIONS",
+   "livery": {
+    "solid": "#2f7d46",
+    "deep": "#194829"
+   },
+   "art": "/art/class/outline-italy.png",
+   "artKind": "outline",
+   "blurb": "Italy's top region for premium white wines, bordering Slovenia and Austria."
+  },
+  {
+   "id": "R027",
+   "name": "Alto Adige",
+   "category": "REGIONS",
+   "livery": {
+    "solid": "#2f7d46",
+    "deep": "#194829"
+   },
+   "art": "/art/class/outline-italy.png",
+   "artKind": "outline",
+   "blurb": "A bilingual Italian-German region in the Alps producing fresh, aromatic white wines."
+  },
+  {
+   "id": "R028",
+   "name": "Abruzzo",
+   "category": "REGIONS",
+   "livery": {
+    "solid": "#2f7d46",
+    "deep": "#194829"
+   },
+   "art": "/art/class/outline-italy.png",
+   "artKind": "outline",
+   "blurb": "Central Italy's workhorse region, famous for value-driven Montepulciano d'Abruzzo."
+  },
+  {
+   "id": "R029",
+   "name": "Puglia",
+   "category": "REGIONS",
+   "livery": {
+    "solid": "#2f7d46",
+    "deep": "#194829"
+   },
+   "art": "/art/class/outline-italy.png",
+   "artKind": "outline",
+   "blurb": "The heel of Italy's boot, producing bold, fruity reds from Primitivo and Negroamaro."
+  },
+  {
+   "id": "R030",
+   "name": "Rioja",
+   "category": "REGIONS",
+   "livery": {
+    "solid": "#2f7d46",
+    "deep": "#194829"
+   },
+   "art": "/art/class/outline-spain.png",
+   "artKind": "outline",
+   "blurb": "Spain's most famous wine region, known for Tempranillo-based wines aged in American oak."
+  },
+  {
+   "id": "R031",
+   "name": "Ribera del Duero",
+   "category": "REGIONS",
+   "livery": {
+    "solid": "#2f7d46",
+    "deep": "#194829"
+   },
+   "art": "/art/class/outline-spain.png",
+   "artKind": "outline",
+   "blurb": "High-altitude wine country producing powerful, concentrated Tempranillo wines."
+  },
+  {
+   "id": "R032",
+   "name": "Priorat",
+   "category": "REGIONS",
+   "livery": {
+    "solid": "#2f7d46",
+    "deep": "#194829"
+   },
+   "art": "/art/class/outline-spain.png",
+   "artKind": "outline",
+   "blurb": "A dramatic region of ancient slate soils producing intensely concentrated wines."
+  },
+  {
+   "id": "R033",
+   "name": "Rías Baixas",
+   "category": "REGIONS",
+   "livery": {
+    "solid": "#2f7d46",
+    "deep": "#194829"
+   },
+   "art": "/art/class/outline-spain.png",
+   "artKind": "outline",
+   "blurb": "Spain's premier white wine region on the Atlantic coast of Galicia."
+  },
+  {
+   "id": "R034",
+   "name": "Rueda",
+   "category": "REGIONS",
+   "livery": {
+    "solid": "#2f7d46",
+    "deep": "#194829"
+   },
+   "art": "/art/class/outline-spain.png",
+   "artKind": "outline",
+   "blurb": "Spain's answer to Sauvignon Blanc country, producing crisp, herbal whites from Verdejo."
+  },
+  {
+   "id": "R035",
+   "name": "Jerez",
+   "category": "REGIONS",
+   "livery": {
+    "solid": "#2f7d46",
+    "deep": "#194829"
+   },
+   "art": "/art/class/outline-spain.png",
+   "artKind": "outline",
+   "blurb": "The birthplace of Sherry, producing unique fortified wines through solera aging."
+  },
+  {
+   "id": "R036",
+   "name": "Douro",
+   "category": "REGIONS",
+   "livery": {
+    "solid": "#2f7d46",
+    "deep": "#194829"
+   },
+   "art": "/art/class/outline-portugal.png",
+   "artKind": "outline",
+   "blurb": "Portugal's great river valley, home to Port wine and increasingly impressive dry reds."
+  },
+  {
+   "id": "R037",
+   "name": "Vinho Verde",
+   "category": "REGIONS",
+   "livery": {
+    "solid": "#2f7d46",
+    "deep": "#194829"
+   },
+   "art": "/art/class/outline-portugal.png",
+   "artKind": "outline",
+   "blurb": "Portugal's refreshing white wine region producing light, crisp wines with a slight spritz."
+  },
+  {
+   "id": "R038",
+   "name": "Mosel",
+   "category": "REGIONS",
+   "livery": {
+    "solid": "#2f7d46",
+    "deep": "#194829"
+   },
+   "art": "/art/class/outline-germany.png",
+   "artKind": "outline",
+   "blurb": "Germany's most famous wine region, producing ethereal Rieslings from impossibly steep slate slopes."
+  },
+  {
+   "id": "R039",
+   "name": "Rheingau",
+   "category": "REGIONS",
+   "livery": {
+    "solid": "#2f7d46",
+    "deep": "#194829"
+   },
+   "art": "/art/class/outline-germany.png",
+   "artKind": "outline",
+   "blurb": "A historic German region where noble Riesling was first cultivated for dry wines."
+  },
+  {
+   "id": "R040",
+   "name": "Wachau",
+   "category": "REGIONS",
+   "livery": {
+    "solid": "#2f7d46",
+    "deep": "#194829"
+   },
+   "art": "/art/class/outline-austria.png",
+   "artKind": "outline",
+   "blurb": "Austria's most prestigious wine region along the Danube River, producing world-class Riesling and Grüner Veltliner."
+  },
+  {
+   "id": "R041",
+   "name": "Barossa Valley",
+   "category": "REGIONS",
+   "livery": {
+    "solid": "#2f7d46",
+    "deep": "#194829"
+   },
+   "art": "/art/class/outline-australia.png",
+   "artKind": "outline",
+   "blurb": "Australia's most famous wine region, home to century-old Shiraz vines producing powerful, rich wines."
+  },
+  {
+   "id": "R042",
+   "name": "Margaret River",
+   "category": "REGIONS",
+   "livery": {
+    "solid": "#2f7d46",
+    "deep": "#194829"
+   },
+   "art": "/art/class/outline-australia.png",
+   "artKind": "outline",
+   "blurb": "Western Australia's premium region producing Bordeaux-style blends and elegant Chardonnay."
+  },
+  {
+   "id": "R043",
+   "name": "Marlborough",
+   "category": "REGIONS",
+   "livery": {
+    "solid": "#2f7d46",
+    "deep": "#194829"
+   },
+   "art": "/art/class/outline-new-zealand.png",
+   "artKind": "outline",
+   "blurb": "New Zealand's largest and most famous region, producing intensely aromatic Sauvignon Blanc."
+  },
+  {
+   "id": "R044",
+   "name": "Central Otago",
+   "category": "REGIONS",
+   "livery": {
+    "solid": "#2f7d46",
+    "deep": "#194829"
+   },
+   "art": "/art/class/outline-new-zealand.png",
+   "artKind": "outline",
+   "blurb": "The world's southernmost wine region, producing exceptional Pinot Noir at high altitude."
+  },
+  {
+   "id": "R045",
+   "name": "Mendoza",
+   "category": "REGIONS",
+   "livery": {
+    "solid": "#2f7d46",
+    "deep": "#194829"
+   },
+   "art": "/art/class/outline-argentina.png",
+   "artKind": "outline",
+   "blurb": "Argentina's wine heartland at the foot of the Andes, where high-altitude vineyards produce world-class Malbec."
+  },
+  {
+   "id": "R046",
+   "name": "Maipo Valley",
+   "category": "REGIONS",
+   "livery": {
+    "solid": "#2f7d46",
+    "deep": "#194829"
+   },
+   "art": "/art/class/outline-chile.png",
+   "artKind": "outline",
+   "blurb": "Chile's most prestigious wine valley, known for powerful Cabernet Sauvignon."
+  },
+  {
+   "id": "R047",
+   "name": "Stellenbosch",
+   "category": "REGIONS",
+   "livery": {
+    "solid": "#2f7d46",
+    "deep": "#194829"
+   },
+   "art": "/art/class/outline-south-africa.png",
+   "artKind": "outline",
+   "blurb": "South Africa's premier wine region, producing world-class Cabernet Sauvignon and unique Pinotage."
+  },
+  {
+   "id": "R048",
+   "name": "Santorini",
+   "category": "REGIONS",
+   "livery": {
+    "solid": "#2f7d46",
+    "deep": "#194829"
+   },
+   "art": "/art/class/outline-greece.png",
+   "artKind": "outline",
+   "blurb": "A Greek island of volcanic vineyards producing intensely mineral Assyrtiko."
+  },
+  {
+   "id": "R049",
+   "name": "Tokaj",
+   "category": "REGIONS",
+   "livery": {
+    "solid": "#2f7d46",
+    "deep": "#194829"
+   },
+   "art": "/art/class/outline-hungary.png",
+   "artKind": "outline",
+   "blurb": "Hungary's legendary region producing Tokaji Aszú, one of the world's great sweet wines."
+  },
+  {
+   "id": "R050",
+   "name": "Helan Mountain",
+   "category": "REGIONS",
+   "livery": {
+    "solid": "#2f7d46",
+    "deep": "#194829"
+   },
+   "art": "/art/class/outline-china.png",
+   "artKind": "outline",
+   "blurb": "China's flagship high-desert wine frontier in Ningxia, producing polished Bordeaux-style reds under dramatic rocky ridges."
+  },
+  {
+   "id": "R051",
+   "name": "Shangri-La",
+   "category": "REGIONS",
+   "livery": {
+    "solid": "#2f7d46",
+    "deep": "#194829"
+   },
+   "art": "/art/class/outline-china.png",
+   "artKind": "outline",
+   "blurb": "Sky-high vineyards perched along the Mekong in Yunnan, delivering perfumed reds with alpine freshness from ancient terraces."
+  },
+  {
+   "id": "R052",
+   "name": "Yamanashi",
+   "category": "REGIONS",
+   "livery": {
+    "solid": "#2f7d46",
+    "deep": "#194829"
+   },
+   "art": "/art/class/outline-japan.png",
+   "artKind": "outline",
+   "blurb": "Japan's Kōshu Valley beneath Mount Fuji, home to delicate Koshu whites and experimental sparkling wines with pristine acidity."
+  },
+  {
+   "id": "R053",
+   "name": "Nashik",
+   "category": "REGIONS",
+   "livery": {
+    "solid": "#2f7d46",
+    "deep": "#194829"
+   },
+   "art": "/art/class/outline-india.png",
+   "artKind": "outline",
+   "blurb": "India's wine capital north of Mumbai, where breezy plateaus yield tropical-leaning whites and peppery Syrah."
+  },
+  {
+   "id": "R054",
+   "name": "Nandi Hills",
+   "category": "REGIONS",
+   "livery": {
+    "solid": "#2f7d46",
+    "deep": "#194829"
+   },
+   "art": "/art/class/outline-india.png",
+   "artKind": "outline",
+   "blurb": "Cooler Karnataka hill country that lends lift and spice to India's premium Syrah and Cabernet bottlings."
+  },
+  {
+   "id": "R055",
+   "name": "Swartland",
+   "category": "REGIONS",
+   "livery": {
+    "solid": "#2f7d46",
+    "deep": "#194829"
+   },
+   "art": "/art/class/outline-south-africa.png",
+   "artKind": "outline",
+   "blurb": "Swartland's old bush vines and granite soils craft textured Chenin Blanc and soulful Rhône-style reds with minimal intervention."
+  },
+  {
+   "id": "R056",
+   "name": "Walker Bay",
+   "category": "REGIONS",
+   "livery": {
+    "solid": "#2f7d46",
+    "deep": "#194829"
+   },
+   "art": "/art/class/outline-south-africa.png",
+   "artKind": "outline",
+   "blurb": "A cool, ocean-swept corner famed for Hemel-en-Aarde Pinot Noir and Chardonnay, delivering Burgundian elegance with South African sunshine."
+  },
+  {
+   "id": "R057",
+   "name": "Paarl & Franschhoek",
+   "category": "REGIONS",
+   "livery": {
+    "solid": "#2f7d46",
+    "deep": "#194829"
+   },
+   "art": "/art/class/outline-south-africa.png",
+   "artKind": "outline",
+   "blurb": "Historic valleys east of Stellenbosch producing rich reds, fynbos-scented whites, and South Africa's marquee Cap Classique sparklers."
+  },
+  {
+   "id": "R058",
+   "name": "Kakheti",
+   "category": "REGIONS",
+   "livery": {
+    "solid": "#2f7d46",
+    "deep": "#194829"
+   },
+   "art": "/art/class/outline-georgia.png",
+   "artKind": "outline",
+   "blurb": "Georgia's eastern cradle of wine, famous for skin-contact amber wines and powerful Saperavi reds fermented in buried qvevri."
+  },
+  {
+   "id": "R059",
+   "name": "Kartli",
+   "category": "REGIONS",
+   "livery": {
+    "solid": "#2f7d46",
+    "deep": "#194829"
+   },
+   "art": "/art/class/outline-georgia.png",
+   "artKind": "outline",
+   "blurb": "Highland vineyards near Tbilisi yielding elegant sparkling Chinuri and balanced qvevri whites with alpine freshness."
+  },
+  {
+   "id": "R060",
+   "name": "Imereti",
+   "category": "REGIONS",
+   "livery": {
+    "solid": "#2f7d46",
+    "deep": "#194829"
+   },
+   "art": "/art/class/outline-georgia.png",
+   "artKind": "outline",
+   "blurb": "Western Georgia's humid hills where partial qvevri fermentations craft brighter, mineral-driven amber and red wines."
+  },
+  {
+   "id": "R061",
+   "name": "Burgenland",
+   "category": "REGIONS",
+   "livery": {
+    "solid": "#2f7d46",
+    "deep": "#194829"
+   },
+   "art": "/art/class/outline-austria.png",
+   "artKind": "outline",
+   "blurb": "Austria's red-wine country along the Hungarian border, where the shallow Neusiedlersee stretches the season for Blaufränkisch and Zweigelt."
+  },
+  {
+   "id": "R062",
+   "name": "Niederösterreich",
+   "category": "REGIONS",
+   "livery": {
+    "solid": "#2f7d46",
+    "deep": "#194829"
+   },
+   "art": "/art/class/outline-austria.png",
+   "artKind": "outline",
+   "blurb": "Lower Austria, the country's largest wine region, wrapping the Danube valleys and the vast Weinviertel."
+  },
+  {
+   "id": "R063",
+   "name": "Canary Islands",
+   "category": "REGIONS",
+   "livery": {
+    "solid": "#2f7d46",
+    "deep": "#194829"
+   },
+   "art": "/art/class/outline-spain.png",
+   "artKind": "outline",
+   "blurb": "Volcanic Atlantic islands where ungrafted vines grow in black-ash hollows behind hand-built stone walls."
+  },
+  {
+   "id": "R064",
+   "name": "Marche",
+   "category": "REGIONS",
+   "livery": {
+    "solid": "#2f7d46",
+    "deep": "#194829"
+   },
+   "art": "/art/class/outline-italy.png",
+   "artKind": "outline",
+   "blurb": "Italy's Adriatic hill country, where Verdicchio makes some of the nation's most age-worthy whites in the Castelli di Jesi and Matelica zones."
+  },
+  {
+   "id": "R065",
+   "name": "Peloponnese",
+   "category": "REGIONS",
+   "livery": {
+    "solid": "#2f7d46",
+    "deep": "#194829"
+   },
+   "art": "/art/class/outline-greece.png",
+   "artKind": "outline",
+   "blurb": "The mountainous southern peninsula of Greece, from Nemea's Agiorgitiko valleys to Mantinia's high plateau of rose-scented Moschofilero."
+  },
+  {
+   "id": "R066",
+   "name": "Nemea",
+   "category": "REGIONS",
+   "livery": {
+    "solid": "#2f7d46",
+    "deep": "#194829"
+   },
+   "art": "/art/class/outline-greece.png",
+   "artKind": "outline",
+   "blurb": "Greece's most important red appellation, a ring of valleys in the northeast Peloponnese given entirely to Agiorgitiko."
+  },
+  {
+   "id": "R067",
+   "name": "Naoussa",
+   "category": "REGIONS",
+   "livery": {
+    "solid": "#2f7d46",
+    "deep": "#194829"
+   },
+   "art": "/art/class/outline-greece.png",
+   "artKind": "outline",
+   "blurb": "Xinomavro's stronghold on the slopes of Mount Vermio in Greek Macedonia, making pale, tannic, tomato-and-olive reds that age like Barolo."
+  },
+  {
+   "id": "R068",
+   "name": "Amyndeon",
+   "category": "REGIONS",
+   "livery": {
+    "solid": "#2f7d46",
+    "deep": "#194829"
+   },
+   "art": "/art/class/outline-greece.png",
+   "artKind": "outline",
+   "blurb": "Greece's highest and coolest appellation, on a lake-moderated plateau where Xinomavro turns bright, floral and fine-boned."
+  },
+  {
+   "id": "R069",
+   "name": "Sardinia",
+   "category": "REGIONS",
+   "livery": {
+    "solid": "#2f7d46",
+    "deep": "#194829"
+   },
+   "art": "/art/class/outline-italy.png",
+   "artKind": "outline",
+   "blurb": "A granite island with its own grape lexicon: Vermentino di Gallura on the windy north coast, old-vine Cannonau inland, Carignano in the sandy southwest."
+  },
+  {
+   "id": "R070",
+   "name": "Trentino",
+   "category": "REGIONS",
+   "livery": {
+    "solid": "#2f7d46",
+    "deep": "#194829"
+   },
+   "art": "/art/class/outline-italy.png",
+   "artKind": "outline",
+   "blurb": "Alpine northern Italy along the Adige, split between mountain whites and the native Teroldego on the gravelly Campo Rotaliano."
+  },
+  {
+   "id": "R071",
+   "name": "Valpolicella",
+   "category": "REGIONS",
+   "livery": {
+    "solid": "#2f7d46",
+    "deep": "#194829"
+   },
+   "art": "/art/class/outline-italy.png",
+   "artKind": "outline",
+   "blurb": "The Veneto's cherry-red heartland north of Verona, where Corvina and Rondinella range from light and fresh to the dried-grape monuments of Amarone."
+  },
+  {
+   "id": "R072",
+   "name": "Emilia-Romagna",
+   "category": "REGIONS",
+   "livery": {
+    "solid": "#2f7d46",
+    "deep": "#194829"
+   },
+   "art": "/art/class/outline-italy.png",
+   "artKind": "outline",
+   "blurb": "Italy's food belt between the Po and the Apennines, washing Parmigiano and prosciutto down with dry, foaming Lambrusco."
+  },
+  {
+   "id": "R073",
+   "name": "Etna",
+   "category": "REGIONS",
+   "livery": {
+    "solid": "#2f7d46",
+    "deep": "#194829"
+   },
+   "art": "/art/class/outline-italy.png",
+   "artKind": "outline",
+   "blurb": "Vineyards climb the active volcano to nearly a thousand metres, where Nerello Mascalese reads more like alpine Pinot than Sicilian red."
+  },
+  {
+   "id": "R074",
+   "name": "Collio",
+   "category": "REGIONS",
+   "livery": {
+    "solid": "#2f7d46",
+    "deep": "#194829"
+   },
+   "art": "/art/class/outline-italy.png",
+   "artKind": "outline",
+   "blurb": "A crescent of border hills between Friuli and Slovenia, Italy's benchmark for structured, site-driven whites."
+  },
+  {
+   "id": "R075",
+   "name": "Shandong",
+   "category": "REGIONS",
+   "livery": {
+    "solid": "#2f7d46",
+    "deep": "#194829"
+   },
+   "art": "/art/class/outline-china.png",
+   "artKind": "outline",
+   "blurb": "China's maritime wine coast, where the Yantai peninsula hosts the country's oldest modern wineries and most of its production."
+  },
+  {
+   "id": "R076",
+   "name": "Hebei",
+   "category": "REGIONS",
+   "livery": {
+    "solid": "#2f7d46",
+    "deep": "#194829"
+   },
+   "art": "/art/class/outline-china.png",
+   "artKind": "outline",
+   "blurb": "The vineyards ringing Beijing, from coastal Changli to the Huailai basin at altitude."
+  },
+  {
+   "id": "R077",
+   "name": "Franconia",
+   "category": "REGIONS",
+   "livery": {
+    "solid": "#2f7d46",
+    "deep": "#194829"
+   },
+   "art": "/art/class/outline-germany.png",
+   "artKind": "outline",
+   "blurb": "Germany's Silvaner country along the Main, bottling dry, earthy whites in the squat round Bocksbeutel."
+  },
+  {
+   "id": "R078",
+   "name": "Rheinhessen",
+   "category": "REGIONS",
+   "livery": {
+    "solid": "#2f7d46",
+    "deep": "#194829"
+   },
+   "art": "/art/class/outline-germany.png",
+   "artKind": "outline",
+   "blurb": "Germany's largest wine region, reinvented in a generation from bulk supplier to the engine room of the country's dry-Riesling avant-garde."
+  },
+  {
+   "id": "R079",
+   "name": "Gaillac",
+   "category": "REGIONS",
+   "livery": {
+    "solid": "#2f7d46",
+    "deep": "#194829"
+   },
+   "art": "/art/class/outline-france.png",
+   "artKind": "outline",
+   "blurb": "One of France's oldest vineyards, planted by the Romans on the Tarn, and a refuge for grapes that exist nowhere else."
+  },
+  {
+   "id": "R080",
+   "name": "Hunter Valley",
+   "category": "REGIONS",
+   "livery": {
+    "solid": "#2f7d46",
+    "deep": "#194829"
+   },
+   "art": "/art/class/outline-australia.png",
+   "artKind": "outline",
+   "blurb": "Australia's oldest wine region and its most counterintuitive: subtropical heat producing featherweight, unoaked Semillon that ages for decades."
+  },
+  {
+   "id": "R081",
+   "name": "Madeira",
+   "category": "REGIONS",
+   "livery": {
+    "solid": "#2f7d46",
+    "deep": "#194829"
+   },
+   "art": "/art/class/outline-portugal.png",
+   "artKind": "outline",
+   "blurb": "The Atlantic island whose fortified wines are deliberately heated and oxidised into near-immortality — bottles from the 1700s still drink."
+  },
+  {
+   "id": "R082",
+   "name": "Bairrada",
+   "category": "REGIONS",
+   "livery": {
+    "solid": "#2f7d46",
+    "deep": "#194829"
+   },
+   "art": "/art/class/outline-portugal.png",
+   "artKind": "outline",
+   "blurb": "Atlantic Portugal's clay country, where thick-skinned Baga makes structured, high-acid reds that repay a decade of patience."
+  },
+  {
+   "id": "R083",
+   "name": "Dão",
+   "category": "REGIONS",
+   "livery": {
+    "solid": "#2f7d46",
+    "deep": "#194829"
+   },
+   "art": "/art/class/outline-portugal.png",
+   "artKind": "outline",
+   "blurb": "A granite bowl ringed by mountains that shelter it from both ocean and interior extremes — Portugal's Burgundy, by elevation and temperament."
+  },
+  {
+   "id": "R084",
+   "name": "Tejo",
+   "category": "REGIONS",
+   "livery": {
+    "solid": "#2f7d46",
+    "deep": "#194829"
+   },
+   "art": "/art/class/outline-portugal.png",
+   "artKind": "outline",
+   "blurb": "Portugal's river-plain workhorse turned value champion, retraining its fertile flats toward Arinto whites and Touriga-led reds."
+  },
+  {
+   "id": "R085",
+   "name": "Bucelas",
+   "category": "REGIONS",
+   "livery": {
+    "solid": "#2f7d46",
+    "deep": "#194829"
+   },
+   "art": "/art/class/outline-portugal.png",
+   "artKind": "outline",
+   "blurb": "A tiny chalk-hill enclave north of Lisbon making bone-dry, age-worthy Arinto since Shakespeare's day — his plays name its wine."
+  },
+  {
+   "id": "R086",
+   "name": "Alentejo",
+   "category": "REGIONS",
+   "livery": {
+    "solid": "#2f7d46",
+    "deep": "#194829"
+   },
+   "art": "/art/class/outline-portugal.png",
+   "artKind": "outline",
+   "blurb": "The wide, cork-oak south of Portugal, where warm plains and clay-schist hills give generous, round reds led by Aragonez and Touriga Nacional."
+  },
+  {
+   "id": "R087",
+   "name": "Salta",
+   "category": "REGIONS",
+   "livery": {
+    "solid": "#2f7d46",
+    "deep": "#194829"
+   },
+   "art": "/art/class/outline-argentina.png",
+   "artKind": "outline",
+   "blurb": "Home to some of the highest vineyards on earth, with Cafayate's vines near 1,700 metres and outliers past 3,000."
+  },
+  {
+   "id": "R088",
+   "name": "Valdeorras",
+   "category": "REGIONS",
+   "livery": {
+    "solid": "#2f7d46",
+    "deep": "#194829"
+   },
+   "art": "/art/class/outline-spain.png",
+   "artKind": "outline",
+   "blurb": "Galicia's inland valley of slate and sunlight, the source of Spain's most mineral Godello."
+  },
+  {
+   "id": "R089",
+   "name": "Bierzo",
+   "category": "REGIONS",
+   "livery": {
+    "solid": "#2f7d46",
+    "deep": "#194829"
+   },
+   "art": "/art/class/outline-spain.png",
+   "artKind": "outline",
+   "blurb": "A misty mountain pass between Galicia and Castile where old-vine Mencía and Godello grow on steep slate."
+  },
+  {
+   "id": "R090",
+   "name": "Yamagata",
+   "category": "REGIONS",
+   "livery": {
+    "solid": "#2f7d46",
+    "deep": "#194829"
+   },
+   "art": "/art/class/outline-japan.png",
+   "artKind": "outline",
+   "blurb": "Northern Honshu's orchard prefecture, whose cool basins and snowy winters suit Muscat Bailey A and European varieties alike."
+  },
+  {
+   "id": "R091",
+   "name": "Niagara Peninsula",
+   "category": "REGIONS",
+   "livery": {
+    "solid": "#2f7d46",
+    "deep": "#194829"
+   },
+   "art": "/art/class/outline-canada.png",
+   "artKind": "outline",
+   "blurb": "Canada's icewine capital between Lake Ontario and the Niagara Escarpment, where Vidal and Riesling freeze on the vine for December picking at -8°C."
+  },
+  {
+   "id": "R092",
+   "name": "Okanagan Valley",
+   "category": "REGIONS",
+   "livery": {
+    "solid": "#2f7d46",
+    "deep": "#194829"
+   },
+   "art": "/art/class/outline-canada.png",
+   "artKind": "outline",
+   "blurb": "British Columbia's desert-lake corridor, running from Canada's only true desert in the south to glacial-cooled Riesling country in the north."
+  },
+  {
+   "id": "R093",
+   "name": "Dalmatia",
+   "category": "REGIONS",
+   "livery": {
+    "solid": "#2f7d46",
+    "deep": "#194829"
+   },
+   "art": "/art/class/outline-croatia.png",
+   "artKind": "outline",
+   "blurb": "Croatia's island-studded Adriatic coast, the ancestral home of Zinfandel — local Tribidrag and Plavac Mali still grow on karst terraces above the sea."
+  },
+  {
+   "id": "R094",
+   "name": "Dealu Mare",
+   "category": "REGIONS",
+   "livery": {
+    "solid": "#2f7d46",
+    "deep": "#194829"
+   },
+   "art": "/art/class/outline-romania.png",
+   "artKind": "outline",
+   "blurb": "Romania's 'Big Hill' on the Carpathian foothills, the country's most serious red district since Roman Dacia."
+  },
+  {
+   "id": "R095",
+   "name": "Valais",
+   "category": "REGIONS",
+   "livery": {
+    "solid": "#2f7d46",
+    "deep": "#194829"
+   },
+   "art": "/art/class/outline-switzerland.png",
+   "artKind": "outline",
+   "blurb": "Switzerland's high Rhône valley, where terraced vines climb past 1,100 metres under föhn-warmed Alpine sun."
+  },
+  {
+   "id": "R096",
+   "name": "Canelones",
+   "category": "REGIONS",
+   "livery": {
+    "solid": "#2f7d46",
+    "deep": "#194829"
+   },
+   "art": "/art/class/outline-uruguay.png",
+   "artKind": "outline",
+   "blurb": "Uruguay's Atlantic-cooled clay heartland just north of Montevideo, where most of the nation's Tannat grows on small family estates."
+  },
+  {
+   "id": "R097",
+   "name": "Guerrouane",
+   "category": "REGIONS",
+   "livery": {
+    "solid": "#2f7d46",
+    "deep": "#194829"
+   },
+   "art": "/art/class/outline-morocco.png",
+   "artKind": "outline",
+   "blurb": "Morocco's principal appellation on the Atlas foothills near Meknès, where altitude cools old plantings of Rhône varieties."
+  },
+  {
+   "id": "R098",
+   "name": "Valle de Guadalupe",
+   "category": "REGIONS",
+   "livery": {
+    "solid": "#2f7d46",
+    "deep": "#194829"
+   },
+   "art": "/art/button/regions.png",
+   "artKind": "menu",
+   "blurb": "Baja California's granite valley two hours south of the border, cooled by Pacific fog and unbound by appellation rules."
+  },
+  {
+   "id": "R099",
+   "name": "Châteauneuf-du-Pape",
+   "category": "REGIONS",
+   "livery": {
+    "solid": "#2f7d46",
+    "deep": "#194829"
+   },
+   "art": "/art/class/outline-france.png",
+   "artKind": "outline",
+   "blurb": "The southern Rhône's crown, where thirteen authorized varieties grow among fist-sized galet stones below a ruined papal castle."
+  },
+  {
+   "id": "R100",
+   "name": "Umbria",
+   "category": "REGIONS",
+   "livery": {
+    "solid": "#2f7d46",
+    "deep": "#194829"
+   },
+   "art": "/art/class/outline-italy.png",
+   "artKind": "outline",
+   "blurb": "Italy's green, landlocked heart, where Orvieto whites flow from tufa cliffs and Montefalco's Sagrantino makes the country's most tannic red."
+  },
+  {
+   "id": "R101",
+   "name": "Basque Country",
+   "category": "REGIONS",
+   "livery": {
+    "solid": "#2f7d46",
+    "deep": "#194829"
+   },
+   "art": "/art/class/outline-spain.png",
+   "artKind": "outline",
+   "blurb": "Green cliff-top vineyards above the Bay of Biscay, where Hondarrabi Zuri and Beltza make Txakoli — low-alcohol, faintly fizzy, poured from a"
+  },
+  {
+   "id": "R102",
+   "name": "Penedès",
+   "category": "REGIONS",
+   "livery": {
+    "solid": "#2f7d46",
+    "deep": "#194829"
+   },
+   "art": "/art/class/outline-spain.png",
+   "artKind": "outline",
+   "blurb": "Catalonia's Cava heartland between Barcelona and the sea, where Xarel·lo, Macabeo and Parellada ripen for the traditional method."
+  },
+  {
+   "id": "R103",
+   "name": "Utiel-Requena",
+   "category": "REGIONS",
+   "livery": {
+    "solid": "#2f7d46",
+    "deep": "#194829"
+   },
+   "art": "/art/class/outline-spain.png",
+   "artKind": "outline",
+   "blurb": "A high inland plateau behind Valencia, planted to old bush-vine Bobal that survived a century of anonymity in bulk blends."
+  },
+  {
+   "id": "R104",
+   "name": "Conca de Barberà",
+   "category": "REGIONS",
+   "livery": {
+    "solid": "#2f7d46",
+    "deep": "#194829"
+   },
+   "art": "/art/class/outline-spain.png",
+   "artKind": "outline",
+   "blurb": "A cool Catalan river basin ringed by monasteries, home ground of the pale red Trepat and a quiet supplier of rosé Cava."
+  },
+  {
+   "id": "R105",
+   "name": "Corsica",
+   "category": "REGIONS",
+   "livery": {
+    "solid": "#2f7d46",
+    "deep": "#194829"
+   },
+   "art": "/art/class/outline-france.png",
+   "artKind": "outline",
+   "blurb": "France's mountain island, closer to Italy in miles and grape names alike."
+  },
+  {
+   "id": "R106",
+   "name": "Savoie",
+   "category": "REGIONS",
+   "livery": {
+    "solid": "#2f7d46",
+    "deep": "#194829"
+   },
+   "art": "/art/class/outline-france.png",
+   "artKind": "outline",
+   "blurb": "Ski-country vineyards strung beneath the French Alps, growing whites of glacial clarity and the peppery red Mondeuse."
+  },
+  {
+   "id": "R107",
+   "name": "Roussillon",
+   "category": "REGIONS",
+   "livery": {
+    "solid": "#2f7d46",
+    "deep": "#194829"
+   },
+   "art": "/art/class/outline-france.png",
+   "artKind": "outline",
+   "blurb": "The Catalan corner of France, an amphitheatre of windswept terraces dropping from the Pyrenees to the Mediterranean."
+  },
+  {
+   "id": "R108",
+   "name": "Cahors",
+   "category": "REGIONS",
+   "livery": {
+    "solid": "#2f7d46",
+    "deep": "#194829"
+   },
+   "art": "/art/class/outline-france.png",
+   "artKind": "outline",
+   "blurb": "The original home of Malbec, making 'black wine' on the Lot's limestone terraces centuries before Argentina borrowed the grape."
+  },
+  {
+   "id": "R109",
+   "name": "Lombardy",
+   "category": "REGIONS",
+   "livery": {
+    "solid": "#2f7d46",
+    "deep": "#194829"
+   },
+   "art": "/art/class/outline-italy.png",
+   "artKind": "outline",
+   "blurb": "Milan's home region, quietly making Italy's most serious traditional-method sparkling in Franciacorta and alpine Nebbiolo in Valtellina's terraced north."
+  },
+  {
+   "id": "R110",
+   "name": "Lazio",
+   "category": "REGIONS",
+   "livery": {
+    "solid": "#2f7d46",
+    "deep": "#194829"
+   },
+   "art": "/art/class/outline-italy.png",
+   "artKind": "outline",
+   "blurb": "Rome's countryside, pouring the capital's carafe whites from the Castelli hills since antiquity — and lately rediscovering Cesanese, its own spicy red."
+  },
+  {
+   "id": "R111",
+   "name": "Calabria",
+   "category": "REGIONS",
+   "livery": {
+    "solid": "#2f7d46",
+    "deep": "#194829"
+   },
+   "art": "/art/class/outline-italy.png",
+   "artKind": "outline",
+   "blurb": "The toe of the boot, where Greek settlers planted vines twenty-seven centuries ago and Cirò still grows on the same coastal shelf."
+  },
+  {
+   "id": "R112",
+   "name": "Basilicata",
+   "category": "REGIONS",
+   "livery": {
+    "solid": "#2f7d46",
+    "deep": "#194829"
+   },
+   "art": "/art/class/outline-italy.png",
+   "artKind": "outline",
+   "blurb": "One grape, one volcano: Aglianico del Vulture grows in black ash on the slopes of a long-dead cone, ripening later than almost anything in Italy."
+  },
+  {
+   "id": "R113",
+   "name": "Toro",
+   "category": "REGIONS",
+   "livery": {
+    "solid": "#2f7d46",
+    "deep": "#194829"
+   },
+   "art": "/art/class/outline-spain.png",
+   "artKind": "outline",
+   "blurb": "Castile's bruiser: pre-phylloxera Tempranillo — here called Tinta de Toro — on sandy plains that the louse never conquered."
+  },
+  {
+   "id": "R114",
+   "name": "Navarra",
+   "category": "REGIONS",
+   "livery": {
+    "solid": "#2f7d46",
+    "deep": "#194829"
+   },
+   "art": "/art/class/outline-spain.png",
+   "artKind": "outline",
+   "blurb": "Pilgrim country on the road to Santiago, long Spain's rosado capital and now an open workshop where Garnacha old-timers share terraces with international grapes."
+  },
+  {
+   "id": "R115",
+   "name": "La Mancha",
+   "category": "REGIONS",
+   "livery": {
+    "solid": "#2f7d46",
+    "deep": "#194829"
+   },
+   "art": "/art/class/outline-spain.png",
+   "artKind": "outline",
+   "blurb": "Don Quixote's plateau, the largest vine planting on earth — a sea of Airén stretching past every horizon south of Madrid."
+  },
+  {
+   "id": "R116",
+   "name": "Ribeira Sacra",
+   "category": "REGIONS",
+   "livery": {
+    "solid": "#2f7d46",
+    "deep": "#194829"
+   },
+   "art": "/art/class/outline-spain.png",
+   "artKind": "outline",
+   "blurb": "The 'sacred riverbank': Roman terraces stacked up canyon walls so steep the harvest comes down by boat and pulley."
+  },
+  {
+   "id": "R117",
+   "name": "Serra Gaúcha",
+   "category": "REGIONS",
+   "livery": {
+    "solid": "#2f7d46",
+    "deep": "#194829"
+   },
+   "art": "/art/button/regions.png",
+   "artKind": "menu",
+   "blurb": "Brazil’s fine-wine heartland, planted by Veneto immigrants from 1875 on basalt hills where rain falls in every month of the year."
+  },
+  {
+   "id": "R118",
+   "name": "Campanha Gaúcha",
+   "category": "REGIONS",
+   "livery": {
+    "solid": "#2f7d46",
+    "deep": "#194829"
+   },
+   "art": "/art/button/regions.png",
+   "artKind": "menu",
+   "blurb": "The warm, dry grasslands on the Uruguayan border, where sandy soils and low pre-harvest rain give Brazil its ripest still reds."
+  },
+  {
+   "id": "R119",
+   "name": "Ribeiro",
+   "category": "REGIONS",
+   "livery": {
+    "solid": "#2f7d46",
+    "deep": "#194829"
+   },
+   "art": "/art/class/outline-spain.png",
+   "artKind": "outline",
+   "blurb": "Galicia’s oldest wine country and one of the first denominations Spain ever drew, in the sheltered valleys where the Avia and Arnoia meet the Miño."
+  },
+  {
+   "id": "R120",
+   "name": "Mallorca",
+   "category": "REGIONS",
+   "livery": {
+    "solid": "#2f7d46",
+    "deep": "#194829"
+   },
+   "art": "/art/class/outline-spain.png",
+   "artKind": "outline",
+   "blurb": "Balearic vineyards tucked behind the tourist coast, where Manto Negro and the pale, high-acid Callet were very nearly lost to phylloxera and almond groves."
+  },
+  {
+   "id": "R121",
+   "name": "Azores",
+   "category": "REGIONS",
+   "livery": {
+    "solid": "#2f7d46",
+    "deep": "#194829"
+   },
+   "art": "/art/class/outline-portugal.png",
+   "artKind": "outline",
+   "blurb": "Vines grown in currais — waist-high lava-stone corrals that break the Atlantic wind — across Pico, Graciosa and Terceira."
+  },
+  {
+   "id": "R122",
+   "name": "South West France",
+   "category": "REGIONS",
+   "livery": {
+    "solid": "#2f7d46",
+    "deep": "#194829"
+   },
+   "art": "/art/class/outline-france.png",
+   "artKind": "outline",
+   "blurb": "The arc of country between Bordeaux and the Pyrenees, holding more indigenous varieties than anywhere else in France — Tannat at Madiran, Né"
+  },
+  {
+   "id": "R123",
+   "name": "San Benito",
+   "category": "REGIONS",
+   "livery": {
+    "solid": "#2f7d46",
+    "deep": "#194829"
+   },
+   "art": "/art/class/outline-california.png",
+   "artKind": "outline",
+   "blurb": "A limestone pocket of the Central Coast sitting directly on the San Andreas fault, where the Cienega Valley’s pre-Prohibition plantings kept"
+  },
+  {
+   "id": "R124",
+   "name": "Itata Valley",
+   "category": "REGIONS",
+   "livery": {
+    "solid": "#2f7d46",
+    "deep": "#194829"
+   },
+   "art": "/art/class/outline-chile.png",
+   "artKind": "outline",
+   "blurb": "Chile’s oldest vineyard land, planted from 1551 and then left alone for four centuries — dry-farmed bush País and century-old Cinsault on gr"
+  },
+  {
+   "id": "S001",
+   "name": "Full-Body Red",
+   "category": "STYLES",
+   "livery": {
+    "solid": "#b74d2a",
+    "deep": "#75341f"
+   },
+   "art": "/art/style/fullbodyred.png",
+   "artKind": "sprite",
+   "blurb": "Rich, tannic wines with intense dark fruit flavors that command attention on the palate."
+  },
+  {
+   "id": "S002",
+   "name": "Light-Body Red",
+   "category": "STYLES",
+   "livery": {
+    "solid": "#b74d2a",
+    "deep": "#75341f"
+   },
+   "art": "/art/style/lightbodyred.png",
+   "artKind": "sprite",
+   "blurb": "Delicate, elegant reds with bright acidity and fresh red fruit character that are perfect for lighter fare."
+  },
+  {
+   "id": "S003",
+   "name": "Medium-Body Red",
+   "category": "STYLES",
+   "livery": {
+    "solid": "#b74d2a",
+    "deep": "#75341f"
+   },
+   "art": "/art/style/mediumbodyred.png",
+   "artKind": "sprite",
+   "blurb": "Versatile reds that balance fruit, structure, and elegance for everyday enjoyment."
+  },
+  {
+   "id": "S004",
+   "name": "Full-Body White",
+   "category": "STYLES",
+   "livery": {
+    "solid": "#b74d2a",
+    "deep": "#75341f"
+   },
+   "art": "/art/style/fullbodywhite.png",
+   "artKind": "sprite",
+   "blurb": "Opulent white wines often with oak influence, offering rich texture and creamy mouthfeel."
+  },
+  {
+   "id": "S005",
+   "name": "Light-Body White",
+   "category": "STYLES",
+   "livery": {
+    "solid": "#b74d2a",
+    "deep": "#75341f"
+   },
+   "art": "/art/style/lightbodywhite.png",
+   "artKind": "sprite",
+   "blurb": "Crisp, refreshing whites with high acidity and clean, mineral-driven flavors."
+  },
+  {
+   "id": "S006",
+   "name": "Aromatic White",
+   "category": "STYLES",
+   "livery": {
+    "solid": "#b74d2a",
+    "deep": "#75341f"
+   },
+   "art": "/art/style/aromaticwhite.png",
+   "artKind": "sprite",
+   "blurb": "Intensely fragrant white wines with floral, fruity, and spicy aromas that leap from the glass."
+  },
+  {
+   "id": "S007",
+   "name": "Rosé",
+   "category": "STYLES",
+   "livery": {
+    "solid": "#b74d2a",
+    "deep": "#75341f"
+   },
+   "art": "/art/style/rose.png",
+   "artKind": "sprite",
+   "blurb": "Refreshing pink wines made from red grapes with minimal skin contact."
+  },
+  {
+   "id": "S008",
+   "name": "Sparkling Wine",
+   "category": "STYLES",
+   "livery": {
+    "solid": "#b74d2a",
+    "deep": "#75341f"
+   },
+   "art": "/art/style/sparklingwine.png",
+   "artKind": "sprite",
+   "blurb": "Effervescent wines with elegant bubbles created through secondary fermentation."
+  },
+  {
+   "id": "S009",
+   "name": "Champagne",
+   "category": "STYLES",
+   "livery": {
+    "solid": "#b74d2a",
+    "deep": "#75341f"
+   },
+   "art": "/art/style/champagne.png",
+   "artKind": "sprite",
+   "blurb": "The original and most prestigious sparkling wine, made only in the Champagne region of France."
+  },
+  {
+   "id": "S010",
+   "name": "Dessert Wine",
+   "category": "STYLES",
+   "livery": {
+    "solid": "#b74d2a",
+    "deep": "#75341f"
+   },
+   "art": "/art/style/dessertwine.png",
+   "artKind": "sprite",
+   "blurb": "Lusciously sweet wines crafted from super-ripe or dried grapes, perfect for ending a meal."
+  },
+  {
+   "id": "S011",
+   "name": "Fortified Wine",
+   "category": "STYLES",
+   "livery": {
+    "solid": "#b74d2a",
+    "deep": "#75341f"
+   },
+   "art": "/art/style/fortifiedwine.png",
+   "artKind": "sprite",
+   "blurb": "Wines strengthened with grape spirit to increase alcohol and preserve sweetness."
+  },
+  {
+   "id": "S012",
+   "name": "Port",
+   "category": "STYLES",
+   "livery": {
+    "solid": "#b74d2a",
+    "deep": "#75341f"
+   },
+   "art": "/art/style/port.png",
+   "artKind": "sprite",
+   "blurb": "Portugal's famous sweet fortified wine from the Douro Valley, made by adding brandy during fermentation."
+  },
+  {
+   "id": "S013",
+   "name": "Sherry",
+   "category": "STYLES",
+   "livery": {
+    "solid": "#b74d2a",
+    "deep": "#75341f"
+   },
+   "art": "/art/style/sherry.png",
+   "artKind": "sprite",
+   "blurb": "Spain's unique fortified wine from Jerez, aged in a solera system to create complex oxidative or biological styles."
+  },
+  {
+   "id": "S014",
+   "name": "Natural Wine",
+   "category": "STYLES",
+   "livery": {
+    "solid": "#b74d2a",
+    "deep": "#75341f"
+   },
+   "art": "/art/style/naturalwine.png",
+   "artKind": "sprite",
+   "blurb": "Low-intervention wines made with minimal additives and often without filtration."
+  },
+  {
+   "id": "S015",
+   "name": "Orange Wine",
+   "category": "STYLES",
+   "livery": {
+    "solid": "#b74d2a",
+    "deep": "#75341f"
+   },
+   "art": "/art/style/orangewine.png",
+   "artKind": "sprite",
+   "blurb": "White grapes vinified like red wine, with extended skin contact creating amber color and tannic structure."
+  },
+  {
+   "id": "S016",
+   "name": "Pétillant Naturel",
+   "category": "STYLES",
+   "livery": {
+    "solid": "#b74d2a",
+    "deep": "#75341f"
+   },
+   "art": "/art/style/petnat.png",
+   "artKind": "sprite",
+   "blurb": "Naturally sparkling wines made using the ancestral method, bottled before primary fermentation completes."
+  },
+  {
+   "id": "S017",
+   "name": "Late Harvest",
+   "category": "STYLES",
+   "livery": {
+    "solid": "#b74d2a",
+    "deep": "#75341f"
+   },
+   "art": "/art/style/lateharvest.png",
+   "artKind": "sprite",
+   "blurb": "Sweet wines made from grapes left on the vine past normal harvest to concentrate sugar."
+  },
+  {
+   "id": "S018",
+   "name": "Ice Wine",
+   "category": "STYLES",
+   "livery": {
+    "solid": "#b74d2a",
+    "deep": "#75341f"
+   },
+   "art": "/art/style/icewine.png",
+   "artKind": "sprite",
+   "blurb": "Ultra-sweet wines made from grapes naturally frozen on the vine, concentrating sugars and acids."
+  },
+  {
+   "id": "S019",
+   "name": "Botrytis Wine",
+   "category": "STYLES",
+   "livery": {
+    "solid": "#b74d2a",
+    "deep": "#75341f"
+   },
+   "art": "/art/style/botrytiswine.png",
+   "artKind": "sprite",
+   "blurb": "Noble rot sweet wines where Botrytis cinerea fungus concentrates grape sugars while adding honeyed complexity."
+  },
+  {
+   "id": "S020",
+   "name": "GSM Blend",
+   "category": "STYLES",
+   "livery": {
+    "solid": "#b74d2a",
+    "deep": "#75341f"
+   },
+   "art": "/art/button/styles.png",
+   "artKind": "menu",
+   "blurb": "Classic Rhône-style blend of Grenache, Syrah, and Mourvèdre creating complex, balanced reds."
+  },
+  {
+   "id": "S021",
+   "name": "Bordeaux Blend",
+   "category": "STYLES",
+   "livery": {
+    "solid": "#b74d2a",
+    "deep": "#75341f"
+   },
+   "art": "/art/style/bordeauxblend.png",
+   "artKind": "sprite",
+   "blurb": "Classic blend dominated by Cabernet Sauvignon and Merlot with supporting varieties."
+  },
+  {
+   "id": "S022",
+   "name": "Super Tuscan",
+   "category": "STYLES",
+   "livery": {
+    "solid": "#b74d2a",
+    "deep": "#75341f"
+   },
+   "art": "/art/style/supertuscan.png",
+   "artKind": "sprite",
+   "blurb": "Non-traditional Italian wines that broke from DOC rules by blending international varieties with local grapes."
+  },
+  {
+   "id": "S023",
+   "name": "Cru Beaujolais",
+   "category": "STYLES",
+   "livery": {
+    "solid": "#b74d2a",
+    "deep": "#75341f"
+   },
+   "art": "/art/style/crubeaujolas.png",
+   "artKind": "sprite",
+   "blurb": "Age-worthy Gamay from the ten named villages of Beaujolais, offering serious wines beyond simple Nouveau."
+  },
+  {
+   "id": "S024",
+   "name": "Crémant",
+   "category": "STYLES",
+   "livery": {
+    "solid": "#b74d2a",
+    "deep": "#75341f"
+   },
+   "art": "/art/style/cremant.png",
+   "artKind": "sprite",
+   "blurb": "French sparkling wines made in the traditional method outside Champagne, offering excellent value."
+  },
+  {
+   "id": "S025",
+   "name": "Prosecco",
+   "category": "STYLES",
+   "livery": {
+    "solid": "#b74d2a",
+    "deep": "#75341f"
+   },
+   "art": "/art/style/prosecco.png",
+   "artKind": "sprite",
+   "blurb": "Italy's most popular sparkling wine, made from Glera grapes using the tank method."
+  },
+  {
+   "id": "S026",
+   "name": "Qvevri Amber",
+   "category": "STYLES",
+   "livery": {
+    "solid": "#b74d2a",
+    "deep": "#75341f"
+   },
+   "art": "/art/style/qvevriamber.png",
+   "artKind": "sprite",
+   "blurb": "Skin-contact whites fermented in buried clay qvevri, yielding tea-like tannin, dried orchard fruit, and honeyed spice."
+  },
+  {
+   "id": "S027",
+   "name": "Chillable Red",
+   "category": "STYLES",
+   "livery": {
+    "solid": "#b74d2a",
+    "deep": "#75341f"
+   },
+   "art": "/art/style/chillablered.png",
+   "artKind": "sprite",
+   "blurb": "Light, low-tannin reds built for a chill, bursting with red fruit and peppery zest for warm-weather sipping."
+  },
+  {
+   "id": "S028",
+   "name": "Sparkling Red",
+   "category": "STYLES",
+   "livery": {
+    "solid": "#b74d2a",
+    "deep": "#75341f"
+   },
+   "art": "/art/style/sparklingred.png",
+   "artKind": "sprite",
+   "blurb": "Fizz meets dark fruit: from Lambrusco to sparkling Shiraz, these wines marry bubbles with berry-rich, savory depth."
+  },
+  {
+   "id": "S029",
+   "name": "Noble Grapes",
+   "category": "STYLES",
+   "livery": {
+    "solid": "#b74d2a",
+    "deep": "#75341f"
+   },
+   "art": "/art/style/noblegrape.png",
+   "artKind": "sprite",
+   "blurb": "A curated grouping of the NOBLE-tier varieties whose pedigree, structure, and complexity define the most prestigious styles."
+  },
+  {
+   "id": "S030",
+   "name": "Medium-Body White",
+   "category": "STYLES",
+   "livery": {
+    "solid": "#b74d2a",
+    "deep": "#75341f"
+   },
+   "art": "/art/style/mediumbodywhite.png",
+   "artKind": "sprite",
+   "blurb": "White wines with real texture but no oak heaviness, sitting between crisp aperitif and full-blown richness."
+  },
+  {
+   "id": "S032",
+   "name": "Sweet White",
+   "category": "STYLES",
+   "livery": {
+    "solid": "#b74d2a",
+    "deep": "#75341f"
+   },
+   "art": "/art/style/sweetwhite.png",
+   "artKind": "sprite",
+   "blurb": "Unabashedly sweet whites, from gently fizzy Moscato to syrup-dark Pedro Ximénez and frozen-vine Vidal icewine."
+  },
+  {
+   "id": "S033",
+   "name": "Madeira",
+   "category": "STYLES",
+   "livery": {
+    "solid": "#b74d2a",
+    "deep": "#75341f"
+   },
+   "art": "/art/button/styles.png",
+   "artKind": "menu",
+   "blurb": "Fortified wine from the Atlantic island, deliberately heated and oxidised until it is virtually indestructible - an opened bottle keeps for"
+  },
+  {
+   "id": "S034",
+   "name": "Cava",
+   "category": "STYLES",
+   "livery": {
+    "solid": "#b74d2a",
+    "deep": "#75341f"
+   },
+   "art": "/art/button/styles.png",
+   "artKind": "menu",
+   "blurb": "Spain's traditional-method sparkling wine, its second fermentation in the bottle and its heartland Penedès, built from the Catalan trio of M"
+  },
+  {
+   "id": "FLAVOR-BLACKCURRANT",
+   "name": "Blackcurrant",
+   "category": "FLAVORS",
+   "livery": {
+    "solid": "#287559",
+    "deep": "#194c3c"
+   },
+   "art": "/art/flavor/blackcurrant.png",
+   "artKind": "sprite",
+   "blurb": "Blackcurrant is a berry note in the sweet family."
+  },
+  {
+   "id": "FLAVOR-CEDAR",
+   "name": "Cedar",
+   "category": "FLAVORS",
+   "livery": {
+    "solid": "#287559",
+    "deep": "#194c3c"
+   },
+   "art": "/art/flavor/cedar.png",
+   "artKind": "sprite",
+   "blurb": "Cedar is a wood note in the umami family."
+  },
+  {
+   "id": "FLAVOR-SPICE",
+   "name": "Spice",
+   "category": "FLAVORS",
+   "livery": {
+    "solid": "#287559",
+    "deep": "#194c3c"
+   },
+   "art": "/art/flavor/peppercorn.png",
+   "artKind": "sprite",
+   "blurb": "Spice is a bitter note."
+  },
+  {
+   "id": "FLAVOR-CHERRY",
+   "name": "Cherry",
+   "category": "FLAVORS",
+   "livery": {
+    "solid": "#287559",
+    "deep": "#194c3c"
+   },
+   "art": "/art/flavor/cherry.png",
+   "artKind": "sprite",
+   "blurb": "Cherry is a red fruit note in the sweet family."
+  },
+  {
+   "id": "FLAVOR-EARTH",
+   "name": "Earth",
+   "category": "FLAVORS",
+   "livery": {
+    "solid": "#287559",
+    "deep": "#194c3c"
+   },
+   "art": "/art/flavor/earth.png",
+   "artKind": "sprite",
+   "blurb": "Earth is an umami note."
+  },
+  {
+   "id": "FLAVOR-FLORAL",
+   "name": "Floral",
+   "category": "FLAVORS",
+   "livery": {
+    "solid": "#287559",
+    "deep": "#194c3c"
+   },
+   "art": "/art/flavor/whiteblossom.png",
+   "artKind": "sprite",
+   "blurb": "Floral is an umami note."
+  },
+  {
+   "id": "FLAVOR-RED-APPLE",
+   "name": "Red Apple",
+   "category": "FLAVORS",
+   "livery": {
+    "solid": "#287559",
+    "deep": "#194c3c"
+   },
+   "art": "/art/flavor/red-apple.png",
+   "artKind": "sprite",
+   "blurb": "Red Apple is an orchard fruit note in the sweet family."
+  },
+  {
+   "id": "FLAVOR-BUTTER",
+   "name": "Butter",
+   "category": "FLAVORS",
+   "livery": {
+    "solid": "#287559",
+    "deep": "#194c3c"
+   },
+   "art": "/art/flavor/butter.png",
+   "artKind": "sprite",
+   "blurb": "Butter is a baking note in the sweet family."
+  },
+  {
+   "id": "FLAVOR-VANILLA",
+   "name": "Vanilla",
+   "category": "FLAVORS",
+   "livery": {
+    "solid": "#287559",
+    "deep": "#194c3c"
+   },
+   "art": "/art/flavor/vanilla.png",
+   "artKind": "sprite",
+   "blurb": "Vanilla is a baking note in the sweet family."
+  },
+  {
+   "id": "FLAVOR-PLUM",
+   "name": "Plum",
+   "category": "FLAVORS",
+   "livery": {
+    "solid": "#287559",
+    "deep": "#194c3c"
+   },
+   "art": "/art/flavor/plum.png",
+   "artKind": "sprite",
+   "blurb": "Plum is a dark fruit note in the sweet family."
+  },
+  {
+   "id": "FLAVOR-CHOCOLATE",
+   "name": "Chocolate",
+   "category": "FLAVORS",
+   "livery": {
+    "solid": "#287559",
+    "deep": "#194c3c"
+   },
+   "art": "/art/flavor/chocolate2.png",
+   "artKind": "sprite",
+   "blurb": "Chocolate is a baking note in the sweet family."
+  },
+  {
+   "id": "FLAVOR-HERBS",
+   "name": "Herbs",
+   "category": "FLAVORS",
+   "livery": {
+    "solid": "#287559",
+    "deep": "#194c3c"
+   },
+   "art": "/art/flavor/driedherbs.png",
+   "artKind": "sprite",
+   "blurb": "Herbs is a herbal note in the umami family."
+  },
+  {
+   "id": "FLAVOR-BLACKBERRY",
+   "name": "Blackberry",
+   "category": "FLAVORS",
+   "livery": {
+    "solid": "#287559",
+    "deep": "#194c3c"
+   },
+   "art": "/art/flavor/blackberry.png",
+   "artKind": "sprite",
+   "blurb": "Blackberry is a berry note in the sweet family."
+  },
+  {
+   "id": "FLAVOR-PEPPER",
+   "name": "Pepper",
+   "category": "FLAVORS",
+   "livery": {
+    "solid": "#287559",
+    "deep": "#194c3c"
+   },
+   "art": "/art/flavor/peppercorn.png",
+   "artKind": "sprite",
+   "blurb": "Pepper is a spice note in the bitter family."
+  },
+  {
+   "id": "FLAVOR-SMOKE",
+   "name": "Smoke",
+   "category": "FLAVORS",
+   "livery": {
+    "solid": "#287559",
+    "deep": "#194c3c"
+   },
+   "art": "/art/flavor/smoke.png",
+   "artKind": "sprite",
+   "blurb": "Smoke is a smoky note in the bitter family."
+  },
+  {
+   "id": "FLAVOR-LIME",
+   "name": "Lime",
+   "category": "FLAVORS",
+   "livery": {
+    "solid": "#287559",
+    "deep": "#194c3c"
+   },
+   "art": "/art/flavor/lime.png",
+   "artKind": "sprite",
+   "blurb": "Lime is a citrus note in the sour family."
+  },
+  {
+   "id": "FLAVOR-GOOSEBERRY",
+   "name": "Gooseberry",
+   "category": "FLAVORS",
+   "livery": {
+    "solid": "#287559",
+    "deep": "#194c3c"
+   },
+   "art": "/art/flavor/gooseberry.png",
+   "artKind": "sprite",
+   "blurb": "Gooseberry is a berry note in the sweet family."
+  },
+  {
+   "id": "FLAVOR-GRASS",
+   "name": "Grass",
+   "category": "FLAVORS",
+   "livery": {
+    "solid": "#287559",
+    "deep": "#194c3c"
+   },
+   "art": "/art/flavor/grass.png",
+   "artKind": "sprite",
+   "blurb": "Grass is a herbal note in the umami family."
+  },
+  {
+   "id": "FLAVOR-PEACH",
+   "name": "Peach",
+   "category": "FLAVORS",
+   "livery": {
+    "solid": "#287559",
+    "deep": "#194c3c"
+   },
+   "art": "/art/flavor/peach.png",
+   "artKind": "sprite",
+   "blurb": "Peach is a stone fruit note in the sweet family."
+  },
+  {
+   "id": "FLAVOR-PETROL",
+   "name": "Petrol",
+   "category": "FLAVORS",
+   "livery": {
+    "solid": "#287559",
+    "deep": "#194c3c"
+   },
+   "art": "/art/flavor/petrol.png",
+   "artKind": "sprite",
+   "blurb": "Petrol is an earth note in the umami family."
+  },
+  {
+   "id": "FLAVOR-ROSE",
+   "name": "Rose",
+   "category": "FLAVORS",
+   "livery": {
+    "solid": "#287559",
+    "deep": "#194c3c"
+   },
+   "art": "/art/flavor/redrose.png",
+   "artKind": "sprite",
+   "blurb": "Rose is a floral note in the umami family."
+  },
+  {
+   "id": "FLAVOR-TAR",
+   "name": "Tar",
+   "category": "FLAVORS",
+   "livery": {
+    "solid": "#287559",
+    "deep": "#194c3c"
+   },
+   "art": "/art/flavor/tar.png",
+   "artKind": "sprite",
+   "blurb": "Tar is an earth note in the umami family."
+  },
+  {
+   "id": "FLAVOR-TOMATO",
+   "name": "Tomato",
+   "category": "FLAVORS",
+   "livery": {
+    "solid": "#287559",
+    "deep": "#194c3c"
+   },
+   "art": "/art/flavor/tomato.png",
+   "artKind": "sprite",
+   "blurb": "Tomato is a vegetal note in the umami family."
+  },
+  {
+   "id": "FLAVOR-ESPRESSO",
+   "name": "Espresso",
+   "category": "FLAVORS",
+   "livery": {
+    "solid": "#287559",
+    "deep": "#194c3c"
+   },
+   "art": "/art/flavor/coffee.png",
+   "artKind": "sprite",
+   "blurb": "Espresso is a baking note in the sweet family."
+  },
+  {
+   "id": "FLAVOR-STRAWBERRY",
+   "name": "Strawberry",
+   "category": "FLAVORS",
+   "livery": {
+    "solid": "#287559",
+    "deep": "#194c3c"
+   },
+   "art": "/art/flavor/strawberry.png",
+   "artKind": "sprite",
+   "blurb": "Strawberry is a berry note in the sweet family."
+  },
+  {
+   "id": "FLAVOR-RASPBERRY",
+   "name": "Raspberry",
+   "category": "FLAVORS",
+   "livery": {
+    "solid": "#287559",
+    "deep": "#194c3c"
+   },
+   "art": "/art/flavor/raspberry.png",
+   "artKind": "sprite",
+   "blurb": "Raspberry is a berry note in the sweet family."
+  },
+  {
+   "id": "FLAVOR-FIG",
+   "name": "Fig",
+   "category": "FLAVORS",
+   "livery": {
+    "solid": "#287559",
+    "deep": "#194c3c"
+   },
+   "art": "/art/flavor/fig.png",
+   "artKind": "sprite",
+   "blurb": "Fig is a dark fruit note in the sweet family."
+  },
+  {
+   "id": "FLAVOR-TOBACCO",
+   "name": "Tobacco",
+   "category": "FLAVORS",
+   "livery": {
+    "solid": "#287559",
+    "deep": "#194c3c"
+   },
+   "art": "/art/flavor/tobaccoleaf.png",
+   "artKind": "sprite",
+   "blurb": "Tobacco is a spice note in the bitter family."
+  },
+  {
+   "id": "FLAVOR-DILL",
+   "name": "Dill",
+   "category": "FLAVORS",
+   "livery": {
+    "solid": "#287559",
+    "deep": "#194c3c"
+   },
+   "art": "/art/flavor/dill.png",
+   "artKind": "sprite",
+   "blurb": "Dill is a herbal note in the umami family."
+  },
+  {
+   "id": "FLAVOR-BLUEBERRY",
+   "name": "Blueberry",
+   "category": "FLAVORS",
+   "livery": {
+    "solid": "#287559",
+    "deep": "#194c3c"
+   },
+   "art": "/art/flavor/blueberry.png",
+   "artKind": "sprite",
+   "blurb": "Blueberry is a berry note in the sweet family."
+  },
+  {
+   "id": "FLAVOR-COCOA",
+   "name": "Cocoa",
+   "category": "FLAVORS",
+   "livery": {
+    "solid": "#287559",
+    "deep": "#194c3c"
+   },
+   "art": "/art/flavor/cocoa.png",
+   "artKind": "sprite",
+   "blurb": "Cocoa is a baking note in the sweet family."
+  },
+  {
+   "id": "FLAVOR-BELL-PEPPER",
+   "name": "Bell Pepper",
+   "category": "FLAVORS",
+   "livery": {
+    "solid": "#287559",
+    "deep": "#194c3c"
+   },
+   "art": "/art/flavor/greenbellpepper.png",
+   "artKind": "sprite",
+   "blurb": "Bell Pepper is a vegetal note in the umami family."
+  },
+  {
+   "id": "FLAVOR-GRAPHITE",
+   "name": "Graphite",
+   "category": "FLAVORS",
+   "livery": {
+    "solid": "#287559",
+    "deep": "#194c3c"
+   },
+   "art": "/art/flavor/graphite.png",
+   "artKind": "sprite",
+   "blurb": "Graphite is an earth note in the umami family."
+  },
+  {
+   "id": "FLAVOR-QUINCE",
+   "name": "Quince",
+   "category": "FLAVORS",
+   "livery": {
+    "solid": "#287559",
+    "deep": "#194c3c"
+   },
+   "art": "/art/flavor/quince.png",
+   "artKind": "sprite",
+   "blurb": "Quince is an orchard fruit note in the sweet family."
+  },
+  {
+   "id": "FLAVOR-HONEY",
+   "name": "Honey",
+   "category": "FLAVORS",
+   "livery": {
+    "solid": "#287559",
+    "deep": "#194c3c"
+   },
+   "art": "/art/flavor/honey.png",
+   "artKind": "sprite",
+   "blurb": "Honey is a wax note in the umami family."
+  },
+  {
+   "id": "FLAVOR-CHAMOMILE",
+   "name": "Chamomile",
+   "category": "FLAVORS",
+   "livery": {
+    "solid": "#287559",
+    "deep": "#194c3c"
+   },
+   "art": "/art/flavor/chamomile.png",
+   "artKind": "sprite",
+   "blurb": "Chamomile is a floral note in the umami family."
+  },
+  {
+   "id": "FLAVOR-TANGERINE",
+   "name": "Tangerine",
+   "category": "FLAVORS",
+   "livery": {
+    "solid": "#287559",
+    "deep": "#194c3c"
+   },
+   "art": "/art/flavor/orange.png",
+   "artKind": "sprite",
+   "blurb": "Tangerine is a citrus note in the sour family."
+  },
+  {
+   "id": "FLAVOR-HONEYSUCKLE",
+   "name": "Honeysuckle",
+   "category": "FLAVORS",
+   "livery": {
+    "solid": "#287559",
+    "deep": "#194c3c"
+   },
+   "art": "/art/flavor/honeysuckle.png",
+   "artKind": "sprite",
+   "blurb": "Honeysuckle is a floral note in the umami family."
+  },
+  {
+   "id": "FLAVOR-MANGO",
+   "name": "Mango",
+   "category": "FLAVORS",
+   "livery": {
+    "solid": "#287559",
+    "deep": "#194c3c"
+   },
+   "art": "/art/flavor/mango.png",
+   "artKind": "sprite",
+   "blurb": "Mango is a tropical note in the sweet family."
+  },
+  {
+   "id": "FLAVOR-POMEGRANATE",
+   "name": "Pomegranate",
+   "category": "FLAVORS",
+   "livery": {
+    "solid": "#287559",
+    "deep": "#194c3c"
+   },
+   "art": "/art/flavor/pomegranate.png",
+   "artKind": "sprite",
+   "blurb": "Pomegranate is a red fruit note in the sweet family."
+  },
+  {
+   "id": "FLAVOR-BANANA",
+   "name": "Banana",
+   "category": "FLAVORS",
+   "livery": {
+    "solid": "#287559",
+    "deep": "#194c3c"
+   },
+   "art": "/art/flavor/banana.png",
+   "artKind": "sprite",
+   "blurb": "Banana is a tropical note in the sweet family."
+  },
+  {
+   "id": "FLAVOR-JAMMY-BERRY",
+   "name": "Jammy Berry",
+   "category": "FLAVORS",
+   "livery": {
+    "solid": "#287559",
+    "deep": "#194c3c"
+   },
+   "art": "/art/flavor/jammyberry.png",
+   "artKind": "sprite",
+   "blurb": "Jammy Berry is a berry note in the sweet family."
+  },
+  {
+   "id": "FLAVOR-CINNAMON",
+   "name": "Cinnamon",
+   "category": "FLAVORS",
+   "livery": {
+    "solid": "#287559",
+    "deep": "#194c3c"
+   },
+   "art": "/art/flavor/cinnamon.png",
+   "artKind": "sprite",
+   "blurb": "Cinnamon is a spice note in the bitter family."
+  },
+  {
+   "id": "FLAVOR-LEMON-CURD",
+   "name": "Lemon Curd",
+   "category": "FLAVORS",
+   "livery": {
+    "solid": "#287559",
+    "deep": "#194c3c"
+   },
+   "art": "/art/flavor/lemoncurd.png",
+   "artKind": "sprite",
+   "blurb": "Lemon Curd is a citrus note in the sour family."
+  },
+  {
+   "id": "FLAVOR-BEESWAX",
+   "name": "Beeswax",
+   "category": "FLAVORS",
+   "livery": {
+    "solid": "#287559",
+    "deep": "#194c3c"
+   },
+   "art": "/art/flavor/beeswax.png",
+   "artKind": "sprite",
+   "blurb": "Beeswax is a wax note in the umami family."
+  },
+  {
+   "id": "FLAVOR-LANOLIN",
+   "name": "Lanolin",
+   "category": "FLAVORS",
+   "livery": {
+    "solid": "#287559",
+    "deep": "#194c3c"
+   },
+   "art": "/art/flavor/lanolin.png",
+   "artKind": "sprite",
+   "blurb": "Lanolin is a wax note in the umami family."
+  },
+  {
+   "id": "FLAVOR-BLACK-FRUIT",
+   "name": "Black Fruit",
+   "category": "FLAVORS",
+   "livery": {
+    "solid": "#287559",
+    "deep": "#194c3c"
+   },
+   "art": "/art/flavor/blackberry.png",
+   "artKind": "sprite",
+   "blurb": "Black Fruit is a berry note in the sweet family."
+  },
+  {
+   "id": "FLAVOR-GAME",
+   "name": "Game",
+   "category": "FLAVORS",
+   "livery": {
+    "solid": "#287559",
+    "deep": "#194c3c"
+   },
+   "art": "/art/flavor/game.png",
+   "artKind": "sprite",
+   "blurb": "Game is an umami note."
+  },
+  {
+   "id": "FLAVOR-SOUR-CHERRY",
+   "name": "Sour Cherry",
+   "category": "FLAVORS",
+   "livery": {
+    "solid": "#287559",
+    "deep": "#194c3c"
+   },
+   "art": "/art/flavor/sour-cherry.png",
+   "artKind": "sprite",
+   "blurb": "Sour Cherry is a red fruit note in the sweet family."
+  },
+  {
+   "id": "FLAVOR-LICORICE",
+   "name": "Licorice",
+   "category": "FLAVORS",
+   "livery": {
+    "solid": "#287559",
+    "deep": "#194c3c"
+   },
+   "art": "/art/flavor/licorice.png",
+   "artKind": "sprite",
+   "blurb": "Licorice is a spice note in the bitter family."
+  },
+  {
+   "id": "FLAVOR-LEMON",
+   "name": "Lemon",
+   "category": "FLAVORS",
+   "livery": {
+    "solid": "#287559",
+    "deep": "#194c3c"
+   },
+   "art": "/art/flavor/lemon.png",
+   "artKind": "sprite",
+   "blurb": "Lemon is a citrus note in the sour family."
+  },
+  {
+   "id": "FLAVOR-MINERAL",
+   "name": "Mineral",
+   "category": "FLAVORS",
+   "livery": {
+    "solid": "#287559",
+    "deep": "#194c3c"
+   },
+   "art": "/art/flavor/mineral.png",
+   "artKind": "sprite",
+   "blurb": "Mineral is an earth note in the umami family."
+  },
+  {
+   "id": "FLAVOR-VIOLET",
+   "name": "Violet",
+   "category": "FLAVORS",
+   "livery": {
+    "solid": "#287559",
+    "deep": "#194c3c"
+   },
+   "art": "/art/flavor/violet.png",
+   "artKind": "sprite",
+   "blurb": "Violet is a floral note in the umami family."
+  },
+  {
+   "id": "FLAVOR-LILAC",
+   "name": "Lilac",
+   "category": "FLAVORS",
+   "livery": {
+    "solid": "#287559",
+    "deep": "#194c3c"
+   },
+   "art": "/art/flavor/lilac.png",
+   "artKind": "sprite",
+   "blurb": "Lilac is a floral note in the umami family."
+  },
+  {
+   "id": "FLAVOR-SAGE",
+   "name": "Sage",
+   "category": "FLAVORS",
+   "livery": {
+    "solid": "#287559",
+    "deep": "#194c3c"
+   },
+   "art": "/art/flavor/sage.png",
+   "artKind": "sprite",
+   "blurb": "Sage is a herbal note in the umami family."
+  },
+  {
+   "id": "FLAVOR-GREEN-PEPPER",
+   "name": "Green Pepper",
+   "category": "FLAVORS",
+   "livery": {
+    "solid": "#287559",
+    "deep": "#194c3c"
+   },
+   "art": "/art/flavor/greenbellpepper.png",
+   "artKind": "sprite",
+   "blurb": "Green Pepper is a vegetal note in the umami family."
+  },
+  {
+   "id": "FLAVOR-LYCHEE",
+   "name": "Lychee",
+   "category": "FLAVORS",
+   "livery": {
+    "solid": "#287559",
+    "deep": "#194c3c"
+   },
+   "art": "/art/flavor/lychee.png",
+   "artKind": "sprite",
+   "blurb": "Lychee is a tropical note in the sweet family."
+  },
+  {
+   "id": "FLAVOR-LEMON-ZEST",
+   "name": "Lemon Zest",
+   "category": "FLAVORS",
+   "livery": {
+    "solid": "#287559",
+    "deep": "#194c3c"
+   },
+   "art": "/art/flavor/lemonzest.png",
+   "artKind": "sprite",
+   "blurb": "Lemon Zest is a citrus note in the sour family."
+  },
+  {
+   "id": "FLAVOR-ORANGE-BLOSSOM",
+   "name": "Orange Blossom",
+   "category": "FLAVORS",
+   "livery": {
+    "solid": "#287559",
+    "deep": "#194c3c"
+   },
+   "art": "/art/flavor/orange-blossom.png",
+   "artKind": "sprite",
+   "blurb": "Orange Blossom is a citrus note in the sour family."
+  },
+  {
+   "id": "FLAVOR-PEAR",
+   "name": "Pear",
+   "category": "FLAVORS",
+   "livery": {
+    "solid": "#287559",
+    "deep": "#194c3c"
+   },
+   "art": "/art/flavor/pear.png",
+   "artKind": "sprite",
+   "blurb": "Pear is an orchard fruit note in the sweet family."
+  },
+  {
+   "id": "FLAVOR-GINGER",
+   "name": "Ginger",
+   "category": "FLAVORS",
+   "livery": {
+    "solid": "#287559",
+    "deep": "#194c3c"
+   },
+   "art": "/art/flavor/ginger.png",
+   "artKind": "sprite",
+   "blurb": "Ginger is a spice note in the bitter family."
+  },
+  {
+   "id": "FLAVOR-APRICOT",
+   "name": "Apricot",
+   "category": "FLAVORS",
+   "livery": {
+    "solid": "#287559",
+    "deep": "#194c3c"
+   },
+   "art": "/art/flavor/apricot.png",
+   "artKind": "sprite",
+   "blurb": "Apricot is a stone fruit note in the sweet family."
+  },
+  {
+   "id": "FLAVOR-SEA-SALT",
+   "name": "Sea Salt",
+   "category": "FLAVORS",
+   "livery": {
+    "solid": "#287559",
+    "deep": "#194c3c"
+   },
+   "art": "/art/flavor/seasalt.png",
+   "artKind": "sprite",
+   "blurb": "Sea Salt is a salty note."
+  },
+  {
+   "id": "FLAVOR-GRAPEFRUIT",
+   "name": "Grapefruit",
+   "category": "FLAVORS",
+   "livery": {
+    "solid": "#287559",
+    "deep": "#194c3c"
+   },
+   "art": "/art/flavor/grapefruit.png",
+   "artKind": "sprite",
+   "blurb": "Grapefruit is a citrus note in the sour family."
+  },
+  {
+   "id": "FLAVOR-GREEN-PEA",
+   "name": "Green Pea",
+   "category": "FLAVORS",
+   "livery": {
+    "solid": "#287559",
+    "deep": "#194c3c"
+   },
+   "art": "/art/flavor/greenpea.png",
+   "artKind": "sprite",
+   "blurb": "Green Pea is a vegetal note in the umami family."
+  },
+  {
+   "id": "FLAVOR-WHITE-PEPPER",
+   "name": "White Pepper",
+   "category": "FLAVORS",
+   "livery": {
+    "solid": "#287559",
+    "deep": "#194c3c"
+   },
+   "art": "/art/flavor/whitepepper.png",
+   "artKind": "sprite",
+   "blurb": "White Pepper is a spice note in the bitter family."
+  },
+  {
+   "id": "FLAVOR-ALMOND",
+   "name": "Almond",
+   "category": "FLAVORS",
+   "livery": {
+    "solid": "#287559",
+    "deep": "#194c3c"
+   },
+   "art": "/art/flavor/almond.png",
+   "artKind": "sprite",
+   "blurb": "Almond is a nut note in the umami family."
+  },
+  {
+   "id": "FLAVOR-FENNEL",
+   "name": "Fennel",
+   "category": "FLAVORS",
+   "livery": {
+    "solid": "#287559",
+    "deep": "#194c3c"
+   },
+   "art": "/art/flavor/fennel.png",
+   "artKind": "sprite",
+   "blurb": "Fennel is a herbal note in the umami family."
+  },
+  {
+   "id": "FLAVOR-HERBAL-TEA",
+   "name": "Herbal Tea",
+   "category": "FLAVORS",
+   "livery": {
+    "solid": "#287559",
+    "deep": "#194c3c"
+   },
+   "art": "/art/flavor/tealeaf.png",
+   "artKind": "sprite",
+   "blurb": "Herbal Tea is a herbal note in the umami family."
+  },
+  {
+   "id": "FLAVOR-MARZIPAN",
+   "name": "Marzipan",
+   "category": "FLAVORS",
+   "livery": {
+    "solid": "#287559",
+    "deep": "#194c3c"
+   },
+   "art": "/art/flavor/marzipan.png",
+   "artKind": "sprite",
+   "blurb": "Marzipan is a nut note in the umami family."
+  },
+  {
+   "id": "FLAVOR-GREEN-APPLE",
+   "name": "Green Apple",
+   "category": "FLAVORS",
+   "livery": {
+    "solid": "#287559",
+    "deep": "#194c3c"
+   },
+   "art": "/art/flavor/green-apple.png",
+   "artKind": "sprite",
+   "blurb": "Green Apple is an orchard fruit note in the sweet family."
+  },
+  {
+   "id": "FLAVOR-HAZELNUT",
+   "name": "Hazelnut",
+   "category": "FLAVORS",
+   "livery": {
+    "solid": "#287559",
+    "deep": "#194c3c"
+   },
+   "art": "/art/flavor/hazelnut.png",
+   "artKind": "sprite",
+   "blurb": "Hazelnut is a nut note in the umami family."
+  },
+  {
+   "id": "FLAVOR-SALINE",
+   "name": "Saline",
+   "category": "FLAVORS",
+   "livery": {
+    "solid": "#287559",
+    "deep": "#194c3c"
+   },
+   "art": "/art/flavor/saline.png",
+   "artKind": "sprite",
+   "blurb": "Saline is a salty note."
+  },
+  {
+   "id": "FLAVOR-LEATHER",
+   "name": "Leather",
+   "category": "FLAVORS",
+   "livery": {
+    "solid": "#287559",
+    "deep": "#194c3c"
+   },
+   "art": "/art/flavor/leather.png",
+   "artKind": "sprite",
+   "blurb": "Leather is a savory note in the umami family."
+  },
+  {
+   "id": "FLAVOR-BLACK-CHERRY",
+   "name": "Black Cherry",
+   "category": "FLAVORS",
+   "livery": {
+    "solid": "#287559",
+    "deep": "#194c3c"
+   },
+   "art": "/art/flavor/blackcherry.png",
+   "artKind": "sprite",
+   "blurb": "Black Cherry is a red fruit note in the sweet family."
+  },
+  {
+   "id": "FLAVOR-HERB",
+   "name": "Herb",
+   "category": "FLAVORS",
+   "livery": {
+    "solid": "#287559",
+    "deep": "#194c3c"
+   },
+   "art": "/art/flavor/driedherbs.png",
+   "artKind": "sprite",
+   "blurb": "Herb is a herbal note in the umami family."
+  },
+  {
+   "id": "FLAVOR-BLACK-PLUM",
+   "name": "Black Plum",
+   "category": "FLAVORS",
+   "livery": {
+    "solid": "#287559",
+    "deep": "#194c3c"
+   },
+   "art": "/art/flavor/blackplum.png",
+   "artKind": "sprite",
+   "blurb": "Black Plum is a dark fruit note in the sweet family."
+  },
+  {
+   "id": "FLAVOR-GREEN-PEPPERCORN",
+   "name": "Green Peppercorn",
+   "category": "FLAVORS",
+   "livery": {
+    "solid": "#287559",
+    "deep": "#194c3c"
+   },
+   "art": "/art/flavor/greenpeppercorn.png",
+   "artKind": "sprite",
+   "blurb": "Green Peppercorn is a vegetal note in the umami family."
+  },
+  {
+   "id": "FLAVOR-TEA-LEAF",
+   "name": "Tea Leaf",
+   "category": "FLAVORS",
+   "livery": {
+    "solid": "#287559",
+    "deep": "#194c3c"
+   },
+   "art": "/art/flavor/tealeaf.png",
+   "artKind": "sprite",
+   "blurb": "Tea Leaf is a herbal note in the umami family."
+  },
+  {
+   "id": "FLAVOR-YUZU-CITRUS",
+   "name": "Yuzu Citrus",
+   "category": "FLAVORS",
+   "livery": {
+    "solid": "#287559",
+    "deep": "#194c3c"
+   },
+   "art": "/art/flavor/yuzu.png",
+   "artKind": "sprite",
+   "blurb": "Yuzu Citrus is a citrus note in the sour family."
+  },
+  {
+   "id": "FLAVOR-JASMINE",
+   "name": "Jasmine",
+   "category": "FLAVORS",
+   "livery": {
+    "solid": "#287559",
+    "deep": "#194c3c"
+   },
+   "art": "/art/flavor/jasmine.png",
+   "artKind": "sprite",
+   "blurb": "Jasmine is a floral note in the umami family."
+  },
+  {
+   "id": "FLAVOR-STRAWBERRY-CANDY",
+   "name": "Strawberry Candy",
+   "category": "FLAVORS",
+   "livery": {
+    "solid": "#287559",
+    "deep": "#194c3c"
+   },
+   "art": "/art/flavor/strawberrycandy.png",
+   "artKind": "sprite",
+   "blurb": "Strawberry Candy is a berry note in the sweet family."
+  },
+  {
+   "id": "FLAVOR-ROSE-PETAL",
+   "name": "Rose Petal",
+   "category": "FLAVORS",
+   "livery": {
+    "solid": "#287559",
+    "deep": "#194c3c"
+   },
+   "art": "/art/flavor/rosepetal.png",
+   "artKind": "sprite",
+   "blurb": "Rose Petal is a floral note in the umami family."
+  },
+  {
+   "id": "FLAVOR-SMOKY-SPICE",
+   "name": "Smoky Spice",
+   "category": "FLAVORS",
+   "livery": {
+    "solid": "#287559",
+    "deep": "#194c3c"
+   },
+   "art": "/art/flavor/smokyspice.png",
+   "artKind": "sprite",
+   "blurb": "Smoky Spice is a spice note in the bitter family."
+  },
+  {
+   "id": "FLAVOR-WHITE-FLOWER",
+   "name": "White Flower",
+   "category": "FLAVORS",
+   "livery": {
+    "solid": "#287559",
+    "deep": "#194c3c"
+   },
+   "art": "/art/flavor/whiteblossom.png",
+   "artKind": "sprite",
+   "blurb": "White Flower is a floral note in the umami family."
+  },
+  {
+   "id": "FLAVOR-DARK-CHOCOLATE",
+   "name": "Dark Chocolate",
+   "category": "FLAVORS",
+   "livery": {
+    "solid": "#287559",
+    "deep": "#194c3c"
+   },
+   "art": "/art/flavor/chocolate.png",
+   "artKind": "sprite",
+   "blurb": "Dark Chocolate is a baking note in the sweet family."
+  },
+  {
+   "id": "FLAVOR-DRIED-HERBS",
+   "name": "Dried Herbs",
+   "category": "FLAVORS",
+   "livery": {
+    "solid": "#287559",
+    "deep": "#194c3c"
+   },
+   "art": "/art/flavor/driedherbs.png",
+   "artKind": "sprite",
+   "blurb": "Dried Herbs is a herbal note in the umami family."
+  },
+  {
+   "id": "FLAVOR-RED-CHERRY",
+   "name": "Red Cherry",
+   "category": "FLAVORS",
+   "livery": {
+    "solid": "#287559",
+    "deep": "#194c3c"
+   },
+   "art": "/art/flavor/cherry.png",
+   "artKind": "sprite",
+   "blurb": "Red Cherry is a red fruit note in the sweet family."
+  },
+  {
+   "id": "FLAVOR-DRIED-FIG",
+   "name": "Dried Fig",
+   "category": "FLAVORS",
+   "livery": {
+    "solid": "#287559",
+    "deep": "#194c3c"
+   },
+   "art": "/art/flavor/driedfig.png",
+   "artKind": "sprite",
+   "blurb": "Dried Fig is a dark fruit note in the sweet family."
+  },
+  {
+   "id": "FLAVOR-BRIOCHE",
+   "name": "Brioche",
+   "category": "FLAVORS",
+   "livery": {
+    "solid": "#287559",
+    "deep": "#194c3c"
+   },
+   "art": "/art/flavor/brioche.png",
+   "artKind": "sprite",
+   "blurb": "Brioche is a bread note in the sweet family."
+  },
+  {
+   "id": "FLAVOR-BLACK-PEPPER",
+   "name": "Black Pepper",
+   "category": "FLAVORS",
+   "livery": {
+    "solid": "#287559",
+    "deep": "#194c3c"
+   },
+   "art": "/art/flavor/peppercorn.png",
+   "artKind": "sprite",
+   "blurb": "Black Pepper is a spice note in the bitter family."
+  },
+  {
+   "id": "FLAVOR-ALPINE-HERBS",
+   "name": "Alpine Herbs",
+   "category": "FLAVORS",
+   "livery": {
+    "solid": "#287559",
+    "deep": "#194c3c"
+   },
+   "art": "/art/flavor/alpineherbs.png",
+   "artKind": "sprite",
+   "blurb": "Alpine Herbs is a herbal note in the umami family."
+  },
+  {
+   "id": "FLAVOR-CHALK",
+   "name": "Chalk",
+   "category": "FLAVORS",
+   "livery": {
+    "solid": "#287559",
+    "deep": "#194c3c"
+   },
+   "art": "/art/flavor/chalk.png",
+   "artKind": "sprite",
+   "blurb": "Chalk is an earth note in the umami family."
+  },
+  {
+   "id": "FLAVOR-SEA-SPRAY",
+   "name": "Sea Spray",
+   "category": "FLAVORS",
+   "livery": {
+    "solid": "#287559",
+    "deep": "#194c3c"
+   },
+   "art": "/art/flavor/seaspray.png",
+   "artKind": "sprite",
+   "blurb": "Sea Spray is a briny note in the salty family."
+  },
+  {
+   "id": "FLAVOR-TOMATO-LEAF",
+   "name": "Tomato Leaf",
+   "category": "FLAVORS",
+   "livery": {
+    "solid": "#287559",
+    "deep": "#194c3c"
+   },
+   "art": "/art/flavor/tomatoleaf.png",
+   "artKind": "sprite",
+   "blurb": "Tomato Leaf is a vegetal note in the umami family."
+  },
+  {
+   "id": "FLAVOR-OLIVE",
+   "name": "Olive",
+   "category": "FLAVORS",
+   "livery": {
+    "solid": "#287559",
+    "deep": "#194c3c"
+   },
+   "art": "/art/flavor/olive.png",
+   "artKind": "sprite",
+   "blurb": "Olive is a vegetal note in the umami family."
+  },
+  {
+   "id": "FLAVOR-CLOVE",
+   "name": "Clove",
+   "category": "FLAVORS",
+   "livery": {
+    "solid": "#287559",
+    "deep": "#194c3c"
+   },
+   "art": "/art/flavor/clove.png",
+   "artKind": "sprite",
+   "blurb": "Clove is a spice note in the bitter family."
+  },
+  {
+   "id": "FLAVOR-WHITE-PEACH",
+   "name": "White Peach",
+   "category": "FLAVORS",
+   "livery": {
+    "solid": "#287559",
+    "deep": "#194c3c"
+   },
+   "art": "/art/flavor/white-peach.png",
+   "artKind": "sprite",
+   "blurb": "White Peach is a stone fruit note in the sweet family."
+  },
+  {
+   "id": "FLAVOR-SEA-BREEZE",
+   "name": "Sea Breeze",
+   "category": "FLAVORS",
+   "livery": {
+    "solid": "#287559",
+    "deep": "#194c3c"
+   },
+   "art": "/art/flavor/seabreeze.png",
+   "artKind": "sprite",
+   "blurb": "Sea Breeze is a briny note in the salty family."
+  },
+  {
+   "id": "FLAVOR-NUTMEG",
+   "name": "Nutmeg",
+   "category": "FLAVORS",
+   "livery": {
+    "solid": "#287559",
+    "deep": "#194c3c"
+   },
+   "art": "/art/flavor/nutmeg.png",
+   "artKind": "sprite",
+   "blurb": "Nutmeg is a spice note in the bitter family."
+  },
+  {
+   "id": "FLAVOR-WHITE-BLOSSOM",
+   "name": "White Blossom",
+   "category": "FLAVORS",
+   "livery": {
+    "solid": "#287559",
+    "deep": "#194c3c"
+   },
+   "art": "/art/flavor/whiteblossom.png",
+   "artKind": "sprite",
+   "blurb": "White Blossom is a floral note in the umami family."
+  },
+  {
+   "id": "FLAVOR-FRESH-HERBS",
+   "name": "Fresh Herbs",
+   "category": "FLAVORS",
+   "livery": {
+    "solid": "#287559",
+    "deep": "#194c3c"
+   },
+   "art": "/art/flavor/mint.png",
+   "artKind": "sprite",
+   "blurb": "Fresh Herbs is a herbal note in the umami family."
+  },
+  {
+   "id": "FLAVOR-STONE",
+   "name": "Stone",
+   "category": "FLAVORS",
+   "livery": {
+    "solid": "#287559",
+    "deep": "#194c3c"
+   },
+   "art": "/art/flavor/stone.png",
+   "artKind": "sprite",
+   "blurb": "Stone is an earth note in the umami family."
+  },
+  {
+   "id": "FLAVOR-PINEAPPLE",
+   "name": "Pineapple",
+   "category": "FLAVORS",
+   "livery": {
+    "solid": "#287559",
+    "deep": "#194c3c"
+   },
+   "art": "/art/flavor/pineapple.png",
+   "artKind": "sprite",
+   "blurb": "Pineapple is a tropical note in the sweet family."
+  },
+  {
+   "id": "FLAVOR-VOLCANIC-ASH",
+   "name": "Volcanic Ash",
+   "category": "FLAVORS",
+   "livery": {
+    "solid": "#287559",
+    "deep": "#194c3c"
+   },
+   "art": "/art/flavor/volcanicash.png",
+   "artKind": "sprite",
+   "blurb": "Volcanic Ash is a smoky note in the bitter family."
+  },
+  {
+   "id": "FLAVOR-BLACKBERRY-JAM",
+   "name": "Blackberry Jam",
+   "category": "FLAVORS",
+   "livery": {
+    "solid": "#287559",
+    "deep": "#194c3c"
+   },
+   "art": "/art/flavor/blackberry-jam.png",
+   "artKind": "sprite",
+   "blurb": "Blackberry Jam is a berry note in the sweet family."
+  }
+ ]
+}

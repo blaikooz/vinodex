@@ -120,6 +120,23 @@ describe('the site index', () => {
       expect(html).toContain('content="Cabernet Sauvignon — Vinodex"');
       expect(html).toContain('content="A &quot;bold&quot; red &lt;grape&gt; &amp; more"');
       expect(html).toContain(`<link rel="canonical" href="${SITE_ORIGIN}/detail/G001" />`);
+      // No card known: the logo, and no size claim about it.
+      expect(html).toContain(`<meta property="og:image" content="${SITE_ORIGIN}/vinodex-logo.png" />`);
+      expect(html).not.toContain('og:image:width');
+    });
+
+    it('gives an entry with a baked card its own image, sized (v0.6.24)', () => {
+      const html = injectMeta(shell, entryPageMeta('G001', 'Cabernet Sauvignon', 'x', true));
+      expect(html).toContain(`<meta property="og:image" content="${SITE_ORIGIN}/og/G001.png" />`);
+      expect(html).toContain(`<meta name="twitter:image" content="${SITE_ORIGIN}/og/G001.png" />`);
+      expect(html).toContain('<meta property="og:image:width" content="1200" />');
+      expect(html).toContain('<meta property="og:image:height" content="630" />');
+      expect(html).toContain('<meta property="og:image:alt" content="Cabernet Sauvignon — Vinodex share card" />');
+      // The shell's own alt is replaced, not duplicated (the string survives
+      // elsewhere in the shell -- the favicon's alt -- which is not this tag).
+      expect(html).not.toContain('<meta property="og:image:alt" content="VINODEX logo" />');
+      expect((html.match(/property="og:image:alt"/g) ?? []).length).toBe(1);
+      expect((html.match(/property="og:image"/g) ?? []).length).toBe(1);
     });
 
     it('is idempotent: injecting twice yields the same page', () => {

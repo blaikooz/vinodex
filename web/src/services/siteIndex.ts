@@ -129,6 +129,8 @@ export interface PageMeta {
   /** The canonical absolute URL. */
   url: string;
   type: 'website' | 'article';
+  /** The page's own card image, 1200x630 (v0.6.24); the logo when absent. */
+  image?: string;
 }
 
 const htmlEsc = (s: string): string =>
@@ -158,11 +160,19 @@ export const injectMeta = (shell: string, meta: PageMeta): string => {
   set('property', 'og:title', meta.title);
   set('property', 'og:description', desc);
   set('property', 'og:url', meta.url);
-  set('property', 'og:image', SHARE_IMAGE);
+  set('property', 'og:image', meta.image ?? SHARE_IMAGE);
+  if (meta.image) {
+    // The baked cards are all one size; saying so lets a crawler lay the
+    // card out before it has fetched the pixels. And the alt is the card's
+    // subject, not "VINODEX logo", which the shell says of its own image.
+    set('property', 'og:image:width', '1200');
+    set('property', 'og:image:height', '630');
+    set('property', 'og:image:alt', `${meta.title} share card`);
+  }
   set('name', 'twitter:card', 'summary_large_image');
   set('name', 'twitter:title', meta.title);
   set('name', 'twitter:description', desc);
-  set('name', 'twitter:image', SHARE_IMAGE);
+  set('name', 'twitter:image', meta.image ?? SHARE_IMAGE);
   // The tag and its own line, so re-injecting a page yields the same bytes.
   html = html.replace(/[ \t]*<link rel="canonical"[^>]*>\r?\n?/g, '');
   html = html.replace('</head>', `    <link rel="canonical" href="${htmlEsc(meta.url)}" />\n  </head>`);
@@ -178,11 +188,19 @@ export const sitePageMeta = (page: SitePage): PageMeta => ({
   type: 'website',
 });
 
-/** The meta for a catalogue entry's share page. */
-export const entryPageMeta = (id: string, name: string, description: string): PageMeta => ({
+/** Where an entry's baked share card lives (v0.6.24); see `ogManifest.ts`. */
+export const ogCardPath = (id: string): string => `/og/${id}.png`;
+
+/**
+ * The meta for a catalogue entry's share page. `hasCard` is whether the bake
+ * produced a card for this entry -- the prerender reads the committed
+ * manifest -- so a missing card falls back to the logo rather than to a 404.
+ */
+export const entryPageMeta = (id: string, name: string, description: string, hasCard = false): PageMeta => ({
   browserTitle: 'VINODEX',
   title: `${name} — Vinodex`,
   description: description || 'A retro wine field guide.',
   url: `${SITE_ORIGIN}${entryPagePath(id)}`,
   type: 'article',
+  ...(hasCard ? { image: `${SITE_ORIGIN}${ogCardPath(id)}` } : {}),
 });
