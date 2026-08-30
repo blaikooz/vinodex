@@ -74,6 +74,8 @@ describe('parseSession (daily quiz)', () => {
     index: 3,
     correct: 2,
     chosenID: 'G001',
+    // v0.6.29: the per-question grid, empty on a fresh paper.
+    marks: [],
   };
 
   it('round-trips a real session', () => {
