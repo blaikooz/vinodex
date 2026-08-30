@@ -1,5 +1,6 @@
 import React, { useEffect, useMemo } from 'react';
-import { Grid3x3, Wine, Flag, Map as MapIcon, ChevronRight, ShieldCheck } from 'lucide-react';
+import { ChevronRight, ShieldCheck } from 'lucide-react';
+import ArtImage from './ArtImage';
 import { BADGE_TINT } from './badgeVisuals';
 import StampArt from './StampArt';
 import { tierProgress } from '../src/services/passportTier';
@@ -136,44 +137,7 @@ const PassportScreen: React.FC<PassportScreenProps> = ({ allEntries, onSelect, o
           </div>
         </Section>
 
-        <Section title="TASTINGS">
-          <div className="grid grid-cols-2 gap-3">
-            <StatTile icon={<Grid3x3 size={22} />} value={`${passport.triedGrapes}/${passport.totalGrapes}`} label="GRAPES" tint="var(--livery-violet)" />
-            <StatTile icon={<Wine size={22} />} value={`${passport.triedStyles}/${passport.totalStyles}`} label="STYLES" tint="var(--livery-orange)" />
-            <StatTile icon={<Flag size={22} />} value={`${passport.countries}`} label="COUNTRIES" tint="var(--livery-amber)" />
-            <StatTile icon={<MapIcon size={22} />} value={`${passport.continents.length}/6`} label="CONTINENTS" tint="var(--livery-sky)" />
-          </div>
-        </Section>
-
-        <Section title="BY COLOUR">
-          <ProgressRow label="RED" done={passport.byColor.red} total={passport.colorTotals.red} fill="var(--livery-red)" />
-          <ProgressRow label="WHITE" done={passport.byColor.white} total={passport.colorTotals.white} fill="var(--lcd-text)" />
-        </Section>
-
-        <Section title="BY RARITY">
-          {RARITIES.map(r => (
-            <ProgressRow key={r} label={r} done={passport.byRarity[r] ?? 0} total={passport.rarityTotals[r] ?? 0} fill={RARITY_TINT[r] ?? 'var(--lcd-subtext)'} />
-          ))}
-        </Section>
-
-        {recommended.length > 0 && (
-          <Section title="YOU MIGHT LIKE">
-            <div className="flex flex-col gap-2">
-              {recommended.slice(0, RECOMMENDATION_STRIP).map((entry, i) => (
-                <EntryTile key={entry.id} entry={entry} onPress={() => onSelect(entry)} index={i} />
-              ))}
-              {recommended.length > RECOMMENDATION_STRIP && (
-                <button
-                  onClick={onShowAllRecommendations}
-                  className="dex-pressable w-full flex items-center justify-center gap-1.5 rounded-card bg-[var(--surface-raised)] border border-[var(--surface-line-strong)] px-4 py-2.5 text-micro tracking-widest text-[var(--lcd-accent)] hover:border-[var(--lcd-accent)] shadow-elev-1"
-                >
-                  SHOW ALL ({recommended.length}) <ChevronRight size={13} />
-                </button>
-              )}
-            </div>
-          </Section>
-        )}
-
+        {/* Above the counters (iOS 0.8.6 C2): the stamps are the point. */}
         <Section title="STAMPS">
           {/* The door to the collection (v10#2): the grid below counts, the
               page behind it draws. Above the grid so it is found before the
@@ -204,6 +168,46 @@ const PassportScreen: React.FC<PassportScreenProps> = ({ allEntries, onSelect, o
             })}
           </div>
         </Section>
+
+        <Section title="TASTINGS">
+          <div className="grid grid-cols-2 gap-3">
+            <StatTile icon={<ArtImage src="/art/marquee/marquee-grapescan.png" alt="" aria-hidden="true" draggable={false} style={{ height: 22, width: 'auto', imageRendering: 'pixelated' }} />} value={`${passport.triedGrapes}/${passport.totalGrapes}`} label="GRAPES" tint="var(--livery-violet)" />
+            <StatTile icon={<ArtImage src="/art/marquee/marquee-stylescan.png" alt="" aria-hidden="true" draggable={false} style={{ height: 22, width: 'auto', imageRendering: 'pixelated' }} />} value={`${passport.triedStyles}/${passport.totalStyles}`} label="STYLES" tint="var(--livery-orange)" />
+            <StatTile icon={<ArtImage src="/art/marquee/marquee-countryscan.png" alt="" aria-hidden="true" draggable={false} style={{ height: 22, width: 'auto', imageRendering: 'pixelated' }} />} value={`${passport.countries}`} label="COUNTRIES" tint="var(--livery-amber)" />
+            <StatTile icon={<ArtImage src="/art/marquee/marquee-continentscan.png" alt="" aria-hidden="true" draggable={false} style={{ height: 22, width: 'auto', imageRendering: 'pixelated' }} />} value={`${passport.continents.length}/6`} label="CONTINENTS" tint="var(--livery-sky)" />
+          </div>
+        </Section>
+
+        {/* Directly under the counters (iOS 0.8.9b C1). */}
+        {recommended.length > 0 && (
+          <Section title="YOU MIGHT LIKE">
+            <div className="flex flex-col gap-2">
+              {recommended.slice(0, RECOMMENDATION_STRIP).map((entry, i) => (
+                <EntryTile key={entry.id} entry={entry} onPress={() => onSelect(entry)} index={i} />
+              ))}
+              {recommended.length > RECOMMENDATION_STRIP && (
+                <button
+                  onClick={onShowAllRecommendations}
+                  className="dex-pressable w-full flex items-center justify-center gap-1.5 rounded-card bg-[var(--surface-raised)] border border-[var(--surface-line-strong)] px-4 py-2.5 text-micro tracking-widest text-[var(--lcd-accent)] hover:border-[var(--lcd-accent)] shadow-elev-1"
+                >
+                  SHOW ALL ({recommended.length}) <ChevronRight size={13} />
+                </button>
+              )}
+
+        <Section title="BY COLOUR">
+          <ProgressRow label="RED" done={passport.byColor.red} total={passport.colorTotals.red} fill="var(--livery-red)" />
+          <ProgressRow label="WHITE" done={passport.byColor.white} total={passport.colorTotals.white} fill="var(--lcd-text)" />
+        </Section>
+
+        <Section title="BY RARITY">
+          {RARITIES.map(r => (
+            <ProgressRow key={r} label={r} done={passport.byRarity[r] ?? 0} total={passport.rarityTotals[r] ?? 0} fill={RARITY_TINT[r] ?? 'var(--lcd-subtext)'} />
+          ))}
+        </Section>
+
+            </div>
+          </Section>
+        )}
 
       </div>
     </DeviceLayout>

@@ -68,6 +68,18 @@ export interface WebRelease {
 // 0.6.1x, not 0.6.2: the firmware line owns 0.6.2 through 0.9.2, and the
 // two-clocks test refuses any version the device already wore.
 const CURRENT: WebRelease = {
+  version: '0.6.41',
+  date: '2026-08-30',
+  headline: 'PHOSPHOR AND ORDER',
+  notes: [
+    'Every shell lights the marquee in its own phosphor now -- violet on RETROVIN, boot-screen blue on PSVINO, pea-green on BOX WINE -- the way period LED strips actually varied. CLASSIC stays exactly the green it has always been.',
+    'The passport reads in the right order: STAMPS up top where they belong, recommendations under the counters, and the four tasting tiles wear their drawn dot-matrix faces.',
+    'A wrong quiz answer buzzes now, as it has on the phone since 0.6.8.',
+  ],
+};
+
+/** The release before this one, promoted when 0.6.41 landed. */
+const PREVIOUS_0_6_40: WebRelease = {
   version: '0.6.40',
   date: '2026-08-30',
   headline: 'TWO MORE STAMPS',
@@ -516,6 +528,7 @@ const PREVIOUS_0_4_2: WebRelease = {
 
 /** Newest first. A new release is prepended by promoting `CURRENT`. */
 const PREVIOUS: WebRelease[] = [
+  PREVIOUS_0_6_40,
   PREVIOUS_0_6_39,
   PREVIOUS_0_6_38,
   PREVIOUS_0_6_37,

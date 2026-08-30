@@ -59,6 +59,14 @@ export interface ChassisSkin {
   panelEdge: string;
   /** Speaker grill slats. */
   grill: string;
+  /**
+   * The marquee phosphor -- what colour the footer's dot-matrix strip glows
+   * on this shell (iOS `ChassisSkins.marqueeText`, v0.6.41). Period LED
+   * strips came in green, amber, red and blue, so this is the one part where
+   * a colour change is period-correct; a fitted workshop MARQUEE part still
+   * overrides it.
+   */
+  marqueeText: string;
   /** Text sitting directly on the moulding — the wordmark and its shadow. */
   onBody: string;
   onBodyShadow: string;
@@ -92,6 +100,7 @@ const STONE_600 = '#57534e';
 export const CHASSIS_SKINS: Record<ChassisSkinId, ChassisSkin> = {
   CLASSIC: {
     id: 'CLASSIC',
+    marqueeText: '#22c55e',
     displayName: 'VINODEX CLASSIC',
     body: RED,
     footerWash: 'rgba(220, 10, 45, 0.7)',
@@ -103,6 +112,7 @@ export const CHASSIS_SKINS: Record<ChassisSkinId, ChassisSkin> = {
   },
   MIDNIGHT: {
     id: 'MIDNIGHT',
+    marqueeText: '#c084fc',
     displayName: 'CÔTE DE NUITS',
     body: GRAPHITE,
     footerWash: 'rgba(23, 22, 26, 0.75)',
@@ -114,6 +124,7 @@ export const CHASSIS_SKINS: Record<ChassisSkinId, ChassisSkin> = {
   },
   ORIGINAL: {
     id: 'ORIGINAL',
+    marqueeText: '#fbbf24',
     displayName: 'BLANC DE BLANCS',
     body: BONE,
     footerWash: 'rgba(216, 216, 208, 0.75)',
@@ -127,6 +138,7 @@ export const CHASSIS_SKINS: Record<ChassisSkinId, ChassisSkin> = {
   },
   BURGUNDY: {
     id: 'BURGUNDY',
+    marqueeText: '#f9a8d4',
     displayName: 'BURGUNDY',
     body: VELOUR,
     footerWash: 'rgba(75, 29, 63, 0.75)',
@@ -138,6 +150,7 @@ export const CHASSIS_SKINS: Record<ChassisSkinId, ChassisSkin> = {
   },
   RIESLING: {
     id: 'RIESLING',
+    marqueeText: '#22c55e',
     displayName: 'VIN JAUNE',
     body: WALKMAN,
     footerWash: 'rgba(242, 193, 27, 0.7)',
@@ -152,6 +165,7 @@ export const CHASSIS_SKINS: Record<ChassisSkinId, ChassisSkin> = {
   // internals behind the shell.
   VINHO_VERDE: {
     id: 'VINHO_VERDE',
+    marqueeText: '#9BBC0F',
     displayName: 'BOX WINE',
     body: '#24402B',
     footerWash: 'rgba(36, 64, 43, 0.75)',
@@ -163,6 +177,7 @@ export const CHASSIS_SKINS: Record<ChassisSkinId, ChassisSkin> = {
   },
   GLOUGLOU: {
     id: 'GLOUGLOU',
+    marqueeText: '#FB923C',
     displayName: 'EMPTY BOTTLE',
     body: 'rgba(204, 216, 224, 0.55)',
     footerWash: 'rgba(204, 216, 224, 0.28)',
@@ -175,6 +190,7 @@ export const CHASSIS_SKINS: Record<ChassisSkinId, ChassisSkin> = {
   },
   SMART_GRAPE: {
     id: 'SMART_GRAPE',
+    marqueeText: '#FF9F0A',
     displayName: 'FIELD BLEND',
     body: '#1C1C1E',
     footerWash: 'rgba(28, 28, 30, 0.75)',
@@ -186,6 +202,7 @@ export const CHASSIS_SKINS: Record<ChassisSkinId, ChassisSkin> = {
   },
   CHAMPAGNE: {
     id: 'CHAMPAGNE',
+    marqueeText: '#F2C14E',
     displayName: 'CHAMPAGNE GOLD',
     body: '#E8D5A6',
     footerWash: 'rgba(232, 213, 166, 0.75)',
@@ -197,6 +214,7 @@ export const CHASSIS_SKINS: Record<ChassisSkinId, ChassisSkin> = {
   },
   CHRISTMAS: {
     id: 'CHRISTMAS',
+    marqueeText: '#FF6B6B',
     displayName: 'WINE XMAS',
     body: '#1B4332',
     footerWash: 'rgba(27, 67, 50, 0.75)',
@@ -209,6 +227,7 @@ export const CHASSIS_SKINS: Record<ChassisSkinId, ChassisSkin> = {
   },
   NOUVEAU: {
     id: 'NOUVEAU',
+    marqueeText: '#C084FC',
     displayName: 'RETROVIN',
     body: 'rgba(147, 51, 234, 0.55)',
     footerWash: 'rgba(147, 51, 234, 0.3)',
@@ -221,6 +240,7 @@ export const CHASSIS_SKINS: Record<ChassisSkinId, ChassisSkin> = {
   },
   OAKED: {
     id: 'OAKED',
+    marqueeText: '#FFB84D',
     displayName: 'OAKED',
     body: '#5C4028',
     footerWash: 'rgba(92, 64, 40, 0.5)',
@@ -233,6 +253,7 @@ export const CHASSIS_SKINS: Record<ChassisSkinId, ChassisSkin> = {
   },
   NOCTURNE: {
     id: 'NOCTURNE',
+    marqueeText: '#86FF7E',
     displayName: 'VINHO VERDE',
     body: '#C9F2BE',
     footerWash: 'rgba(201, 242, 190, 0.75)',
@@ -245,6 +266,7 @@ export const CHASSIS_SKINS: Record<ChassisSkinId, ChassisSkin> = {
   },
   STEEL: {
     id: 'STEEL',
+    marqueeText: '#9FD4FF',
     displayName: 'STAINLESS STEEL',
     body: '#C7CBD1',
     footerWash: 'rgba(184, 188, 194, 0.8)',
@@ -257,6 +279,7 @@ export const CHASSIS_SKINS: Record<ChassisSkinId, ChassisSkin> = {
   },
   BLUSH: {
     id: 'BLUSH',
+    marqueeText: '#FF9EC0',
     displayName: 'BLUSH',
     body: '#EEA7B6',
     footerWash: 'rgba(238, 167, 182, 0.75)',
@@ -281,6 +304,7 @@ export const CHASSIS_SKINS: Record<ChassisSkinId, ChassisSkin> = {
    */
   PSVINO: {
     id: 'PSVINO',
+    marqueeText: '#7DB2F0',
     displayName: 'PX',
     body: '#232427',
     footerWash: 'rgba(35, 36, 39, 0.75)',
@@ -292,6 +316,7 @@ export const CHASSIS_SKINS: Record<ChassisSkinId, ChassisSkin> = {
   },
   GRIS_DE_GRIS: {
     id: 'GRIS_DE_GRIS',
+    marqueeText: '#A6C550',
     displayName: 'GRIS DE GRIS',
     body: '#C8C4BC',
     footerWash: 'rgba(200, 196, 188, 0.75)',
@@ -303,6 +328,7 @@ export const CHASSIS_SKINS: Record<ChassisSkinId, ChassisSkin> = {
   },
   ORANGE_WINE: {
     id: 'ORANGE_WINE',
+    marqueeText: '#FFC93C',
     displayName: 'ORANGE WINE',
     body: '#E8720E',
     footerWash: 'rgba(232, 114, 14, 0.75)',
@@ -314,6 +340,7 @@ export const CHASSIS_SKINS: Record<ChassisSkinId, ChassisSkin> = {
   },
   PET_NAT: {
     id: 'PET_NAT',
+    marqueeText: '#E8DF7A',
     displayName: 'FIBERGLASS',
     body: '#EFE9DC',
     // Authored `Color.clear` on iOS: this shell wears no footer wash.
@@ -326,6 +353,7 @@ export const CHASSIS_SKINS: Record<ChassisSkinId, ChassisSkin> = {
   },
   WALDGLAS: {
     id: 'WALDGLAS',
+    marqueeText: '#B8D96A',
     displayName: 'WALDGLAS',
     // rgba(160,183,116,0.42) over #14161A.
     body: '#4F5A40',
@@ -339,6 +367,7 @@ export const CHASSIS_SKINS: Record<ChassisSkinId, ChassisSkin> = {
   },
   HALLOWEEN: {
     id: 'HALLOWEEN',
+    marqueeText: '#FFA23C',
     displayName: 'HALLOWINE',
     body: '#17141A',
     footerWash: 'rgba(23, 20, 26, 0.75)',
@@ -350,6 +379,7 @@ export const CHASSIS_SKINS: Record<ChassisSkinId, ChassisSkin> = {
   },
   W64: {
     id: 'W64',
+    marqueeText: '#7FD98A',
     displayName: '1964',
     body: '#4A2E8C',
     footerWash: 'rgba(74, 46, 140, 0.75)',
@@ -620,10 +650,6 @@ export const grilleShape = (): GrilleShapeId => grilleShapeOf(readBuild().grille
 export const customButtonsPart = () => partColorOf(readBuild().buttons);
 
 /** The marquee's stock phosphor — CLASSIC green, as the footer has always drawn it. */
-const MARQUEE_STOCK = {
-  text: '#22c55e',
-};
-
 /** Cycles to the next colourway — the chassis itself is tappable on iOS. */
 export function nextSkin(): void {
   const all = Object.keys(CHASSIS_SKINS) as ChassisSkinId[];
@@ -687,6 +713,17 @@ const hexTriple = (hexStr: string): [number, number, number] | null => {
 
 const toHex = (rgb: [number, number, number]): string =>
   `#${((rgb[0] << 16) | (rgb[1] << 8) | rgb[2]).toString(16).padStart(6, '0')}`;
+
+/** `hexStr` mixed toward `toward` by `t` -- deviceParts' `mix`, for a hex. */
+const mixHexToward = (hexStr: string, toward: [number, number, number], t: number): string => {
+  const c = hexTriple(hexStr);
+  if (!c) return hexStr;
+  return toHex([
+    Math.round(c[0] + (toward[0] - c[0]) * t),
+    Math.round(c[1] + (toward[1] - c[1]) * t),
+    Math.round(c[2] + (toward[2] - c[2]) * t),
+  ]);
+};
 
 /** The legend ink must actually read against the pill (WCAG AA, 4.5:1). */
 const LEGEND_CONTRAST = 4.5;
@@ -974,9 +1011,9 @@ export function skinCssVars(skin: ChassisSkinId): Record<string, string> {
     vars[`--pill-lamp${i + 1}-edge`] = lamp[1];
     vars[`--pill-lamp${i + 1}-ink`] = lampInk(lamp[1], lamp[0]);
   });
-  // The marquee phosphor, stock — shadowed here so a workshop marquee never
-  // reaches the company site's CLASSIC device.
-  vars['--marquee-text'] = '#22c55e';
+  // The marquee phosphor -- the skin's own since v0.6.41, shadowed here so a
+  // workshop marquee never reaches the company site's device.
+  vars['--marquee-text'] = s.marqueeText;
   return vars;
 }
 
@@ -1067,11 +1104,23 @@ export function applyTheme(): void {
     root.style.setProperty('--marquee-ground', text);
     root.style.setProperty('--marquee-grid', partMarqueeGrid(marqueePart));
     root.style.setProperty('--marquee-ink', partMarqueeShadow(marqueePart));
-  } else {
-    root.style.setProperty('--marquee-text', MARQUEE_STOCK.text);
+  } else if (s.marqueeText === '#22c55e') {
+    // CLASSIC's green is the CSS livery defaults, byte-for-byte -- unset so
+    // the stock panel stays exactly what it has always been.
+    root.style.setProperty('--marquee-text', s.marqueeText);
     root.style.removeProperty('--marquee-ground');
     root.style.removeProperty('--marquee-grid');
     root.style.removeProperty('--marquee-ink');
+  } else {
+    // Every other shell re-lights the panel in its own phosphor (iOS
+    // `marqueeText`, v0.6.41), through the same triple a fitted workshop
+    // MARQUEE part writes: the colour is the ground, its light form the
+    // grid, its very dark form the ink -- `partMarqueeGrid`/`Shadow`'s own
+    // 0.22 / 0.84 mixes, applied to the skin's hex.
+    root.style.setProperty('--marquee-text', s.marqueeText);
+    root.style.setProperty('--marquee-ground', s.marqueeText);
+    root.style.setProperty('--marquee-grid', mixHexToward(s.marqueeText, [255, 255, 255], 0.22));
+    root.style.setProperty('--marquee-ink', mixHexToward(s.marqueeText, [0, 0, 0], 0.84));
   }
 
   // The grille pattern, as a data attribute for anything CSS-side; the drawn

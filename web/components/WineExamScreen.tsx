@@ -34,7 +34,7 @@ import { record, stats, weakest } from '../src/services/examProgress';
 import { QuizTier, QUIZ_TIERS, isTierUnlocked, tierRank } from '../src/services/quiz';
 import { dayIndex, revealCursor } from '../src/services/dailyPick';
 import { query as ssQuery, setQuery as ssSetQuery } from '../src/services/screenState';
-import { playCorrect } from '../src/services/sound';
+import { playCorrect, playWrong } from '../src/services/sound';
 import { artSprite } from '../src/services/artSprites';
 import { classArtNode } from '../src/services/classArt';
 import iconManifest from '../src/data/iconManifest.json';
@@ -146,6 +146,7 @@ const WineExamScreen: React.FC<WineExamScreenProps> = ({ onBack, onHome }) => {
     if (!run || !prompt || run.submitted) return;
     const next = submit(draft(run, answer), prompt);
     if (next.marks[next.marks.length - 1]) playCorrect();
+    else playWrong();
     setRun(next);
   };
 
@@ -153,6 +154,7 @@ const WineExamScreen: React.FC<WineExamScreenProps> = ({ onBack, onHome }) => {
     if (!run || !prompt || run.submitted || !run.answer) return;
     const next = submit(run, prompt);
     if (next.marks[next.marks.length - 1]) playCorrect();
+    else playWrong();
     setRun(next);
   };
 

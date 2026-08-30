@@ -31,7 +31,7 @@
  */
 
 /** Bump on release. The single source of truth for the web app's version. */
-export const APP_VERSION = '0.6.40';
+export const APP_VERSION = '0.6.41';
 
 /** Display form, e.g. `v0.2.0`. */
 export const APP_VERSION_DISPLAY = `v${APP_VERSION}`;

@@ -1,19 +1,22 @@
 /**
  * The SFX pack, ported from `vinodex-ios/Sources/VinodexUI/DexSound.swift`.
  *
- * Opt-in (default off, key `soundsEnabled`). Four clips: a percussive tap that
- * rides every button click, a warm selection ping, a quiz correct-answer sting,
- * and the orb-depress voice for the device flip. `page`/`wrong`/`boot` are
- * deliberately silent, exactly as iOS keeps them. Everything is failure-tolerant
+ * Opt-in (default off, key `soundsEnabled`). Five clips: a percussive tap that
+ * rides every button click, a warm selection ping, the quiz's correct and
+ * wrong answer stings (wrong since iOS 0.6.8 J3 -- this header claimed it was
+ * deliberately silent long after it stopped being true), and the orb-depress
+ * voice for the device flip. `page`/`boot` stay silent, as iOS keeps them.
+ * Everything is failure-tolerant
  * — a browser that refuses audio gets a silent app, not a crash.
  */
 
-type SoundKind = 'tap' | 'select' | 'correct' | 'orb';
+type SoundKind = 'tap' | 'select' | 'correct' | 'wrong' | 'orb';
 
 const FILES: Record<SoundKind, string> = {
   tap: '/sfx/button-tap.mp3',
   select: '/sfx/warm-ping.mp3',
   correct: '/sfx/correct-answer.mp3',
+  wrong: '/sfx/incorrect-answer.mp3',
   orb: '/sfx/orb-depress.mp3',
 };
 
@@ -73,6 +76,7 @@ export function playSound(kind: SoundKind): void {
 export const playTap = () => playSound('tap');
 export const playSelect = () => playSound('select');
 export const playCorrect = () => playSound('correct');
+export const playWrong = () => playSound('wrong');
 export const playOrb = () => playSound('orb');
 
 /**
