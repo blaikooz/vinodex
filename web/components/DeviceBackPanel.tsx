@@ -7,6 +7,7 @@ import { shelfIds } from '../src/services/bookmarks';
 import { bestStreak } from '../src/services/dailyChallenge';
 import { highestUnlocked } from '../src/services/quiz';
 import { computePassport, type BadgeId } from '../src/services/passport';
+import { stampFor } from '../src/services/stampCatalog';
 import { useTheme } from '../src/services/useTheme';
 import { CHASSIS_SKINS } from '../src/services/theme';
 import ChassisInternals from './ChassisInternals';
@@ -24,6 +25,10 @@ const STAMP_SLOT: Record<BadgeId, { pos: React.CSSProperties; rot: number; ink: 
   regionComplete: { pos: { bottom: '29%', left: '7%' }, rot: 10, ink: '#2F6E4F' },
   streakWeek: { pos: { bottom: '13%', right: '13%' }, rot: -15, ink: '#8F5A33' },
   sommelier: { pos: { top: '45%', left: '10%' }, rot: 5, ink: '#2F6E6E' },
+  // The two completions sit low on the plate, as on iOS -- in the runs the
+  // six above and the factory leavings left free.
+  allGrapes: { pos: { top: '57%', right: '6%' }, rot: -9, ink: '#8F3366' },
+  allStyles: { pos: { bottom: '18%', left: '34%' }, rot: 11, ink: '#3F6E33' },
 };
 
 const PassportStamp: React.FC<{ title: string; ink: string; rot: number; pos: React.CSSProperties }> = ({ title, ink, rot, pos }) => (
@@ -116,7 +121,7 @@ const DeviceBackPanel: React.FC<DeviceBackPanelProps> = ({ onReturn }) => {
       {/* Passport stamps — one per earned badge, at its fixed slot. */}
       {earned.map(b => {
         const slot = STAMP_SLOT[b.id];
-        return <PassportStamp key={b.id} title={b.title} ink={slot.ink} rot={slot.rot} pos={slot.pos} />;
+        return <PassportStamp key={b.id} title={stampFor(b.id).title} ink={slot.ink} rot={slot.rot} pos={slot.pos} />;
       })}
 
       {/* Corner screws */}

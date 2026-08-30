@@ -18,6 +18,8 @@ const STAMP_STEM: Record<BadgeId, string> = {
   regionComplete: 'stamp-region-complete',
   streakWeek: 'stamp-streak-week',
   sommelier: 'stamp-sommelier',
+  allGrapes: 'stamp-all-grapes',
+  allStyles: 'stamp-all-styles',
 };
 
 interface StampArtProps {

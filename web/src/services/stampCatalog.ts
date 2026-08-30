@@ -29,6 +29,9 @@ export const STAMP_CATALOG: readonly Stamp[] = [
   { id: 'regionComplete', title: 'REGION COMPLETE', info: 'Every notable grape of one region, tried. Somewhere on a map, a place is entirely yours.', colorHex: '#2F6E4F', denomination: '15¢' },
   { id: 'streakWeek', title: 'STREAK WEEK', info: 'Seven daily challenges in a row. Discipline, applied to wine — a rare vintage.', colorHex: '#8F5A33', denomination: '7¢' },
   { id: 'sommelier', title: 'SOMMELIER', info: "The Wine Exam's top tier, unlocked. The device defers to your judgement from here on.", colorHex: '#2F6E6E', denomination: '50¢' },
+  // The two hardest stamps in the series are the two dearest (iOS 0.8.6 C6).
+  { id: 'allGrapes', title: 'ALL GRAPES', info: 'Every grape in the catalog, tried. There is nothing left on the vine; go outside.', colorHex: '#8F3366', denomination: '75¢' },
+  { id: 'allStyles', title: 'ALL STYLES', info: 'Every style in the catalog, tried. Still, sparkling, fortified and everything between.', colorHex: '#3F6E33', denomination: '$1' },
 ];
 
 export const stampFor = (id: BadgeId): Stamp => STAMP_CATALOG.find(s => s.id === id)!;

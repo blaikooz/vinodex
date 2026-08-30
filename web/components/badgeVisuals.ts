@@ -15,4 +15,6 @@ export const BADGE_TINT: Record<BadgeId, string> = {
   regionComplete: '#22c55e',
   streakWeek: '#f97316',
   sommelier: '#a855f7',
+  allGrapes: '#ec4899',
+  allStyles: '#84cc16',
 };

@@ -15,7 +15,8 @@ describe('the stamp series', () => {
       expect(s.title).toMatch(/^[A-Z ]+$/);
       expect(s.info.length).toBeGreaterThan(20);
       expect(s.colorHex).toMatch(/^#[0-9A-F]{6}$/i);
-      expect(s.denomination).toMatch(/^\d+¢$/);
+      // Cents until a dollar: ALL STYLES tops the series at $1 (0.8.6 C6).
+      expect(s.denomination).toMatch(/^(\d+¢|\$\d+)$/);
       inks.add(s.colorHex);
     }
     expect(inks.size, 'two stamps share an ink').toBe(STAMP_CATALOG.length);

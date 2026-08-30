@@ -28,7 +28,7 @@ describe('passport', () => {
     expect(p.triedStyles).toBe(0);
     expect(p.countries).toBe(0);
     expect(p.continents.length).toBe(0);
-    expect(p.badges.length).toBe(6);
+    expect(p.badges.length).toBe(8);
     expect(p.badges.every(b => !b.earned)).toBe(true);
   });
 
@@ -91,5 +91,17 @@ describe('passport', () => {
     expect(badge('streakWeek', compute([], 6))).toBe(false);
     expect(badge('sommelier', compute([], 0, 'SOMMELIER'))).toBe(true);
     expect(badge('sommelier', compute([], 0, 'ENTHUSIAST'))).toBe(false);
+  });
+
+  it('the two completions need the whole catalog, and each only its half (0.8.6 C6)', () => {
+    const grapesOnly = compute(allGrapes.map(g => g.id));
+    expect(badge('allGrapes', grapesOnly)).toBe(true);
+    expect(badge('allStyles', grapesOnly)).toBe(false);
+    const everything = compute(all.map(e => e.id));
+    expect(badge('allGrapes', everything)).toBe(true);
+    expect(badge('allStyles', everything)).toBe(true);
+    // One short is not all of them.
+    const oneShort = compute(allGrapes.slice(1).map(g => g.id));
+    expect(badge('allGrapes', oneShort)).toBe(false);
   });
 });

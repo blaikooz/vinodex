@@ -481,7 +481,8 @@ test('the passport opens onto the stamp collection', async ({ page, consoleError
   await enterDex(page, '/passport');
   await page.getByRole('button', { name: /OPEN THE COLLECTION/ }).click();
   await expect(page).toHaveURL(/\/passport\/stamps$/);
-  await expect(page.locator('[data-stamp]')).toHaveCount(6);
+  // Eight since v0.6.40: the two completions joined the series (0.8.6 C6).
+  await expect(page.locator('[data-stamp]')).toHaveCount(8);
   await page.locator('[data-stamp="firstSip"]').click();
   await expect(page.getByRole('dialog', { name: 'FIRST SIP story' })).toBeVisible();
   await page.getByRole('button', { name: 'CLOSE' }).click();

@@ -16,7 +16,9 @@ import { QuizTier } from './quiz';
  * unlocked quiz tier.
  */
 
-export type BadgeId = 'firstSip' | 'tenBottles' | 'allNoble' | 'regionComplete' | 'streakWeek' | 'sommelier';
+export type BadgeId =
+  | 'firstSip' | 'tenBottles' | 'allNoble' | 'regionComplete' | 'streakWeek' | 'sommelier'
+  | 'allGrapes' | 'allStyles';
 
 export interface Badge {
   id: BadgeId;
@@ -94,6 +96,14 @@ export function computePassport(triedIds: string[], all: WineEntry[], bestStreak
   const allGrapeKeys = new Set(allGrapes.map(g => label(g.name)));
   const triedCount = triedGrapesList.length + triedStylesList.length;
 
+  // The two completions (iOS 0.8.6 C6, web v0.6.40): grapes by name key,
+  // styles by id -- the same comparisons iOS's Discovery index makes -- and
+  // both guarded non-empty so an empty catalog earns nothing.
+  const allStylesList = all.filter(isStyleEntry);
+  const triedStyleIds = new Set(triedStylesList.map(st => st.id));
+  const allGrapesTried = allGrapes.length > 0 && allGrapes.every(g => triedGrapeKeys.has(label(g.name)));
+  const allStylesTried = allStylesList.length > 0 && allStylesList.every(st => triedStyleIds.has(st.id));
+
   const nobleGrapes = allGrapes.filter(g => g.rarity === 'NOBLE');
   const allNoble = nobleGrapes.length > 0 && nobleGrapes.every(g => triedGrapeKeys.has(label(g.name)));
 
@@ -113,6 +123,11 @@ export function computePassport(triedIds: string[], all: WineEntry[], bestStreak
     { id: 'regionComplete', title: 'REGION COMPLETE', blurb: 'Every notable grape of one region, tried.', earned: regionComplete },
     { id: 'streakWeek', title: 'STREAK WEEK', blurb: 'A seven-day daily challenge streak.', earned: bestStreak >= 7 },
     { id: 'sommelier', title: 'SOMMELIER', blurb: "The quiz's top tier, unlocked.", earned: highestTier === 'SOMMELIER' },
+    // Appended, not inserted (iOS 0.8.6 C6): the array's order is the order
+    // the grid draws and the unlock queue announces in, and appending keeps
+    // everyone's seen-badge ids meaning what they meant.
+    { id: 'allGrapes', title: 'TRIED ALL GRAPES', blurb: 'Every grape in the catalog, tried.', earned: allGrapesTried },
+    { id: 'allStyles', title: 'TRIED ALL STYLES', blurb: 'Every style in the catalog, tried.', earned: allStylesTried },
   ];
 
   return {
