@@ -68,6 +68,19 @@ export interface WebRelease {
 // 0.6.1x, not 0.6.2: the firmware line owns 0.6.2 through 0.9.2, and the
 // two-clocks test refuses any version the device already wore.
 const CURRENT: WebRelease = {
+  version: '0.6.25',
+  date: '2026-08-30',
+  headline: 'A FAMILY TREE',
+  notes: [
+    'A grape\'s lineage is drawn as a tree: parents above with rails running down into it, offspring and mutations below with rails running out, the grape you are on in the middle -- the way the phone draws it.',
+    'An ancestor the catalogue does not carry is a dashed tile with no door; undetermined parentage is its own tile, a slashed circle, so "nobody knows" never looks like "not written yet".',
+    'A contested parentage draws a dashed rail and a ? badge, and its sentence lands in FOOTNOTES.',
+    'Big tiers show six and offer SHOW ALL; half-siblings are grouped by the parent they share.',
+  ],
+};
+
+/** The release before this one, promoted when 0.6.25 landed. */
+const PREVIOUS_0_6_24: WebRelease = {
   version: '0.6.24',
   date: '2026-08-30',
   headline: 'A CARD OF ITS OWN',
@@ -343,6 +356,7 @@ const PREVIOUS_0_4_2: WebRelease = {
 
 /** Newest first. A new release is prepended by promoting `CURRENT`. */
 const PREVIOUS: WebRelease[] = [
+  PREVIOUS_0_6_24,
   PREVIOUS_0_6_23,
   PREVIOUS_0_6_22,
   PREVIOUS_0_6_21,
