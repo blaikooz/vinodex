@@ -26,6 +26,7 @@ jobs:
       - run: npm test
       - run: npm run build
       - run: npm run check:refs
+      - run: npm run check:budget
       # Chromium only: the suite drives the handheld viewport, not a matrix.
       - run: npx playwright install --with-deps chromium
       - run: npm run test:e2e

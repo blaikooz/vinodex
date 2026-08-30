@@ -68,6 +68,16 @@ export interface WebRelease {
 // 0.6.1x, not 0.6.2: the firmware line owns 0.6.2 through 0.9.2, and the
 // two-clocks test refuses any version the device already wore.
 const CURRENT: WebRelease = {
+  version: '0.6.37',
+  date: '2026-08-30',
+  headline: 'A BUDGET IN WRITING',
+  notes: [
+    'The first paint now has a budget the build enforces: the code the landing cannot paint without stays under 210 KB compressed, and the wine tables stay out of it. A regression fails with a number instead of surfacing as a slow page later.',
+  ],
+};
+
+/** The release before this one, promoted when 0.6.37 landed. */
+const PREVIOUS_0_6_36: WebRelease = {
   version: '0.6.36',
   date: '2026-08-30',
   headline: 'READS ON EVERY LAMP',
@@ -474,6 +484,7 @@ const PREVIOUS_0_4_2: WebRelease = {
 
 /** Newest first. A new release is prepended by promoting `CURRENT`. */
 const PREVIOUS: WebRelease[] = [
+  PREVIOUS_0_6_36,
   PREVIOUS_0_6_35,
   PREVIOUS_0_6_34,
   PREVIOUS_0_6_33,
