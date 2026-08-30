@@ -1,5 +1,5 @@
 {
- "digest": "5720e10fa06b3e00772a0f72dbc254c11efd7fa36c2ead6b81850c4f189440a7",
+ "digest": "eda84ef6a57988b318483d3ec1659e1a8f03efd68e29eb0c617e9c8fe3a7cb43",
  "cards": [
   {
    "id": "G001",
@@ -3297,8 +3297,8 @@
     "solid": "#2f7d46",
     "deep": "#194829"
    },
-   "art": "/art/button/regions.png",
-   "artKind": "menu",
+   "art": "/art/class/outline-mexico.png",
+   "artKind": "outline",
    "blurb": "Baja California's granite valley two hours south of the border, cooled by Pacific fog and unbound by appellation rules."
   },
   {
@@ -3525,8 +3525,8 @@
     "solid": "#2f7d46",
     "deep": "#194829"
    },
-   "art": "/art/button/regions.png",
-   "artKind": "menu",
+   "art": "/art/class/outline-brazil.png",
+   "artKind": "outline",
    "blurb": "Brazil’s fine-wine heartland, planted by Veneto immigrants from 1875 on basalt hills where rain falls in every month of the year."
   },
   {
@@ -3537,8 +3537,8 @@
     "solid": "#2f7d46",
     "deep": "#194829"
    },
-   "art": "/art/button/regions.png",
-   "artKind": "menu",
+   "art": "/art/class/outline-brazil.png",
+   "artKind": "outline",
    "blurb": "The warm, dry grasslands on the Uruguayan border, where sandy soils and low pre-harvest rain give Brazil its ripest still reds."
   },
   {
@@ -3993,8 +3993,8 @@
     "solid": "#b74d2a",
     "deep": "#75341f"
    },
-   "art": "/art/button/styles.png",
-   "artKind": "menu",
+   "art": "/art/style/madeira.png",
+   "artKind": "sprite",
    "blurb": "Fortified wine from the Atlantic island, deliberately heated and oxidised until it is virtually indestructible - an opened bottle keeps for"
   },
   {
@@ -4005,8 +4005,8 @@
     "solid": "#b74d2a",
     "deep": "#75341f"
    },
-   "art": "/art/button/styles.png",
-   "artKind": "menu",
+   "art": "/art/style/cava.png",
+   "artKind": "sprite",
    "blurb": "Spain's traditional-method sparkling wine, its second fermentation in the bottle and its heartland Penedès, built from the Catalan trio of M"
   },
   {

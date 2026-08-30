@@ -68,6 +68,17 @@ export interface WebRelease {
 // 0.6.1x, not 0.6.2: the firmware line owns 0.6.2 through 0.9.2, and the
 // two-clocks test refuses any version the device already wore.
 const CURRENT: WebRelease = {
+  version: '0.6.39',
+  date: '2026-08-30',
+  headline: 'THE ART CATCHES UP',
+  notes: [
+    'The icon book is current again: forty-one newer entries get their proper glyphs, Madeira and Cava get their drawn sprites, and Brazil, Lebanon, Mexico, Slovenia and the United Kingdom get their country silhouettes.',
+    'Two glyphs that could render as blank boxes ship with the app now, and GODFORSAKEN wears the death\'s-head it earned instead of a flame.',
+  ],
+};
+
+/** The release before this one, promoted when 0.6.39 landed. */
+const PREVIOUS_0_6_38: WebRelease = {
   version: '0.6.38',
   date: '2026-08-30',
   headline: 'FIVE MORE FLAGS',
@@ -495,6 +506,7 @@ const PREVIOUS_0_4_2: WebRelease = {
 
 /** Newest first. A new release is prepended by promoting `CURRENT`. */
 const PREVIOUS: WebRelease[] = [
+  PREVIOUS_0_6_38,
   PREVIOUS_0_6_37,
   PREVIOUS_0_6_36,
   PREVIOUS_0_6_35,

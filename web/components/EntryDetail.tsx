@@ -1,6 +1,7 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
-import { MapPin, Activity, Droplet, Grape, Mountain, ChevronRight, List, Leaf, Flame, Shield, BookOpen, Bookmark, MapPinned, Wind, Star, Crown, PlusCircle, CheckCircle2, GitBranch, Share2 } from 'lucide-react';
+import { MapPin, Activity, Droplet, Grape, Mountain, ChevronRight, List, Leaf, Shield, BookOpen, Bookmark, MapPinned, Wind, Star, Crown, PlusCircle, CheckCircle2, GitBranch, Share2 } from 'lucide-react';
 import DeviceLayout from './DeviceLayout';
+import { Icon } from '../src/components/LocalIcon';
 import { EntryCategory, WineEntry, isCountryGateEntry, isFlavorEntry, isGrapeEntry, isRegionEntry, isStyleEntry } from '@/shared/types';
 import { CLIMATE_CLASS_MAP } from '@/shared/data/climateClasses';
 import { HEADER_BORDER_CLASS, CONTAINER_SHADOW_CLASS, CONTAINER_SIZE_LIST, CONTAINER_BORDER_CLASS, CONTAINER_BORDER, ICON_SIZE_HEADER } from '../src/services/iconRendering';
@@ -300,12 +301,16 @@ const EntryDetail: React.FC<EntryDetailProps> = ({ entry, allEntries, onBack, on
                         // is the opposite. Its own emblem, like NOBLE's crown —
                         // matches raritySection() in EntryDetailScreen.swift.
                         if (rarity === 'GODFORSAKEN') {
+                          // The death's-head, not a flame -- iOS swapped in
+                          // 0.6.4 (EntryDetailSections.swift:261) and the web
+                          // kept burning until the v11 parity pass (0.6.39).
                           return (
-                            <Flame
-                              size={22}
+                            <Icon
+                              icon="game-icons:death-skull"
+                              width={22}
+                              height={22}
                               className="ml-1"
                               style={{ color: 'var(--livery-amber-deep)', filter: 'drop-shadow(0 0 4px color-mix(in srgb, var(--livery-amber-deep) 60%, transparent))' }}
-                              fill="currentColor"
                             />
                           );
                         }

@@ -12,6 +12,9 @@ export const OUTLINE_ART_KEYS: readonly string[] = [
   'croatia', 'california', 'oregon', 'washington', 'new york', 'georgia', 'switzerland',
   'romania', 'south africa', 'morocco', 'usa', 'canada', 'argentina', 'chile', 'uruguay',
   'new zealand', 'australia', 'japan', 'china', 'india',
+  // The 0.6.39 backfill, with the flags (v0.6.38): five countries whose
+  // outlines shipped on iOS while the web fell back to the climate glyph.
+  'brazil', 'lebanon', 'mexico', 'slovenia', 'united kingdom',
 ];
 
 const OUTLINE_ART: Record<string, string> = Object.fromEntries(
