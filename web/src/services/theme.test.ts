@@ -74,21 +74,19 @@ describe('theme', () => {
 
     // Twenty-two since v6#19-geometry brought iOS's 0.8.9x shells across;
     // iOS ships the same twenty-two in `ChassisSkin`.
-    it('ships twenty-two skins, nine screen modes and two text scales', () => {
+    it('ships twenty-two skins, nine screen modes and three text scales', () => {
       expect(Object.keys(CHASSIS_SKINS)).toHaveLength(22);
       expect(Object.keys(LCD_MODES)).toHaveLength(9);
-      expect(Object.keys(TEXT_SCALES)).toHaveLength(2);
+      expect(Object.keys(TEXT_SCALES)).toHaveLength(3);
     });
 
     /**
-     * Both steps sit at or below 1.0 — the retro face has no optical sizes and
-     * the tile metrics are tuned to 1.0, so that is the ceiling.
+     * iOS's range exactly (TypeScale: 0.85 / 1.00 / 1.30 since AUDIT M49), in
+     * that order, so a stored 'HUGE' from either platform means the same.
      */
-    it('keeps every text scale at or below 1.0', () => {
-      for (const scale of Object.values(TEXT_SCALES)) {
-        expect(scale.factor).toBeGreaterThan(0);
-        expect(scale.factor).toBeLessThanOrEqual(1);
-      }
+    it('spans 0.85 to 1.30 in three steps, LARGE being 1.0', () => {
+      expect(Object.values(TEXT_SCALES).map(s => s.factor)).toEqual([0.85, 1, 1.3]);
+      expect(TEXT_SCALES.LARGE.factor).toBe(1);
     });
   });
 

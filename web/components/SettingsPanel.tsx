@@ -766,7 +766,7 @@ export const SettingsSectionPanel: React.FC<{
                 />
               ))}
               <p className="text-caption leading-relaxed normal-case mt-1" style={{ color: 'var(--lcd-subtext)' }}>
-                Applies everywhere. Capped so the retro face still fits its tiles.
+                Applies to the reading text everywhere; the tiles size their own labels. Three steps, as on the phone.
               </p>
             </Section>
 

@@ -43,7 +43,7 @@ export type ChassisSkinId =
 export type LcdModeId =
   | 'DARK' | 'LIGHT' | 'VINTAGE' | 'AMBER' | 'WINE_OS'
   | 'TERMINAL' | 'BLUE_SCREEN' | 'STAR_TREK' | 'GRUENER_BOY';
-export type TextScaleId = 'SMALL' | 'LARGE';
+export type TextScaleId = 'SMALL' | 'LARGE' | 'HUGE';
 export type UiScaleId = 'SMALL' | 'LARGE';
 
 export interface ChassisSkin {
@@ -500,12 +500,19 @@ export const LCD_MODES: Record<LcdModeId, LcdTheme> = {
 };
 
 /**
- * Both steps sit at or below 1.0. The retro face has no optical sizes and the
- * tile metrics are tuned to 1.0, so that is the ceiling rather than the floor.
+ * Three steps, iOS's `TypeScale` exactly (v10#8, v0.6.28): SMALL 0.85, LARGE
+ * 1.00, HUGE 1.30. Two steps at or below 1.0 was the ceiling here through
+ * v0.6.27 -- "the retro face has no optical sizes and the tile metrics are
+ * tuned to 1.0" -- and iOS said the same until AUDIT M49 widened HUGE from
+ * 1.15 to 1.30 and resized the four frames that would have overflowed. On
+ * the web every role size is `calc(<rem> * var(--text-scale))` and the tile
+ * labels are sized by `clamp()` to the tile, not by this factor, so the
+ * chassis holds at 1.3; what grows is the reading text, which is the point.
  */
 export const TEXT_SCALES: Record<TextScaleId, { id: TextScaleId; displayName: string; factor: number }> = {
   SMALL: { id: 'SMALL', displayName: 'SMALL', factor: 0.85 },
   LARGE: { id: 'LARGE', displayName: 'LARGE', factor: 1.0 },
+  HUGE: { id: 'HUGE', displayName: 'HUGE', factor: 1.3 },
 };
 
 /**

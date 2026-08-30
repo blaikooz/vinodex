@@ -350,9 +350,15 @@ test('backing out past the menu returns to the site', async ({ page, consoleErro
   expect(new URL(page.url()).pathname).toBe('/');
   await expect(page.getByRole('heading', { name: 'HORIZON/GODOT' })).toBeVisible();
 
-  // And the settings door out says so in its own words.
+  // And the settings door out says so in its own words. The settings grid
+  // is a lazy chunk behind a LOADING screen; wait for the grid to be there
+  // before pressing the door, or the press can land on the loader (it did,
+  // once in three, under the v0.6.28 gate).
   await enterDex(page, '/settings');
-  await page.getByRole('button', { name: /EXIT TO SITE/ }).click();
+  await expect(page.getByRole('button', { name: 'DATA', exact: true })).toBeVisible();
+  const door = page.getByRole('button', { name: /EXIT TO SITE/ });
+  await expect(door).toBeVisible();
+  await door.click();
   await page.waitForTimeout(400);
   expect(new URL(page.url()).pathname).toBe('/');
 });

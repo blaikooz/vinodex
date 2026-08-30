@@ -68,6 +68,16 @@ export interface WebRelease {
 // 0.6.1x, not 0.6.2: the firmware line owns 0.6.2 through 0.9.2, and the
 // two-clocks test refuses any version the device already wore.
 const CURRENT: WebRelease = {
+  version: '0.6.28',
+  date: '2026-08-30',
+  headline: 'HUGE',
+  notes: [
+    'A third text size. SETTINGS > DISPLAY > TEXT SIZE offers SMALL, LARGE and HUGE -- the same three steps as the phone, HUGE at 1.3x -- and it applies to the reading text everywhere while the tiles keep sizing their own labels.',
+  ],
+};
+
+/** The release before this one, promoted when 0.6.28 landed. */
+const PREVIOUS_0_6_27: WebRelease = {
   version: '0.6.27',
   date: '2026-08-30',
   headline: 'WHAT THIS TOOL IS',
@@ -378,6 +388,7 @@ const PREVIOUS_0_4_2: WebRelease = {
 
 /** Newest first. A new release is prepended by promoting `CURRENT`. */
 const PREVIOUS: WebRelease[] = [
+  PREVIOUS_0_6_27,
   PREVIOUS_0_6_26,
   PREVIOUS_0_6_25,
   PREVIOUS_0_6_24,
