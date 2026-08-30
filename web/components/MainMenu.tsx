@@ -1,4 +1,5 @@
 import React, { useId, useLayoutEffect, useRef, useState } from 'react';
+import ArtImage from './ArtImage';
 import DeviceLayout from './DeviceLayout';
 import DeviceBackPanel from './DeviceBackPanel';
 import { Tile } from './Card';
@@ -183,7 +184,7 @@ const DialTile: React.FC<{ item: DialItem; onNavigate: (category: EntryCategory)
         label={item.label}
         onClick={() => onNavigate(item.category)}
         icon={(
-          <img
+          <ArtImage
             src={item.iconSrc}
             alt=""
             data-menu-icon={item.iconName}
@@ -304,7 +305,7 @@ const MainMenu: React.FC<MainMenuProps> = ({ onNavigate, onExit }) => {
               } as React.CSSProperties
             }
           >
-            <img
+            <ArtImage
               src="/art/button/search.png"
               alt=""
               aria-hidden="true"

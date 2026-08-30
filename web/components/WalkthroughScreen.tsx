@@ -1,5 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { ChevronLeft, ChevronRight, Home, UserRound } from 'lucide-react';
+import ArtImage from './ArtImage';
 import DeviceLayout from './DeviceLayout';
 import VinoPortrait from './VinoPortrait';
 import { toolSentence } from './MinigamesScreen';
@@ -54,7 +55,7 @@ interface WalkthroughScreenProps {
 const art = (stem: string): string => `/art/button/${stem}.png`;
 
 const MiniArt: React.FC<{ stem: string; label: string; highlighted?: boolean }> = ({ stem, label, highlighted = false }) => (
-  <img
+  <ArtImage
     src={art(stem)}
     alt=""
     aria-hidden="true"
@@ -129,7 +130,7 @@ const WalkthroughScreen: React.FC<WalkthroughScreenProps> = ({ onBack, onHome, o
             <span className="flex gap-1"><span className="w-2 h-2 rounded-full bg-red-500" /><span className="w-2 h-2 rounded-full bg-yellow-400" /><span className="w-2 h-2 rounded-full bg-green-500" /></span>
             <span className="flex-1" />
             <span className="rounded-full p-1 flex items-center justify-center" style={partStyle('settings')}>
-              <img src={art('settings')} alt="" aria-hidden="true" className="w-5 h-5 object-contain" style={{ imageRendering: 'pixelated' }} />
+              <ArtImage src={art('settings')} alt="" aria-hidden="true" className="w-5 h-5 object-contain" style={{ imageRendering: 'pixelated' }} />
             </span>
           </div>
 

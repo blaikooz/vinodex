@@ -35,7 +35,10 @@ test('the mark takes a new palette colour on every wall, and stays crisp', async
   await enterDex(page, '/dex');
 
   const saver = page.getByRole('button', { name: /Screensaver/ });
-  await expect(saver).toHaveCount(1, { timeout: 15_000 });
+  // 30s, not 15: the raise needs a virtual minute of idleness, and under
+  // full-suite load (four workers, one of them building a 6 MB precache)
+  // the fast clock's 250ms ticks arrive late. It failed once at 15s.
+  await expect(saver).toHaveCount(1, { timeout: 30_000 });
 
   const mark = saver.locator('[data-screensaver-mark]');
   await expect(mark).toHaveCount(1);
@@ -91,9 +94,10 @@ test('the mark takes a new palette colour on every wall, and stays crisp', async
   // context teardown -- a still-running frame loop under a racing clock was
   // enough to push the teardown past the budget.
   await page.evaluate(() => clearInterval((window as unknown as { __fastClock: number }).__fastClock));
-  // dispatchEvent rather than click(): the actionability wait on a surface
-  // repainting every frame timed out once under full-suite load (90s), and
-  // the wake is a click handler, not a hit-test.
-  await saver.dispatchEvent('click');
-  await expect(saver).toHaveCount(0);
+  // `force`: the actionability wait on a surface repainting every frame
+  // timed out once under full-suite load (90s); the wake is a click handler,
+  // so a forced click at the element's centre is the real event without the
+  // stability wait.
+  await saver.click({ force: true });
+  await expect(saver).toHaveCount(0, { timeout: 10_000 });
 });

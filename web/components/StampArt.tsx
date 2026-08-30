@@ -1,4 +1,5 @@
 import React from 'react';
+import ArtImage from './ArtImage';
 import { BadgeId } from '../src/services/passport';
 
 /**
@@ -26,7 +27,7 @@ interface StampArtProps {
 }
 
 const StampArt: React.FC<StampArtProps> = ({ id, size, earned }) => (
-  <img
+  <ArtImage
     src={`/art/stamp/${STAMP_STEM[id]}.png`}
     alt=""
     width={size}

@@ -68,6 +68,18 @@ export interface WebRelease {
 // 0.6.1x, not 0.6.2: the firmware line owns 0.6.2 through 0.9.2, and the
 // two-clocks test refuses any version the device already wore.
 const CURRENT: WebRelease = {
+  version: '0.6.21',
+  date: '2026-08-30',
+  headline: 'OFFLINE, AND SAID SO',
+  notes: [
+    'The LCD shows an OFFLINE pill while the browser has no network, so a tunnel reads as a tunnel and not as a broken app.',
+    'Art that has never been seen on this device -- a portrait, a stamp, a menu icon -- draws a quiet well instead of the browser\'s broken-image glyph when it cannot load.',
+    'A return visit with the network off is now proven in the render gate: the device boots to the menu from the precache alone.',
+  ],
+};
+
+/** The release before this one, promoted when 0.6.21 landed. */
+const PREVIOUS_0_6_20: WebRelease = {
   version: '0.6.20',
   date: '2026-08-30',
   headline: 'NO SUCH PAGE',
@@ -298,6 +310,7 @@ const PREVIOUS_0_4_2: WebRelease = {
 
 /** Newest first. A new release is prepended by promoting `CURRENT`. */
 const PREVIOUS: WebRelease[] = [
+  PREVIOUS_0_6_20,
   PREVIOUS_0_6_19,
   PREVIOUS_0_6_18,
   PREVIOUS_0_6_17,

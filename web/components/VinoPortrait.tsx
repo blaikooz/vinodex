@@ -1,4 +1,5 @@
 import React from 'react';
+import ArtImage from './ArtImage';
 import { VinoExpression } from '../src/services/vinoDialogue';
 
 interface VinoPortraitProps {
@@ -21,7 +22,7 @@ interface VinoPortraitProps {
  * and the browser's smooth default turns hard edges to mush.
  */
 const VinoPortrait: React.FC<VinoPortraitProps> = ({ expression, size, className }) => (
-  <img
+  <ArtImage
     src={`/art/vino/vino-${expression}.png`}
     alt=""
     width={size}

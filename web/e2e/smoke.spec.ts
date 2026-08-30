@@ -401,3 +401,63 @@ test('the lamp legend never shrinks below its floor', async ({ page, consoleErro
   // D1 still holds at the floor: both lamps wear one size.
   expect(sizes[0]!.size).toBe(sizes[1]!.size);
 });
+
+/**
+ * A return visit with the network off (v0.6.21, Phase 3). Deliberately
+ * without the `consoleErrors` fixture: offline, every request the service
+ * worker cannot answer fails by definition, and that is the condition under
+ * test, not a defect. What is asserted is the thing the precache exists for:
+ * the shell, the catalogue and the menu come back with no network at all,
+ * and the LCD says OFFLINE while it lasts.
+ */
+test('a return visit works with the network off, and the LCD says so', async ({ page, context }) => {
+  test.setTimeout(150_000);
+  await seedDevice(page);
+  await enterDex(page, '/dex');
+  await page.evaluate(() => navigator.serviceWorker.ready);
+  // The precache is 400+ entries; wait for it to finish rather than racing it.
+  await page.waitForFunction(async () => {
+    const names = await caches.keys();
+    const name = names.find(n => n.includes('precache'));
+    if (!name) return false;
+    return (await (await caches.open(name)).keys()).length > 400;
+  }, null, { timeout: 90_000 });
+
+  await context.setOffline(true);
+  try {
+    await page.reload();
+    const skip = page.getByRole('button', { name: 'Skip boot' });
+    await expect(skip).toBeVisible({ timeout: 20_000 });
+    await skip.click({ force: true });
+    await expect(page.getByRole('button', { name: /GRAPES/ })).toBeVisible();
+  } finally {
+    await context.setOffline(false);
+  }
+});
+
+/**
+ * The OFFLINE pill, driven the way the browser drives it. `setOffline` above
+ * cuts the network but does not flip `navigator.onLine` in this Chromium, so
+ * the pill is proved from the signal it actually reads: the flag and the
+ * `offline` / `online` events.
+ */
+test('the LCD says OFFLINE while the browser says so', async ({ page, consoleErrors }) => {
+  void consoleErrors;
+  await page.addInitScript(() => {
+    let online = false;
+    Object.defineProperty(navigator, 'onLine', { get: () => online, configurable: true });
+    (window as unknown as { __setOnline: (v: boolean) => void }).__setOnline = (v: boolean) => {
+      online = v;
+      window.dispatchEvent(new Event(v ? 'online' : 'offline'));
+    };
+  });
+  await seedDevice(page);
+  await page.goto('/');
+  const pill = page.locator('[data-offline-pill]');
+  await expect(pill).toBeVisible();
+  await expect(pill).toHaveText('OFFLINE');
+  await page.evaluate(() => (window as unknown as { __setOnline: (v: boolean) => void }).__setOnline(true));
+  await expect(pill).toHaveCount(0);
+  await page.evaluate(() => (window as unknown as { __setOnline: (v: boolean) => void }).__setOnline(false));
+  await expect(pill).toBeVisible();
+});

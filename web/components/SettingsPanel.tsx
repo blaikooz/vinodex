@@ -1,6 +1,7 @@
 import React from 'react';
 import { Palette, Lock, LockOpen, Bug, Check, LogOut, Flag, Crown, Leaf, Sun, Moon, Grid3x3, Globe, Wine, Map as MapIcon, Layers, ChevronRight, Download, Upload, UserRound, Sparkle, Wrench } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import ArtImage from './ArtImage';
 import DeviceLayout from './DeviceLayout';
 // The section vocabulary moved out so `App.tsx` can import it without
 // dragging this module into the entry bundle — see settingsSections.tsx.
@@ -184,7 +185,7 @@ const SkinPreviewTile: React.FC<{ id: ChassisSkinId; selected: boolean; onClick:
             tinted palette emblem rather than a hole. */}
         <span className="absolute inset-0 flex items-center justify-center">
           {SKIN_STICKER[id] ? (
-            <img
+            <ArtImage
               src={`/art/sticker/${SKIN_STICKER[id]}.png`}
               alt=""
               aria-hidden="true"
@@ -403,7 +404,7 @@ const IconToggleRow: React.FC<{ icon: React.ReactNode; title: string; detail: st
 
 /** Canonical baked iOS art in the standard secondary-control well. */
 const PixelControlGlyph: React.FC<{ family?: 'button' | 'glyph'; stem: string }> = ({ family = 'button', stem }) => (
-  <img
+  <ArtImage
     src={`/art/${family}/${family === 'glyph' ? `glyph-${stem}` : stem}.png`}
     alt=""
     aria-hidden="true"

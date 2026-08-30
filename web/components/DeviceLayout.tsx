@@ -7,6 +7,7 @@ import DeviceFooter from './DeviceFooter';
 import MarqueeLampChooser from './MarqueeLampChooser';
 import { IosUpdatesPromptOverlay } from './IosUpdatesPrompt';
 import { VinodexBootOverlay } from './VinodexBoot';
+import { isOnline, subscribeOnline } from '../src/services/online';
 import { ScreensaverOverlay } from './ScreensaverOverlay';
 import { DEVICE_FOOTER_BOTTOM_PAD, DEVICE_FOOTER_RESERVATION, DEVICE_FRAME_BOX, DEVICE_FRAME_STAGE } from '../src/services/deviceFrame';
 import { isSitePath } from '../src/services/appRoutes';
@@ -82,6 +83,9 @@ const DeviceLayout: React.FC<DeviceLayoutProps> = ({
    */
   const { pathname } = useLocation();
   const onSite = site ?? isSitePath(pathname);
+  // The one network fact the LCD shows (v0.6.21): a pill while the browser
+  // says it is offline. Server-side and in jsdom it reads as online.
+  const online = React.useSyncExternalStore(subscribeOnline, isOnline, () => true);
 
   // The player's own shell, so the dex repaints when they pick a new one.
   const theme = useTheme();
@@ -301,6 +305,16 @@ const DeviceLayout: React.FC<DeviceLayoutProps> = ({
                   </nav>
                 )}
                 {children}
+                {!online && (
+                  <span
+                    role="status"
+                    aria-live="polite"
+                    data-offline-pill
+                    className="pointer-events-none absolute right-2 top-2 z-[7] rounded-control border border-[var(--surface-line-strong)] bg-[var(--surface-raised)] px-2 py-1 font-retro text-micro tracking-widest text-[var(--lcd-accent)] shadow-elev-1"
+                  >
+                    OFFLINE
+                  </span>
+                )}
               </div>
 
               {/* Product-update invitation. It lives beside the routed LCD
