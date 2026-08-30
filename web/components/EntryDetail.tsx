@@ -88,6 +88,40 @@ const EntryDetail: React.FC<EntryDetailProps> = ({ entry, allEntries, onBack, on
   // The pedigree gate + its teaser count (v6#16). Index built once per
   // catalog; the per-entry answer is a set lookup.
   const lineageIndex = lineageIndexFor(allEntries);
+
+  // The country's rosters, derived from the catalog rather than read off the
+  // authored arrays (iOS CountryScreen, v0.6.42): the notable grapes ranked
+  // by how many of the country's regions name them, then every other grape
+  // the catalog attributes to the country, alphabetically, deduplicated by
+  // id -- "a grape the country grows but no region here calls notable did
+  // not appear on its country's page at all" is the bug this order fixed.
+  // REGIONS is simply every region entry with this origin. The authored
+  // notableGrapes/keyRegions stay the ranked head, not the whole list.
+  const countryRosters = useMemo(() => {
+    if (!isCountryGateEntry(entry)) return null;
+    const key = (v?: string) => (v ?? '').trim().toLowerCase();
+    const country = key(entry.name);
+    const regions = allEntries
+      .filter(e => isRegionEntry(e) && key(e.details.origin) === country)
+      .sort((a, b) => a.name.localeCompare(b.name));
+    const counts = new Map<string, number>();
+    for (const r of regions) {
+      for (const g of (r.details as { notableGrapes?: string[] }).notableGrapes ?? []) {
+        counts.set(key(g), (counts.get(key(g)) ?? 0) + 1);
+      }
+    }
+    const grapesAll = allEntries.filter(isGrapeEntry);
+    const byKey = new Map(grapesAll.map(g => [key(g.name), g]));
+    const ranked = [...counts.entries()]
+      .sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0]))
+      .map(([k]) => byKey.get(k))
+      .filter((g): g is NonNullable<typeof g> => !!g);
+    const seen = new Set(ranked.map(g => g.id));
+    const rest = grapesAll
+      .filter(g => !seen.has(g.id) && key(g.grapeCountryOfOrigin || g.details.origin) === country)
+      .sort((a, b) => a.name.localeCompare(b.name));
+    return { grapes: [...ranked, ...rest].map(g => g.name), regions: regions.map(r => r.name) };
+  }, [entry, allEntries]);
   const lineageEdges = useMemo(
     () => (isGrapeEntry(entry) && lineageIndex.hasLineage(entry.id) ? edgeCount(lineageIndex.relatives(entry.id)) : 0),
     [lineageIndex, entry],
@@ -874,23 +908,13 @@ const EntryDetail: React.FC<EntryDetailProps> = ({ entry, allEntries, onBack, on
           />
         )}
 
-        {/* Main Grapes Section - Countries */}
-        {isCountry && entry.details.notableGrapes && entry.details.notableGrapes.length > 0 && (
-          <LinkedListSection
-            icon={<Leaf size={18} />}
-            title="MAIN GRAPES"
-            gap="mb-2"
-            items={entry.details.notableGrapes}
-            cap={3}
-            expandKey={{ stateKey, flag: 'grapes' }}
-            {...linkedListShared}
-          />
-        )}
-
-        {/* System Section - Appellation Systems for Countries */}
+        {/* The article reads outside-in (iOS 0.6.7 B2, web v0.6.42): what
+            the country is, how it classifies its wine, where its regions are,
+            then every grape it grows -- not grapes before the page has said
+            anything about the place they come from. */}
         {isCountry && entry.tags && entry.tags.length > 0 && (
           <div className="mb-6">
-              <SectionHeader icon={<Shield size={18} />} label="APPELLATION SYSTEMS" gap="mb-2" />
+              <SectionHeader icon={<Shield size={18} />} label="APPELLATION SYSTEM" gap="mb-2" />
               <div className="flex flex-wrap gap-2">
                 {entry.tags.filter(tag => tag !== 'COUNTRY').map((system, idx) => {
                   const c = APPELLATION_CHIP_COLORS[idx % 3]!;
@@ -904,16 +928,27 @@ const EntryDetail: React.FC<EntryDetailProps> = ({ entry, allEntries, onBack, on
           </div>
         )}
 
-        {/* Key Regions Section - Countries with Regions */}
-        {isCountry && entry.details.keyRegions && entry.details.keyRegions.length > 0 && (
+        {isCountry && countryRosters && (
           <LinkedListSection
             icon={<MapPin size={18} />}
-            title="KEY REGIONS"
+            title="REGIONS"
             gap="mb-2"
-            items={entry.details.keyRegions}
-            cap={6}
+            items={countryRosters.regions}
+            cap={3}
             expandKey={{ stateKey, flag: 'regions' }}
             options={{ showRegionMetaTiles: true }}
+            {...linkedListShared}
+          />
+        )}
+
+        {isCountry && countryRosters && (
+          <LinkedListSection
+            icon={<Leaf size={18} />}
+            title="ALL GRAPES"
+            gap="mb-2"
+            items={countryRosters.grapes}
+            cap={3}
+            expandKey={{ stateKey, flag: 'grapes' }}
             {...linkedListShared}
           />
         )}

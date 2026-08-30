@@ -68,6 +68,17 @@ export interface WebRelease {
 // 0.6.1x, not 0.6.2: the firmware line owns 0.6.2 through 0.9.2, and the
 // two-clocks test refuses any version the device already wore.
 const CURRENT: WebRelease = {
+  version: '0.6.42',
+  date: '2026-08-30',
+  headline: 'THE WHOLE COUNTRY',
+  notes: [
+    'A country page now lists every region and every grape the catalog gives it -- France shows all 19 regions and its full run of grapes, ranked by how many regions call each one notable -- and the article reads outside-in: what the country is, how it classifies its wine, where its regions are, then the grapes.',
+    'The die-cut shell sticker is back on the back plate: flip the device and the fitted skin\'s own aged picture is stuck where the factory left it.',
+  ],
+};
+
+/** The release before this one, promoted when 0.6.42 landed. */
+const PREVIOUS_0_6_41: WebRelease = {
   version: '0.6.41',
   date: '2026-08-30',
   headline: 'PHOSPHOR AND ORDER',
@@ -528,6 +539,7 @@ const PREVIOUS_0_4_2: WebRelease = {
 
 /** Newest first. A new release is prepended by promoting `CURRENT`. */
 const PREVIOUS: WebRelease[] = [
+  PREVIOUS_0_6_41,
   PREVIOUS_0_6_40,
   PREVIOUS_0_6_39,
   PREVIOUS_0_6_38,

@@ -8,9 +8,11 @@ import { bestStreak } from '../src/services/dailyChallenge';
 import { highestUnlocked } from '../src/services/quiz';
 import { computePassport, type BadgeId } from '../src/services/passport';
 import { stampFor } from '../src/services/stampCatalog';
+import { skinStickerStem } from '../src/services/skinSticker';
 import { useTheme } from '../src/services/useTheme';
 import { CHASSIS_SKINS } from '../src/services/theme';
 import ChassisInternals from './ChassisInternals';
+import ArtImage from './ArtImage';
 
 interface DeviceBackPanelProps {
   onReturn: () => void;
@@ -123,6 +125,24 @@ const DeviceBackPanel: React.FC<DeviceBackPanelProps> = ({ onReturn }) => {
         const slot = STAMP_SLOT[b.id];
         return <PassportStamp key={b.id} title={stampFor(b.id).title} ink={slot.ink} rot={slot.rot} pos={slot.pos} />;
       })}
+
+      {/* The shell's own aged sticker (iOS 0.6.4 F3, back on the web since
+          v0.6.42): the die-cut picture of the fitted skin, stuck to the plate
+          the way the real thing ships from the factory -- swapping shells
+          swaps the sticker with it. The stem is the skin id's kebab form;
+          ORANGE WINE and WINE XMAS have no drawn sticker on either platform
+          and simply go without. Decorative: it says what it is by being the
+          shell's picture. */}
+      {skinStickerStem(skin.id) && (
+        <ArtImage
+          src={`/art/sticker/${skinStickerStem(skin.id)}.png`}
+          alt=""
+          aria-hidden="true"
+          draggable={false}
+          className="absolute pointer-events-none select-none"
+          style={{ top: '73%', right: '28%', width: 96, height: 'auto', transform: 'rotate(-7deg)', imageRendering: 'pixelated', opacity: 0.95 }}
+        />
+      )}
 
       {/* Corner screws */}
       <Screw className="absolute top-3 left-3 md:top-4 md:left-4" />

@@ -128,9 +128,17 @@ describe('<EntryDetail /> renders every category', () => {
       sections: ['INFO', 'COUNTRIES'],
     },
     {
-      label: 'COUNTRY_GATE',
-      entry: () => pick('a country gate', e => e.category === 'COUNTRY_GATE'),
+      // The gate's two faces diverged in v0.6.42 (iOS 0.6.7 B2): a state
+      // keeps its authored lists; a country reads outside-in with rosters
+      // derived from the catalog.
+      label: 'COUNTRY_GATE (state)',
+      entry: () => pick('a state', e => e.category === 'COUNTRY_GATE' && (e.details as { classification?: string }).classification?.toUpperCase() === 'STATE'),
       sections: ['INFO', 'MAIN GRAPES', 'APPELLATION SYSTEMS', 'KEY REGIONS'],
+    },
+    {
+      label: 'COUNTRY_GATE (country)',
+      entry: () => pick('a country', e => e.category === 'COUNTRY_GATE' && (e.details as { classification?: string }).classification?.toUpperCase() === 'COUNTRY'),
+      sections: ['INFO', 'APPELLATION SYSTEM', 'REGIONS', 'ALL GRAPES'],
     },
   ];
 
