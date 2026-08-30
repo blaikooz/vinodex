@@ -2,7 +2,7 @@ import { describe, it, expect } from 'vitest';
 import { buildWineEntries } from '@/shared/constants';
 import { normalizeLabel } from '@/shared/services/entryUtils';
 import type { WineEntry } from '@/shared/types';
-import { computePassport } from './passport';
+import { activitySeries, computePassport } from './passport';
 import type { Badge } from './passport';
 import type { QuizTier } from './quiz';
 
@@ -103,5 +103,15 @@ describe('passport', () => {
     // One short is not all of them.
     const oneShort = compute(allGrapes.slice(1).map(g => g.id));
     expect(badge('allGrapes', oneShort)).toBe(false);
+  });
+
+  it('activity is one column per day, oldest first, quiet days included (0.7.1 D1)', () => {
+    const series = activitySeries({ a: 100, b: 100, c: 98, ghost: 90, future: 105 }, 100, 7);
+    expect(series.map(d => d.day)).toEqual([94, 95, 96, 97, 98, 99, 100]);
+    expect(series.map(d => d.count)).toEqual([0, 0, 0, 0, 1, 0, 2]);
+    // Off-window days are dropped, not clamped into an edge spike.
+    expect(series[0]!.count).toBe(0);
+    expect(activitySeries({}, 100).length).toBe(7);
+    expect(activitySeries({ a: 1 }, 100, 0)).toEqual([]);
   });
 });

@@ -7,7 +7,7 @@ import { tierProgress } from '../src/services/passportTier';
 import { seedIfNeeded } from '../src/services/passportProgress';
 import DeviceLayout from './DeviceLayout';
 import { WineEntry } from '@/shared/types';
-import { shelfIds } from '../src/services/bookmarks';
+import { triedDayLog, shelfIds } from '../src/services/bookmarks';
 import { useBookmarks } from '../src/services/useBookmarks';
 import { bestStreak } from '../src/services/dailyChallenge';
 import { highestUnlocked } from '../src/services/quiz';
@@ -79,7 +79,7 @@ const ProgressRow: React.FC<{ label: string; done: number; total: number; fill: 
 const PassportScreen: React.FC<PassportScreenProps> = ({ allEntries, onSelect, onShowAllRecommendations, onStamps, onBack, onHome }) => {
   const revision = useBookmarks();
   const passport = useMemo(
-    () => computePassport(shelfIds('tried'), allEntries, bestStreak(), highestUnlocked()),
+    () => computePassport(shelfIds('tried'), allEntries, bestStreak(), highestUnlocked(), triedDayLog()),
     [allEntries, revision],
   );
   // YOU MIGHT LIKE (iOS 0.8.91, B3): the head of the full ranking, capped at
@@ -203,6 +203,50 @@ const PassportScreen: React.FC<PassportScreenProps> = ({ allEntries, onSelect, o
           {RARITIES.map(r => (
             <ProgressRow key={r} label={r} done={passport.byRarity[r] ?? 0} total={passport.rarityTotals[r] ?? 0} fill={RARITY_TINT[r] ?? 'var(--lcd-subtext)'} />
           ))}
+        </Section>
+
+        {/* The last seven days, one column each, quiet days as stubs (iOS
+            0.7.1 D1 / 0.8.91 E1): a gap is information, and seven columns
+            read individually where thirty were a texture. */}
+        <Section title="ACTIVITY">
+          {(() => {
+            const days = passport.activity;
+            const peak = Math.max(...days.map(d => d.count), 3);
+            const total = days.reduce((a, d) => a + d.count, 0);
+            const W = 100 / Math.max(days.length, 1);
+            return (
+              <div>
+                <div
+                  className="rounded-md border border-[var(--surface-line-strong)] px-2 py-2"
+                  style={{ backgroundColor: 'var(--lcd-well)' }}
+                  role="img"
+                  aria-label={`Activity, last ${days.length} days: ${total} ${total === 1 ? 'entry' : 'entries'} collected`}
+                >
+                  <svg viewBox="0 0 100 32" preserveAspectRatio="none" style={{ display: 'block', width: '100%', height: 64 }} focusable="false" aria-hidden="true">
+                    {days.map((d, i) => {
+                      const h = d.count === 0 ? 1 : Math.max((32 * d.count) / peak, 1.5);
+                      return (
+                        <rect
+                          key={d.day}
+                          x={i * W + W * 0.12}
+                          y={32 - h}
+                          width={W * 0.76}
+                          height={h}
+                          rx={0.8}
+                          fill={d.count === 0 ? 'var(--surface-line-strong)' : 'var(--lcd-accent)'}
+                        />
+                      );
+                    })}
+                  </svg>
+                </div>
+                <div className="flex justify-between text-micro tracking-widest text-[var(--lcd-subtext)] mt-1.5">
+                  <span>{days.length} DAYS AGO</span>
+                  <span>{total === 0 ? 'NOTHING LOGGED YET' : `${total} THIS WEEK`}</span>
+                  <span>TODAY</span>
+                </div>
+              </div>
+            );
+          })()}
         </Section>
 
             </div>

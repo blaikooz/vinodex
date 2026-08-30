@@ -7,6 +7,7 @@ import {
 import { entryOrigin } from './entryOrigin';
 import { normalizeLabel } from '@/shared/services/entryUtils';
 import { CONTINENTS } from '@/shared/data/continents';
+import { dayIndex } from './dailyPick';
 import { QuizTier } from './quiz';
 
 /**
@@ -15,6 +16,37 @@ import { QuizTier } from './quiz';
  * own; it reads the tried ids, the dataset, the best streak and the highest
  * unlocked quiz tier.
  */
+
+/** One column of the activity graph: a `dayIndex` and what it collected. */
+export interface PassportActivityDay {
+  day: number;
+  count: number;
+}
+
+/**
+ * How many days the activity graph shows. One week (iOS 0.8.91 E1, down from
+ * thirty): seven columns are wide enough to read *individually*, which is
+ * the difference between "did I taste anything yesterday" and "the month
+ * looks busy-ish". Nothing downstream depends on the number.
+ */
+export const ACTIVITY_SPAN = 7;
+
+/**
+ * The last `span` days as one column each, oldest first (iOS 0.7.1 D1).
+ * Pure, taking `today` rather than reading the clock, so the series is
+ * testable without freezing time. Days after today are impossible and days
+ * before the window are off the left edge; both are dropped rather than
+ * clamped, which would put a spike on the chart's edge no day earned.
+ */
+export function activitySeries(log: Record<string, number>, today: number, span: number = ACTIVITY_SPAN): PassportActivityDay[] {
+  if (span <= 0) return [];
+  const first = today - span + 1;
+  const counts = new Map<number, number>();
+  for (const day of Object.values(log)) {
+    if (day >= first && day <= today) counts.set(day, (counts.get(day) ?? 0) + 1);
+  }
+  return Array.from({ length: span }, (_, i) => ({ day: first + i, count: counts.get(first + i) ?? 0 }));
+}
 
 export type BadgeId =
   | 'firstSip' | 'tenBottles' | 'allNoble' | 'regionComplete' | 'streakWeek' | 'sommelier'
@@ -47,6 +79,8 @@ export interface Passport {
   countries: number;
   continents: string[];
   badges: Badge[];
+  /** One column per day, oldest first, quiet days included -- a gap is information. */
+  activity: PassportActivityDay[];
 }
 
 const label = normalizeLabel;
@@ -56,7 +90,16 @@ const RARITIES = ['COMMON', 'UNCOMMON', 'RARE', 'NOBLE', 'GODFORSAKEN'];
 // that its two siblings kept.
 const originOf = entryOrigin;
 
-export function computePassport(triedIds: string[], all: WineEntry[], bestStreak: number, highestTier: QuizTier): Passport {
+// `triedDays` and `today` are defaulted (iOS 0.7.1 D1) so the twenty-odd
+// call sites that only need the badges do not all grow two arguments.
+export function computePassport(
+  triedIds: string[],
+  all: WineEntry[],
+  bestStreak: number,
+  highestTier: QuizTier,
+  triedDays: Record<string, number> = {},
+  today: number = dayIndex(),
+): Passport {
   const byId = new Map(all.map(e => [e.id, e]));
   const tried = triedIds.map(id => byId.get(id)).filter((e): e is WineEntry => !!e);
   const allGrapes = all.filter(isGrapeEntry);
@@ -131,6 +174,7 @@ export function computePassport(triedIds: string[], all: WineEntry[], bestStreak
   ];
 
   return {
+    activity: activitySeries(triedDays, today),
     triedGrapes: triedGrapesList.length,
     totalGrapes: allGrapes.length,
     triedStyles: triedStylesList.length,
