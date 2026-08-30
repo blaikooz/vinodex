@@ -68,6 +68,17 @@ export interface WebRelease {
 // 0.6.1x, not 0.6.2: the firmware line owns 0.6.2 through 0.9.2, and the
 // two-clocks test refuses any version the device already wore.
 const CURRENT: WebRelease = {
+  version: '0.6.26',
+  date: '2026-08-30',
+  headline: 'THE STAMP COLLECTION',
+  notes: [
+    'The passport opens onto the stamp series as an album: every stamp drawn large, earned ones in their own ink with a denomination, unearned ones as silhouettes with what they would take.',
+    'Tap a stamp for its story.',
+  ],
+};
+
+/** The release before this one, promoted when 0.6.26 landed. */
+const PREVIOUS_0_6_25: WebRelease = {
   version: '0.6.25',
   date: '2026-08-30',
   headline: 'A FAMILY TREE',
@@ -356,6 +367,7 @@ const PREVIOUS_0_4_2: WebRelease = {
 
 /** Newest first. A new release is prepended by promoting `CURRENT`. */
 const PREVIOUS: WebRelease[] = [
+  PREVIOUS_0_6_25,
   PREVIOUS_0_6_24,
   PREVIOUS_0_6_23,
   PREVIOUS_0_6_22,

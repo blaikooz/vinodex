@@ -473,3 +473,17 @@ test('SETTINGS ▸ DATA carries the INSTALL row', async ({ page, consoleErrors }
   // shape is a row that says INSTALL, never nothing.
   await expect(row).toContainText(/INSTALL VINODEX|ADD TO HOME SCREEN/);
 });
+
+/** The stamp series as a collection (v10#2): every stamp drawn, the door from the passport. */
+test('the passport opens onto the stamp collection', async ({ page, consoleErrors }) => {
+  void consoleErrors;
+  await seedDevice(page);
+  await enterDex(page, '/passport');
+  await page.getByRole('button', { name: /OPEN THE COLLECTION/ }).click();
+  await expect(page).toHaveURL(/\/passport\/stamps$/);
+  await expect(page.locator('[data-stamp]')).toHaveCount(6);
+  await page.locator('[data-stamp="firstSip"]').click();
+  await expect(page.getByRole('dialog', { name: 'FIRST SIP story' })).toBeVisible();
+  await page.getByRole('button', { name: 'CLOSE' }).click();
+  await expect(page.getByRole('dialog')).toHaveCount(0);
+});

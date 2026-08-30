@@ -63,6 +63,7 @@ const DeviceWorkshopScreen = lazy(() => import('./components/DeviceWorkshopScree
 const GrapeLineageScreen = lazy(() => import('./components/GrapeLineageScreen'));
 const ProfVinoScreen = lazy(() => import('./components/ProfVinoScreen'));
 const PassportScreen = lazy(() => import('./components/PassportScreen'));
+const StampCollectionScreen = lazy(() => import('./components/StampCollectionScreen'));
 const WalkthroughScreen = lazy(() => import('./components/WalkthroughScreen'));
 const BookmarksScreen = lazy(() => import('./components/BookmarksScreen'));
 const SettingsGrid = lazy(() => import('./components/SettingsPanel'));
@@ -850,9 +851,21 @@ const App: React.FC = () => {
                 allEntries={allEntries}
                 onSelect={handleSelectEntry}
                 onShowAllRecommendations={() => navigate('/recommendations')}
+                onStamps={() => navigate('/passport/stamps')}
                 onBack={handleBack}
                 onHome={handleHome}
               />
+            </Suspense>
+          }
+        />
+        {/* The stamp series as a collection (v10#2). Under /passport so the
+            prefix list already owns it: it boots, skins and sleeps as a dex
+            screen without a new entry in DEX_PREFIXES. */}
+        <Route
+          path="/passport/stamps"
+          element={
+            <Suspense fallback={<ScreenLoading label="LOADING STAMPS..." onBack={handleBack} onHome={handleHome} />}>
+              <StampCollectionScreen allEntries={allEntries} onBack={handleBack} onHome={handleHome} />
             </Suspense>
           }
         />

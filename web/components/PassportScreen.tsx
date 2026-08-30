@@ -23,6 +23,8 @@ interface PassportScreenProps {
   allEntries: WineEntry[];
   onSelect: (entry: WineEntry) => void;
   onShowAllRecommendations: () => void;
+  /** The stamp series as a collection (v10#2). */
+  onStamps: () => void;
   onBack: () => void;
   onHome: () => void;
 }
@@ -73,7 +75,7 @@ const ProgressRow: React.FC<{ label: string; done: number; total: number; fill: 
   );
 };
 
-const PassportScreen: React.FC<PassportScreenProps> = ({ allEntries, onSelect, onShowAllRecommendations, onBack, onHome }) => {
+const PassportScreen: React.FC<PassportScreenProps> = ({ allEntries, onSelect, onShowAllRecommendations, onStamps, onBack, onHome }) => {
   const revision = useBookmarks();
   const passport = useMemo(
     () => computePassport(shelfIds('tried'), allEntries, bestStreak(), highestUnlocked()),
@@ -173,6 +175,18 @@ const PassportScreen: React.FC<PassportScreenProps> = ({ allEntries, onSelect, o
         )}
 
         <Section title="STAMPS">
+          {/* The door to the collection (v10#2): the grid below counts, the
+              page behind it draws. Above the grid so it is found before the
+              tiles are read as the whole of it. */}
+          <button
+            type="button"
+            onClick={onStamps}
+            className="dex-pressable mb-3 w-full flex items-center justify-between gap-2 rounded-card bg-[var(--surface-raised)] border border-[var(--surface-line-strong)] px-4 py-3 text-micro tracking-widest text-[var(--lcd-accent)] hover:border-[var(--lcd-accent)] shadow-elev-1"
+            data-passport-stamps-door
+          >
+            <span>OPEN THE COLLECTION ({passport.badges.filter(b => b.earned).length}/{passport.badges.length})</span>
+            <ChevronRight size={14} aria-hidden="true" />
+          </button>
           <div className="grid grid-cols-2 gap-3">
             {passport.badges.map(b => {
               const tint = BADGE_TINT[b.id];
