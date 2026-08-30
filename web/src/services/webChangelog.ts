@@ -68,6 +68,16 @@ export interface WebRelease {
 // 0.6.1x, not 0.6.2: the firmware line owns 0.6.2 through 0.9.2, and the
 // two-clocks test refuses any version the device already wore.
 const CURRENT: WebRelease = {
+  version: '0.6.35',
+  date: '2026-08-30',
+  headline: 'WORKSHOP ON RECORD',
+  notes: [
+    'The workshop is under test at last: the locked door, saving and renaming-by-resaving, the FITTED derivation, and the delete confirmation are all pinned by a suite of their own. Nothing changed on screen; what changed is that it cannot quietly break.',
+  ],
+};
+
+/** The release before this one, promoted when 0.6.35 landed. */
+const PREVIOUS_0_6_34: WebRelease = {
   version: '0.6.34',
   date: '2026-08-30',
   headline: 'SHOP SWEEP',
@@ -453,6 +463,7 @@ const PREVIOUS_0_4_2: WebRelease = {
 
 /** Newest first. A new release is prepended by promoting `CURRENT`. */
 const PREVIOUS: WebRelease[] = [
+  PREVIOUS_0_6_34,
   PREVIOUS_0_6_33,
   PREVIOUS_0_6_32,
   PREVIOUS_0_6_31,
