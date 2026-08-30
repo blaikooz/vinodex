@@ -8,6 +8,7 @@ import MarqueeLampChooser from './MarqueeLampChooser';
 import { IosUpdatesPromptOverlay } from './IosUpdatesPrompt';
 import { VinodexBootOverlay } from './VinodexBoot';
 import { isOnline, subscribeOnline } from '../src/services/online';
+import { ToolIntroHost } from './ToolIntroCard';
 import { ScreensaverOverlay } from './ScreensaverOverlay';
 import { DEVICE_FOOTER_BOTTOM_PAD, DEVICE_FOOTER_RESERVATION, DEVICE_FRAME_BOX, DEVICE_FRAME_STAGE } from '../src/services/deviceFrame';
 import { isSitePath } from '../src/services/appRoutes';
@@ -321,6 +322,12 @@ const DeviceLayout: React.FC<DeviceLayoutProps> = ({
                   content so it inherits the screen palette, clipping and
                   phosphor treatment instead of floating over the chassis. */}
               <IosUpdatesPromptOverlay />
+
+              {/* The first-open card for a tool (v10#5). Before the boot
+                  overlay in the tree, so a cold arrival on a tool route sees
+                  the BIOS first and the card when it clears. Site routes and
+                  spent tools render nothing. */}
+              <ToolIntroHost />
 
               {/* The lamp-reassignment chooser.
                   Inside the LCD, above the screen and below the scanlines —

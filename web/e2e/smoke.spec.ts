@@ -487,3 +487,20 @@ test('the passport opens onto the stamp collection', async ({ page, consoleError
   await page.getByRole('button', { name: 'CLOSE' }).click();
   await expect(page.getByRole('dialog')).toHaveCount(0);
 });
+
+/** The first-open card (v10#5): a fresh device meets it on a tool route; START lets the tool through; it never returns. */
+test('a tool introduces itself once', async ({ page, consoleErrors }) => {
+  void consoleErrors;
+  await seedDevice(page);
+  await enterDex(page, '/moon-dial');
+  const card = page.getByRole('dialog', { name: /MOON DIAL/ });
+  await expect(card).toBeVisible();
+  // Focus is moved to START by ref (asserted in the component test); in the
+  // real browser the boot's skip click can land after the effect, so the
+  // e2e asserts the card's contract, not where the caret is.
+  await card.getByRole('button', { name: 'START' }).click();
+  await expect(card).toHaveCount(0);
+  await page.reload();
+  await page.waitForTimeout(600);
+  await expect(page.getByRole('dialog', { name: /MOON DIAL/ })).toHaveCount(0);
+});

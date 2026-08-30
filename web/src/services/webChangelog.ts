@@ -68,6 +68,17 @@ export interface WebRelease {
 // 0.6.1x, not 0.6.2: the firmware line owns 0.6.2 through 0.9.2, and the
 // two-clocks test refuses any version the device already wore.
 const CURRENT: WebRelease = {
+  version: '0.6.27',
+  date: '2026-08-30',
+  headline: 'WHAT THIS TOOL IS',
+  notes: [
+    'The first time you open a tool -- BLIND TASTING, WINE EXAM, DAILY CHALLENGE, PROF. VINO, MOON DIAL -- a card says what it is and how it works, in one line and a paragraph, wearing the tile\'s own colour.',
+    'START lets you through and the card never returns for that tool; SKIP THESE answers for all of them at once.',
+  ],
+};
+
+/** The release before this one, promoted when 0.6.27 landed. */
+const PREVIOUS_0_6_26: WebRelease = {
   version: '0.6.26',
   date: '2026-08-30',
   headline: 'THE STAMP COLLECTION',
@@ -367,6 +378,7 @@ const PREVIOUS_0_4_2: WebRelease = {
 
 /** Newest first. A new release is prepended by promoting `CURRENT`. */
 const PREVIOUS: WebRelease[] = [
+  PREVIOUS_0_6_26,
   PREVIOUS_0_6_25,
   PREVIOUS_0_6_24,
   PREVIOUS_0_6_23,

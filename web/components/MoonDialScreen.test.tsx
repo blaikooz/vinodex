@@ -1,4 +1,5 @@
-import { afterEach, describe, expect, it, vi } from 'vitest';
+import { beforeEach, afterEach, describe, expect, it, vi } from 'vitest';
+import { markAllToolIntrosSeen } from '../src/services/toolIntro';
 import { cleanup, render, screen } from '@testing-library/react';
 import { MemoryRouter } from 'react-router-dom';
 import MoonDialScreen from './MoonDialScreen';
@@ -37,6 +38,11 @@ const DAYS = [
   new Date(2026, 6, 28),
   new Date(2026, 10, 3),
 ];
+
+
+// The first-open card (v10#5) is a first-run overlay, not one of this screen's
+// controls; spend it so the control census stays the screen's.
+beforeEach(() => markAllToolIntrosSeen());
 
 describe('<MoonDialScreen />', () => {
   afterEach(() => {
