@@ -97,3 +97,26 @@ export const trackEvent = (name: FunnelEvent, props?: { source: EventSource }): 
       /* Same: a blocked beacon must never surface as an app error. */
     });
 };
+
+/**
+ * One error report (v0.6.33) on the same cookieless channel. The shape is
+ * closed by `errorReport.ts` -- a name, a script location, a route pattern
+ * and a version; never a message, never a path -- so this stays inside the
+ * promise the module's header makes: nothing user-authored is ever sent.
+ */
+export interface ErrorBeacon {
+  kind: 'error' | 'rejection' | 'render';
+  name: string;
+  where: string;
+  route: string;
+  version: string;
+}
+
+export const trackError = (props: ErrorBeacon): void => {
+  if (!analyticsEnabled()) return;
+  void import('@vercel/analytics')
+    .then(({ track }) => track('app-error', { ...props }))
+    .catch(() => {
+      /* A blocked beacon is not a second error. */
+    });
+};

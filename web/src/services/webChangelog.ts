@@ -68,6 +68,17 @@ export interface WebRelease {
 // 0.6.1x, not 0.6.2: the firmware line owns 0.6.2 through 0.9.2, and the
 // two-clocks test refuses any version the device already wore.
 const CURRENT: WebRelease = {
+  version: '0.6.33',
+  date: '2026-08-30',
+  headline: 'WHEN IT BREAKS',
+  notes: [
+    'If a screen fails, the device says so -- SOMETHING BROKE, with RESTART VINODEX and BACK TO THE SITE -- instead of going blank.',
+    'Breakages are counted the way visits are: first-party, cookieless, and only the kind of error, where in our code it happened and which screen it was on. Never what you typed or the address you were at. The privacy page says so.',
+  ],
+};
+
+/** The release before this one, promoted when 0.6.33 landed. */
+const PREVIOUS_0_6_32: WebRelease = {
   version: '0.6.32',
   date: '2026-08-30',
   headline: 'SAYS WHAT IT IS',
@@ -432,6 +443,7 @@ const PREVIOUS_0_4_2: WebRelease = {
 
 /** Newest first. A new release is prepended by promoting `CURRENT`. */
 const PREVIOUS: WebRelease[] = [
+  PREVIOUS_0_6_32,
   PREVIOUS_0_6_31,
   PREVIOUS_0_6_30,
   PREVIOUS_0_6_29,

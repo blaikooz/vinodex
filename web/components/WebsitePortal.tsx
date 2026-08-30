@@ -740,9 +740,12 @@ export const PrivacyAndTerms: React.FC<{ onBack: () => void; onHome: () => void 
       <p>
         We count visits with Vercel&apos;s cookieless analytics: aggregate
         numbers — how many people saw the site, opened the app, or tapped
-        through to our Substack. No cookies, no identifiers, nothing stored
-        on your device, and nothing that follows you anywhere else. No
-        advertising, no sale of data — there is no data to sell.
+        through to our Substack. If the app breaks, the same channel carries
+        the kind of error, where in our code it happened and which screen it
+        was on — never what you typed or the address you were at. No cookies,
+        no identifiers, nothing stored on your device, and nothing that
+        follows you anywhere else. No advertising, no sale of data — there is
+        no data to sell.
       </p>
     </section>
 

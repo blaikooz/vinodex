@@ -6,6 +6,8 @@ import App from './App';
 import { applyTheme } from './src/services/theme';
 import { initAnalytics } from './src/services/analytics';
 import { bindInstallPrompt } from './src/services/installPrompt';
+import { installErrorReporting } from './src/services/errorReport';
+import ErrorBoundary from './components/ErrorBoundary';
 
 // Before the first render, so the chassis paints in the stored colourway rather
 // than flashing the default red and correcting itself a frame later.
@@ -20,6 +22,11 @@ initAnalytics();
 // component could subscribe. See `installPrompt.ts`.
 bindInstallPrompt();
 
+// What nothing else catches -- a thrown exception, an unawaited rejection --
+// is reported first-party as a name and a location, never a message. See
+// `errorReport.ts` for the shape and the ruling behind it (v0.6.33).
+installErrorReporting();
+
 const rootElement = document.getElementById('root');
 if (!rootElement) {
   throw new Error("Could not find root element to mount to");
@@ -28,8 +35,10 @@ if (!rootElement) {
 const root = ReactDOM.createRoot(rootElement);
 root.render(
   <React.StrictMode>
-    <BrowserRouter>
-      <App />
-    </BrowserRouter>
+    <ErrorBoundary>
+      <BrowserRouter>
+        <App />
+      </BrowserRouter>
+    </ErrorBoundary>
   </React.StrictMode>
 );
