@@ -1,9 +1,10 @@
 import React from 'react';
 import { describe, expect, it, vi } from 'vitest';
-import { fireEvent, render, screen } from '@testing-library/react';
+import { fireEvent, render, screen, within } from '@testing-library/react';
 import { MemoryRouter } from 'react-router-dom';
 import {
   ContactUs,
+  NotFound,
   OurAppsList,
   PortalHome,
   PROJECTS,
@@ -97,6 +98,25 @@ describe('the Horizon/Godot website', () => {
     expect(link.getAttribute('href')).toBe('https://chateauearth.substack.com/');
     expect(link.getAttribute('target')).toBe('_blank');
     expect(link.getAttribute('rel')).toContain('noopener');
+  });
+
+  it('answers a dead link with NOT FOUND, two doors and a noindex (v0.6.20)', () => {
+    const onHome = vi.fn();
+    const onOpenApp = vi.fn();
+    const view = inRouter(<NotFound path="/no/such/page" onHome={onHome} onOpenApp={onOpenApp} />);
+    // Scoped: earlier renders in this file are still mounted.
+    const page = within(view.container);
+    expect(page.getByRole('heading', { name: 'NO SUCH PAGE' })).toBeTruthy();
+    expect(page.getByText('/no/such/page')).toBeTruthy();
+    expect(document.head.querySelector('meta[name="robots"][content="noindex"]')).toBeTruthy();
+    fireEvent.click(page.getByRole('button', { name: 'HOME' }));
+    expect(onHome).toHaveBeenCalledOnce();
+    fireEvent.click(page.getByRole('button', { name: 'OPEN VINODEX' }));
+    expect(onOpenApp).toHaveBeenCalledOnce();
+    // The site's chassis, by request rather than by path: the studio's nav.
+    expect(page.getByRole('navigation', { name: 'Screen navigation' })).toBeTruthy();
+    view.unmount();
+    expect(document.head.querySelector('meta[name="robots"]'), 'noindex outlived the screen').toBeNull();
   });
 
   it('presents both founders with concise roles and playful studio facts', () => {

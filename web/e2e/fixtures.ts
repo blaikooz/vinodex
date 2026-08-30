@@ -25,6 +25,12 @@ export const test = base.extend<{ consoleErrors: string[] }>({
     });
     page.on('pageerror', e => found.push(String(e)));
     page.on('requestfailed', r => {
+      // An in-flight image cancelled by a navigation is `net::ERR_ABORTED`,
+      // not a failure -- it happened once under full-suite load to
+      // `/art/vino/vino-thinking.png` and failed the walkthrough spec. A
+      // mistyped stem is still a 404 response, caught below, so the
+      // art-reference guard this fixture exists for is untouched.
+      if (r.failure()?.errorText === 'net::ERR_ABORTED') return;
       if (!IGNORABLE.test(r.url())) found.push(`request failed: ${r.url()}`);
     });
     // A missing image is a 404 response, not a failed request.

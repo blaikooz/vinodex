@@ -55,6 +55,19 @@ test('the site is what a visitor lands on', async ({ page, consoleErrors }) => {
   await expect(page.getByText('CREATING ACROSS MULTITUDES')).toHaveCount(0);
 });
 
+test('a dead link gets NOT FOUND in the studio chassis, and no boot', async ({ page, consoleErrors }) => {
+  void consoleErrors;
+  await seedDevice(page);
+  await page.goto('/this/never/existed');
+  await expect(page.getByRole('heading', { name: 'NO SUCH PAGE' })).toBeVisible();
+  await expect(page.getByText('/this/never/existed')).toBeVisible();
+  await expect(page.getByRole('button', { name: 'Skip boot' })).toHaveCount(0);
+  await expect(page).toHaveTitle('HORIZON/GODOT');
+  await page.getByRole('button', { name: 'HOME' }).click();
+  await expect(page).toHaveURL(/\/$/);
+  await expect(page.getByRole('heading', { name: 'HORIZON/GODOT' })).toBeVisible();
+});
+
 test('leaving the dex mid-boot takes the BIOS with it', async ({ page, consoleErrors }) => {
   void consoleErrors;
   // Back or Home pressed during the POST used to carry `booting` onto the

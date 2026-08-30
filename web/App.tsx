@@ -10,7 +10,7 @@ import {
   useSearchParams,
 } from 'react-router-dom';
 import MainMenu from './components/MainMenu';
-import { PortalHome, OurAppsList, ProjectSplash, WhoWeAre, ContactUs, PrivacyAndTerms, getProject } from './components/WebsitePortal';
+import { NotFound, PortalHome, OurAppsList, ProjectSplash, WhoWeAre, ContactUs, PrivacyAndTerms, getProject } from './components/WebsitePortal';
 import EncyclopediaList from './components/EncyclopediaList';
 import EntryDetail from './components/EntryDetail';
 import RegionMapScreen from './components/RegionMapScreen';
@@ -1004,7 +1004,10 @@ const App: React.FC = () => {
             company site — unlike the in-app fallbacks above, which go to
             "/dex". Nothing boots on the way through: an unknown path is in
             neither product's list, so `bootDecision` declines it (v8#2). */}
-        <Route path="*" element={<Navigate to="/" replace />} />
+        <Route
+          path="*"
+          element={<NotFound path={location.pathname} onHome={() => navigate('/')} onOpenApp={() => navigate('/dex')} />}
+        />
             </Routes>
           </IosUpdatesPromptProvider>
         </VinodexBootProvider>

@@ -91,6 +91,9 @@ test('the mark takes a new palette colour on every wall, and stays crisp', async
   // context teardown -- a still-running frame loop under a racing clock was
   // enough to push the teardown past the budget.
   await page.evaluate(() => clearInterval((window as unknown as { __fastClock: number }).__fastClock));
-  await saver.click();
+  // dispatchEvent rather than click(): the actionability wait on a surface
+  // repainting every frame timed out once under full-suite load (90s), and
+  // the wake is a click handler, not a hit-test.
+  await saver.dispatchEvent('click');
   await expect(saver).toHaveCount(0);
 });

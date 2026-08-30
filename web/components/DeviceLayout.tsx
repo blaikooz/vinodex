@@ -17,6 +17,9 @@ import { useTheme } from '../src/services/useTheme';
 interface DeviceLayoutProps {
   children: React.ReactNode;
   title: string;
+  /** Paint the studio's chassis regardless of the path — for the NOT FOUND
+   *  screen, whose URL is by definition in neither product's list (v0.6.20). */
+  site?: boolean;
   subtitle?: string;
   onBack?: () => void;
   showBack?: boolean;
@@ -40,6 +43,7 @@ interface DeviceLayoutProps {
 const DeviceLayout: React.FC<DeviceLayoutProps> = ({
   children,
   title,
+  site,
   subtitle: _subtitle,
   onBack,
   showBack = false,
@@ -77,7 +81,7 @@ const DeviceLayout: React.FC<DeviceLayoutProps> = ({
    * written against.
    */
   const { pathname } = useLocation();
-  const onSite = isSitePath(pathname);
+  const onSite = site ?? isSitePath(pathname);
 
   // The player's own shell, so the dex repaints when they pick a new one.
   const theme = useTheme();

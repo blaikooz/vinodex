@@ -68,6 +68,18 @@ export interface WebRelease {
 // 0.6.1x, not 0.6.2: the firmware line owns 0.6.2 through 0.9.2, and the
 // two-clocks test refuses any version the device already wore.
 const CURRENT: WebRelease = {
+  version: '0.6.20',
+  date: '2026-08-30',
+  headline: 'NO SUCH PAGE',
+  notes: [
+    'A wrong link now says so: NO SUCH PAGE in the studio chassis, with the address, HOME and OPEN VINODEX -- instead of a silent bounce to the front page.',
+    'The dead end tells search engines not to index it. Old /website and /terms links still redirect as before.',
+    'The GET iOS UPDATES link is a full-size touch target without taking any more room on a phone.',
+  ],
+};
+
+/** The release before this one, promoted when 0.6.20 landed. */
+const PREVIOUS_0_6_19: WebRelease = {
   version: '0.6.19',
   date: '2026-08-30',
   headline: 'THE STUDIO\'S FRONT DOOR',
@@ -286,6 +298,7 @@ const PREVIOUS_0_4_2: WebRelease = {
 
 /** Newest first. A new release is prepended by promoting `CURRENT`. */
 const PREVIOUS: WebRelease[] = [
+  PREVIOUS_0_6_19,
   PREVIOUS_0_6_18,
   PREVIOUS_0_6_17,
   PREVIOUS_0_6_16,

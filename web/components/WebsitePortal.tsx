@@ -1,5 +1,5 @@
 import React from 'react';
-import { LayoutGrid, Users, Mail, ChevronRight, Gamepad2, ArrowUpRight } from 'lucide-react';
+import { LayoutGrid, Users, Mail, ChevronRight, Gamepad2, ArrowUpRight, SearchX } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
 import DeviceLayout from './DeviceLayout';
 import { Card, Tile } from './Card';
@@ -276,7 +276,10 @@ export const PortalHome: React.FC<PortalHomeProps> = props => (
             // Not `.dex-pressable`: that class is the card language (and the
             // a11y gate's definition of a card control -- the landing has
             // four). A text link gets a text link's focus: the outline.
-            className="inline-flex min-h-6 items-center gap-1 rounded-control font-retro text-label tracking-widest text-[var(--lcd-accent)] underline underline-offset-4 hover:text-[var(--lcd-text)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--lcd-accent)]"
+            // `pt-5 -mt-5`: a 44px hit target (a11y, Phase 3) that costs the
+            // phone LCD no layout -- the extra reach is upward, over the
+            // sentence, never down into the tiles.
+            className="inline-flex min-h-6 pt-5 -mt-5 items-center gap-1 rounded-control font-retro text-label tracking-widest text-[var(--lcd-accent)] underline underline-offset-4 hover:text-[var(--lcd-text)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--lcd-accent)]"
           >
             GET iOS UPDATES
             <ArrowUpRight size={14} aria-hidden="true" />
@@ -597,6 +600,69 @@ export const ContactUs: React.FC<{ onBack: () => void; onHome: () => void; onPri
     </div>
   </DeviceLayout>
 );
+
+/**
+ * The dead end (v0.6.20). Vercel serves the shell with a 200 for every path,
+ * so a wrong link cannot be a real 404; until this release it was a silent
+ * redirect to `/`, which told the visitor nothing and quietly ranked the bad
+ * URL as the front page. Now it says so, in the studio's chassis (`site`,
+ * because the path is by definition in neither product's route list), with
+ * the two doors that matter and a `noindex` for the crawler that ran the
+ * script. The old `/website/*` and `/terms` spellings still redirect; this is
+ * only for URLs nothing ever answered to.
+ */
+export const NotFound: React.FC<{ path: string; onHome: () => void; onOpenApp: () => void }> = ({ path, onHome, onOpenApp }) => {
+  React.useEffect(() => {
+    const meta = document.createElement('meta');
+    meta.name = 'robots';
+    meta.content = 'noindex';
+    document.head.appendChild(meta);
+    return () => { meta.remove(); };
+  }, []);
+  return (
+    <DeviceLayout title="NOT FOUND" subtitle="" showBack onBack={onHome} onHome={onHome} showSystemButtons={false} centerHeaderText site>
+      <div className={`flex-1 min-h-0 w-full flex flex-col relative overflow-hidden ${screenGround}`}>
+        <RetroGrid />
+        <div
+          className="site-scroll-region custom-scrollbar relative z-10 min-h-0 flex-1 overflow-y-auto p-[var(--pad-screen)] flex flex-col items-center justify-center gap-5 text-center"
+          tabIndex={0}
+          role="region"
+          aria-label="Not found content"
+        >
+          <span
+            aria-hidden="true"
+            className="dex-tint flex items-center justify-center rounded-surface p-4 bg-[var(--tint-subtle)] text-[var(--tint-ink)]"
+            style={{ '--tint': 'var(--livery-orange)' } as React.CSSProperties}
+          >
+            <SearchX size={40} />
+          </span>
+          <div className="space-y-2">
+            <h2 className="font-retro text-display tracking-widest text-[var(--lcd-text)]">NO SUCH PAGE</h2>
+            <p className="mx-auto max-w-full break-all rounded-control border border-[var(--surface-line)] bg-[var(--surface-raised)] px-3 py-1.5 font-mono text-caption normal-case text-[var(--lcd-subtext)]">
+              {path}
+            </p>
+          </div>
+          <p className="text-body normal-case leading-relaxed text-[var(--lcd-body-text)] max-w-prose">
+            Nothing answers to that address. The link may be old, or mistyped.
+          </p>
+          <div className="flex flex-wrap items-center justify-center gap-3">
+            <button type="button" onClick={onHome} className={primaryAction}>
+              HOME
+            </button>
+            <button
+              type="button"
+              onClick={onOpenApp}
+              className="dex-pressable inline-flex min-h-11 items-center justify-center gap-2 rounded-control border-2 border-[var(--surface-line-strong)] px-6 py-4 font-retro text-heading uppercase tracking-widest text-[var(--lcd-text)]"
+            >
+              OPEN VINODEX
+              <Gamepad2 size={18} className="shrink-0" aria-hidden="true" />
+            </button>
+          </div>
+        </div>
+      </div>
+    </DeviceLayout>
+  );
+};
 
 /**
  * The legal page — one screen for both, at `/privacy` (v0.6.0).
