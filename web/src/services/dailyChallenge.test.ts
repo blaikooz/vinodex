@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeEach } from 'vitest';
-import { dailySession, recordDaily, currentStreak, bestStreak, isTodayDone } from './dailyChallenge';
+import { dailySession, recordDaily, currentStreak, bestStreak, isTodayDone, dailyMarks, dailyResultString } from './dailyChallenge';
 
 // Noon-based dates so the local-day boundary is never in play.
 const at = (y: number, m: number, d: number, h = 12) => new Date(y, m - 1, d, h);
@@ -49,6 +49,18 @@ describe('daily streak', () => {
     expect(currentStreak()).toBe(0);
     expect(isTodayDone(101)).toBe(true);
     expect(recordDaily(true, 102)).toBe(1);
+  });
+
+  it("remembers today's marks and renders the result string (v10#3)", () => {
+    expect(dailyMarks(100)).toBeNull();
+    recordDaily(true, 100, [true, true, false, true, true]);
+    expect(dailyMarks(100)).toEqual([true, true, false, true, true]);
+    expect(dailyMarks(101)).toBeNull();
+    const text = dailyResultString(100, [true, true, false, true, true], 4);
+    expect(text).toBe('VINODEX DAILY 1970-04-11 · 4/5 PASS\n🟩🟩🟥🟩🟩\nvinodex.vercel.app/daily-challenge');
+    expect(dailyResultString(100, [false, false, true, false, false], 4)).toContain('1/5 FAIL');
+    // Never the answers: nothing but tiles, a score and a date.
+    expect(text).not.toMatch(/[A-Z][a-z]+ [A-Z][a-z]+/);
   });
 
   it('the same day twice is a no-op', () => {

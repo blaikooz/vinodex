@@ -504,3 +504,22 @@ test('a tool introduces itself once', async ({ page, consoleErrors }) => {
   await page.waitForTimeout(600);
   await expect(page.getByRole('dialog', { name: /MOON DIAL/ })).toHaveCount(0);
 });
+
+/** The daily result string (v10#3): a done paper shows its tiles and offers to share them, never the answers. */
+test('a finished daily challenge shows its result string', async ({ page, consoleErrors }) => {
+  void consoleErrors;
+  const day = Math.floor(new Date(new Date().getFullYear(), new Date().getMonth(), new Date().getDate()).getTime() / 86_400_000);
+  await seedDevice(page, {
+    dailyLastDay: String(day),
+    dailyStreak: '1',
+    dailyBestStreak: '1',
+    dailyMarks: JSON.stringify({ day, marks: [true, true, false, true, true] }),
+    toolIntrosSeen: 'blindTasting,labelScan,wineExam,dailyChallenge,profVino,moonDial',
+  });
+  await enterDex(page, '/daily-challenge');
+  const result = page.locator('[data-daily-result]');
+  await expect(result).toBeVisible();
+  await expect(result).toContainText('4/5 PASS');
+  await expect(result).toContainText('🟩🟩🟥🟩🟩');
+  await expect(result.getByRole('button', { name: 'SHARE RESULT' })).toBeVisible();
+});

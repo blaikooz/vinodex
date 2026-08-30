@@ -81,7 +81,7 @@ describe('parseSession (daily quiz)', () => {
   });
 
   it('accepts a null chosenID — the unanswered state', () => {
-    expect(parseSession(JSON.stringify({ ...good, chosenID: null }))).toEqual({ ...good, chosenID: null });
+    expect(parseSession(JSON.stringify({ ...good, chosenID: null, marks: [] }))).toEqual({ ...good, chosenID: null, marks: [] });
   });
 
   it('returns null for garbage, a wrong tier, and a wrong-typed chosenID', () => {

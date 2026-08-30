@@ -43,6 +43,16 @@ export interface QuizSession {
   index: number;
   correct: number;
   chosenID: string | null;
+  /**
+   * Right or wrong per question answered so far, oldest first (v10#3,
+   * ported from iOS 0.7.8 C1). **Correctness only, and that is the whole
+   * security argument**: the daily result string built from this is shown
+   * to people holding the same paper, so what it encodes has to be
+   * something they cannot invert. A per-question chosen option would be
+   * exactly that leak. `correct` is kept rather than derived so `isPassed`
+   * reads the field it always has.
+   */
+  marks: boolean[];
 }
 
 /**
@@ -64,6 +74,9 @@ export const parseSession = (raw: string | null | undefined): QuizSession | null
   if (!num(o.seed) || !num(o.length) || !num(o.passMark) || !num(o.index) || !num(o.correct)) return null;
   if (typeof o.tier !== 'string' || !(QUIZ_TIERS as string[]).includes(o.tier)) return null;
   if (o.chosenID !== null && typeof o.chosenID !== 'string') return null;
+  // `marks` did not exist before v0.6.29; a paper half-sat across the
+  // upgrade decodes with an empty grid rather than being thrown away.
+  const marks = Array.isArray(o.marks) && o.marks.every(m => typeof m === 'boolean') ? (o.marks as boolean[]) : [];
   return {
     seed: o.seed,
     length: o.length,
@@ -72,6 +85,7 @@ export const parseSession = (raw: string | null | undefined): QuizSession | null
     index: o.index,
     correct: o.correct,
     chosenID: o.chosenID ?? null,
+    marks,
   };
 };
 
@@ -278,7 +292,7 @@ export function quizQuestion(all: WineEntry[], number: number, sessionSeed: numb
 
 // --- session helpers (pure; return new sessions) ----------------------------
 export function newSession(seed: number, tier: QuizTier = 'ENTHUSIAST', length = DEFAULT_LENGTH, passMark = DEFAULT_PASS): QuizSession {
-  return { seed, length, passMark, tier, index: 0, correct: 0, chosenID: null };
+  return { seed, length, passMark, tier, index: 0, correct: 0, chosenID: null, marks: [] };
 }
 export const isComplete = (s: QuizSession): boolean => s.index >= s.length;
 export const isPassed = (s: QuizSession): boolean => s.correct >= s.passMark;
@@ -286,7 +300,8 @@ export const isAnswered = (s: QuizSession): boolean => s.chosenID !== null;
 
 export function chooseAnswer(s: QuizSession, id: string, q: QuizQuestion): QuizSession {
   if (s.chosenID !== null || isComplete(s)) return s;
-  return { ...s, chosenID: id, correct: q.answerID === id ? s.correct + 1 : s.correct };
+  const right = q.answerID === id;
+  return { ...s, chosenID: id, correct: right ? s.correct + 1 : s.correct, marks: [...s.marks, right] };
 }
 export function advance(s: QuizSession): QuizSession {
   if (s.chosenID === null || isComplete(s)) return s;

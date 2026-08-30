@@ -18,6 +18,7 @@ import {
   isTierUnlocked,
   recordTierPass,
   type QuizTier,
+  parseSession,
 } from './quiz';
 
 const all = buildWineEntries() as WineEntry[];
@@ -178,6 +179,23 @@ describe('quiz session', () => {
     expect(isAnswered(s)).toBe(false);
     expect(isComplete(s)).toBe(false);
     expect(isPassed(s)).toBe(false);
+  });
+
+  it('keeps a mark per answered question, oldest first, and nothing else (v10#3)', () => {
+    const s0 = newSession(11);
+    expect(s0.marks).toEqual([]);
+    const q = quizQuestion(all, 0, s0.seed, s0.tier)!;
+    const right = chooseAnswer(s0, q.answerID, q);
+    expect(right.marks).toEqual([true]);
+    const s1 = advance(right);
+    const q1 = quizQuestion(all, 1, s1.seed, s1.tier)!;
+    const wrongId = q1.optionIDs.find(id => id !== q1.answerID)!;
+    const wrong = chooseAnswer(s1, wrongId, q1);
+    expect(wrong.marks).toEqual([true, false]);
+    expect(wrong.correct).toBe(1);
+    // A pre-v0.6.29 paper decodes with an empty grid rather than being lost.
+    expect(parseSession(JSON.stringify({ ...s0, marks: undefined }))?.marks).toEqual([]);
+    expect(parseSession(JSON.stringify({ ...wrong }))?.marks).toEqual([true, false]);
   });
 
   it('choosing scores rights not wrongs, first tap is final', () => {

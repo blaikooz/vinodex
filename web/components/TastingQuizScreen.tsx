@@ -14,7 +14,8 @@ import {
   kindTopic,
   parseSession,
 } from '../src/services/quiz';
-import { dailySession, recordDaily, isTodayDone, currentStreak } from '../src/services/dailyChallenge';
+import { dailySession, recordDaily, isTodayDone, currentStreak, dailyMarks, dailyResultString } from '../src/services/dailyChallenge';
+import { dayIndex } from '../src/services/dailyPick';
 import { query as ssQuery, setQuery as ssSetQuery } from '../src/services/screenState';
 import { playCorrect } from '../src/services/sound';
 
@@ -37,6 +38,20 @@ interface TastingQuizScreenProps {
  * (`WineExamScreen.swift:18`).
  */
 const KEY = 'dailyChallenge';
+
+/** The result string and its one button (v10#3). Module-level, so it is not recreated per render. */
+const ResultBlock: React.FC<{ text: string; copied: boolean; onShare: (text: string) => Promise<void> }> = ({ text, copied, onShare }) => (
+  <div className="w-full max-w-[16rem] flex flex-col gap-2" data-daily-result>
+    <pre className="whitespace-pre-wrap rounded-card border border-[var(--surface-line)] bg-[var(--surface-raised)] px-3 py-2 text-left font-mono text-caption normal-case leading-relaxed text-[var(--lcd-text)]">{text}</pre>
+    <button
+      type="button"
+      onClick={() => { void onShare(text); }}
+      className="dex-pressable w-full min-h-11 rounded-control bg-[var(--lcd-accent)] px-5 py-3 text-label tracking-widest text-[var(--lcd-on-accent)] shadow-elev-2"
+    >
+      {copied ? 'COPIED' : 'SHARE RESULT'}
+    </button>
+  </div>
+);
 
 const TastingQuizScreen: React.FC<TastingQuizScreenProps> = ({ allEntries, onOpen, onBack, onHome }) => {
   const byId = useMemo(() => new Map(allEntries.map(e => [e.id, e])), [allEntries]);
@@ -68,8 +83,33 @@ const TastingQuizScreen: React.FC<TastingQuizScreenProps> = ({ allEntries, onOpe
   const next = () => {
     if (!session) return;
     const adv = advance(session);
-    if (isComplete(adv)) recordDaily(isPassed(adv));
+    if (isComplete(adv)) recordDaily(isPassed(adv), dayIndex(), adv.marks);
     setSession(adv);
+  };
+
+  // The result string (v10#3): the date, the score, a tile per question --
+  // right or wrong, never which answer -- and where to sit the same paper.
+  // Copied or shared as text; no image card, by the 2026-08-30 ruling.
+  const [copied, setCopied] = useState(false);
+  const resultText = (marks: readonly boolean[] | null, passMark: number) =>
+    marks && marks.length > 0 ? dailyResultString(dayIndex(), marks, passMark) : null;
+  const shareResult = async (text: string) => {
+    const nav = navigator as Navigator & { share?: (d: ShareData) => Promise<void> };
+    try {
+      if (typeof nav.share === 'function') {
+        await nav.share({ text });
+        return;
+      }
+    } catch {
+      /* a cancelled sheet is the common path; fall through to the clipboard */
+    }
+    try {
+      await navigator.clipboard.writeText(text);
+      setCopied(true);
+      window.setTimeout(() => setCopied(false), 1800);
+    } catch {
+      /* ignore */
+    }
   };
 
   // ---- Results ----
@@ -86,6 +126,7 @@ const TastingQuizScreen: React.FC<TastingQuizScreenProps> = ({ allEntries, onOpe
               ? `Streak: ${currentStreak()} day${currentStreak() === 1 ? '' : 's'}.`
               : 'Streak reset — tomorrow is a fresh paper.'}
           </div>
+          {resultText(session.marks, session.passMark) && <ResultBlock text={resultText(session.marks, session.passMark)!} copied={copied} onShare={shareResult} />}
           <div className="flex flex-col gap-3 mt-2 w-full max-w-[16rem]">
             <button
               onClick={onBack}
@@ -174,6 +215,7 @@ const TastingQuizScreen: React.FC<TastingQuizScreenProps> = ({ allEntries, onOpe
         <div className="text-caption text-[var(--lcd-subtext)] max-w-[16rem] normal-case leading-relaxed">
           {streak > 0 ? `Streak: ${streak} day${streak === 1 ? '' : 's'}. Come back tomorrow.` : "Today's paper is done. A new one arrives tomorrow."}
         </div>
+        {resultText(dailyMarks(), dailySession().passMark) && <ResultBlock text={resultText(dailyMarks(), dailySession().passMark)!} copied={copied} onShare={shareResult} />}
         <button onClick={onBack} className="dex-pressable rounded-control bg-[var(--lcd-accent)] px-6 py-3 text-label tracking-widest text-[var(--lcd-on-accent)] shadow-elev-1">EXIT</button>
       </div>
     </DeviceLayout>

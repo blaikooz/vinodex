@@ -160,6 +160,7 @@ export const STORAGE_KEYS: readonly StorageKeySpec[] = [
   { key: 'coachmarkOffered', disposition: 'wipe', note: 'walkthrough offered' },
   { key: 'coachmarkCompleted', disposition: 'wipe', note: 'walkthrough completed' },
   { key: 'toolIntrosSeen', disposition: 'wipe', note: 'which tools have shown their first-open card (v10#5)' },
+  { key: 'dailyMarks', disposition: 'wipe', note: "today's daily-challenge marks, for the result string (v10#3)" },
 
   // --- Profiles. THE W25 defect: neither of these was on any list, so a wipe
   // left five complete snapshots of the erased device behind.

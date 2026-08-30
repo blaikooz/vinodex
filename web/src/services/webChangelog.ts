@@ -68,6 +68,17 @@ export interface WebRelease {
 // 0.6.1x, not 0.6.2: the firmware line owns 0.6.2 through 0.9.2, and the
 // two-clocks test refuses any version the device already wore.
 const CURRENT: WebRelease = {
+  version: '0.6.29',
+  date: '2026-08-30',
+  headline: 'A RESULT TO POST',
+  notes: [
+    'A finished DAILY CHALLENGE gives you a result to share: the date, the score, and a tile per question -- right or wrong, never which answer -- with a button that shares it, or copies it where sharing is not on offer.',
+    'The paper keeps a mark per question now, so a half-sat paper resumes with its grid.',
+  ],
+};
+
+/** The release before this one, promoted when 0.6.29 landed. */
+const PREVIOUS_0_6_28: WebRelease = {
   version: '0.6.28',
   date: '2026-08-30',
   headline: 'HUGE',
@@ -388,6 +399,7 @@ const PREVIOUS_0_4_2: WebRelease = {
 
 /** Newest first. A new release is prepended by promoting `CURRENT`. */
 const PREVIOUS: WebRelease[] = [
+  PREVIOUS_0_6_28,
   PREVIOUS_0_6_27,
   PREVIOUS_0_6_26,
   PREVIOUS_0_6_25,
