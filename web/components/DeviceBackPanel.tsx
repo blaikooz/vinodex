@@ -13,6 +13,9 @@ import { useTheme } from '../src/services/useTheme';
 import { CHASSIS_SKINS, type ChassisSkin } from '../src/services/theme';
 import ChassisInternals from './ChassisInternals';
 import ArtImage from './ArtImage';
+import StampArt from './StampArt';
+import DexAlert from './DexAlert';
+import type { Stamp } from '../src/services/stampCatalog';
 
 interface DeviceBackPanelProps {
   onReturn: () => void;
@@ -33,22 +36,25 @@ const STAMP_SLOT: Record<BadgeId, { pos: React.CSSProperties; rot: number; ink: 
   allStyles: { pos: { bottom: '18%', left: '34%' }, rot: 11, ink: '#3F6E33' },
 };
 
-const PassportStamp: React.FC<{ title: string; ink: string; rot: number; pos: React.CSSProperties }> = ({ title, ink, rot, pos }) => (
-  <div
-    className="absolute pointer-events-none select-none"
-    style={{ ...pos, transform: `rotate(${rot}deg)`, opacity: 0.82 }}
-    aria-hidden="true"
+/**
+ * A franked paper stamp on the plate -- the drawn art itself (iOS 0.6.4 F2,
+ * web v0.6.45; the CSS rubber-ink box this replaces was 0.6.2's first cut on
+ * both platforms). Tapping one opens its story; it is a real button, so the
+ * plate's flip-back stays on the plate behind it.
+ */
+const PassportStamp: React.FC<{ stamp: Stamp; rot: number; pos: React.CSSProperties; onOpen: (s: Stamp) => void }> = ({ stamp, rot, pos, onOpen }) => (
+  <button
+    type="button"
+    className="absolute select-none dex-pressable"
+    style={{ ...pos, transform: `rotate(${rot}deg)`, opacity: 0.92, background: 'none', border: 'none', padding: 0 }}
+    aria-label={`${stamp.title} stamp. Opens its story.`}
+    onClick={e => {
+      e.stopPropagation();
+      onOpen(stamp);
+    }}
   >
-    <div
-      className="px-2 py-1 rounded-md flex flex-col items-center"
-      style={{ border: `2px double ${ink}`, color: ink, WebkitMaskImage: 'linear-gradient(120deg, #000 55%, rgba(0,0,0,0.5))' }}
-    >
-      <div className="font-retro text-[0.32rem] tracking-widest">· VINODEX PASSPORT ·</div>
-      <div className="w-full h-px my-0.5" style={{ backgroundColor: ink }} />
-      <div className="font-retro text-[0.5rem] tracking-widest">{title}</div>
-      <div className="font-retro text-[0.32rem] tracking-widest mt-0.5">★ ADMITTED ★</div>
-    </div>
-  </div>
+    <StampArt id={stamp.id} size={64} earned />
+  </button>
 );
 
 const APP_NAME = (pkg.name || 'vinodex').toUpperCase();
@@ -142,11 +148,15 @@ const DeviceBackPanel: React.FC<DeviceBackPanelProps> = ({ onReturn }) => {
   const skin = CHASSIS_SKINS[useTheme().skin];
   const clear = !!skin.translucent;
   const plate = plateStyleFor(skin);
+  const [openStamp, setOpenStamp] = React.useState<Stamp | null>(null);
   return (
-    <button
-      type="button"
+    // A clickable surface rather than a <button>: the stamps inside are real
+    // buttons now (nested interactive elements are invalid HTML), so the
+    // accessible flip control is the TAP TO RETURN chip below -- iOS's own
+    // split of plateField and returnButton (0.6.8 B3).
+    // eslint-disable-next-line jsx-a11y/no-static-element-interactions, jsx-a11y/click-events-have-key-events
+    <div
       onClick={onReturn}
-      aria-label="Flip device back to front"
       className="w-full h-full md:rounded-[2.5rem] overflow-hidden relative border-[3px] ring-1 ring-white/10 shadow-[inset_-10px_-10px_30px_rgba(0,0,0,0.35),inset_10px_10px_30px_rgba(255,255,255,0.08)] cursor-pointer focus:outline-none active:brightness-95 transition"
       style={{
         background: clear ? '#14161A' : plate.background,
@@ -194,7 +204,7 @@ const DeviceBackPanel: React.FC<DeviceBackPanelProps> = ({ onReturn }) => {
       {/* Passport stamps — one per earned badge, at its fixed slot. */}
       {earned.map(b => {
         const slot = STAMP_SLOT[b.id];
-        return <PassportStamp key={b.id} title={stampFor(b.id).title} ink={slot.ink} rot={slot.rot} pos={slot.pos} />;
+        return <PassportStamp key={b.id} stamp={stampFor(b.id)} rot={slot.rot} pos={slot.pos} onOpen={setOpenStamp} />;
       })}
 
       {/* The shell's own aged sticker (iOS 0.6.4 F3, back on the web since
@@ -289,14 +299,34 @@ const DeviceBackPanel: React.FC<DeviceBackPanelProps> = ({ onReturn }) => {
           <div style={{ textShadow: engravedTextShadow }}>ALL RIGHTS RESERVED</div>
         </div>
 
-        {/* Return hint */}
-        <div style={{ color: `color-mix(in srgb, ${plate.inkDeep} 80%, transparent)` }}
-          className="absolute bottom-12 left-1/2 -translate-x-1/2 flex items-center gap-2 text-sm md:text-base tracking-[0.4em] animate-pulse">
+        {/* Return hint -- the plate's one real control (0.6.8 B3). */}
+        <button
+          type="button"
+          aria-label="Flip device back to front"
+          onClick={e => {
+            e.stopPropagation();
+            onReturn();
+          }}
+          style={{ color: `color-mix(in srgb, ${plate.inkDeep} 80%, transparent)`, background: 'none', border: 'none' }}
+          className="absolute bottom-12 left-1/2 -translate-x-1/2 flex items-center gap-2 text-sm md:text-base tracking-[0.4em] animate-pulse cursor-pointer"
+        >
           <Hand aria-hidden="true" size={18} strokeWidth={2} />
           <span style={{ textShadow: engravedTextShadow }}>TAP TO RETURN</span>
-        </div>
+        </button>
       </div>
-    </button>
+      {openStamp && (
+        <DexAlert
+          tone="green"
+          role="alertdialog"
+          title={openStamp.title}
+          ariaLabel={`${openStamp.title} stamp story`}
+          onDismiss={() => setOpenStamp(null)}
+          actions={[{ label: 'OK', kind: 'confirm', onClick: () => setOpenStamp(null) }]}
+        >
+          {openStamp.info}
+        </DexAlert>
+      )}
+    </div>
   );
 };
 

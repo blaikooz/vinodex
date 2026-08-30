@@ -1,5 +1,5 @@
 
-import React, { Suspense, lazy, useMemo, useState } from 'react';
+import React, { Suspense, lazy, useEffect, useMemo, useState } from 'react';
 import { useLocation } from 'react-router-dom';
 import { ChevronLeft } from 'lucide-react';
 import ChassisIsland from './ChassisIsland';
@@ -8,6 +8,7 @@ import MarqueeLampChooser from './MarqueeLampChooser';
 import { IosUpdatesPromptOverlay } from './IosUpdatesPrompt';
 import { VinodexBootOverlay } from './VinodexBoot';
 import { isOnline, subscribeOnline } from '../src/services/online';
+import { subscribeChassisFlip } from '../src/services/chassisFlip';
 import { ToolIntroHost } from './ToolIntroCard';
 import { ScreensaverOverlay } from './ScreensaverOverlay';
 import { DEVICE_FOOTER_BOTTOM_PAD, DEVICE_FOOTER_RESERVATION, DEVICE_FRAME_BOX, DEVICE_FRAME_STAGE } from '../src/services/deviceFrame';
@@ -115,6 +116,16 @@ const DeviceLayout: React.FC<DeviceLayoutProps> = ({
           setEverFlipped(true);
           setSelfFlipped(true);
         };
+  // SETTINGS > ABOUT > TURN THE DEVICE OVER, for people who were never going
+  // to guess the orb (iOS AUDIT M21). Only the uncontrolled layout answers:
+  // a screen that owns its flip owns all the ways into it.
+  useEffect(() => {
+    if (controlled || onSite) return;
+    return subscribeChassisFlip(() => {
+      setEverFlipped(true);
+      setSelfFlipped(true);
+    });
+  }, [controlled, onSite]);
   const backFace = controlled
     ? backFaceProp
     : everFlipped && !onSite

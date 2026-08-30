@@ -7,6 +7,7 @@ import { applyTheme } from './src/services/theme';
 import { initAnalytics } from './src/services/analytics';
 import { bindInstallPrompt } from './src/services/installPrompt';
 import { installErrorReporting } from './src/services/errorReport';
+import { installScreenWake } from './src/services/screenWake';
 import ErrorBoundary from './components/ErrorBoundary';
 
 // Before the first render, so the chassis paints in the stored colourway rather
@@ -26,6 +27,9 @@ bindInstallPrompt();
 // is reported first-party as a name and a location, never a message. See
 // `errorReport.ts` for the shape and the ruling behind it (v0.6.33).
 installErrorReporting();
+
+// KEEP AWAKE, if the stored setting asks -- see screenWake.ts (v0.6.45).
+installScreenWake();
 
 const rootElement = document.getElementById('root');
 if (!rootElement) {

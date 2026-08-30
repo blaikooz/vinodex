@@ -1,5 +1,5 @@
 import React from 'react';
-import { Palette, Lock, LockOpen, Bug, Check, LogOut, Flag, Crown, Leaf, Sun, Moon, Grid3x3, Globe, Wine, Map as MapIcon, Layers, ChevronRight, Download, Upload, UserRound, Sparkle, Wrench, MonitorDown, Share } from 'lucide-react';
+import { Palette, Lock, LockOpen, Bug, Check, LogOut, Flag, Crown, Leaf, Sun, Moon, Grid3x3, Globe, Wine, Map as MapIcon, Layers, ChevronRight, Download, Upload, UserRound, Sparkle, Wrench, MonitorDown, Share, RefreshCw } from 'lucide-react';
 import { installSurface, promptInstall, subscribeInstall } from '../src/services/installPrompt';
 import { useNavigate } from 'react-router-dom';
 import ArtImage from './ArtImage';
@@ -28,6 +28,8 @@ import {
 import { useTheme } from '../src/services/useTheme';
 import { SKIN_EMBLEM } from '../src/services/skinEmblem';
 import { soundsEnabled, setSoundsEnabled } from '../src/services/sound';
+import { keepAwakeEnabled, setKeepAwakeEnabled } from '../src/services/screenWake';
+import { requestChassisFlip } from '../src/services/chassisFlip';
 import { hapticsEnabled, setHapticsEnabled } from '../src/services/haptics';
 import { APP_VERSION_DISPLAY, BUILD_NUMBER } from '../src/services/appVersion';
 import {
@@ -602,6 +604,7 @@ export const SettingsSectionPanel: React.FC<{
   const theme = useTheme();
   const navigate = useNavigate();
   const [sounds, setSounds] = React.useState(soundsEnabled());
+  const [keepAwake, setKeepAwake] = React.useState(keepAwakeEnabled());
   const [haptics, setHaptics] = React.useState(hapticsEnabled());
   const [confirmingWipe, setConfirmingWipe] = React.useState(false);
   const [offeringTour, setOfferingTour] = React.useState(false);
@@ -781,6 +784,22 @@ export const SettingsSectionPanel: React.FC<{
                 The ring/silent switch always wins — sounds never interrupt your music.
               </p>
             </Section>
+
+            {/* iOS SettingsPanel SCREEN (web v0.6.45): the key this toggle
+                writes has been registered and archived since the backup
+                existed -- the app finally offers the setting it kept. */}
+            <Section title="SCREEN">
+              <IconToggleRow
+                icon={<Sun size={22} style={{ color: keepAwake ? 'var(--livery-green)' : 'var(--lcd-subtext)' }} />}
+                title="KEEP AWAKE"
+                detail={keepAwake ? 'The screen stays on while the app is open.' : 'The screen locks on your usual schedule.'}
+                on={keepAwake}
+                onToggle={() => { const next = !keepAwake; setKeepAwakeEnabled(next); setKeepAwake(next); }}
+              />
+              <p className="text-caption leading-relaxed normal-case mt-1" style={{ color: 'var(--lcd-subtext)' }}>
+                Reading a bottle takes longer than the auto-lock allows. Turn it off if you would rather the device behaved normally.
+              </p>
+            </Section>
             <Section title="TUTORIAL">
               <button
                 onClick={() => setOfferingTour(true)}
@@ -792,6 +811,25 @@ export const SettingsSectionPanel: React.FC<{
                   <span className="block font-retro text-[0.6rem] tracking-widest" style={{ color: 'var(--lcd-text)' }}>TUTORIAL</span>
                   <span className="block font-mono text-sm normal-case mt-1" style={{ color: 'var(--lcd-subtext)' }}>
                     A guided walk round the device, then a run through your first tasting if you want one.
+                  </span>
+                </span>
+                <ChevronRight size={16} style={{ color: 'var(--lcd-subtext)' }} />
+              </button>
+            </Section>
+
+            {/* The signposted route to the back plate (iOS AUDIT M21), for
+                people who were never going to guess the orb hold. */}
+            <Section title="ABOUT">
+              <button
+                onClick={() => requestChassisFlip()}
+                className="dex-pressable w-full flex items-center gap-3 px-3 py-3 rounded-control border-2 text-left"
+                style={{ backgroundColor: 'var(--lcd-surface)', borderColor: 'var(--lcd-surface-edge)' }}
+              >
+                <span><RefreshCw size={22} style={{ color: 'var(--lcd-subtext)' }} /></span>
+                <span className="flex-1 min-w-0">
+                  <span className="block text-label tracking-widest" style={{ color: 'var(--lcd-text)' }}>TURN THE DEVICE OVER</span>
+                  <span className="block text-caption normal-case mt-1" style={{ color: 'var(--lcd-subtext)' }}>
+                    Version, serial and maker's mark are engraved on the back — along with any collector stamps you have earned.
                   </span>
                 </span>
                 <ChevronRight size={16} style={{ color: 'var(--lcd-subtext)' }} />
