@@ -24,6 +24,13 @@ import unitedStatesFlag from '@/shared/pixelflags/North America/united_states/un
 import romaniaFlag from '@/shared/pixelflags/Europe/romania/romania.png';
 import uruguayFlag from '@/shared/pixelflags/South America/uruguay/uruguay.png';
 import variousFlag from '@/shared/pixelflags/Other/Geographic-Historical/various.png';
+// The 0.6.38 backfill: five countries real entries name whose art sat in the
+// mirror unimported -- the owner met the gap as "Mexico doesn't have a flag".
+import mexicoFlag from '@/shared/pixelflags/North America/mexico/mexico.png';
+import sloveniaFlag from '@/shared/pixelflags/Europe/slovenia/slovenia.png';
+import unitedKingdomFlag from '@/shared/pixelflags/Europe/united_kingdom/united_kingdom.png';
+import bulgariaFlag from '@/shared/pixelflags/Europe/bulgaria/bulgaria.png';
+import lebanonFlag from '@/shared/pixelflags/Asia/lebanon/lebanon.png';
 
 interface FlagImageEntry {
   keys: string[];
@@ -97,6 +104,11 @@ const FLAG_IMAGES: FlagImageEntry[] = [
   { keys: ['romania'], image: romaniaFlag },
   { keys: ['uruguay'], image: uruguayFlag },
   { keys: ['various'], image: variousFlag },
+  { keys: ['mexico'], image: mexicoFlag },
+  { keys: ['slovenia'], image: sloveniaFlag },
+  { keys: ['united kingdom', 'united_kingdom', 'uk'], image: unitedKingdomFlag },
+  { keys: ['bulgaria'], image: bulgariaFlag },
+  { keys: ['lebanon'], image: lebanonFlag },
 ];
 
 const matchesNormalizedKey = (normalizedOrigin: string, key: string) => {
@@ -110,6 +122,13 @@ const matchesNormalizedKey = (normalizedOrigin: string, key: string) => {
 export const getFlagImage = (origin?: string, options?: FlagImageOptions) => {
   if (!origin) return undefined;
   const normalizedOrigin = normalizeFlagKey(origin);
+
+  // A US state named outright is always the state, whoever asks: with
+  // 'mexico' in the country list (0.6.38), the word-boundary matcher would
+  // otherwise hand "New Mexico" the Mexican tricolour. Exact equality only --
+  // `preferUsState` below stays the switch for looser, state-first matching.
+  const exactState = US_STATE_FLAG_IMAGES.find(({ keys }) => keys.some((key) => normalizeFlagKey(key) === normalizedOrigin));
+  if (exactState) return exactState.image;
 
   if (options?.preferUsState) {
     const usStateMatch = US_STATE_FLAG_IMAGES.find(({ keys }) => keys.some((key) => matchesNormalizedKey(normalizedOrigin, key)));

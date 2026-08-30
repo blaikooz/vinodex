@@ -68,6 +68,17 @@ export interface WebRelease {
 // 0.6.1x, not 0.6.2: the firmware line owns 0.6.2 through 0.9.2, and the
 // two-clocks test refuses any version the device already wore.
 const CURRENT: WebRelease = {
+  version: '0.6.38',
+  date: '2026-08-30',
+  headline: 'FIVE MORE FLAGS',
+  notes: [
+    'Mexico, Slovenia, the United Kingdom, Bulgaria and Lebanon fly their drawn flags now -- the art was in the crate all along, unwired. A test counts every origin in the catalogue against the flag set, so a country cannot ship flagless again.',
+    'And New Mexico keeps its own state flag rather than borrowing the tricolour.',
+  ],
+};
+
+/** The release before this one, promoted when 0.6.38 landed. */
+const PREVIOUS_0_6_37: WebRelease = {
   version: '0.6.37',
   date: '2026-08-30',
   headline: 'A BUDGET IN WRITING',
@@ -484,6 +495,7 @@ const PREVIOUS_0_4_2: WebRelease = {
 
 /** Newest first. A new release is prepended by promoting `CURRENT`. */
 const PREVIOUS: WebRelease[] = [
+  PREVIOUS_0_6_37,
   PREVIOUS_0_6_36,
   PREVIOUS_0_6_35,
   PREVIOUS_0_6_34,
