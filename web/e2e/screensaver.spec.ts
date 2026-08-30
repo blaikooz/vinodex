@@ -37,11 +37,13 @@ test('the mark takes a new palette colour on every wall, and stays crisp', async
   const saver = page.getByRole('button', { name: /Screensaver/ });
   await expect(saver).toHaveCount(1, { timeout: 15_000 });
 
-  const mark = saver.locator('svg[data-screensaver-mark]');
+  const mark = saver.locator('[data-screensaver-mark]');
   await expect(mark).toHaveCount(1);
-  // Hard edges on both layers -- the SVG spelling of `.interpolation(.none)`.
-  expect(await mark.locator('path[data-mark-face]').getAttribute('shape-rendering')).toBe('crispEdges');
-  expect(await mark.locator('path[data-mark-shade]').getAttribute('shape-rendering')).toBe('crispEdges');
+  // The V -- the same two masks the BIOS draws -- not the site's H (v0.6.19).
+  for (const layer of ['face', 'shade']) {
+    const maskImage = await mark.locator(`[data-mark-${layer}]`).evaluate(el => getComputedStyle(el).maskImage);
+    expect(maskImage, `${layer} layer is not the ${layer} mask`).toContain(`/art/logo/vinodex-mark-${layer}.png`);
+  }
 
   // Sample the face fill and the bounce count for seven seconds -- inside
   // the page, as ONE action. The first draft polled from the test at 100ms
@@ -51,11 +53,13 @@ test('the mark takes a new palette colour on every wall, and stays crisp', async
   const sampled = await page.evaluate(() => new Promise<{ fills: string[]; counts: string[] }>(resolve => {
     const fills = new Set<string>();
     const counts = new Set<string>();
-    const face = document.querySelector('svg[data-screensaver-mark] path[data-mark-face]');
-    const mark = document.querySelector('svg[data-screensaver-mark]') as HTMLElement | null;
+    const mark = document.querySelector('[data-screensaver-mark]') as HTMLElement | null;
     const started = performance.now();
     const tick = () => {
-      const fill = face?.getAttribute('fill');
+      // `data-tint` is the palette string the frame loop wrote, alongside
+      // the layers' inline background (which the engine would normalise to
+      // rgb() and so could not be matched against the palette).
+      const fill = mark?.dataset.tint;
       const count = mark?.dataset.bounces;
       if (fill) fills.add(fill);
       if (count) counts.add(count);

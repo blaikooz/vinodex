@@ -16,6 +16,7 @@ import {
   resumeIndex,
   seedCoachmarks,
   skipCoachmarks,
+  declineCoachmarkAutoStart,
   startCoachmarks,
 } from './coachmarks';
 import { resetVinoForTests, setSuspended, isSuspendedOtherThan, currentVinoLine, presentVinoLine } from './vinoPresenter';
@@ -114,6 +115,17 @@ describe('the engine', () => {
     startCoachmarks();
     skipCoachmarks();
     expect(coachmarkShouldAutoStart()).toBe(false);
+  });
+  it('declining the unbidden start spends it without running anything (v0.6.19)', () => {
+    // The intro card's SKIP: no tour starts, and none starts by itself later.
+    expect(coachmarkShouldAutoStart()).toBe(true);
+    declineCoachmarkAutoStart();
+    expect(coachmarkIsRunning()).toBe(false);
+    expect(coachmarkShouldAutoStart()).toBe(false);
+    // The tour itself is still one press away, from the top.
+    startCoachmarks();
+    expect(coachmarkIsRunning()).toBe(true);
+    expect(coachmarkPosition()).toBe(1);
   });
 });
 

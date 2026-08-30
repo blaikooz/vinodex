@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import VinoPortrait from './VinoPortrait';
 import { VINO_NAME_MAX_LENGTH, chirpText, renderedLine, vinoLine } from '../src/services/vinoDialogue';
 import { fireOnce } from '../src/services/firstTimeTriggers';
+import { declineCoachmarkAutoStart } from '../src/services/coachmarks';
 import { presentVinoLine, setSuspended } from '../src/services/vinoPresenter';
 import { setDisplayName } from '../src/services/profile';
 import { DEVICE_FRAME_BOX, DEVICE_FRAME_OVERLAY_STYLE, DEVICE_FRAME_STAGE } from '../src/services/deviceFrame';
@@ -35,6 +36,10 @@ const VinoIntroCard: React.FC<VinoIntroCardProps> = ({ onDone }) => {
 
   const finish = (submitted: string | null) => {
     if (submitted !== null && submitted.trim().length > 0) setDisplayName(submitted.trim());
+    // SKIP is also "not now" to the walkthrough (v0.6.19): the unbidden
+    // start stays available to a player who gave their name, and is spent
+    // for one who waved him off. See `declineCoachmarkAutoStart`.
+    if (submitted === null) declineCoachmarkAutoStart();
     // The ask is consumed by being answered either way.
     fireOnce('firstLaunch');
     const named = fireOnce('firstLaunchNamed');

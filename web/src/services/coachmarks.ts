@@ -260,6 +260,21 @@ export const reportCoachmark = (action: CoachmarkAction): void => {
   notify();
 };
 
+/**
+ * Decline the unasked start without running anything (v0.6.19). The intro
+ * card's SKIP calls this: a player who waved the professor off has answered
+ * the only question the auto-start was ever asking, and the spotlight
+ * arriving on its own a bubble or two later -- gated on his queue emptying,
+ * so at no moment they could predict -- read as the tutorial "randomly
+ * appearing". The tour is still one press away in SETTINGS ▸ TUTORIAL and
+ * the TAKE THE TOUR? offer; only the *unbidden* start is spent.
+ */
+export const declineCoachmarkAutoStart = (): void => {
+  if (coachmarkOffered()) return;
+  persist();
+  notify();
+};
+
 /** Put it down. Keeps the high-water mark and does **not** complete — which
  *  is what makes "skippable" and "resumable" the same feature. */
 export const skipCoachmarks = (): void => {

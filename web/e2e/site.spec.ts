@@ -44,8 +44,8 @@ test('the site is what a visitor lands on', async ({ page, consoleErrors }) => {
   for (const tile of ['OPEN VINODEX', 'OUR WORK', 'WHO WE ARE', 'CONTACT US']) {
     await expect(page.getByRole('button', { name: tile })).toBeVisible();
   }
-  // The hero sells the product, not the studio (v0.6.16).
-  await expect(page.getByText('EVERY GRAPE, REGION AND STYLE, IN YOUR POCKET.')).toBeVisible();
+  // The hero is the studio's (v0.6.19), with the product named under it.
+  await expect(page.getByText('PLAYFUL TOOLS, MADE WELL.')).toBeVisible();
   await expect(page.getByRole('link', { name: /GET iOS UPDATES/ })).toBeVisible();
   await expect(page.getByRole('button', { name: 'DATA', exact: true })).toHaveCount(0);
   await expect(page.getByRole('button', { name: 'DEX', exact: true })).toHaveCount(0);
@@ -53,6 +53,21 @@ test('the site is what a visitor lands on', async ({ page, consoleErrors }) => {
 
   // The old studio line is replaced by a concrete promise.
   await expect(page.getByText('CREATING ACROSS MULTITUDES')).toHaveCount(0);
+});
+
+test('leaving the dex mid-boot takes the BIOS with it', async ({ page, consoleErrors }) => {
+  void consoleErrors;
+  // Back or Home pressed during the POST used to carry `booting` onto the
+  // site, and the BIOS -- which never plays there -- sat on the studio's
+  // front page until tapped away (v0.6.19).
+  await seedDevice(page);
+  await page.goto('/');
+  await page.getByRole('button', { name: 'OPEN VINODEX' }).click();
+  await expect(page.getByRole('button', { name: 'Skip boot' })).toBeVisible();
+  await page.goBack();
+  await expect(page).toHaveURL(/\/$/);
+  await expect(page.getByRole('heading', { name: 'HORIZON/GODOT' })).toBeVisible();
+  await expect(page.getByRole('button', { name: 'Skip boot' })).toHaveCount(0);
 });
 
 test('every v0.2.x /website URL still resolves', async ({ page, consoleErrors }) => {

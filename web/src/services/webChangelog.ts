@@ -68,6 +68,19 @@ export interface WebRelease {
 // 0.6.1x, not 0.6.2: the firmware line owns 0.6.2 through 0.9.2, and the
 // two-clocks test refuses any version the device already wore.
 const CURRENT: WebRelease = {
+  version: '0.6.19',
+  date: '2026-08-30',
+  headline: 'THE STUDIO\'S FRONT DOOR',
+  notes: [
+    'The front page is the studio\'s again -- PLAYFUL TOOLS, MADE WELL -- with Vinodex named as the thing to open, not pitched in its place.',
+    'The BIOS stays in the app: pressing Back or Home during the power-on no longer carries it onto the site.',
+    'Waving off Professor Vino\'s introduction now also declines the walkthrough, so the tour never starts by itself later; it is still one press away in SETTINGS.',
+    'The screensaver bounces the V -- the same mark the BIOS draws -- not the site\'s H, which the last release had picked up by mistake.',
+  ],
+};
+
+/** The release before this one, promoted when 0.6.19 landed. */
+const PREVIOUS_0_6_18: WebRelease = {
   version: '0.6.18',
   date: '2026-08-30',
   headline: 'OFF THE CRITICAL PATH',
@@ -273,6 +286,7 @@ const PREVIOUS_0_4_2: WebRelease = {
 
 /** Newest first. A new release is prepended by promoting `CURRENT`. */
 const PREVIOUS: WebRelease[] = [
+  PREVIOUS_0_6_18,
   PREVIOUS_0_6_17,
   PREVIOUS_0_6_16,
   PREVIOUS_0_6_15,

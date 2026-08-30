@@ -33,42 +33,54 @@ export const ScreensaverProvider: React.FC<ScreensaverContextValue & { children:
 const MARK_FRACTION = 0.32;
 
 /**
- * The wordmark's two layers, as paths — `ScreensaverMarkArt` (v0.6.14).
+ * The mark's two layers — `ScreensaverMarkArt`, the same two masks iOS
+ * bounces (v0.6.19, replacing v0.6.14's vector guess).
  *
- * iOS bounces the wordmark as two tinted masks: the lit face and its extruded
- * shade, split from the master at import time, so that every colour the mark
- * wears comes from the call site and the LCD's phosphor. The web's mark was a
- * `<img src="/vinodex-logo.png">` — a solid red tile with the V baked in —
- * which is why it could not change colour at all (the v6#2 art-transport
- * ruling kept the iOS PNGs on the phone). The site's own `vinodex-logo.svg`
- * carries exactly the same two shapes as vector paths, so they are inlined
- * here and tinted by `fill`: the face in the bounce colour, the shade the same
- * ink at 0.45 — "not a second colour: the same ink, dimmed", which is the only
- * depth cue that survives the monochrome modes' grayscale pass.
+ * v0.6.14 inlined the two paths of `web/public/vinodex-logo.svg`, on the
+ * strength of a comment saying they were the wordmark. They are not: that
+ * SVG is the site's *H* mark, and the saver bounced the wrong logo for one
+ * release. The right art was already here — `sync-shared.ps1`'s art leg
+ * mirrors iOS's `Logo/` into `/art/logo/`, and the BIOS has drawn
+ * `vinodex-mark-face.png` / `vinodex-mark-shade.png` since v0.6.9. They are
+ * white-on-alpha masks, 320x262, and are used exactly as the BIOS uses them
+ * and exactly as iOS does: each layer is a box filled with the tint and
+ * clipped by the mask, so every colour the mark wears comes from the call
+ * site. The face is the bounce colour; the shade the same ink at 0.45 —
+ * "not a second colour: the same ink, dimmed", the one depth cue that
+ * survives the monochrome modes' grayscale pass. The shade PNG carries its
+ * own offset, so both layers share one box.
  *
- * The viewBox is cropped to the mark rather than the tile, so the bounce box
- * is the V's own rectangle and its aspect (378:312) comes from the art. Both
- * paths are `crispEdges`: this is pixel art with hard corners, and the SVG
- * equivalent of iOS's `.interpolation(.none)` is to refuse anti-aliasing.
+ * No background: the mark is the V alone, never the red tile.
  */
-const MARK_VIEWBOX = '64 92 378 312';
-const MARK_ASPECT = 378 / 312;
-const MARK_SHADE = 'M176 118h95l-34 86h40l26-66h96L294 394h-70l24-61h-44l-24 61H94l38-96h-34l78-180z';
-const MARK_FACE = 'M156 102h95l-34 86h40l26-66h96L274 378h-70l24-61h-44l-24 61H74l38-96H78l78-180z';
+const MARK_ART = {
+  face: '/art/logo/vinodex-mark-face.png',
+  shade: '/art/logo/vinodex-mark-shade.png',
+} as const;
+const MARK_ASPECT = 320 / 262;
 
-const Mark = React.forwardRef<SVGSVGElement, { tint: string; className?: string; style?: React.CSSProperties }>(
+const layerStyle = (mask: string, tint: string): React.CSSProperties => ({
+  backgroundColor: tint,
+  WebkitMaskImage: `url(${mask})`,
+  maskImage: `url(${mask})`,
+  WebkitMaskSize: '100% 100%',
+  maskSize: '100% 100%',
+  WebkitMaskRepeat: 'no-repeat',
+  maskRepeat: 'no-repeat',
+});
+
+const Mark = React.forwardRef<HTMLDivElement, { tint: string; className?: string; style?: React.CSSProperties }>(
   ({ tint, className, style }, ref) => (
-    <svg
+    <div
       ref={ref}
-      viewBox={MARK_VIEWBOX}
       aria-hidden="true"
       className={className}
-      style={style}
+      style={{ aspectRatio: `${MARK_ASPECT}`, ...style }}
       data-screensaver-mark
+      data-tint={tint}
     >
-      <path d={MARK_SHADE} fill={tint} fillOpacity={0.45} shapeRendering="crispEdges" data-mark-shade />
-      <path d={MARK_FACE} fill={tint} shapeRendering="crispEdges" data-mark-face />
-    </svg>
+      <span className="absolute inset-0 block" style={{ ...layerStyle(MARK_ART.shade, tint), opacity: 0.45 }} data-mark-shade />
+      <span className="absolute inset-0 block" style={layerStyle(MARK_ART.face, tint)} data-mark-face />
+    </div>
   ),
 );
 Mark.displayName = 'ScreensaverMark';
@@ -92,7 +104,7 @@ Mark.displayName = 'ScreensaverMark';
  */
 const ScreensaverContents: React.FC<{ onDismiss: () => void }> = ({ onDismiss }) => {
   const boxRef = useRef<HTMLDivElement>(null);
-  const markRef = useRef<SVGSVGElement>(null);
+  const markRef = useRef<HTMLDivElement>(null);
   const startRef = useRef<ScreensaverStart>(randomStart());
   const [reduced] = useState(
     () => typeof window !== 'undefined' && window.matchMedia('(prefers-reduced-motion: reduce)').matches,
@@ -121,7 +133,10 @@ const ScreensaverContents: React.FC<{ onDismiss: () => void }> = ({ onDismiss })
         if (bounces !== lastBounce) {
           lastBounce = bounces;
           const tint = tintForBounce(bounces);
-          for (const path of mark.querySelectorAll('path')) path.setAttribute('fill', tint);
+          for (const layer of mark.querySelectorAll<HTMLElement>('[data-mark-face], [data-mark-shade]')) {
+            layer.style.backgroundColor = tint;
+          }
+          mark.dataset.tint = tint;
           mark.dataset.bounces = String(bounces);
         }
       }
@@ -146,7 +161,7 @@ const ScreensaverContents: React.FC<{ onDismiss: () => void }> = ({ onDismiss })
     >
       {reduced ? (
         <div className="w-full h-full flex items-center justify-center">
-          <Mark tint={tintForBounce(0)} className="w-[36%]" style={{ aspectRatio: `${MARK_ASPECT}` }} />
+          <Mark tint={tintForBounce(0)} className="relative w-[36%]" />
         </div>
       ) : (
         <Mark

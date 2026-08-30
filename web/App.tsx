@@ -328,7 +328,15 @@ const App: React.FC = () => {
     bootFrom.current = location.pathname;
     // The mount decision was made in `useState` above, with `from = null`.
     if (from === null || from === location.pathname) return;
-    if (bootDecision(from, location.pathname)) setBooting(true);
+    const boots = bootDecision(from, location.pathname);
+    // Moving around inside the dex never re-boots and never cancels one.
+    if (!boots && isDexPath(location.pathname)) return;
+    // Entering the dex boots; and the inverse (v0.6.19): a boot belongs to
+    // the dex, so leaving it cancels one still running. Without the second
+    // half, Back or Home pressed during the POST carried `booting` onto the
+    // site, and the BIOS -- which `bootDecision` says never plays there --
+    // sat on the studio's front page until somebody tapped it away.
+    setBooting(boots);
   }, [location.pathname]);
   const finishBoot = useCallback(() => setBooting(false), []);
   // While the boot screen owns the device, the professor holds his tongue —

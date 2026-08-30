@@ -31,10 +31,11 @@ describe('the Horizon/Godot website', () => {
       />,
     );
 
-    // The hero sells the product (v0.6.16): one value line, one sentence.
-    expect(screen.getByText('EVERY GRAPE, REGION AND STYLE, IN YOUR POCKET.')).toBeTruthy();
-    expect(screen.getByText(/Play it right here in your browser/)).toBeTruthy();
-    expect(screen.queryByText('PLAYFUL TOOLS, MADE WELL.')).toBeNull();
+    // The hero is the studio's (v0.6.19): its line, then one sentence that
+    // names the product as the thing to open.
+    expect(screen.getByText('PLAYFUL TOOLS, MADE WELL.')).toBeTruthy();
+    expect(screen.getByText(/two-person NYC studio .* Vinodex/)).toBeTruthy();
+    expect(screen.queryByText('EVERY GRAPE, REGION AND STYLE, IN YOUR POCKET.')).toBeNull();
     // The quiet Substack door, and the funnel event it records.
     const updates = screen.getByRole('link', { name: /GET iOS UPDATES/ });
     expect(updates.getAttribute('href')).toBe(VINODEX_SUBSTACK_URL);

@@ -243,11 +243,11 @@ export const PortalHome: React.FC<PortalHomeProps> = props => (
             offset shadow drawn on whatever page the mode supplies, which on
             the pale modes was a smear. Flat, in the mode's own accent, which
             measures 13:1 on DARK and 6.4:1 on LIGHT. */}
-        {/* The hero is the link that converts (v0.6.16, road-to-1.x item 2):
-            the studio keeps its mark, and the two lines under it now sell the
-            product rather than the studio -- one value line, one sentence
-            saying what it is and that it plays right here. The studio's own
-            line moved to WHO WE ARE, where it always also lived. */}
+        {/* The hero is the studio's (v0.6.19, reversing v0.6.16's product
+            pitch by the owner's ruling): the wordmark, the studio's line, and
+            one sentence that says who this is and names Vinodex as the thing
+            to open. The product's own pitch lives on its OUR WORK splash and
+            in the share card; the front page is the studio's front door. */}
         {/* Sized for the 390px square LCD, where the pitch shares the screen
             with four tiles that must keep their labels: the value line is
             two pixel-font lines at `text-label` on a phone (`text-title` from
@@ -258,11 +258,11 @@ export const PortalHome: React.FC<PortalHomeProps> = props => (
           <h1 className="font-retro text-xl sm:text-3xl tracking-widest text-[var(--lcd-accent)] leading-none">
             HORIZON/GODOT
           </h1>
-          <p className="mx-auto max-w-md sm:max-w-none font-retro text-label sm:text-title tracking-widest text-[var(--lcd-text)] leading-relaxed sm:leading-normal">
-            EVERY GRAPE, REGION AND STYLE, IN YOUR POCKET.
+          <p className="font-retro text-heading sm:text-title tracking-widest text-[var(--lcd-text)]">
+            PLAYFUL TOOLS, MADE WELL.
           </p>
           <p className="mx-auto max-w-md text-caption sm:text-body normal-case text-[var(--lcd-subtext)] leading-snug">
-            A wine encyclopedia that looks like a 90s handheld. Play it right here in your browser.
+            A two-person NYC studio making useful digital projects with personality. First up: Vinodex, a wine encyclopedia you can play right here.
           </p>
           {/* The funnel's bottom, offered quietly (v0.6.16): the iOS app is
               TestFlight-only, so the ask is a subscriber, not a store tap.
