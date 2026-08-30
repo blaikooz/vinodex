@@ -1,5 +1,5 @@
 
-import React, { useMemo, useState } from 'react';
+import React, { Suspense, lazy, useMemo, useState } from 'react';
 import { useLocation } from 'react-router-dom';
 import { ChevronLeft } from 'lucide-react';
 import ChassisIsland from './ChassisIsland';
@@ -12,8 +12,13 @@ import { ToolIntroHost } from './ToolIntroCard';
 import { ScreensaverOverlay } from './ScreensaverOverlay';
 import { DEVICE_FOOTER_BOTTOM_PAD, DEVICE_FOOTER_RESERVATION, DEVICE_FRAME_BOX, DEVICE_FRAME_STAGE } from '../src/services/deviceFrame';
 import { isSitePath } from '../src/services/appRoutes';
-import { SITE_SKIN, grilleShape, skinCssVars } from '../src/services/theme';
+import { CHASSIS_SKINS, SITE_SKIN, grilleShape, skinCssVars } from '../src/services/theme';
 import ChassisGrille from './ChassisGrille';
+import ChassisInternals from './ChassisInternals';
+// Lazy: the plate reads the passport (and so the catalogue) on mount, and
+// the chassis must not carry those modules for the one screen in fifty that
+// gets turned over. It is only mounted after the first flip anyway.
+const DeviceBackPanel = lazy(() => import('./DeviceBackPanel'));
 import { useTheme } from '../src/services/useTheme';
 
 interface DeviceLayoutProps {
@@ -53,9 +58,9 @@ const DeviceLayout: React.FC<DeviceLayoutProps> = ({
   hideHeader = false,
   centerHeaderText: _centerHeaderText = false,
   footerCenter,
-  isFlipped = false,
-  backFace,
-  onTitleTap,
+  isFlipped: isFlippedProp = false,
+  backFace: backFaceProp,
+  onTitleTap: onTitleTapProp,
   showSystemButtons = true,
   // `showWordmark` used to sit here, dead since iOS v0.6.9 retired the island
   // wordmark and kept only as call-site compatibility for the splash. The
@@ -91,6 +96,34 @@ const DeviceLayout: React.FC<DeviceLayoutProps> = ({
   // The player's own shell, so the dex repaints when they pick a new one.
   const theme = useTheme();
   const skin = onSite ? SITE_SKIN : theme.skin;
+  const translucent = !!CHASSIS_SKINS[skin].translucent;
+
+  // The orb hold flips the device on every dex screen (v0.6.30), matching
+  // iOS `DeviceChassis`, which owns the flip itself. A screen that passes its
+  // own `backFace` stays in control; the rest get the steel plate for free.
+  // The plate is only mounted after the first flip — it reads the passport
+  // on mount, and most screens are never turned over.
+  const [selfFlipped, setSelfFlipped] = useState(false);
+  const [everFlipped, setEverFlipped] = useState(false);
+  const controlled = backFaceProp !== undefined;
+  const isFlipped = controlled ? isFlippedProp : selfFlipped;
+  const onTitleTap = controlled
+    ? onTitleTapProp
+    : onSite
+      ? undefined
+      : () => {
+          setEverFlipped(true);
+          setSelfFlipped(true);
+        };
+  const backFace = controlled
+    ? backFaceProp
+    : everFlipped && !onSite
+      ? (
+          <Suspense fallback={null}>
+            <DeviceBackPanel onReturn={() => setSelfFlipped(false)} />
+          </Suspense>
+        )
+      : undefined;
   // Nothing on the site, where the tokens are shadowed on the stage below;
   // nothing in the dex either, where `:root` already carries the same values.
   // Recomputed only when the shell changes.
@@ -183,13 +216,32 @@ const DeviceLayout: React.FC<DeviceLayoutProps> = ({
           <div
             className="w-full h-full md:rounded-[2.5rem] overflow-hidden relative border-[3px] ring-1 ring-white/10 shadow-[inset_0_1px_0_rgba(255,255,255,0.10),inset_0_-14px_28px_rgba(0,0,0,0.16)] md:shadow-[0_28px_56px_-16px_rgba(0,0,0,0.55),0_10px_20px_-10px_rgba(0,0,0,0.45),inset_0_1px_0_rgba(255,255,255,0.10),inset_0_-14px_28px_rgba(0,0,0,0.16)]"
             style={{
-              backgroundColor: 'var(--chassis-body)',
-              backgroundImage: 'var(--chassis-pattern, none)',
+              // A clear shell is a tinted window onto the board beneath it
+              // (v0.6.30, iOS `DeviceChassis.frontFace`): the ground goes on
+              // the moulding, the internals sit on it, and the body colour
+              // — an rgba for every translucent skin — is laid over both.
+              backgroundColor: translucent ? '#14161A' : 'var(--chassis-body)',
+              backgroundImage: translucent ? undefined : 'var(--chassis-pattern, none)',
               backgroundSize: '96px 96px',
               borderColor: 'var(--chassis-panel-edge)',
             }}
+            data-translucent-shell={translucent ? 'on' : undefined}
           >
-            <div className="flex h-full flex-col">
+            {translucent && (
+              <>
+                <ChassisInternals />
+                <div
+                  className="absolute inset-0 pointer-events-none"
+                  aria-hidden="true"
+                  style={{
+                    backgroundColor: 'var(--chassis-body)',
+                    backgroundImage: 'var(--chassis-pattern, none)',
+                    backgroundSize: '96px 96px',
+                  }}
+                />
+              </>
+            )}
+            <div className="relative flex h-full flex-col">
         
         {/* The studio site gives its full chassis face to the LCD. Vinodex
             keeps the island hardware and its established portrait geometry. */}

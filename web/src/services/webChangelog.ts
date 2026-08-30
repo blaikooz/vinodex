@@ -68,6 +68,18 @@ export interface WebRelease {
 // 0.6.1x, not 0.6.2: the firmware line owns 0.6.2 through 0.9.2, and the
 // two-clocks test refuses any version the device already wore.
 const CURRENT: WebRelease = {
+  version: '0.6.30',
+  date: '2026-08-30',
+  headline: 'SEE-THROUGH',
+  notes: [
+    'The clear shells -- GLOUGLOU and NOUVEAU -- are clear now: the circuit board shows through the tinted moulding, front and back, drawn the way the phone draws it.',
+    'The chassis skin picker shows each shell as a little device with its own emblem, not its sticker.',
+    'Holding the orb turns the device over on every screen, not only the menu.',
+  ],
+};
+
+/** The release before this one, promoted when 0.6.30 landed. */
+const PREVIOUS_0_6_29: WebRelease = {
   version: '0.6.29',
   date: '2026-08-30',
   headline: 'A RESULT TO POST',
@@ -399,6 +411,7 @@ const PREVIOUS_0_4_2: WebRelease = {
 
 /** Newest first. A new release is prepended by promoting `CURRENT`. */
 const PREVIOUS: WebRelease[] = [
+  PREVIOUS_0_6_29,
   PREVIOUS_0_6_28,
   PREVIOUS_0_6_27,
   PREVIOUS_0_6_26,

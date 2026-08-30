@@ -110,7 +110,9 @@ describe('<MoonDialScreen />', () => {
     // hardcoding TOOLS/CUSTOMIZE here would pin the shipped pair by accident
     // in a test about the control *set*.
     expect(named.sort()).toEqual(
-      ['Back', 'Collection', 'Home', 'Settings', ...DEFAULTS].sort(),
+      // 'Hold to flip device' is the orb: DeviceLayout wires it on every
+      // dex screen since v0.6.30, so it is chassis, not a control of this screen.
+      ['Back', 'Collection', 'Hold to flip device', 'Home', 'Settings', ...DEFAULTS].sort(),
     );
   });
 });

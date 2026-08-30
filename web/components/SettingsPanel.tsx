@@ -26,6 +26,7 @@ import {
   setUiScale,
 } from '../src/services/theme';
 import { useTheme } from '../src/services/useTheme';
+import { SKIN_EMBLEM } from '../src/services/skinEmblem';
 import { soundsEnabled, setSoundsEnabled } from '../src/services/sound';
 import { hapticsEnabled, setHapticsEnabled } from '../src/services/haptics';
 import { APP_VERSION_DISPLAY, BUILD_NUMBER } from '../src/services/appVersion';
@@ -141,64 +142,31 @@ const FeatureTile: React.FC<{ title: string; art: string; onClick: () => void; i
 
 /** A mini-chassis preview: body over a dark base, status dots, a panel strip with a marquee bar. */
 /**
- * The drawn sticker each chassis skin wears, mirrored from iOS by the web art
- * leg (v6#2). Keyed by our skin id; a skin with no mirrored sticker is simply
- * absent and the tile falls back to the tinted emblem. ORANGE WINE and
- * CHRISTMAS are the two without one on either platform.
+ * A mini chassis, drawn the way iOS `ChassisMockup` draws one (v0.6.30): the
+ * shell colour over a dark base, the orb capsule top-left, the home dot
+ * top-right, the skin's emblem centred on the deck with a one-pixel shadow,
+ * and the panel strip with its marquee capsule along the bottom. The sticker
+ * sheet no longer stands in for the skin — the sticker is what the shell
+ * wears, not what it is.
  */
-const SKIN_STICKER: Partial<Record<ChassisSkinId, string>> = {
-  CLASSIC: 'sticker-classic',
-  MIDNIGHT: 'sticker-midnight',
-  ORIGINAL: 'sticker-original',
-  BURGUNDY: 'sticker-burgundy',
-  RIESLING: 'sticker-riesling',
-  VINHO_VERDE: 'sticker-vinho-verde',
-  GLOUGLOU: 'sticker-glouglou',
-  SMART_GRAPE: 'sticker-smart-grape',
-  CHAMPAGNE: 'sticker-champagne',
-  NOUVEAU: 'sticker-nouveau',
-  OAKED: 'sticker-oaked',
-  NOCTURNE: 'sticker-nocturne',
-  STEEL: 'sticker-steel',
-  BLUSH: 'sticker-blush',
-  PSVINO: 'sticker-psvino',
-  GRIS_DE_GRIS: 'sticker-gris-de-gris',
-  PET_NAT: 'sticker-pet-nat',
-  WALDGLAS: 'sticker-waldglas',
-  HALLOWEEN: 'sticker-halloween',
-  W64: 'sticker-w64',
-};
-
 const SkinPreviewTile: React.FC<{ id: ChassisSkinId; selected: boolean; onClick: () => void }> = ({ id, selected, onClick }) => {
   const s = CHASSIS_SKINS[id];
+  const Emblem = SKIN_EMBLEM[id];
   return (
     <button
       onClick={onClick}
       className="dex-pressable flex flex-col items-center gap-2 p-2 rounded-control"
       style={{ backgroundColor: selected ? 'var(--lcd-accent)' : 'var(--lcd-surface)' }}
     >
-      <span className="w-full h-12 rounded-md relative overflow-hidden block" style={{ backgroundColor: '#1B1D21', border: `1px solid ${s.panelEdge}` }}>
+      <span className="w-full h-12 rounded-md relative overflow-hidden block" style={{ backgroundColor: '#1B1D21', border: `1px solid ${s.panelEdge}` }} data-skin-mockup={id}>
         <span className="absolute inset-0" style={{ backgroundColor: s.body, backgroundImage: s.bodyPattern ? `url(/chassis/${s.bodyPattern}.png)` : undefined, backgroundSize: '40px' }} />
-        <span className="absolute top-1 left-1 w-2 h-2 rounded-full" style={{ backgroundColor: s.grill }} />
-        <span className="absolute top-1 right-1 w-2 h-2 rounded-full" style={{ backgroundColor: s.onBody }} />
-        {/* The skin's own drawn sticker, as iOS draws it (v6#37, art ruling
-            v6#2). A shell whose sticker has not been mirrored keeps the
-            tinted palette emblem rather than a hole. */}
-        <span className="absolute inset-0 flex items-center justify-center">
-          {SKIN_STICKER[id] ? (
-            <ArtImage
-              src={`/art/sticker/${SKIN_STICKER[id]}.png`}
-              alt=""
-              aria-hidden="true"
-              draggable={false}
-              style={{ height: 26, width: 'auto', objectFit: 'contain', imageRendering: 'pixelated' }}
-            />
-          ) : (
-            <Palette size={12} style={{ color: s.onBody, opacity: 0.85 }} />
-          )}
+        <span className="absolute top-1.5 left-1.5 w-4 h-1.5 rounded-full" style={{ backgroundColor: s.grill }} />
+        <span className="absolute top-1.5 right-1.5 w-2.5 h-2.5 rounded-full" style={{ backgroundColor: s.onBody }} />
+        <span className="absolute inset-x-0 top-0 bottom-3.5 flex items-center justify-center" style={{ transform: 'translateY(-2px)' }}>
+          <Emblem size={17} strokeWidth={2.25} style={{ color: s.onBody, filter: `drop-shadow(1px 1px 0 ${s.onBodyShadow})` }} aria-hidden="true" />
         </span>
         <span className="absolute bottom-0 inset-x-0 h-3.5 flex items-center justify-center" style={{ backgroundColor: s.panel }}>
-          <span className="w-5 h-0.5 rounded-full" style={{ backgroundColor: s.onBody }} />
+          <span className="w-6 h-[3px] rounded-full" style={{ backgroundColor: s.onBody }} />
         </span>
         {selected && <Check size={12} className="absolute bottom-0.5 right-0.5" style={{ color: s.onBody }} />}
       </span>

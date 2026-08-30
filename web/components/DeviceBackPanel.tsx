@@ -7,6 +7,9 @@ import { shelfIds } from '../src/services/bookmarks';
 import { bestStreak } from '../src/services/dailyChallenge';
 import { highestUnlocked } from '../src/services/quiz';
 import { computePassport, type BadgeId } from '../src/services/passport';
+import { useTheme } from '../src/services/useTheme';
+import { CHASSIS_SKINS } from '../src/services/theme';
+import ChassisInternals from './ChassisInternals';
 
 interface DeviceBackPanelProps {
   onReturn: () => void;
@@ -65,6 +68,11 @@ const DeviceBackPanel: React.FC<DeviceBackPanelProps> = ({ onReturn }) => {
     const p = computePassport(shelfIds('tried'), getAllEntries(), bestStreak(), highestUnlocked());
     return p.badges.filter(b => b.earned);
   }, []);
+  // A clear shell has a clear back too: the board shows through instead of
+  // brushed steel, under the same tinted moulding (v0.6.30, iOS
+  // `DeviceBackPlate`). Stamps and screws still sit on the outside.
+  const skin = CHASSIS_SKINS[useTheme().skin];
+  const clear = !!skin.translucent;
   return (
     <button
       type="button"
@@ -72,27 +80,38 @@ const DeviceBackPanel: React.FC<DeviceBackPanelProps> = ({ onReturn }) => {
       aria-label="Flip device back to front"
       className="w-full h-full md:rounded-[2.5rem] overflow-hidden relative border-[3px] border-stone-700 ring-1 ring-white/10 shadow-[inset_-10px_-10px_30px_rgba(0,0,0,0.35),inset_10px_10px_30px_rgba(255,255,255,0.08)] cursor-pointer focus:outline-none active:brightness-95 transition"
       style={{
-        background:
-          'linear-gradient(135deg, #cdcfd2 0%, #9ea1a5 35%, #7e8186 60%, #b8babd 100%)',
+        background: clear
+          ? '#14161A'
+          : 'linear-gradient(135deg, #cdcfd2 0%, #9ea1a5 35%, #7e8186 60%, #b8babd 100%)',
       }}
+      data-back-clear={clear ? 'on' : undefined}
     >
-      {/* Brushed metal texture: fine vertical striations */}
-      <div
-        className="absolute inset-0 pointer-events-none opacity-40 mix-blend-overlay"
-        style={{
-          backgroundImage:
-            'repeating-linear-gradient(90deg, rgba(255,255,255,0.18) 0px, rgba(255,255,255,0.18) 1px, rgba(0,0,0,0.18) 1px, rgba(0,0,0,0.18) 2px)',
-        }}
-      />
+      {clear ? (
+        <>
+          <ChassisInternals screws={false} />
+          <div className="absolute inset-0 pointer-events-none" aria-hidden="true" style={{ backgroundColor: skin.body }} />
+        </>
+      ) : (
+        <>
+          {/* Brushed metal texture: fine vertical striations */}
+          <div
+            className="absolute inset-0 pointer-events-none opacity-40 mix-blend-overlay"
+            style={{
+              backgroundImage:
+                'repeating-linear-gradient(90deg, rgba(255,255,255,0.18) 0px, rgba(255,255,255,0.18) 1px, rgba(0,0,0,0.18) 1px, rgba(0,0,0,0.18) 2px)',
+            }}
+          />
 
-      {/* Subtle radial highlight */}
-      <div
-        className="absolute inset-0 pointer-events-none opacity-50"
-        style={{
-          background:
-            'radial-gradient(ellipse at 30% 20%, rgba(255,255,255,0.35) 0%, rgba(255,255,255,0) 55%)',
-        }}
-      />
+          {/* Subtle radial highlight */}
+          <div
+            className="absolute inset-0 pointer-events-none opacity-50"
+            style={{
+              background:
+                'radial-gradient(ellipse at 30% 20%, rgba(255,255,255,0.35) 0%, rgba(255,255,255,0) 55%)',
+            }}
+          />
+        </>
+      )}
 
       {/* Passport stamps — one per earned badge, at its fixed slot. */}
       {earned.map(b => {
