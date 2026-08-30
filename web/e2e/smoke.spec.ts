@@ -461,3 +461,15 @@ test('the LCD says OFFLINE while the browser says so', async ({ page, consoleErr
   await page.evaluate(() => (window as unknown as { __setOnline: (v: boolean) => void }).__setOnline(false));
   await expect(pill).toBeVisible();
 });
+
+/** SETTINGS ▸ DATA offers the install, in whichever shape this browser has (v0.6.22). */
+test('SETTINGS ▸ DATA carries the INSTALL row', async ({ page, consoleErrors }) => {
+  void consoleErrors;
+  await seedDevice(page);
+  await enterDex(page, '/settings/DATA');
+  const row = page.locator('[data-install-row]');
+  await expect(row).toHaveCount(1);
+  // Headless Chromium on 127.0.0.1 may or may not make the offer; either
+  // shape is a row that says INSTALL, never nothing.
+  await expect(row).toContainText(/INSTALL VINODEX|ADD TO HOME SCREEN/);
+});

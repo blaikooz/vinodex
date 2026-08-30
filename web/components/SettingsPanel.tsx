@@ -1,5 +1,6 @@
 import React from 'react';
-import { Palette, Lock, LockOpen, Bug, Check, LogOut, Flag, Crown, Leaf, Sun, Moon, Grid3x3, Globe, Wine, Map as MapIcon, Layers, ChevronRight, Download, Upload, UserRound, Sparkle, Wrench } from 'lucide-react';
+import { Palette, Lock, LockOpen, Bug, Check, LogOut, Flag, Crown, Leaf, Sun, Moon, Grid3x3, Globe, Wine, Map as MapIcon, Layers, ChevronRight, Download, Upload, UserRound, Sparkle, Wrench, MonitorDown, Share } from 'lucide-react';
+import { installSurface, promptInstall, subscribeInstall } from '../src/services/installPrompt';
 import { useNavigate } from 'react-router-dom';
 import ArtImage from './ArtImage';
 import DeviceLayout from './DeviceLayout';
@@ -286,6 +287,56 @@ export const SettingsGrid: React.FC<{
    answered by leaving both weights as authored: a settings panel is denser
    and its rule carries more of the wayfinding. The label converts to the sans
    label step and becomes a real heading. */
+/**
+ * SETTINGS ▸ DATA ▸ INSTALL (v0.6.22). One row, three shapes, or nothing:
+ * a real INSTALL button where Chromium has offered (`beforeinstallprompt`),
+ * the Share-sheet hint on an iPhone or iPad, a one-line pointer at the
+ * browser's own Install option elsewhere -- and no row at all once the app
+ * is on a home screen, because a row that says "install" to someone who
+ * has is a control that lies.
+ */
+const InstallSection: React.FC = () => {
+  const surface = React.useSyncExternalStore(subscribeInstall, installSurface, () => 'none' as const);
+  if (surface === 'standalone') return null;
+  const row = 'w-full flex items-center gap-3 px-3 py-3 rounded-control border-2 text-left mb-2';
+  const rowStyle = { backgroundColor: 'var(--lcd-surface)', borderColor: 'var(--lcd-surface-edge)' } as const;
+  return (
+    <Section title="INSTALL">
+      {surface === 'prompt' ? (
+        <button type="button" onClick={() => { void promptInstall(); }} className={`dex-pressable ${row}`} style={rowStyle} data-install-row="prompt">
+          <span style={{ color: 'var(--lcd-accent)' }}><MonitorDown size={20} /></span>
+          <span className="flex-1 min-w-0">
+            <span className="block text-label tracking-widest" style={{ color: 'var(--lcd-text)' }}>INSTALL VINODEX</span>
+            <span className="block text-caption normal-case mt-1" style={{ color: 'var(--lcd-subtext)' }}>
+              Adds the device to your home screen. It works offline once installed.
+            </span>
+          </span>
+        </button>
+      ) : surface === 'ios' ? (
+        <div className={row} style={rowStyle} data-install-row="ios">
+          <span style={{ color: 'var(--lcd-accent)' }}><Share size={20} /></span>
+          <span className="flex-1 min-w-0">
+            <span className="block text-label tracking-widest" style={{ color: 'var(--lcd-text)' }}>ADD TO HOME SCREEN</span>
+            <span className="block text-caption normal-case mt-1" style={{ color: 'var(--lcd-subtext)' }}>
+              In Safari: Share, then Add to Home Screen. It works offline once added.
+            </span>
+          </span>
+        </div>
+      ) : (
+        <div className={row} style={rowStyle} data-install-row="none">
+          <span style={{ color: 'var(--lcd-subtext)' }}><MonitorDown size={20} /></span>
+          <span className="flex-1 min-w-0">
+            <span className="block text-label tracking-widest" style={{ color: 'var(--lcd-text)' }}>INSTALL VINODEX</span>
+            <span className="block text-caption normal-case mt-1" style={{ color: 'var(--lcd-subtext)' }}>
+              Your browser's Install option -- in the address bar or its menu -- keeps this device on your machine. It works offline once installed.
+            </span>
+          </span>
+        </div>
+      )}
+    </Section>
+  );
+};
+
 const Section: React.FC<{ title: string; children: React.ReactNode }> = ({ title, children }) => (
   <div className="mb-6">
     <div className="flex items-center gap-2 mb-3 pb-1 border-b-2" style={{ borderColor: 'var(--lcd-accent)' }}>
@@ -1032,6 +1083,8 @@ export const SettingsSectionPanel: React.FC<{
                 build.
               </p>
             </Section>
+
+            <InstallSection />
 
           </>
         );

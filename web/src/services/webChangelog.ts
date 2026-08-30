@@ -68,6 +68,17 @@ export interface WebRelease {
 // 0.6.1x, not 0.6.2: the firmware line owns 0.6.2 through 0.9.2, and the
 // two-clocks test refuses any version the device already wore.
 const CURRENT: WebRelease = {
+  version: '0.6.22',
+  date: '2026-08-30',
+  headline: 'KEEP THE DEVICE',
+  notes: [
+    'SETTINGS > DATA has an INSTALL row: a real install button where the browser offers one, the Share > Add to Home Screen hint on an iPhone or iPad, and a pointer at the browser\'s own Install option elsewhere.',
+    'The row disappears once the app is on a home screen.',
+  ],
+};
+
+/** The release before this one, promoted when 0.6.22 landed. */
+const PREVIOUS_0_6_21: WebRelease = {
   version: '0.6.21',
   date: '2026-08-30',
   headline: 'OFFLINE, AND SAID SO',
@@ -310,6 +321,7 @@ const PREVIOUS_0_4_2: WebRelease = {
 
 /** Newest first. A new release is prepended by promoting `CURRENT`. */
 const PREVIOUS: WebRelease[] = [
+  PREVIOUS_0_6_21,
   PREVIOUS_0_6_20,
   PREVIOUS_0_6_19,
   PREVIOUS_0_6_18,
