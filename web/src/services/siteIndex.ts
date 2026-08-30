@@ -131,7 +131,56 @@ export interface PageMeta {
   type: 'website' | 'article';
   /** The page's own card image, 1200x630 (v0.6.24); the logo when absent. */
   image?: string;
+  /**
+   * The page's schema.org node, written as JSON-LD (v0.6.32, Phase 6). One
+   * node per page; the landing carries the studio and the site as a graph.
+   */
+  schema: JsonLd;
 }
+
+/** A schema.org node. Loose on purpose: the vocabulary is theirs, not ours. */
+export type JsonLd = Record<string, unknown>;
+
+export const ORGANIZATION_ID = `${SITE_ORIGIN}/#organization`;
+export const WEBSITE_ID = `${SITE_ORIGIN}/#website`;
+
+/** The studio, as every page's publisher. */
+export const organizationNode = (): JsonLd => ({
+  '@type': 'Organization',
+  '@id': ORGANIZATION_ID,
+  name: 'HORIZON/GODOT',
+  url: `${SITE_ORIGIN}/`,
+  logo: `${SITE_ORIGIN}/vinodex-logo.png`,
+  description: 'A two-person NYC studio making playful digital tools.',
+});
+
+/** The site itself, so an entry page can say what it is part of. */
+export const webSiteNode = (): JsonLd => ({
+  '@type': 'WebSite',
+  '@id': WEBSITE_ID,
+  name: 'HORIZON/GODOT',
+  url: `${SITE_ORIGIN}/`,
+  publisher: { '@id': ORGANIZATION_ID },
+});
+
+/** Vinodex, the product the site is home to. */
+export const vinodexAppNode = (): JsonLd => ({
+  '@type': 'SoftwareApplication',
+  name: 'VINODEX',
+  url: `${SITE_ORIGIN}/dex`,
+  applicationCategory: 'ReferenceApplication',
+  operatingSystem: 'Web',
+  description: 'A retro-handheld wine encyclopedia: grapes, regions, styles and flavours, playable in the browser.',
+  offers: { '@type': 'Offer', price: '0', priceCurrency: 'USD' },
+  publisher: { '@id': ORGANIZATION_ID },
+});
+
+/**
+ * JSON-LD is JSON inside a `<script>`: `<` (and so `</script>` and `<!--`)
+ * is escaped as `\u003c`, which JSON parsers read back as the character.
+ */
+export const jsonLdScript = (node: JsonLd): string =>
+  `<script type="application/ld+json" data-site-index>${JSON.stringify({ '@context': 'https://schema.org', ...node }).replace(/</g, '\\u003c')}</script>`;
 
 const htmlEsc = (s: string): string =>
   (s ?? '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
@@ -168,6 +217,7 @@ export const injectMeta = (shell: string, meta: PageMeta): string => {
     set('property', 'og:image:width', '1200');
     set('property', 'og:image:height', '630');
     set('property', 'og:image:alt', `${meta.title} share card`);
+    set('name', 'twitter:image:alt', `${meta.title} share card`);
   }
   set('name', 'twitter:card', 'summary_large_image');
   set('name', 'twitter:title', meta.title);
@@ -176,6 +226,9 @@ export const injectMeta = (shell: string, meta: PageMeta): string => {
   // The tag and its own line, so re-injecting a page yields the same bytes.
   html = html.replace(/[ \t]*<link rel="canonical"[^>]*>\r?\n?/g, '');
   html = html.replace('</head>', `    <link rel="canonical" href="${htmlEsc(meta.url)}" />\n  </head>`);
+  // The structured data, one block, replaced rather than stacked (v0.6.32).
+  html = html.replace(/[ \t]*<script type="application\/ld\+json" data-site-index>[\s\S]*?<\/script>\r?\n?/g, '');
+  html = html.replace('</head>', `    ${jsonLdScript(meta.schema)}\n  </head>`);
   return html;
 };
 
@@ -186,7 +239,33 @@ export const sitePageMeta = (page: SitePage): PageMeta => ({
   description: page.description,
   url: `${SITE_ORIGIN}${page.path}`,
   type: 'website',
+  schema: sitePageSchema(page),
 });
+
+/** The schema.org page type each site route is, by what the page does. */
+const SITE_PAGE_TYPE: Record<string, string> = {
+  '/apps': 'CollectionPage',
+  '/who-we-are': 'AboutPage',
+  '/contact': 'ContactPage',
+  '/privacy': 'WebPage',
+};
+
+/**
+ * The landing is the studio and the site in one graph, with Vinodex as the
+ * work it is home to; every other site page is a typed WebPage of that site.
+ */
+export const sitePageSchema = (page: SitePage): JsonLd =>
+  page.path === '/'
+    ? { '@graph': [organizationNode(), webSiteNode(), vinodexAppNode()] }
+    : {
+        '@type': SITE_PAGE_TYPE[page.path] ?? 'WebPage',
+        name: page.title,
+        description: page.description,
+        url: `${SITE_ORIGIN}${page.path}`,
+        isPartOf: { '@id': WEBSITE_ID },
+        publisher: { '@id': ORGANIZATION_ID },
+        ...(page.path === '/apps' ? { mainEntity: vinodexAppNode() } : {}),
+      };
 
 /** Where an entry's baked share card lives (v0.6.24); see `ogManifest.ts`. */
 export const ogCardPath = (id: string): string => `/og/${id}.png`;
@@ -203,4 +282,15 @@ export const entryPageMeta = (id: string, name: string, description: string, has
   url: `${SITE_ORIGIN}${entryPagePath(id)}`,
   type: 'article',
   ...(hasCard ? { image: `${SITE_ORIGIN}${ogCardPath(id)}` } : {}),
+  schema: {
+    '@type': 'Article',
+    headline: name,
+    description: description || 'A retro wine field guide.',
+    url: `${SITE_ORIGIN}${entryPagePath(id)}`,
+    image: hasCard ? `${SITE_ORIGIN}${ogCardPath(id)}` : SHARE_IMAGE,
+    about: { '@type': 'Thing', name },
+    isPartOf: { '@id': WEBSITE_ID },
+    author: { '@id': ORGANIZATION_ID },
+    publisher: { '@id': ORGANIZATION_ID },
+  },
 });

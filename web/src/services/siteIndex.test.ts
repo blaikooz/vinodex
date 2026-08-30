@@ -139,6 +139,46 @@ describe('the site index', () => {
       expect((html.match(/property="og:image"/g) ?? []).length).toBe(1);
     });
 
+    it('writes one JSON-LD block per page that parses and names the page (v0.6.32)', () => {
+      const ld = (html: string) => {
+        const blocks = html.match(/<script type="application\/ld\+json" data-site-index>([\s\S]*?)<\/script>/g) ?? [];
+        expect(blocks.length).toBe(1);
+        return JSON.parse(blocks[0]!.replace(/^<script[^>]*>/, '').replace(/<\/script>$/, '')) as Record<string, unknown>;
+      };
+      // The landing: the studio, the site and the app, one graph.
+      const landing = ld(injectMeta(shell, sitePageMeta(SITE_PAGES[0]!)));
+      expect(landing['@context']).toBe('https://schema.org');
+      const graph = landing['@graph'] as Array<Record<string, unknown>>;
+      expect(graph.map(n => n['@type'])).toEqual(['Organization', 'WebSite', 'SoftwareApplication']);
+      expect(graph[2]!.url).toBe(`${SITE_ORIGIN}/dex`);
+      // A site page is a typed page of that site.
+      const contact = ld(injectMeta(shell, sitePageMeta(SITE_PAGES[3]!)));
+      expect(contact['@type']).toBe('ContactPage');
+      expect(contact.url).toBe(`${SITE_ORIGIN}/contact`);
+      expect((contact.isPartOf as { '@id': string })['@id']).toBe(`${SITE_ORIGIN}/#website`);
+      // An entry is an article about its subject, with its card when it has one.
+      const entry = ld(injectMeta(shell, entryPageMeta('G001', 'Cabernet Sauvignon', 'Bold </script> red', true)));
+      expect(entry['@type']).toBe('Article');
+      expect(entry.headline).toBe('Cabernet Sauvignon');
+      expect(entry.image).toBe(`${SITE_ORIGIN}/og/G001.png`);
+      expect((entry.about as { name: string }).name).toBe('Cabernet Sauvignon');
+      expect(entry.description).toBe('Bold </script> red');
+    });
+
+    it('keeps a closing script tag in the data from ending the block', () => {
+      const html = injectMeta(shell, entryPageMeta('G001', 'X', 'a </script><b> b'));
+      const start = html.indexOf('<script type="application/ld+json"');
+      const body = html.slice(start, html.indexOf('</script>', start));
+      expect(body).not.toContain('</script>');
+      expect(body).toContain('\\u003c/script>');
+    });
+
+    it('names the card for twitter as well as for open graph', () => {
+      const html = injectMeta(shell, entryPageMeta('G001', 'Cabernet Sauvignon', 'x', true));
+      expect(html).toContain('<meta name="twitter:image:alt" content="Cabernet Sauvignon — Vinodex share card" />');
+      expect((html.match(/name="twitter:image:alt"/g) ?? []).length).toBe(1);
+    });
+
     it('is idempotent: injecting twice yields the same page', () => {
       const once = injectMeta(shell, sitePageMeta(SITE_PAGES[1]!));
       expect(injectMeta(once, sitePageMeta(SITE_PAGES[1]!))).toBe(once);
