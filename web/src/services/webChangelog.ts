@@ -68,6 +68,17 @@ export interface WebRelease {
 // 0.6.1x, not 0.6.2: the firmware line owns 0.6.2 through 0.9.2, and the
 // two-clocks test refuses any version the device already wore.
 const CURRENT: WebRelease = {
+  version: '0.6.55',
+  date: '2026-08-31',
+  headline: 'EMBLEMS, HAND-SET',
+  notes: [
+    'Twelve emblem flags redrawn as hand-plotted pixel maps, absorbed from the same pass iOS made this afternoon: Japan\'s true circle, Canada\'s three-lobed leaf, India\'s chakra with real spokes, Mexico\'s eagle with head and wing apart, Morocco\'s traced pentagram, New York\'s and Oregon\'s proper seals, Portugal\'s armillary ring, Slovenia\'s Triglav, Spain\'s crowned shield between its pillars, Uruguay\'s Sun of May, Lebanon\'s tiered cedar.',
+    'The geometric flags were already right and are untouched - the other 69 files are byte-identical.',
+  ],
+};
+
+/** The release before this one, promoted when 0.6.55 landed. */
+const PREVIOUS_0_6_54: WebRelease = {
   version: '0.6.54',
   date: '2026-08-31',
   headline: 'FLAGS OF OUR OWN',
@@ -670,6 +681,7 @@ const PREVIOUS_0_4_2: WebRelease = {
 
 /** Newest first. A new release is prepended by promoting `CURRENT`. */
 const PREVIOUS: WebRelease[] = [
+  PREVIOUS_0_6_54,
   PREVIOUS_0_6_53,
   PREVIOUS_0_6_52,
   PREVIOUS_0_6_51,
