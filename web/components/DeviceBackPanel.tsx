@@ -379,7 +379,7 @@ const DeviceBackPanel: React.FC<DeviceBackPanelProps> = ({ onReturn }) => {
           className="px-8 py-5 rounded-md border border-stone-700/50 bg-gradient-to-b from-stone-500/40 to-stone-700/40 shadow-[inset_0_2px_6px_rgba(0,0,0,0.5),0_1px_0_rgba(255,255,255,0.5)] flex flex-col items-center"
         >
           <div
-            className="font-retro text-[2rem] md:text-[2.5rem] tracking-[0.25em] leading-none"
+            className="font-retro text-[min(2rem,8.5vw)] md:text-[2.5rem] tracking-[0.25em] leading-none"
             style={{ color: plate.inkDeep, textShadow: engravedTextShadow }}
           >
             {APP_NAME}

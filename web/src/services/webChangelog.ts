@@ -68,6 +68,18 @@ export interface WebRelease {
 // 0.6.1x, not 0.6.2: the firmware line owns 0.6.2 through 0.9.2, and the
 // two-clocks test refuses any version the device already wore.
 const CURRENT: WebRelease = {
+  version: '0.6.58',
+  date: '2026-08-31',
+  headline: 'FILL THE FRAME',
+  notes: [
+    'The device fills whatever viewport it is in. The studio site\'s chassis was a compact square on phones, adrift between letterbox bands - now it fills a portrait screen edge to edge, like the dex always has.',
+    'The desktop stage - key light, vignette, 4:3 site display - now waits for an actually landscape window. A phone whose browser lays pages out at desktop width (desktop mode, a zoomed-out page) kept getting the stage in a void; it gets the full-bleed device now.',
+    'The test rig walks a sliding scale of nine displays, 320px phone to full HD - and its first walk caught the back plate\'s engraved nameplate running wider than the smallest phones. It fits them now.',
+  ],
+};
+
+/** The release before this one, promoted when 0.6.58 landed. */
+const PREVIOUS_0_6_57: WebRelease = {
   version: '0.6.57',
   date: '2026-08-31',
   headline: 'THE SMALL PRINT, SIGNED',
@@ -706,6 +718,7 @@ const PREVIOUS_0_4_2: WebRelease = {
 
 /** Newest first. A new release is prepended by promoting `CURRENT`. */
 const PREVIOUS: WebRelease[] = [
+  PREVIOUS_0_6_57,
   PREVIOUS_0_6_56,
   PREVIOUS_0_6_55,
   PREVIOUS_0_6_54,

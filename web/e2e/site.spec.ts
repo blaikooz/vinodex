@@ -243,7 +243,10 @@ test('the site alone reshapes its chassis for the viewport', async ({ page, cons
   await page.goto('/');
   const mobile = await page.locator('.site-device-frame').boundingBox();
   expect(mobile).not.toBeNull();
-  expect(Math.abs((mobile?.width ?? 0) - (mobile?.height ?? 0))).toBeLessThanOrEqual(1);
+  // Full-bleed on a portrait viewport since v0.6.58 ("fill whatever viewport
+  // it's in") — it was a compact square adrift in letterbox bands before.
+  expect(mobile?.width, 'the phone site chassis does not fill the width').toBeCloseTo(390, 0);
+  expect(mobile?.height, 'the phone site chassis does not fill the height').toBeCloseTo(844, 0);
   await expect(page.locator('.island-strip')).toHaveCount(0);
   const mobileCrown = await page.evaluate(() => {
     const frame = document.querySelector('.site-device-frame')!.getBoundingClientRect();
@@ -290,7 +293,7 @@ test('the site alone reshapes its chassis for the viewport', async ({ page, cons
   }
 
   await enterDex(page, '/dex');
-  const dex = await page.locator('div[class*="md:w-[522px]"]').first().boundingBox();
+  const dex = await page.locator('div[class*="md:landscape:w-[522px]"]').first().boundingBox();
   expect(dex).not.toBeNull();
   expect(dex?.width).toBeCloseTo(522, 0);
   expect((dex?.height ?? 0)).toBeGreaterThan(dex?.width ?? 0);

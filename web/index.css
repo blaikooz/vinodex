@@ -379,16 +379,18 @@ body,
   --device-frame-h: min(850px, calc(100dvh - 2rem));
 }
 
-/* The studio website has its own responsive hardware footprint. On a phone
-   it is a compact square; from tablet upward it becomes a 4:3 landscape
-   display, constrained by both axes of the viewport. The Vinodex application
-   never receives this class and continues to use DEVICE_FRAME_BOX's portrait
-   dimensions. */
+/* The studio website has its own responsive hardware footprint. On a
+   portrait viewport it fills the screen like the Vinodex device does — it
+   was a compact square until 2026-08-31, which left the chassis adrift in
+   letterbox bands on phones (and in a void when a phone's desktop mode laid
+   out at desktop width). From a landscape tablet upward it becomes a 4:3
+   landscape display, constrained by both axes of the viewport. The Vinodex
+   application never receives this class and continues to use
+   DEVICE_FRAME_BOX's dimensions. */
 .site-device-frame {
   flex: none;
-  width: min(100%, 100dvh);
-  height: auto;
-  aspect-ratio: 1 / 1;
+  width: 100%;
+  height: 100%;
 }
 
 /* With the island intentionally absent, the website still needs a visible
@@ -434,7 +436,7 @@ body,
   box-shadow: 0 0 0.45rem color-mix(in oklab, var(--tint-solid) 40%, transparent), var(--shadow-elev-3);
 }
 
-@media (min-width: 768px) {
+@media (min-width: 768px) and (orientation: landscape) {
   .site-device-frame {
     width: auto;
     height: min(768px, calc(100dvh - 2rem), calc(75vw - 1.5rem));
@@ -517,7 +519,7 @@ body,
   filter: drop-shadow(0 0 0.5rem rgba(230, 169, 58, 0.4));
 }
 
-@media (min-width: 768px) {
+@media (min-width: 768px) and (orientation: landscape) {
   .device-stage {
     background-color: #0e0e11;
     background-image:
@@ -1478,7 +1480,7 @@ body {
   --island-gap: 0.42rem;
 }
 
-@media (min-width: 768px) {
+@media (min-width: 768px) and (orientation: landscape) {
   .island-strip { --island-lamp: 1.51875rem; }
 }
 

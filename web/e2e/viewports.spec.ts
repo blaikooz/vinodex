@@ -29,11 +29,25 @@ import type { Page } from '@playwright/test';
  * clickable. The shots are attached as evidence, not as the test.
  */
 
-/** Mobile (the suite's standing size), desktop, and a short desktop window. */
+/**
+ * A sliding scale from the smallest phone to a big desktop (owner ask,
+ * 2026-08-31), rather than the original three spot sizes. Two rungs earn
+ * their place by history: `short` caught v7#D2's sunken footer, and
+ * `desktop-mode-phone` is the shape a real phone reports when the browser's
+ * desktop mode (or a zoomed-out page) lays it out at desktop width — the
+ * geometry that letterboxed the site chassis until the frame went
+ * `md:landscape:`.
+ */
 const SIZES: [string, number, number][] = [
+  ['small-phone', 320, 568],
   ['mobile', 420, 900],
-  ['desktop', 1280, 800],
+  ['big-phone', 430, 932],
+  ['tablet-portrait', 768, 1024],
+  ['desktop-mode-phone', 980, 2121],
+  ['tablet-landscape', 1024, 768],
   ['short', 1280, 700],
+  ['desktop', 1280, 800],
+  ['full-hd', 1920, 1080],
 ];
 
 /**
@@ -119,6 +133,38 @@ for (const [name, width, height] of SIZES) {
     });
 
     /**
+     * The site chassis obeys the same rule the screenshot report broke
+     * (2026-08-31): a portrait window of ANY width gets the full-bleed
+     * device, and only a landscape window from `md` up gets the staged one.
+     * "Fill whatever viewport it's in."
+     */
+    test('the site chassis fills a portrait window and stages a landscape one', async ({ page, consoleErrors }) => {
+      void consoleErrors;
+      await seedDevice(page);
+      await page.goto('/');
+      await page.waitForTimeout(600);
+      const m = await page.evaluate(() => {
+        const box = document.querySelector('.site-device-frame');
+        if (!box) return null;
+        const r = box.getBoundingClientRect();
+        return { w: r.width, h: r.height, top: r.top, vw: window.innerWidth, vh: window.innerHeight };
+      });
+      expect(m, 'no site chassis found').not.toBeNull();
+      const staged = width >= 768 && width > height;
+      if (staged) {
+        // The 4:3 landscape display, inside the window on both axes.
+        expect(m!.w, 'staged chassis wider than the window').toBeLessThanOrEqual(m!.vw + 0.5);
+        expect(m!.h, 'staged chassis taller than the window').toBeLessThanOrEqual(m!.vh + 0.5);
+        expect(m!.w / m!.h, 'staged chassis is not 4:3').toBeCloseTo(4 / 3, 1);
+      } else {
+        // Full bleed: the chassis IS the window.
+        expect(m!.w, 'chassis does not fill the width').toBeCloseTo(m!.vw, 0);
+        expect(m!.h, 'chassis does not fill the height').toBeCloseTo(m!.vh, 0);
+        expect(m!.top, 'chassis does not start at the top').toBeCloseTo(0, 0);
+      }
+    });
+
+    /**
      * The footer band is the feature that went missing (v0.2.1's quick pins
      * among it), so it is checked by use rather than by geometry: the SETTINGS
      * cap is the lowest control on the chassis, and a click on it has to
@@ -192,7 +238,7 @@ for (const [name, width, height] of SIZES) {
           /VINODEX BIOS/.test(d.textContent ?? ''),
         );
         const line = cands[cands.length - 1];
-        const box = line?.closest('div[class*="md:w-[522px]"]');
+        const box = line?.closest('div[class*="md:landscape:w-[522px]"]');
         return {
           vw: window.innerWidth,
           post: line ? line.getBoundingClientRect().width : -1,
@@ -209,7 +255,10 @@ for (const [name, width, height] of SIZES) {
       // survived — so the assertion that holds at every size is that the POST
       // never exceeds the device.
       expect(geom.post, 'the BIOS is wider than the device').toBeLessThanOrEqual(geom.box + 0.5);
-      if (geom.vw > 600) {
+      // Only a staged (landscape, md-up) window narrows the device to the
+      // 522px column; portrait windows of any width are full-bleed since the
+      // md:landscape: gating (2026-08-31).
+      if (width >= 768 && width > height) {
         expect(geom.box, 'the device frame is not the 522px column on desktop').toBeLessThan(geom.vw * 0.6);
       }
 

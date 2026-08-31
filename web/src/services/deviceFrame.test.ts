@@ -95,7 +95,9 @@ describe('the device frame', () => {
     // sub-`md` phone path — where the dynamic-viewport/URL-bar behaviour is
     // already correct — completely alone.
     expect(DEVICE_FRAME_BOX).toContain('w-full h-full');
-    expect(DEVICE_FRAME_BOX).toContain('md:h-[var(--device-frame-h)]');
+    // md:landscape:, not md: alone, since 2026-08-31 — a desktop-width
+    // portrait layout (a phone's desktop mode) keeps the full-bleed device.
+    expect(DEVICE_FRAME_BOX).toContain('md:landscape:h-[var(--device-frame-h)]');
     expect(DEVICE_FRAME_BOX).not.toContain(RETIRED_HEIGHT);
 
     const css = readFileSync(resolve(process.cwd(), 'web/index.css'), 'utf8');
@@ -111,7 +113,7 @@ describe('the device frame', () => {
     expect(layout).toContain('${DEVICE_FRAME_BOX}');
     expect(DEVICE_FRAME_STAGE).toContain('justify-center');
     expect(DEVICE_FRAME_STAGE).toContain('items-center');
-    expect(DEVICE_FRAME_STAGE).toContain('md:p-4');
+    expect(DEVICE_FRAME_STAGE).toContain('md:landscape:p-4');
   });
 
   it('keeps every bottom-anchored overlay clear of the button band', () => {

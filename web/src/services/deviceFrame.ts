@@ -30,10 +30,16 @@ import type { CSSProperties } from 'react';
  * `DEVICE_FRAME_BOX` exactly where `DeviceLayout` puts the chassis.
  *
  * Must stay in step with `DeviceLayout`'s outer container — same flex
- * alignment, same `md:p-4`. `DeviceLayout` uses this string too, so "in step"
- * is enforced rather than remembered.
+ * alignment, same stage padding. `DeviceLayout` uses this string too, so "in
+ * step" is enforced rather than remembered.
+ *
+ * The desktop treatment is gated on `md:landscape:`, not `md:` alone
+ * (2026-08-31): a phone in the browser's desktop mode, or zoomed out, lays
+ * out at a desktop-class *width* while staying portrait — and got the 522px
+ * column adrift in a letterbox. Orientation is the hand-held signal width is
+ * not: any portrait viewport keeps the full-bleed device.
  */
-export const DEVICE_FRAME_STAGE = 'flex justify-center items-center p-0 md:p-4';
+export const DEVICE_FRAME_STAGE = 'flex justify-center items-center p-0 md:landscape:p-4';
 
 /**
  * The chassis box itself.
@@ -65,7 +71,7 @@ export const DEVICE_FRAME_STAGE = 'flex justify-center items-center p-0 md:p-4';
  * an `h-screen` stage, exactly as it has always been, so the dynamic-viewport /
  * URL-bar behaviour that currently renders correctly on a phone is not touched.
  */
-export const DEVICE_FRAME_BOX = 'w-full h-full md:h-[var(--device-frame-h)] md:w-[522px]';
+export const DEVICE_FRAME_BOX = 'w-full h-full md:landscape:h-[var(--device-frame-h)] md:landscape:w-[522px]';
 
 /**
  * The button band's height, and the pad under it.

@@ -57,7 +57,7 @@ const VinoIntroCard: React.FC<VinoIntroCardProps> = ({ onDone }) => {
       viewport so nothing outside is clickable; the ink is clamped to the frame.
     */
     <div className={`fixed inset-0 z-[85] ${DEVICE_FRAME_STAGE}`} style={DEVICE_FRAME_OVERLAY_STYLE} role="dialog" aria-modal="true" aria-label="Professor Vino introduces himself">
-      <div className={`relative ${DEVICE_FRAME_BOX} bg-black/85 flex items-center justify-center p-6 overflow-hidden md:rounded-[2.5rem]`}>
+      <div className={`relative ${DEVICE_FRAME_BOX} bg-black/85 flex items-center justify-center p-6 overflow-hidden md:landscape:rounded-[2.5rem]`}>
         <div className="w-full max-w-sm bg-stone-900 border-2 border-amber-500 rounded-card p-5 flex flex-col gap-4">
           <div className="flex items-start gap-3">
             <span className="shrink-0 w-12 h-12 rounded-full border-2 border-amber-500 bg-stone-800 flex items-center justify-center overflow-hidden">

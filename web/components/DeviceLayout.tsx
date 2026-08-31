@@ -163,7 +163,7 @@ const DeviceLayout: React.FC<DeviceLayoutProps> = ({
     // stage is not a card, and the 2rem clip was showing the page background
     // through the window's corners.
     <div
-      className={`${DEVICE_FRAME_STAGE} min-h-screen device-stage font-mono h-screen md:h-auto overflow-hidden rounded-[2rem] md:rounded-none`}
+      className={`${DEVICE_FRAME_STAGE} min-h-screen device-stage font-mono h-screen md:landscape:h-auto overflow-hidden rounded-[2rem] md:landscape:rounded-none`}
       style={{
         paddingTop: 'env(safe-area-inset-top)',
         paddingLeft: 'env(safe-area-inset-left)',
