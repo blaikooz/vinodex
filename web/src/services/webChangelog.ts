@@ -68,6 +68,16 @@ export interface WebRelease {
 // 0.6.1x, not 0.6.2: the firmware line owns 0.6.2 through 0.9.2, and the
 // two-clocks test refuses any version the device already wore.
 const CURRENT: WebRelease = {
+  version: '0.6.52',
+  date: '2026-08-31',
+  headline: 'ONE GRAPE, ONE PARENT',
+  notes: [
+    'Verdicchio finds its parent: Mammolo joins its lineage, restored while the two platforms\' data was reconciled line by line. The family tree gains one branch.',
+  ],
+};
+
+/** The release before this one, promoted when 0.6.52 landed. */
+const PREVIOUS_0_6_51: WebRelease = {
   version: '0.6.51',
   date: '2026-08-31',
   headline: 'EVERY ENGINE, EVERY CAP',
@@ -637,6 +647,7 @@ const PREVIOUS_0_4_2: WebRelease = {
 
 /** Newest first. A new release is prepended by promoting `CURRENT`. */
 const PREVIOUS: WebRelease[] = [
+  PREVIOUS_0_6_51,
   PREVIOUS_0_6_50,
   PREVIOUS_0_6_49,
   PREVIOUS_0_6_48,
