@@ -112,20 +112,12 @@ const writeIndex = (profiles: Profile[]): void => {
 };
 
 /**
- * HORIZON, seeded once — only when the index does not exist at all. Called on
- * first read, so the store needs no init hook.
+ * Profiles ship blank since iOS 0.9.41: nothing seeds. A missing index reads
+ * as empty and stays unwritten — five empty slots, the user's own saves.
+ * Devices that already carry the old seeded HORIZON keep it (their index
+ * exists, and this store never rewrites what it did not save).
  */
-const seedIfNeeded = (): void => {
-  const storage = ls();
-  if (!storage) return;
-  if (storage.getItem(INDEX_KEY) !== null) return;
-  writeIndex([{ slot: 1, name: 'HORIZON', savedAt: null }]);
-};
-
-export const profiles = (): Profile[] => {
-  seedIfNeeded();
-  return readIndex();
-};
+export const profiles = (): Profile[] => readIndex();
 
 export const profileInSlot = (slot: number): Profile | null =>
   profiles().find(p => p.slot === slot) ?? null;

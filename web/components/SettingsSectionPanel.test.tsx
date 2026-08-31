@@ -126,7 +126,7 @@ describe('<SettingsSectionPanel />', () => {
     // reordering would move without any type or build noticing.
     const SETTINGS_ORDER = [
       'TEXT SIZE', 'UI SIZE', 'HAPTICS', 'SOUNDS', 'TUTORIAL', 'SUPPORT',
-      'CHEAT CODES', 'DEMO MODE', 'PROFILES', 'STORED DATA', 'DEVELOPER',
+      'CHEAT CODES', 'PROFILES', 'STORED DATA', 'DEVELOPER',
     ];
 
     it('renders its sections in order', async () => {
@@ -151,7 +151,7 @@ describe('<SettingsSectionPanel />', () => {
         .map(node => node.getAttribute('data-control-art'));
       expect(stems[0]).toBe('haptics');
       expect(stems[1]).toMatch(/^sounds-(?:on|off)$/);
-      expect(stems.slice(2)).toEqual(['tutorial', 'seal', 'cheatcodes', 'demomode']);
+      expect(stems.slice(2)).toEqual(['tutorial', 'seal', 'cheatcodes']);
     });
 
     it('keeps the tour offer modal and returns focus on Escape', async () => {

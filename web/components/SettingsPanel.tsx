@@ -1,5 +1,5 @@
 import React from 'react';
-import { Palette, Lock, LockOpen, Bug, Check, LogOut, Flag, Crown, Leaf, Sun, Moon, Grid3x3, Globe, Wine, Map as MapIcon, Layers, ChevronRight, Download, Upload, UserRound, Sparkle, Wrench, MonitorDown, Share, RefreshCw } from 'lucide-react';
+import { Palette, Lock, LockOpen, Bug, Check, LogOut, Flag, Crown, Leaf, Sun, Moon, Grid3x3, Globe, Wine, Map as MapIcon, Layers, ChevronRight, Download, Upload, UserRound, Wrench, MonitorDown, Share } from 'lucide-react';
 import { installSurface, promptInstall, subscribeInstall } from '../src/services/installPrompt';
 import { useNavigate } from 'react-router-dom';
 import ArtImage from './ArtImage';
@@ -30,7 +30,6 @@ import { SKIN_EMBLEM } from '../src/services/skinEmblem';
 import { LCD_SECTIONS, SKIN_SECTIONS } from '../src/services/pickerSections';
 import { soundsEnabled, setSoundsEnabled } from '../src/services/sound';
 import { keepAwakeEnabled, setKeepAwakeEnabled } from '../src/services/screenWake';
-import { requestChassisFlip } from '../src/services/chassisFlip';
 import { hapticsEnabled, setHapticsEnabled } from '../src/services/haptics';
 import { APP_VERSION_DISPLAY, BUILD_NUMBER } from '../src/services/appVersion';
 import {
@@ -64,7 +63,6 @@ import {
   profiles,
   saveProfile,
 } from '../src/services/userProfiles';
-import { DEMO_STOPS, demoCycleSeconds, startDemo } from '../src/services/demoMode';
 import DexAlert from './DexAlert';
 import { lineageIndexFor } from '../src/services/grapeLineage';
 import { WEB_RELEASES } from '../src/services/webChangelog';
@@ -833,26 +831,10 @@ export const SettingsSectionPanel: React.FC<{
               </button>
             </Section>
 
-            {/* The signposted route to the back plate (iOS AUDIT M21), for
-                people who were never going to guess the orb hold. */}
-            <Section title="ABOUT">
-              <button
-                onClick={() => requestChassisFlip()}
-                className="dex-pressable w-full flex items-center gap-3 px-3 py-3 rounded-control border-2 text-left"
-                style={{ backgroundColor: 'var(--lcd-surface)', borderColor: 'var(--lcd-surface-edge)' }}
-              >
-                <span><RefreshCw size={22} style={{ color: 'var(--lcd-subtext)' }} /></span>
-                <span className="flex-1 min-w-0">
-                  <span className="block text-label tracking-widest" style={{ color: 'var(--lcd-text)' }}>TURN THE DEVICE OVER</span>
-                  <span className="block text-caption normal-case mt-1" style={{ color: 'var(--lcd-subtext)' }}>
-                    Version, serial and maker's mark are engraved on the back — along with any collector stamps you have earned.
-                  </span>
-                </span>
-                <ChevronRight size={16} style={{ color: 'var(--lcd-subtext)' }} />
-              </button>
-            </Section>
-
-
+            {/* The ABOUT section's TURN THE DEVICE OVER row came off with iOS
+                0.9.41 — the orb hold is the designed route, and a screen that
+                owns its flip owns all the ways into it. requestChassisFlip
+                stays wired for the plate's own callers. */}
             {/* SUPPORT above CHEAT CODES, as on iOS (0.8.91 F1): the door for
                 "who do I tell" belongs above the console for the initiated. */}
             <Section title="SUPPORT">
@@ -889,22 +871,9 @@ export const SettingsSectionPanel: React.FC<{
               </button>
             </Section>
 
-            <Section title="DEMO MODE">
-              <button
-                onClick={() => { startDemo(); }}
-                className="dex-pressable w-full flex items-center gap-3 px-3 py-3 rounded-control border-2 text-left"
-                style={{ backgroundColor: 'var(--lcd-surface)', borderColor: 'var(--lcd-surface-edge)' }}
-              >
-                <span><PixelControlGlyph stem="demomode" /></span>
-                <span className="flex-1 min-w-0">
-                  <span className="block text-label tracking-widest" style={{ color: 'var(--lcd-text)' }}>START DEMO</span>
-                  <span className="block text-caption normal-case mt-1" style={{ color: 'var(--lcd-subtext)' }}>
-                    The unattended tour — {DEMO_STOPS.length} stops, about {Math.round(demoCycleSeconds())}s a lap. Touch anything to take over.
-                  </span>
-                </span>
-              </button>
-            </Section>
-
+            {/* DEMO MODE's row came off with iOS 0.9.41 — kiosk furniture,
+                not a player control. The mode itself stays wired in
+                demoMode.ts as a dormant seam. */}
             {/* Named snapshots of the whole saved state (iOS 0.8.92 item 5,
                 v6#32). FRESH is a virtual row, not a slot — loading it is a
                 fresh install, every time. */}
@@ -945,19 +914,9 @@ export const SettingsSectionPanel: React.FC<{
                     </div>
                   );
                 })}
-                <button
-                  onClick={() => setPendingProfile({ mode: 'load', slot: 'fresh' })}
-                  className="w-full flex items-center gap-3 px-3 py-2.5 rounded border-2 text-left"
-                  style={{ backgroundColor: 'var(--lcd-surface)', borderColor: 'var(--lcd-surface-edge)' }}
-                >
-                  <span style={{ color: 'var(--lcd-subtext)' }}><Sparkle size={18} /></span>
-                  <span className="flex-1 min-w-0">
-                    <span className="block text-label tracking-widest" style={{ color: 'var(--lcd-text)' }}>{FRESH_PROFILE_NAME}</span>
-                    <span className="block text-caption normal-case mt-0.5" style={{ color: 'var(--lcd-subtext)' }}>
-                      A fresh install, every time. For walking the first run.
-                    </span>
-                  </span>
-                </button>
+                {/* The FRESH virtual row came off the list with iOS 0.9.41 —
+                    five slots, the user's own saves. loadProfile('fresh')
+                    stays wired for the tutorial's own use. */}
               </div>
             </Section>
 

@@ -149,6 +149,7 @@ export const RegionHeaderTiles: React.FC<{
       })
     : undefined;
   const countryStyle = getCountryChipColors(entry.details.origin);
+  const regionState = entry.details.state;
   const climateMeta = entry.climate ? CLIMATE_CLASS_MAP[entry.climate] : undefined;
   const climateStyle = climateMeta?.colors ?? CLIMATE_CHIP_COLOR;
   // `getWineTypeTileColors` can answer black-on-dark for a white grape; the
@@ -212,6 +213,27 @@ export const RegionHeaderTiles: React.FC<{
           </span>
         </button>
       </div>
+
+      {/* STATE under COUNTRY (iOS 0.9.41): the US regions carry one, and the
+          state page was reachable only through the country page's list. Same
+          flag well, destination the state page that list already links. */}
+      {regionState && (() => {
+        const stateEntry = getRelatedEntry(regionState, 'COUNTRY_GATE');
+        return (
+          <button
+            onClick={() => stateEntry && onSelectRelated(stateEntry)}
+            disabled={!stateEntry}
+            className="dex-pressable w-full flex items-center gap-3 px-2 py-2 mt-2 bg-transparent border-0 rounded-control text-left group"
+          >
+            <FlagWell origin={regionState} className="w-12 h-8" />
+            <div className="flex flex-col min-w-0 flex-1">
+              <span className="text-micro tracking-widest uppercase text-[var(--lcd-accent)] leading-none mb-1">STATE</span>
+              <span className="text-label leading-tight truncate text-[var(--lcd-text)]">{formatUpper(regionState)}</span>
+            </div>
+            {stateEntry && <ChevronRight size={14} className="text-[var(--lcd-subtext)] group-hover:text-[var(--lcd-accent)] shrink-0" />}
+          </button>
+        );
+      })()}
     </div>
   );
 };

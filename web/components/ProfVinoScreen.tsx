@@ -2,7 +2,6 @@ import React, { useState, useSyncExternalStore } from 'react';
 import { MessageSquare } from 'lucide-react';
 import VinoPortrait from './VinoPortrait';
 import DeviceLayout from './DeviceLayout';
-import { VINO_EXPRESSIONS } from '../src/services/vinoDialogue';
 import {
   isVinoSilenced,
   resetTriggers,
@@ -32,10 +31,8 @@ const Section: React.FC<{ title: string; children: React.ReactNode }> = ({ title
  * silences him (its one home — two switches over one stored key is the
  * two-writers fault), and the reset that lets his first-time tips fire again.
  * The per-trigger ledger readout came off with iOS's first-version hardening
- * (2026-08-31) — dev-facing, not a player surface.
- *
- * His six drawn portraits front the page and fill the FACES grid since the
- * v6#2 art ruling — the same baked assets iOS renders.
+ * (2026-08-31), and the FACES grid and duties list followed with iOS 0.9.41
+ * the same day — the page is the professor and his one control now.
  */
 const ProfVinoScreen: React.FC<ProfVinoScreenProps> = ({ onBack, onHome }) => {
   const silenced = useSyncExternalStore(subscribeToTriggers, isVinoSilenced, () => false);
@@ -81,33 +78,6 @@ const ProfVinoScreen: React.FC<ProfVinoScreenProps> = ({ onBack, onHome }) => {
             {silenced ? 'OFF' : 'ON'}
           </span>
         </button>
-
-        <Section title="HIS FACES">
-          <div className="grid grid-cols-3 gap-2">
-            {VINO_EXPRESSIONS.map(expression => (
-              <div key={expression} className="rounded-card border border-[var(--surface-line)] bg-[var(--surface-raised)] p-2.5 flex flex-col items-center gap-1.5">
-                <VinoPortrait expression={expression} size={44} />
-                <span className="text-micro tracking-widest text-[var(--lcd-text)]">{expression.toUpperCase()}</span>
-              </div>
-            ))}
-          </div>
-        </Section>
-
-        <Section title="WHAT HE DOES">
-          <ul className="flex flex-col gap-1.5">
-            {[
-              'Greets a fresh device, and asks what to call you.',
-              'Narrates the TUTORIAL, one lit control at a time.',
-              'Says one useful thing the first time you open each kind of page or tool - then never repeats himself.',
-              'Offers a first guided tasting at the end of the tour.',
-            ].map((text, i) => (
-              <li key={i} className="flex items-start gap-2">
-                <span className="text-caption text-[var(--lcd-accent)] opacity-70">&gt;</span>
-                <span className="text-caption text-[var(--lcd-text)] normal-case leading-relaxed">{text}</span>
-              </li>
-            ))}
-          </ul>
-        </Section>
 
         <Section title="HIS MEMORY">
           <p className="text-caption text-[var(--lcd-subtext)] normal-case mb-2.5 leading-relaxed">

@@ -68,6 +68,19 @@ export interface WebRelease {
 // 0.6.1x, not 0.6.2: the firmware line owns 0.6.2 through 0.9.2, and the
 // two-clocks test refuses any version the device already wore.
 const CURRENT: WebRelease = {
+  version: '0.6.56',
+  date: '2026-08-31',
+  headline: 'A QUIETER DEVICE',
+  notes: [
+    'The 0.9.41 slimming lands here the same day it landed on the phone. Prof. Vino\'s page is the professor and his one control now - the faces gallery and duties list are gone, after the ledger before them.',
+    'SETTINGS loses two rows that were furniture: TURN THE DEVICE OVER (hold the orb - the device has always known how to flip) and DEMO MODE\'s kiosk switch. Both mechanisms stay wired underneath.',
+    'Profiles ship blank: no seeded HORIZON, no FRESH row - five empty slots and your own saves. A device already carrying HORIZON keeps it.',
+    'And the US regions gain a STATE bar under COUNTRY: Napa Valley\'s page now walks straight to California, flag and all, instead of routing you through the USA list.',
+  ],
+};
+
+/** The release before this one, promoted when 0.6.56 landed. */
+const PREVIOUS_0_6_55: WebRelease = {
   version: '0.6.55',
   date: '2026-08-31',
   headline: 'EMBLEMS, HAND-SET',
@@ -681,6 +694,7 @@ const PREVIOUS_0_4_2: WebRelease = {
 
 /** Newest first. A new release is prepended by promoting `CURRENT`. */
 const PREVIOUS: WebRelease[] = [
+  PREVIOUS_0_6_55,
   PREVIOUS_0_6_54,
   PREVIOUS_0_6_53,
   PREVIOUS_0_6_52,

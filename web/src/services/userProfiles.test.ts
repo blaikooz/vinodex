@@ -20,13 +20,13 @@ import {
 describe('user profiles', () => {
   beforeEach(() => localStorage.clear());
 
-  it('HORIZON is seeded once, and only when no index exists at all', () => {
-    const first = profiles();
-    expect(first).toEqual([{ slot: 1, name: 'HORIZON', savedAt: null }]);
-    // An empty index that *does* exist means the user deleted their
-    // profiles; re-seeding would resurrect what they removed.
-    localStorage.setItem('userProfilesIndex', '[]');
+  it('nothing seeds — profiles ship blank (iOS 0.9.41)', () => {
     expect(profiles()).toEqual([]);
+    // Reading did not conjure an index into being.
+    expect(localStorage.getItem('userProfilesIndex')).toBe(null);
+    // A device that already carries the old seeded HORIZON keeps it.
+    localStorage.setItem('userProfilesIndex', JSON.stringify([{ slot: 1, name: 'HORIZON', savedAt: null }]));
+    expect(profiles()).toEqual([{ slot: 1, name: 'HORIZON', savedAt: null }]);
   });
 
   it('the store keys are outside the domain it snapshots', () => {
@@ -59,7 +59,8 @@ describe('user profiles', () => {
 
   it('loading FRESH or a never-saved slot is a fresh install, every time', () => {
     localStorage.setItem('triedEntryIDs', '["G001"]');
-    // HORIZON is seeded but never saved into — loading it is a fresh start.
+    // A carried-over never-saved row (the old seeded HORIZON) loads fresh.
+    localStorage.setItem('userProfilesIndex', JSON.stringify([{ slot: 1, name: 'HORIZON', savedAt: null }]));
     expect(profileInSlot(1)?.savedAt).toBe(null);
     expect(snapshotOfSlot(1)).toBe(null);
     loadProfile(1);
