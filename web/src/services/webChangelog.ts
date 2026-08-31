@@ -68,6 +68,18 @@ export interface WebRelease {
 // 0.6.1x, not 0.6.2: the firmware line owns 0.6.2 through 0.9.2, and the
 // two-clocks test refuses any version the device already wore.
 const CURRENT: WebRelease = {
+  version: '0.6.54',
+  date: '2026-08-31',
+  headline: 'FLAGS OF OUR OWN',
+  notes: [
+    'Every flag on the device is now drawn in-house: 81 pixel flags - 30 countries, all 50 US states, and the VARIOUS pennants - rendered in code from the official construction sheets, sharing one canvas and one palette discipline with the iOS set.',
+    'The state flags arrive properly for the first time: Ohio flies its swallowtail burgee, New Mexico its Zia sun, Maryland its full quarters, and Minnesota, Utah and Mississippi fly their new designs.',
+    'The country of Georgia gets its own flag back - the five crosses - where the lookup used to hand its page the US state\'s banner.',
+  ],
+};
+
+/** The release before this one, promoted when 0.6.54 landed. */
+const PREVIOUS_0_6_53: WebRelease = {
   version: '0.6.53',
   date: '2026-08-31',
   headline: 'THE PROFESSOR KEEPS IT',
@@ -658,6 +670,7 @@ const PREVIOUS_0_4_2: WebRelease = {
 
 /** Newest first. A new release is prepended by promoting `CURRENT`. */
 const PREVIOUS: WebRelease[] = [
+  PREVIOUS_0_6_53,
   PREVIOUS_0_6_52,
   PREVIOUS_0_6_51,
   PREVIOUS_0_6_50,

@@ -29,6 +29,18 @@ describe('the flag images', () => {
     }
   });
 
+  it('keeps the two Georgias apart', () => {
+    // The country page asks plainly and gets the country; the state page
+    // asks state-first and gets the state. Under the R74n set the exact
+    // phase handed the country page the state flag (found in the 0.6.54
+    // first-party swap).
+    const country = getFlagImage('Georgia');
+    const state = getFlagImage('Georgia', { preferUsState: true });
+    expect(country).toBeTruthy();
+    expect(state).toBeTruthy();
+    expect(country).not.toBe(state);
+  });
+
   it('never hands New Mexico the Mexican flag', () => {
     const state = getFlagImage('New Mexico');
     expect(state).toBeTruthy();
