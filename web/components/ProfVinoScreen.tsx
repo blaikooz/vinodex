@@ -1,10 +1,9 @@
 import React, { useState, useSyncExternalStore } from 'react';
-import { MessageSquare, CheckCircle2, CircleDashed } from 'lucide-react';
+import { MessageSquare } from 'lucide-react';
 import VinoPortrait from './VinoPortrait';
 import DeviceLayout from './DeviceLayout';
-import { FIRST_TIME_TRIGGERS, VINO_EXPRESSIONS } from '../src/services/vinoDialogue';
+import { VINO_EXPRESSIONS } from '../src/services/vinoDialogue';
 import {
-  hasFired,
   isVinoSilenced,
   resetTriggers,
   setVinoSilenced,
@@ -31,20 +30,15 @@ const Section: React.FC<{ title: string; children: React.ReactNode }> = ({ title
  * `vinodex-ios/Sources/VinodexUI/ProfVinoScreen.swift` (0.8.93, item 9) —
  * v6#26. A working diagram of him: who he is, his six faces, the switch that
  * silences him (its one home — two switches over one stored key is the
- * two-writers fault), and the deliberately frank ledger of which first-time
- * tips have fired, whose audience today is the person testing him.
+ * two-writers fault), and the reset that lets his first-time tips fire again.
+ * The per-trigger ledger readout came off with iOS's first-version hardening
+ * (2026-08-31) — dev-facing, not a player surface.
  *
  * His six drawn portraits front the page and fill the FACES grid since the
  * v6#2 art ruling — the same baked assets iOS renders.
  */
 const ProfVinoScreen: React.FC<ProfVinoScreenProps> = ({ onBack, onHome }) => {
   const silenced = useSyncExternalStore(subscribeToTriggers, isVinoSilenced, () => false);
-  // The ledger re-renders on any trigger-store change.
-  useSyncExternalStore(subscribeToTriggers, () => {
-    let bits = '';
-    for (const t of FIRST_TIME_TRIGGERS) bits += hasFired(t) ? '1' : '0';
-    return bits;
-  }, () => '');
   const [confirmingReset, setConfirmingReset] = useState(false);
   const name = displayName();
 
@@ -104,7 +98,7 @@ const ProfVinoScreen: React.FC<ProfVinoScreenProps> = ({ onBack, onHome }) => {
             {[
               'Greets a fresh device, and asks what to call you.',
               'Narrates the TUTORIAL, one lit control at a time.',
-              'Says one useful thing the first time you open each kind of page or tool - the ledger below is his memory of what he has already said.',
+              'Says one useful thing the first time you open each kind of page or tool - then never repeats himself.',
               'Offers a first guided tasting at the end of the tour.',
             ].map((text, i) => (
               <li key={i} className="flex items-start gap-2">
@@ -115,28 +109,11 @@ const ProfVinoScreen: React.FC<ProfVinoScreenProps> = ({ onBack, onHome }) => {
           </ul>
         </Section>
 
-        <Section title="HIS LEDGER">
+        <Section title="HIS MEMORY">
           <p className="text-caption text-[var(--lcd-subtext)] normal-case mb-2.5 leading-relaxed">
-            Which first-time tips have been spent. A diagnostic readout for now —
-            reset it to hear him again, or load the FRESH profile for the whole
-            first run.
+            He spends each first-time tip once. Reset them to hear him again, or
+            load the FRESH profile for the whole first run.
           </p>
-          <div className="flex flex-col gap-1">
-            {FIRST_TIME_TRIGGERS.map(trigger => {
-              const fired = hasFired(trigger);
-              return (
-                <div key={trigger} className="flex items-center gap-2.5 px-2 py-1.5 rounded-control bg-[var(--surface-raised)]">
-                  {fired
-                    ? <CheckCircle2 size={14} className="text-[var(--lcd-accent)] shrink-0" />
-                    : <CircleDashed size={14} className="text-[var(--lcd-disabled-text)] shrink-0" />}
-                  <span className="flex-1 text-caption text-[var(--lcd-text)] normal-case truncate">{trigger}</span>
-                  <span className={`text-micro tracking-widest ${fired ? 'text-[var(--lcd-accent)]' : 'text-[var(--lcd-subtext)]'}`}>
-                    {fired ? 'SAID' : 'WAITING'}
-                  </span>
-                </div>
-              );
-            })}
-          </div>
           <button
             onClick={() => setConfirmingReset(true)}
             className="dex-pressable w-full mt-2.5 py-3 rounded-control border-2 text-label tracking-widest"
@@ -146,9 +123,6 @@ const ProfVinoScreen: React.FC<ProfVinoScreenProps> = ({ onBack, onHome }) => {
           </button>
         </Section>
 
-        <p className="text-caption text-[var(--lcd-subtext)] normal-case text-center pb-2">
-          Talking to the professor directly lands on this page in a later firmware.
-        </p>
       </div>
 
       {confirmingReset && (
