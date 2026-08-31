@@ -171,7 +171,7 @@ describe('the Horizon/Godot website', () => {
     inRouter(<ContactUs onBack={noop} onHome={noop} onPrivacy={noop} />);
     expect(screen.getByText(/Product feedback, collaboration ideas/)).toBeTruthy();
     const contact = screen.getByRole('link', { name: CONTACT_ADDRESS });
-    expect(contact.getAttribute('href')).toBe('mailto:vinodex@substack.com');
+    expect(contact.getAttribute('href')).toBe('mailto:searsharrison@gmail.com');
     // The legal door (v0.6.0): the screen that invites mail offers the small print.
     expect(screen.getByRole('button', { name: 'PRIVACY + TERMS' })).toBeTruthy();
   });

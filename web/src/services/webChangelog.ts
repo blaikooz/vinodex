@@ -68,6 +68,18 @@ export interface WebRelease {
 // 0.6.1x, not 0.6.2: the firmware line owns 0.6.2 through 0.9.2, and the
 // two-clocks test refuses any version the device already wore.
 const CURRENT: WebRelease = {
+  version: '0.6.57',
+  date: '2026-08-31',
+  headline: 'THE SMALL PRINT, SIGNED',
+  notes: [
+    'The privacy policy is rewritten for the App Store submission - eight plain sections dated August 31, 2026, saying what was always true: the app collects nothing, the Label Reader never uploads an image, and the site counts visits without cookies.',
+    'Every studio page now carries a small PRIVACY / SUPPORT footer, so both are one tap from anywhere.',
+    'And the studio writes from one real mailbox now - the contact and support address are the same, and mail to it reaches a person.',
+  ],
+};
+
+/** The release before this one, promoted when 0.6.57 landed. */
+const PREVIOUS_0_6_56: WebRelease = {
   version: '0.6.56',
   date: '2026-08-31',
   headline: 'A QUIETER DEVICE',
@@ -694,6 +706,7 @@ const PREVIOUS_0_4_2: WebRelease = {
 
 /** Newest first. A new release is prepended by promoting `CURRENT`. */
 const PREVIOUS: WebRelease[] = [
+  PREVIOUS_0_6_56,
   PREVIOUS_0_6_55,
   PREVIOUS_0_6_54,
   PREVIOUS_0_6_53,

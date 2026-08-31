@@ -207,6 +207,25 @@ const primaryAction =
   + 'px-6 py-4 bg-[var(--lcd-accent)] text-[var(--lcd-on-accent)] shadow-elev-2 '
   + 'font-retro text-heading uppercase tracking-widest';
 
+/**
+ * The site's legal footer (App Store submission requirement): PRIVACY and
+ * SUPPORT reachable from every studio page.
+ *
+ * Plain anchors, not a Router `Link`, on purpose: the target routes resolve on
+ * a cold load through the SPA fallback, and the component renders outside a
+ * Router in the portal tests. Both links are 44px-tall hit targets.
+ */
+const SiteFooter: React.FC = () => (
+  <nav
+    aria-label="Legal"
+    className="shrink-0 mt-4 pt-3 flex items-center justify-center gap-3 border-t border-[var(--surface-line)] font-retro text-caption uppercase tracking-widest text-[var(--lcd-subtext)]"
+  >
+    <a href="/privacy" className="min-h-11 inline-flex items-center underline underline-offset-4 hover:text-[var(--lcd-text)]">Privacy</a>
+    <span aria-hidden="true" className="opacity-50">·</span>
+    <a href="/support" className="min-h-11 inline-flex items-center underline underline-offset-4 hover:text-[var(--lcd-text)]">Support</a>
+  </nav>
+);
+
 // ---------------------------------------------------------------------------
 // Portal home — four tiles, same language as the dex MainMenu.
 // ---------------------------------------------------------------------------
@@ -320,6 +339,8 @@ export const PortalHome: React.FC<PortalHomeProps> = props => (
           ))}
         </div>
 
+        <SiteFooter />
+
       </div>
     </div>
   </DeviceLayout>
@@ -381,6 +402,8 @@ export const OurAppsList: React.FC<OurAppsListProps> = ({ onBack, onHome, onSele
             </span>
           </Card>
         ))}
+
+        <SiteFooter />
 
       </div>
     </div>
@@ -472,6 +495,8 @@ export const ProjectSplash: React.FC<ProjectSplashProps> = ({ project, onBack, o
           </a>
         )}
 
+        <SiteFooter />
+
       </div>
     </div>
   </DeviceLayout>
@@ -501,6 +526,7 @@ const InfoPage: React.FC<{ title: string; onBack: () => void; onHome: () => void
         aria-label={`${title} content`}
       >
         {children}
+        <SiteFooter />
       </div>
     </div>
   </DeviceLayout>
@@ -717,61 +743,133 @@ export const PrivacyAndTerms: React.FC<{ onBack: () => void; onHome: () => void 
   <InfoPage title="PRIVACY + TERMS" onBack={onBack} onHome={onHome}>
     <section className="space-y-3">
       <h2 className="font-retro text-display uppercase tracking-widest text-[var(--lcd-accent)]">
-        PRIVACY
+        PRIVACY POLICY
       </h2>
+      <p className="text-caption text-[var(--lcd-subtext)]">Last updated: August 31, 2026</p>
       <p>
-        Vinodex is a local-first app. Your shelves, ratings, streaks, profiles,
-        settings and custom device builds are stored in your browser on your
-        device, and nowhere else. We run no accounts, so there is nothing to
-        sign up for and nothing of yours on a server of ours.
-      </p>
-      <p>
-        The app makes no third-party requests on its own: its data, art and
-        fonts all ship with it, which is also why it works offline once
-        installed. The one exception is opt-in — if you ask the iOS-updates
-        card to show its sign-up form, that form is Substack&apos;s embed and
-        sets Substack&apos;s own cookies; it never loads until you tap for it.
-        Clearing your browser data for this site erases everything, and
-        SETTINGS offers CLEAR ALL SAVED DATA and a backup file you keep
-        yourself — restoring it is a file you choose, not an upload.
-      </p>
-      <p>
-        If you email us, we see your address and what you wrote, and we use
-        them only to reply. Our host (Vercel) keeps the short-lived technical
-        request logs any web server keeps; we do not use them to identify you.
-      </p>
-      <p>
-        We count visits with Vercel&apos;s cookieless analytics: aggregate
-        numbers — how many people saw the site, opened the app, or tapped
-        through to our Substack. If the app breaks, the same channel carries
-        the kind of error, where in our code it happened and which screen it
-        was on — never what you typed or the address you were at. No cookies,
-        no identifiers, nothing stored on your device, and nothing that
-        follows you anywhere else. No advertising, no sale of data — there is
-        no data to sell.
+        Vinodex (&ldquo;the app&rdquo;) is a wine encyclopedia made by HorizonGodot
+        (&ldquo;we,&rdquo; &ldquo;us,&rdquo; &ldquo;our&rdquo;). This policy explains how the
+        app and this website (horizongodot.com) handle your information. The short
+        version: Vinodex does not collect your personal data.
       </p>
     </section>
 
     <section className="space-y-3">
-      <h2 className="font-retro text-display uppercase tracking-widest text-[var(--lcd-accent)]">
-        TERMS OF USE
+      <h2 className="font-retro text-heading uppercase tracking-widest text-[var(--lcd-accent)]">
+        The app does not collect personal data
       </h2>
       <p>
-        Vinodex is free to use, and provided as-is: we work hard on the
-        catalogue, but it is a field guide for the curious, not professional,
-        medical or legal advice. If you drink, drink responsibly and only if
-        you are of legal drinking age where you live.
+        Vinodex runs entirely on your device. It has no user accounts and no login.
+        Everything you do in the app — the wines you save, the notes you write, your
+        study progress, and your settings — is stored locally on your device only. We
+        do not operate servers that receive this information, and we cannot see it. We
+        do not sell, share, rent, or transmit your information to anyone, because we
+        never receive it in the first place.
+      </p>
+    </section>
+
+    <section className="space-y-3">
+      <h2 className="font-retro text-heading uppercase tracking-widest text-[var(--lcd-accent)]">
+        Camera and photos (Label Reader)
+      </h2>
+      <p>
+        The Label Reader lets you point your camera at a wine label to look it up. The
+        image is processed on your device using Apple&apos;s on-device text
+        recognition. Camera images and photos are not uploaded, stored, or sent
+        anywhere. If you decline camera access, the app still works — you can choose an
+        image from your photo library or use a built-in sample instead. Access to your
+        camera and photo library is used only for this feature, and only when you
+        choose to use it.
+      </p>
+    </section>
+
+    <section className="space-y-3">
+      <h2 className="font-retro text-heading uppercase tracking-widest text-[var(--lcd-accent)]">
+        No tracking, no ads, no analytics in the app
+      </h2>
+      <p>
+        The app contains no advertising, no third-party advertising or analytics SDKs,
+        and no cross-app or cross-site tracking. It does not use the device Advertising
+        Identifier.
+      </p>
+    </section>
+
+    <section className="space-y-3">
+      <h2 className="font-retro text-heading uppercase tracking-widest text-[var(--lcd-accent)]">
+        This website (horizongodot.com)
+      </h2>
+      <p>
+        This website is hosted by Vercel. As with most websites, the hosting provider
+        may automatically record standard, technical request information (such as IP
+        address and browser type) for security and reliability purposes. This
+        information is not used to identify you and is not linked to any activity within
+        the app. This website does not serve advertising cookies. We use Vercel Web
+        Analytics, which is cookieless and reports only aggregate visit counts; it does
+        not use cookies, store anything on your device, or identify individual visitors.
+      </p>
+    </section>
+
+    <section className="space-y-3">
+      <h2 className="font-retro text-heading uppercase tracking-widest text-[var(--lcd-accent)]">
+        Data retention and deletion
+      </h2>
+      <p>
+        Because the app&apos;s data lives only on your device, you remain in control of
+        it at all times. Removing content within the app deletes it, and deleting the
+        app removes all of its data from your device.
+      </p>
+    </section>
+
+    <section className="space-y-3">
+      <h2 className="font-retro text-heading uppercase tracking-widest text-[var(--lcd-accent)]">
+        Children
+      </h2>
+      <p>
+        Vinodex is an educational wine reference intended for adults of legal drinking
+        age. It is not directed to children.
+      </p>
+    </section>
+
+    <section className="space-y-3">
+      <h2 className="font-retro text-heading uppercase tracking-widest text-[var(--lcd-accent)]">
+        Changes to this policy
+      </h2>
+      <p>
+        If we update this policy, we will change the date at the top and post the
+        revised version on this page.
+      </p>
+    </section>
+
+    <section className="space-y-3">
+      <h2 className="font-retro text-heading uppercase tracking-widest text-[var(--lcd-accent)]">
+        Contact
+      </h2>
+      <p>
+        Questions about this policy? Email{' '}
+        <a
+          href={`mailto:${CONTACT_ADDRESS}`}
+          className="underline underline-offset-4 text-[var(--lcd-accent)] hover:text-[var(--lcd-text)] break-all"
+        >
+          {CONTACT_ADDRESS}
+        </a>.
+      </p>
+    </section>
+
+    <section className="space-y-3">
+      <h2 className="font-retro text-heading uppercase tracking-widest text-[var(--lcd-accent)]">
+        Terms of use
+      </h2>
+      <p>
+        Vinodex is free to use, and provided as-is: we work hard on the catalogue, but
+        it is a field guide for the curious, not professional, medical or legal advice.
+        If you drink, drink responsibly and only if you are of legal drinking age where
+        you live.
       </p>
       <p>
-        The app's writing, artwork and design are ours; the facts of wine
-        belong to everyone. Links out of the site — our Substacks, the App
-        Store — lead to services with their own terms. We may update the app,
-        this page, or both; the version history in the app says what changed
-        and when.
-      </p>
-      <p>
-        Questions about any of this belong on the CONTACT US page — we read
-        everything.
+        The app&apos;s writing, artwork and design are ours; the facts of wine belong to
+        everyone. Links out of the site — our Substacks, the App Store — lead to
+        services with their own terms. We may update the app, this page, or both; the
+        version history in the app says what changed and when.
       </p>
     </section>
   </InfoPage>

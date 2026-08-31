@@ -123,8 +123,8 @@ test('the legal page is reachable, and /terms resolves to it', async ({ page, co
   await expect(page).toHaveURL(/\/privacy$/);
   const content = page.getByRole('region', { name: 'PRIVACY + TERMS content' });
   await expect(content).toBeVisible();
-  await expect(content).toContainText('local-first');
-  await expect(content).toContainText('TERMS OF USE');
+  await expect(content).toContainText('does not collect your personal data');
+  await expect(content).toContainText('Terms of use');
 
   // A site page: HORIZON/GODOT's, and no BIOS on a cold arrival.
   await expect(page).toHaveTitle('HORIZON/GODOT');

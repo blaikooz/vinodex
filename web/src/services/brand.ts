@@ -33,10 +33,12 @@
  * registered, and mail to either goes nowhere while telling the sender
  * nothing.
  *
- * The studio now uses its Vinodex Substack reply address. This file guarantees
- * the site and the in-app SUPPORT screen continue to read one shared value.
+ * The studio used its Vinodex Substack reply address until the App Store
+ * submission pass (2026-08-31) unified everything on the maintainer's own
+ * mailbox — the address the privacy policy names. This file guarantees the
+ * site and the in-app SUPPORT screen continue to read one shared value.
  */
-export const CONTACT_ADDRESS = 'vinodex@substack.com';
+export const CONTACT_ADDRESS = 'searsharrison@gmail.com';
 
 /**
  * The Vinodex publication on Substack — where iOS launch news goes, and the
