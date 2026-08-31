@@ -410,7 +410,11 @@ test('the lamp legend never shrinks below its floor', async ({ page, consoleErro
  * the shell, the catalogue and the menu come back with no network at all,
  * and the LCD says OFFLINE while it lasts.
  */
-test('a return visit works with the network off, and the LCD says so', async ({ page, context }) => {
+test('a return visit works with the network off, and the LCD says so', async ({ page, context, browserName }) => {
+  // Playwright's WebKit hits an internal error on setOffline + reload -- a
+  // harness limitation, not a product signal; Safari's PWA offline behaviour
+  // is on the hand-held half of the QA matrix (cross-engine run, v0.6.51).
+  test.skip(browserName === 'webkit', 'Playwright WebKit cannot reload offline');
   test.setTimeout(150_000);
   await seedDevice(page);
   await enterDex(page, '/dex');

@@ -105,7 +105,12 @@ describe('the baked footer caps', () => {
     // code change, so a redrawn cap arrives silently.
     const stale: string[] = [];
     for (const [stem, hash] of Object.entries(manifest.sourceSprites)) {
-      const file = path.join(FOOTER_DIR, `footer-${stem}.png`);
+      // `user-halloween` is the one web-authored sprite (the drawn pumpkin,
+      // v0.6.51): it lives in scripts/capart/, deliberately outside the
+      // FooterArt sync leg whose /MIR would delete a web-only file.
+      const file = stem === 'user-halloween'
+        ? path.join(FOOTER_DIR, '..', '..', '..', '..', 'scripts', 'capart', 'footer-user-halloween.png')
+        : path.join(FOOTER_DIR, `footer-${stem}.png`);
       expect(fs.existsSync(file), `source sprite missing: ${file}`).toBe(true);
       if (sha256(fs.readFileSync(file)) !== hash) stale.push(stem);
     }

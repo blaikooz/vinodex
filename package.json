@@ -1,7 +1,7 @@
 {
   "name": "vinodex",
   "private": true,
-  "version": "0.6.50",
+  "version": "0.6.51",
   "type": "module",
   "scripts": {
     "dev": "vite",
@@ -23,6 +23,7 @@
     "postbuild": "npm run prerender:og",
     "test:e2e": "playwright test",
     "test:e2e:shots": "playwright test screenshots.spec.ts",
+    "test:cross": "playwright test --config=playwright.cross.config.ts smoke.spec.ts site.spec.ts walkthrough.spec.ts",
     "test:all": "npm run lint && npm run typecheck && npm test && npm run build && npm run check:refs && npm run check:budget && npm run test:e2e"
   },
   "dependencies": {

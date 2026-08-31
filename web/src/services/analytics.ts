@@ -63,6 +63,13 @@ export type StoreTapSource = 'install-banner';
 /** The closed set of `source` values — nothing user-authored, ever. */
 export type EventSource = SubstackTapSource | StoreTapSource;
 
+/**
+ * The copy-experiment dimension (v0.6.51): `<experiment>:<variant>`, both
+ * halves authored in `experiment.ts`'s closed table. Same rule as `source` —
+ * nothing user-authored reaches the beacon.
+ */
+export type EventVariant = import('./experiment').VariantTag;
+
 /** True only where sending a beacon is both possible and wanted. */
 export const analyticsEnabled = (): boolean => {
   if (typeof window === 'undefined') return false;
@@ -89,7 +96,7 @@ export const initAnalytics = (): void => {
 };
 
 /** Record one funnel stage. A no-op everywhere `analyticsEnabled` says so. */
-export const trackEvent = (name: FunnelEvent, props?: { source: EventSource }): void => {
+export const trackEvent = (name: FunnelEvent, props?: { source?: EventSource; variant?: EventVariant }): void => {
   if (!analyticsEnabled()) return;
   void import('@vercel/analytics')
     .then(({ track }) => track(name, props))

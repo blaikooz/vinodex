@@ -1,6 +1,7 @@
 import React from 'react';
 import { describe, expect, it, vi } from 'vitest';
 import { fireEvent, render, screen, within } from '@testing-library/react';
+import { EXPERIMENTS } from '../src/services/experiment';
 import { MemoryRouter } from 'react-router-dom';
 import {
   ContactUs,
@@ -38,12 +39,21 @@ describe('the Horizon/Godot website', () => {
     expect(screen.getByText(/two-person NYC studio .* Vinodex/)).toBeTruthy();
     expect(screen.queryByText('EVERY GRAPE, REGION AND STYLE, IN YOUR POCKET.')).toBeNull();
     // The quiet Substack door, and the funnel event it records.
-    const updates = screen.getByRole('link', { name: /GET iOS UPDATES/ });
+    // The nudge line's copy is drawn from the experiment table per pageload
+    // (v0.6.51); the pin accepts whichever variant this render drew, built
+    // from the table so a copy change cannot silently break the funnel link.
+    const updates = screen.getByRole('link', {
+      name: new RegExp(Object.values(EXPERIMENTS['landing-nudge'].variants).join('|')),
+    });
     expect(updates.getAttribute('href')).toBe(VINODEX_SUBSTACK_URL);
     expect(updates.getAttribute('target')).toBe('_blank');
     expect(updates.getAttribute('rel')).toContain('noopener');
     fireEvent.click(updates);
-    expect(trackEvent).toHaveBeenCalledWith('substack-tap', { source: 'landing' });
+    expect(trackEvent).toHaveBeenCalledWith('substack-tap', {
+      source: 'landing',
+      // The drawn copy variant rides along (v0.6.51) -- any id from the table.
+      variant: expect.stringMatching(/^landing-nudge:(a|b)$/),
+    });
     const actions = ['OUR WORK', 'WHO WE ARE', 'OPEN VINODEX', 'CONTACT US'];
     for (const action of actions) {
       expect(screen.getByRole('button', { name: action })).toBeTruthy();

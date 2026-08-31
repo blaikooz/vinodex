@@ -91,7 +91,18 @@ const MarqueeLampChooser: React.FC<MarqueeLampChooserProps> = ({ slot, onClose }
   useEffect(() => {
     opener.current = document.activeElement as HTMLElement | null;
     card.current?.querySelector<HTMLElement>('button')?.focus();
-    return () => opener.current?.focus?.();
+    return () => {
+      // Prefer the lamp that raised the card, found by its slot marker: in
+      // WebKit a click does not focus the button it lands on, so the
+      // activeElement captured above is <body> there and the restore went
+      // nowhere (cross-engine matrix, v0.6.51). The captured element stays
+      // the fallback for keyboard openers on anything unexpected.
+      const lamp = document
+        .querySelector(`[data-lamp-slot="${slot}"]`)
+        ?.closest('button') as HTMLElement | null;
+      (lamp ?? opener.current)?.focus?.();
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   // **Escape is bound on the document, not on the card.** It was on the card,

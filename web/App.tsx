@@ -46,6 +46,7 @@ import { IDLE_ACTIVITY_EVENTS, IDLE_SCREENSAVER_SECONDS } from './src/services/s
 import { ScreensaverProvider } from './components/ScreensaverOverlay';
 import { bootDecision, browserTitle, isDexPath, isSitePath } from './src/services/appRoutes';
 import { trackEvent } from './src/services/analytics';
+import { variantTag } from './src/services/experiment';
 import { IosUpdatesPromptProvider } from './components/IosUpdatesPrompt';
 
 const RetroGlobeScreen = lazy(() => import('./components/RetroGlobeScreen'));
@@ -358,7 +359,9 @@ const App: React.FC = () => {
   // crossings and the share-page exception, so no second classifier here.
   // Both are no-ops outside real deployments; see `analytics.ts`.
   useEffect(() => {
-    if (location.pathname === '/') trackEvent('landing-view');
+    // Exposure carries the drawn copy variant (v0.6.51), so substack-tap
+    // per landing-view can be read per wording.
+    if (location.pathname === '/') trackEvent('landing-view', { variant: variantTag('landing-nudge') });
   }, [location.pathname]);
   useEffect(() => {
     if (booting) trackEvent('open-app');

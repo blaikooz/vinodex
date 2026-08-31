@@ -428,12 +428,32 @@ def main():
         shapes[stem] = fit_cap(sprites[stem])
         print("fitted %-8s %dx%d" % (stem, img.width, img.height))
 
+    # The one per-skin GLYPH override in the range (iOS `userMark`, 0.7.0
+    # B2/F1): HALLOWEEN's user cap carries the jack-o'-lantern. The sprite is
+    # web-authored (scripts/capart/, v0.6.51) because the drawn mark exists
+    # only as Swift paths upstream -- and it deliberately does NOT live in
+    # art/footer/, whose sync leg mirrors deletions and would eat it.
+    hw_path = os.path.join(ROOT, "scripts", "capart", "footer-user-halloween.png")
+    hw_sprite = hw_shape = None
+    if os.path.exists(hw_path):
+        sources["user-halloween"] = sha256_of(hw_path)
+        hw_img = Image.open(hw_path).convert("RGBA")
+        hw_sprite = np.array(hw_img)
+        hw_shape = fit_cap(hw_sprite)
+        print("fitted %-8s %dx%d" % ("user-hw", hw_img.width, hw_img.height))
+
     files, total = {}, 0
     for skin, caps in sorted(table.items()):
         for kind in STEMS:
             cap = caps[kind]
+            use_hw = skin == "HALLOWEEN" and kind == "user" and hw_sprite is not None
             baked = unpremultiply(
-                reink(sprites[kind], shapes[kind], cap["top"], cap["glyph"])
+                reink(
+                    hw_sprite if use_hw else sprites[kind],
+                    hw_shape if use_hw else shapes[kind],
+                    cap["top"],
+                    cap["glyph"],
+                )
             )
             im = Image.fromarray(baked, "RGBA").resize((OUTPUT_PX, OUTPUT_PX), Image.LANCZOS)
             im = im.quantize(colors=64, method=Image.FASTOCTREE)

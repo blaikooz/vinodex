@@ -1,4 +1,6 @@
 import { test, expect, enterDex, seedDevice } from './fixtures';
+// The nudge line's copy is drawn per pageload (v0.6.51); pins accept any variant.
+import { EXPERIMENTS } from '../src/services/experiment';
 import { CHASSIS_SKINS } from '../src/services/theme';
 
 /**
@@ -46,7 +48,7 @@ test('the site is what a visitor lands on', async ({ page, consoleErrors }) => {
   }
   // The hero is the studio's (v0.6.19), with the product named under it.
   await expect(page.getByText('PLAYFUL TOOLS, MADE WELL.')).toBeVisible();
-  await expect(page.getByRole('link', { name: /GET iOS UPDATES/ })).toBeVisible();
+  await expect(page.getByRole('link', { name: new RegExp(Object.values(EXPERIMENTS['landing-nudge'].variants).join('|')) })).toBeVisible();
   await expect(page.getByRole('button', { name: 'DATA', exact: true })).toHaveCount(0);
   await expect(page.getByRole('button', { name: 'DEX', exact: true })).toHaveCount(0);
   await expect(page.getByRole('button', { name: 'WEBSITE', exact: true })).toHaveCount(0);

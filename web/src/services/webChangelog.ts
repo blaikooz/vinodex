@@ -68,6 +68,18 @@ export interface WebRelease {
 // 0.6.1x, not 0.6.2: the firmware line owns 0.6.2 through 0.9.2, and the
 // two-clocks test refuses any version the device already wore.
 const CURRENT: WebRelease = {
+  version: '0.6.51',
+  date: '2026-08-31',
+  headline: 'EVERY ENGINE, EVERY CAP',
+  notes: [
+    'HALLOWINE\'s user button wears its own jack-o-lantern at last -- the one per-shell glyph in the range, baked from a drawn sprite like its twenty-one neighbours.',
+    'The suite now runs on Firefox and WebKit as well as Chromium, and the one real find is fixed: Safari never gave focus back to the lamp that opened the chooser. It does now.',
+    'And the landing quietly tries two wordings of its updates link, counted the same cookieless way as everything else. Nothing is stored, nobody is tracked; a page view simply draws straws.',
+  ],
+};
+
+/** The release before this one, promoted when 0.6.51 landed. */
+const PREVIOUS_0_6_50: WebRelease = {
   version: '0.6.50',
   date: '2026-08-31',
   headline: 'NO EMPTY HEADERS',
@@ -625,6 +637,7 @@ const PREVIOUS_0_4_2: WebRelease = {
 
 /** Newest first. A new release is prepended by promoting `CURRENT`. */
 const PREVIOUS: WebRelease[] = [
+  PREVIOUS_0_6_50,
   PREVIOUS_0_6_49,
   PREVIOUS_0_6_48,
   PREVIOUS_0_6_47,

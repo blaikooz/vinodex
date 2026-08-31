@@ -19,6 +19,12 @@ export const test = base.extend<{ consoleErrors: string[] }>({
     const found: string[] = [];
     page.on('console', m => {
       if (m.type() !== 'error') return;
+      // Gecko logs a request torn down by a hard navigation as its own
+      // bracketed InvalidStateError -- browser noise under the cross-matrix's
+      // parallel load (never reproducible via pageerror), the Firefox
+      // spelling of the net::ERR_ABORTED the requestfailed guard below
+      // already tolerates (v0.6.51).
+      if (m.text().includes('InvalidStateError: An attempt was made to use an object that is not')) return;
       const url = m.location()?.url ?? '';
       if (IGNORABLE.test(url)) return;
       found.push(`${m.text()}${url ? ` @ ${url}` : ''}`);

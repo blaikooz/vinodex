@@ -6,6 +6,7 @@ import { Card, Tile } from './Card';
 import type { Livery } from './Card';
 import { CONTACT_ADDRESS, VINODEX_SUBSTACK_URL } from '../src/services/brand';
 import { trackEvent } from '../src/services/analytics';
+import { experimentCopy, variantTag } from '../src/services/experiment';
 
 /* The browser document is intentionally locked because the chassis is the
    page. These named LCD regions therefore need to be keyboard-focusable so
@@ -282,7 +283,7 @@ export const PortalHome: React.FC<PortalHomeProps> = props => (
             href={VINODEX_SUBSTACK_URL}
             target="_blank"
             rel="noopener noreferrer"
-            onClick={() => trackEvent('substack-tap', { source: 'landing' })}
+            onClick={() => trackEvent('substack-tap', { source: 'landing', variant: variantTag('landing-nudge') })}
             // Not `.dex-pressable`: that class is the card language (and the
             // a11y gate's definition of a card control -- the landing has
             // four). A text link gets a text link's focus: the outline.
@@ -291,7 +292,9 @@ export const PortalHome: React.FC<PortalHomeProps> = props => (
             // sentence, never down into the tiles.
             className="inline-flex min-h-6 pt-5 -mt-5 items-center gap-1 rounded-control font-retro text-label tracking-widest text-[var(--lcd-accent)] underline underline-offset-4 hover:text-[var(--lcd-text)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--lcd-accent)]"
           >
-            GET iOS UPDATES
+            {/* The line under test (v0.6.51): copy from the experiment
+                table, the tap tagged with the drawn variant. */}
+            {experimentCopy('landing-nudge')}
             <ArrowUpRight size={14} aria-hidden="true" />
           </a>
         </div>
