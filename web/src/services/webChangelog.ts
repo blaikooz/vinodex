@@ -68,6 +68,17 @@ export interface WebRelease {
 // 0.6.1x, not 0.6.2: the firmware line owns 0.6.2 through 0.9.2, and the
 // two-clocks test refuses any version the device already wore.
 const CURRENT: WebRelease = {
+  version: '0.6.48',
+  date: '2026-08-30',
+  headline: 'STAMPS THAT MOVE',
+  notes: [
+    'The back plate keeps its promise now: press and hold a stamp a quarter second and it peels up; drag it where you like and it stays there, across launches. A short tap still opens its story, and the story offers RESET POSITION for a stamp that has wandered.',
+    'Under it, a real fix: the engraving layer had been quietly swallowing every tap on the stamps since they became tappable. It is ink now, not a wall.',
+  ],
+};
+
+/** The release before this one, promoted when 0.6.48 landed. */
+const PREVIOUS_0_6_47: WebRelease = {
   version: '0.6.47',
   date: '2026-08-30',
   headline: 'MARKS OF OUR OWN',
@@ -593,6 +604,7 @@ const PREVIOUS_0_4_2: WebRelease = {
 
 /** Newest first. A new release is prepended by promoting `CURRENT`. */
 const PREVIOUS: WebRelease[] = [
+  PREVIOUS_0_6_47,
   PREVIOUS_0_6_46,
   PREVIOUS_0_6_45,
   PREVIOUS_0_6_44,

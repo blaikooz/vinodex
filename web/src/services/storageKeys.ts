@@ -122,6 +122,14 @@ export const STORAGE_KEYS: readonly StorageKeySpec[] = [
   { key: 'devicePartFont', disposition: 'wipe', note: 'workshop: screen ink colour' },
   { key: 'customDevices', disposition: 'wipe', note: 'workshop: the saved builds, iOS CustomDeviceStore.storageKey' },
   {
+    key: 'backPlateStampOffsets',
+    disposition: 'wipe',
+    note:
+      'where each back-plate stamp has been dragged to, iOS '
+      + 'StampLayoutStore.storageKey verbatim -- a map of stamp id to pixel '
+      + 'offset from its issued slot; absence means the plate\'s own spot.',
+  },
+  {
     key: 'marqueeQuickPins',
     disposition: 'wipe',
     note:

@@ -9,6 +9,7 @@ import { highestUnlocked } from '../src/services/quiz';
 import { computePassport, type BadgeId } from '../src/services/passport';
 import { stampFor } from '../src/services/stampCatalog';
 import { skinStickerStem } from '../src/services/skinSticker';
+import { ARTIFACT_ID, moveStamp, stampOffset, type StampOffset } from '../src/services/stampLayout';
 import { useTheme } from '../src/services/useTheme';
 import { CHASSIS_SKINS, type ChassisSkin } from '../src/services/theme';
 import ChassisInternals from './ChassisInternals';
@@ -42,20 +43,123 @@ const STAMP_SLOT: Record<BadgeId, { pos: React.CSSProperties; rot: number; ink: 
  * both platforms). Tapping one opens its story; it is a real button, so the
  * plate's flip-back stays on the plate behind it.
  */
-const PassportStamp: React.FC<{ stamp: Stamp; rot: number; pos: React.CSSProperties; onOpen: (s: Stamp) => void }> = ({ stamp, rot, pos, onOpen }) => (
-  <button
-    type="button"
-    className="absolute select-none dex-pressable"
-    style={{ ...pos, transform: `rotate(${rot}deg)`, opacity: 0.92, background: 'none', border: 'none', padding: 0 }}
-    aria-label={`${stamp.title} stamp. Opens its story.`}
-    onClick={e => {
-      e.stopPropagation();
-      onOpen(stamp);
-    }}
-  >
-    <StampArt id={stamp.id} size={64} earned />
-  </button>
-);
+/**
+ * Everything on the plate you can pick up (iOS 0.8.7 A2, web v0.6.48).
+ *
+ * The gesture is iOS's, translated to pointer events: press and hold a
+ * quarter second and the object lifts; drag it and the plate keeps it inside
+ * its own edges (clamped on the unrotated frame -- a rotated corner poking a
+ * few points past the edge is what something stuck near the edge of a real
+ * thing looks like); release and the offset persists under iOS's own key. A
+ * release that travelled under 8px is a tap however long it was held -- 0.6.7
+ * measured that eight points is inside the slop of an ordinary touch, and
+ * the finding is reused rather than re-derived.
+ */
+const HOLD_MS = 250;
+const TAP_SLOP = 8;
+
+const PlateDraggable: React.FC<{
+  id: string;
+  rot: number;
+  pos: React.CSSProperties;
+  label: string;
+  onTap?: () => void;
+  children: React.ReactNode;
+}> = ({ id, rot, pos, label, onTap, children }) => {
+  const [, force] = React.useReducer((n: number) => n + 1, 0);
+  const [lifted, setLifted] = React.useState(false);
+  const [live, setLive] = React.useState<StampOffset>({ dx: 0, dy: 0 });
+  const gesture = React.useRef<{ x: number; y: number; timer: number; armed: boolean; moved: boolean } | null>(null);
+  const el = React.useRef<HTMLButtonElement>(null);
+
+  const settle = (translation: StampOffset) => {
+    const node = el.current;
+    const plate = node?.offsetParent as HTMLElement | null;
+    const committed = stampOffset(id);
+    let dx = committed.dx + translation.dx;
+    let dy = committed.dy + translation.dy;
+    if (node && plate) {
+      // Clamp in the plate's space: the object's unmoved box plus the total
+      // offset stays inside the plate, exactly iOS's clamp.
+      const homeLeft = node.offsetLeft - committed.dx - live.dx;
+      const homeTop = node.offsetTop - committed.dy - live.dy;
+      dx = Math.min(Math.max(dx, -homeLeft), plate.clientWidth - node.offsetWidth - homeLeft);
+      dy = Math.min(Math.max(dy, -homeTop), plate.clientHeight - node.offsetHeight - homeTop);
+    }
+    moveStamp(id, { dx: Math.round(dx), dy: Math.round(dy) });
+    force();
+  };
+
+  const end = (e: React.PointerEvent) => {
+    const g = gesture.current;
+    if (!g) return;
+    window.clearTimeout(g.timer);
+    gesture.current = null;
+    setLifted(false);
+    const translation = live;
+    setLive({ dx: 0, dy: 0 });
+    e.currentTarget.releasePointerCapture?.(e.pointerId);
+    // The arbitration (0.8.7 A4): a release that never travelled is a tap
+    // however long it was held.
+    if (Math.hypot(translation.dx, translation.dy) < TAP_SLOP) {
+      if (onTap) onTap();
+      return;
+    }
+    if (g.armed) settle(translation);
+  };
+
+  const committed = stampOffset(id);
+  return (
+    <button
+      ref={el}
+      type="button"
+      className="absolute select-none dex-pressable"
+      style={{
+        ...pos,
+        transform: `translate(${committed.dx + live.dx}px, ${committed.dy + live.dy}px) rotate(${rot}deg)${lifted ? ' scale(1.08)' : ''}`,
+        opacity: 0.92,
+        background: 'none',
+        border: 'none',
+        padding: 0,
+        touchAction: 'none',
+        cursor: lifted ? 'grabbing' : undefined,
+        zIndex: lifted ? 5 : undefined,
+        filter: lifted ? 'drop-shadow(0 6px 8px rgba(0,0,0,0.35))' : undefined,
+        transition: lifted ? 'filter 120ms' : 'transform 120ms, filter 120ms',
+      }}
+      aria-label={label}
+      title="Press and hold, then drag to move it on the plate."
+      onPointerDown={e => {
+        if (e.button !== 0) return;
+        e.stopPropagation();
+        e.currentTarget.setPointerCapture?.(e.pointerId);
+        const timer = window.setTimeout(() => {
+          if (gesture.current) {
+            gesture.current.armed = true;
+            setLifted(true);
+          }
+        }, HOLD_MS);
+        gesture.current = { x: e.clientX, y: e.clientY, timer, armed: false, moved: false };
+      }}
+      onPointerMove={e => {
+        const g = gesture.current;
+        if (!g || !g.armed) return;
+        e.preventDefault();
+        setLive({ dx: e.clientX - g.x, dy: e.clientY - g.y });
+      }}
+      onPointerUp={end}
+      onPointerCancel={end}
+      onClick={e => {
+        // Pointer flow already arbitrated tap vs drag; this fires for the
+        // keyboard (Enter/Space arrive as a click with no pointer gesture).
+        e.stopPropagation();
+        if (!gesture.current && e.detail === 0 && onTap) onTap();
+      }}
+    >
+      {children}
+    </button>
+  );
+};
 
 const APP_NAME = (pkg.name || 'vinodex').toUpperCase();
 const CREATOR = 'HORIZON/GODOT';
@@ -204,7 +308,12 @@ const DeviceBackPanel: React.FC<DeviceBackPanelProps> = ({ onReturn }) => {
       {/* Passport stamps — one per earned badge, at its fixed slot. */}
       {earned.map(b => {
         const slot = STAMP_SLOT[b.id];
-        return <PassportStamp key={b.id} stamp={stampFor(b.id)} rot={slot.rot} pos={slot.pos} onOpen={setOpenStamp} />;
+        const stamp = stampFor(b.id);
+        return (
+          <PlateDraggable key={b.id} id={b.id} rot={slot.rot} pos={slot.pos} label={`${stamp.title} stamp. Opens its story.`} onTap={() => setOpenStamp(stamp)}>
+            <StampArt id={b.id} size={64} earned />
+          </PlateDraggable>
+        );
       })}
 
       {/* The shell's own aged sticker (iOS 0.6.4 F3, back on the web since
@@ -215,14 +324,20 @@ const DeviceBackPanel: React.FC<DeviceBackPanelProps> = ({ onReturn }) => {
           and simply go without. Decorative: it says what it is by being the
           shell's picture. */}
       {skinStickerStem(skin.id) && (
-        <ArtImage
-          src={`/art/sticker/${skinStickerStem(skin.id)}.png`}
-          alt=""
-          aria-hidden="true"
-          draggable={false}
-          className="absolute pointer-events-none select-none"
-          style={{ top: '73%', right: '28%', width: 96, height: 'auto', transform: 'rotate(-7deg)', imageRendering: 'pixelated', opacity: 0.95 }}
-        />
+        <PlateDraggable
+          id={ARTIFACT_ID}
+          rot={-7}
+          pos={{ top: '73%', right: '28%' }}
+          label={`${skin.displayName} artifact.`}
+        >
+          <ArtImage
+            src={`/art/sticker/${skinStickerStem(skin.id)}.png`}
+            alt=""
+            aria-hidden="true"
+            draggable={false}
+            style={{ width: 96, height: 'auto', imageRendering: 'pixelated', display: 'block' }}
+          />
+        </PlateDraggable>
       )}
 
       {/* Corner screws */}
@@ -254,7 +369,11 @@ const DeviceBackPanel: React.FC<DeviceBackPanelProps> = ({ onReturn }) => {
       />
 
       {/* Engraved content */}
-      <div className="relative h-full w-full flex flex-col items-center justify-center px-6 py-10 gap-8 font-mono select-none" style={{ color: plate.ink }}>
+      {/* pointer-events-none (v0.6.48): this layer spans the whole plate and
+          sat ABOVE the stamps in hit-testing, so a real finger could never
+          tap one -- only synthetic test events got through. The engraving is
+          ink, not a control; the one control inside it opts back in. */}
+      <div className="relative h-full w-full flex flex-col items-center justify-center px-6 py-10 gap-8 font-mono select-none pointer-events-none" style={{ color: plate.ink }}>
         {/* Nameplate — recessed */}
         <div
           className="px-8 py-5 rounded-md border border-stone-700/50 bg-gradient-to-b from-stone-500/40 to-stone-700/40 shadow-[inset_0_2px_6px_rgba(0,0,0,0.5),0_1px_0_rgba(255,255,255,0.5)] flex flex-col items-center"
@@ -294,7 +413,7 @@ const DeviceBackPanel: React.FC<DeviceBackPanelProps> = ({ onReturn }) => {
             onReturn();
           }}
           style={{ color: `color-mix(in srgb, ${plate.inkDeep} 80%, transparent)`, background: 'none', border: 'none' }}
-          className="absolute bottom-12 left-1/2 -translate-x-1/2 flex items-center gap-2 text-sm md:text-base tracking-[0.4em] animate-pulse cursor-pointer"
+          className="absolute bottom-12 left-1/2 -translate-x-1/2 flex items-center gap-2 text-sm md:text-base tracking-[0.4em] animate-pulse cursor-pointer pointer-events-auto"
         >
           <Hand aria-hidden="true" size={18} strokeWidth={2} />
           <span style={{ textShadow: engravedTextShadow }}>TAP TO RETURN</span>
@@ -307,7 +426,17 @@ const DeviceBackPanel: React.FC<DeviceBackPanelProps> = ({ onReturn }) => {
           title={openStamp.title}
           ariaLabel={`${openStamp.title} stamp story`}
           onDismiss={() => setOpenStamp(null)}
-          actions={[{ label: 'OK', kind: 'confirm', onClick: () => setOpenStamp(null) }]}
+          actions={
+            // VoiceOver's named action on iOS, offered here as a second button:
+            // the one destination a keyboard or screen-reader user can name
+            // unambiguously is "back where it was issued".
+            stampOffset(openStamp.id).dx !== 0 || stampOffset(openStamp.id).dy !== 0
+              ? [
+                  { label: 'RESET POSITION', kind: 'cancel', onClick: () => { moveStamp(openStamp.id, { dx: 0, dy: 0 }); setOpenStamp(null); } },
+                  { label: 'OK', kind: 'confirm', onClick: () => setOpenStamp(null) },
+                ]
+              : [{ label: 'OK', kind: 'confirm', onClick: () => setOpenStamp(null) }]
+          }
         >
           {openStamp.info}
         </DexAlert>
