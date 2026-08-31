@@ -181,4 +181,22 @@ describe('<EntryDetail /> renders every category', () => {
     const climate = String((withClimate as { climate?: string }).climate ?? '').toUpperCase();
     expect(document.body.textContent?.toUpperCase()).toContain(climate);
   });
+
+  it('a country with no appellation tags falls back to its regions, or draws no header (v0.6.50)', async () => {
+    // Lebanon is the one COUNTRY record whose tags carry only the marker.
+    // iOS falls back to its regions' classifications; Lebanon has no region
+    // entries, so the section stays away entirely -- no empty header.
+    const lebanon = pick('lebanon', e => e.id === 'C028');
+    renderEntry(lebanon);
+    await waitFor(() => expect(document.body.textContent).toContain('Lebanon'));
+    expect(sectionTitles()).not.toContain('APPELLATION SYSTEM');
+
+    cleanup();
+    // And a tagged country keeps its own system exactly as before.
+    const france = pick('france', e => e.id === 'C001');
+    renderEntry(france);
+    await waitFor(() => expect(sectionTitles()).toContain('APPELLATION SYSTEM'));
+    expect(document.body.textContent).toContain('AOC');
+  });
 });
+

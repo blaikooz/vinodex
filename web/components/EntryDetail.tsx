@@ -120,7 +120,13 @@ const EntryDetail: React.FC<EntryDetailProps> = ({ entry, allEntries, onBack, on
     const rest = grapesAll
       .filter(g => !seen.has(g.id) && key(g.grapeCountryOfOrigin || g.details.origin) === country)
       .sort((a, b) => a.name.localeCompare(b.name));
-    return { grapes: [...ranked, ...rest].map(g => g.name), regions: regions.map(r => r.name) };
+    // The classification vocabulary of this country's regions -- iOS
+    // CountryScreen's fallback when a country's tags carry no system of
+    // their own (Lebanon is the one such record, v0.6.50).
+    const classifications = [...new Set(
+      regions.map(r => (r.details as { classification?: string }).classification).filter((c): c is string => !!c),
+    )].sort();
+    return { grapes: [...ranked, ...rest].map(g => g.name), regions: regions.map(r => r.name), classifications };
   }, [entry, allEntries]);
   const lineageEdges = useMemo(
     () => (isGrapeEntry(entry) && lineageIndex.hasLineage(entry.id) ? edgeCount(lineageIndex.relatives(entry.id)) : 0),
@@ -912,11 +918,19 @@ const EntryDetail: React.FC<EntryDetailProps> = ({ entry, allEntries, onBack, on
             the country is, how it classifies its wine, where its regions are,
             then every grape it grows -- not grapes before the page has said
             anything about the place they come from. */}
-        {isCountry && entry.tags && entry.tags.length > 0 && (
+        {isCountry && countryRosters && (() => {
+          // The tags carry the system (iOS generate-ios-data buildCountryInfo:
+          // strip the COUNTRY marker, ship the rest); a country with none
+          // falls back to what its regions declare, exactly as iOS's
+          // CountryScreen does -- and an empty list draws no header at all.
+          const tagged = (entry.tags ?? []).filter(tag => tag !== 'COUNTRY');
+          const systems = tagged.length > 0 ? tagged : countryRosters.classifications;
+          if (systems.length === 0) return null;
+          return (
           <div className="mb-6">
               <SectionHeader icon={<Shield size={18} />} label="APPELLATION SYSTEM" gap="mb-2" />
               <div className="flex flex-wrap gap-2">
-                {entry.tags.filter(tag => tag !== 'COUNTRY').map((system, idx) => {
+                {systems.map((system, idx) => {
                   const c = APPELLATION_CHIP_COLORS[idx % 3]!;
                   return (
                     <span key={idx} className="px-4 py-2 rounded text-body tracking-wide" style={{ backgroundColor: c.bg, border: `1px solid ${c.border}`, color: c.text }}>
@@ -926,7 +940,8 @@ const EntryDetail: React.FC<EntryDetailProps> = ({ entry, allEntries, onBack, on
                 })}
               </div>
           </div>
-        )}
+          );
+        })()}
 
         {isCountry && countryRosters && (
           <LinkedListSection

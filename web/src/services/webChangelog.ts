@@ -68,6 +68,16 @@ export interface WebRelease {
 // 0.6.1x, not 0.6.2: the firmware line owns 0.6.2 through 0.9.2, and the
 // two-clocks test refuses any version the device already wore.
 const CURRENT: WebRelease = {
+  version: '0.6.50',
+  date: '2026-08-31',
+  headline: 'NO EMPTY HEADERS',
+  notes: [
+    'A country that declares no appellation system of its own borrows what its regions declare, as on the phone -- and a country with neither simply draws no APPELLATION SYSTEM header at all, instead of an empty one. Lebanon was the one page that showed the difference.',
+  ],
+};
+
+/** The release before this one, promoted when 0.6.50 landed. */
+const PREVIOUS_0_6_49: WebRelease = {
   version: '0.6.49',
   date: '2026-08-30',
   headline: 'DEAD CODE, LIVE CAPS',
@@ -615,6 +625,7 @@ const PREVIOUS_0_4_2: WebRelease = {
 
 /** Newest first. A new release is prepended by promoting `CURRENT`. */
 const PREVIOUS: WebRelease[] = [
+  PREVIOUS_0_6_49,
   PREVIOUS_0_6_48,
   PREVIOUS_0_6_47,
   PREVIOUS_0_6_46,
