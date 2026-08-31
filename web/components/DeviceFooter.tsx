@@ -9,7 +9,6 @@ import { useMarqueeScript } from '../src/services/useMarqueeScript';
 import { marqueeGlyph } from '../src/services/marqueeArt';
 import { pinAt, pinRoute, pinsRevision, subscribeToPins } from '../src/services/quickPins';
 import MarqueeLampButton from './MarqueeLampButton';
-import ChassisLamp from './ChassisLamp';
 import { DEVICE_FOOTER_BOTTOM_PAD, DEVICE_FOOTER_HEIGHT } from '../src/services/deviceFrame';
 
 /**
@@ -30,32 +29,6 @@ export interface DeviceFooterProps {
   /** The screen's own name. Feeds the marquee panel and its glyph. */
   title: string;
   /**
-   * What the marquee panel reads, when that is not the screen's own name.
-   *
-   * The company site's **landing** passes one constant (v8#8): the dex's
-   * greeting script — WELCOME! for a beat, then MENU, then the nine toasts
-   * once the device has been ignored for a minute — is a *dex* behaviour, and
-   * `useMarqueeScript` arms its clock only on the main menu. Overriding the
-   * *text* rather than teaching the script a second mode is what keeps the
-   * state machine untouched: the site never enters it, so it cannot consume
-   * the once-per-launch WELCOME! that a player is owed when they open the app.
-   *
-   * Absent means "the screen's own name" — every dex screen, and every site
-   * screen but the front page.
-   */
-  marqueeTitle?: string;
-  /**
-   * Which mark to stamp between the banner's repetitions, when that is not the
-   * one the screen's own name resolves to.
-   *
-   * The company site passes `SITE_MARK_TITLE` on *every* screen (v8#10), which
-   * is deliberately a wider rule than `marqueeTitle`'s: the text says which
-   * page you are on and the mark says whose device you are holding. Before it
-   * existed, no site title was in `MARQUEE_ART`, so all of them fell through
-   * to the generic wineglass — the app's own mark, on a company page.
-   */
-  marqueeMark?: string;
-  /**
    * The shell to draw, which is not always the stored one.
    *
    * The colours arrive as inherited custom properties (`skinCssVars`), but the
@@ -69,9 +42,6 @@ export interface DeviceFooterProps {
   onBack?: () => void;
   showBack?: boolean;
   onHome?: () => void;
-  /** SAVED and SETTINGS. Every company-site screen turns them off; see
-   *  `DeviceLayoutProps`. */
-  showSystemButtons?: boolean;
   /**
    * Raise the lamp chooser for a slot.
    *
@@ -89,12 +59,6 @@ export interface DeviceFooterProps {
    * still press the SETTINGS cap and navigate away from underneath it.
    */
   inert?: boolean;
-  /**
-   * Whether the workshop's fitted parts may paint this band (v0.5.0). Off on
-   * the company site, whose device is always the stock CLASSIC — the same
-   * rule as its skin override.
-   */
-  customParts?: boolean;
 }
 
 /**
@@ -232,17 +196,13 @@ const CapFace: React.FC<{
 
 const DeviceFooter: React.FC<DeviceFooterProps> = ({
   title,
-  marqueeTitle,
-  marqueeMark,
   skin,
   footerCenter,
   onBack,
   showBack = false,
   onHome,
-  showSystemButtons = true,
   onReassignLamp,
   inert = false,
-  customParts = true,
 }) => {
   const navigate = useNavigate();
   // The lamps repaint when a pin moves, without a provider threaded through
@@ -258,7 +218,11 @@ const DeviceFooter: React.FC<DeviceFooterProps> = ({
   const buttonsPart = useSyncExternalStore(subscribeToTheme, customButtonsPart, () => null);
   const [customCaps, setCustomCaps] = useState<Partial<Record<FooterCapKind, string>> | null>(null);
   useEffect(() => {
-    if (!customParts || !buttonsPart) {
+    // Ungated (v0.6.49): the footer never renders on the company site, so
+    // the old customParts switch guarded a door with no room behind it -- and
+    // being never passed by the one caller, it silently kept the workshop's
+    // fitted caps off the band everywhere. A fitted part paints the band.
+    if (!buttonsPart) {
       setCustomCaps(null);
       return;
     }
@@ -279,16 +243,13 @@ const DeviceFooter: React.FC<DeviceFooterProps> = ({
       setCustomCaps(Object.keys(out).length > 0 ? out : null);
     });
     return () => { alive = false; };
-  }, [customParts, buttonsPart]);
+  }, [buttonsPart]);
   // The script still runs on `title`, so the hook's "is this the main screen"
   // test is unchanged and the state machine is untouched; the site's override
   // replaces only what is *printed*.
   const scriptTitle = useMarqueeScript(title);
-  const footerTitle = marqueeTitle ?? scriptTitle;
-  // The mark wins where it is given, then the text override, then the screen's
-  // own name — so a dex screen's banner still never names two different things,
-  // and a site screen stamps the studio whatever its panel reads.
-  const glyphTitle = marqueeMark ?? marqueeTitle ?? title;
+  const footerTitle = scriptTitle;
+  const glyphTitle = title;
   const backEnabled = showBack && !!onBack;
   // One size: the marquee never says VINODEX any more (the script replaced
   // the wordmark loop), so the old big-wordmark branch was dead (review I3).
@@ -350,10 +311,9 @@ const DeviceFooter: React.FC<DeviceFooterProps> = ({
             </svg>
           </CapFace>
         </button>
-        {showSystemButtons && (
-          <button
-            type="button"
-            onClick={() => navigate('/saved')}
+        <button
+          type="button"
+          onClick={() => navigate('/saved')}
             // **"Collection", by ruling.** iOS calls this control "User"
             // (0.8.5, A1), having renamed it off "Saved entries" for a
             // reason that is true here too: the page behind it holds three
@@ -371,9 +331,8 @@ const DeviceFooter: React.FC<DeviceFooterProps> = ({
           >
             <CapFace kind="user" skin={skin} customSrc={customCaps?.user ?? null}>
               <CircleUser className="w-7 h-7 pointer-events-none" strokeWidth={2} aria-hidden="true" />
-            </CapFace>
-          </button>
-        )}
+          </CapFace>
+        </button>
       </div>
 
       {/* Centre: two indicator lamps over the marquee, matched to its width. */}
@@ -410,19 +369,15 @@ const DeviceFooter: React.FC<DeviceFooterProps> = ({
         */}
         <div
           className="band-pills w-full flex gap-[var(--band-pill-gap)] px-0.5"
-          // Decoration on the portal, so nothing to announce there.
-          aria-hidden={showSystemButtons ? undefined : true}
         >
           {/* One hint for both lamps. iOS attaches an `accessibilityHint` per
               button; the web equivalent is one visually-hidden sentence that
               both `aria-describedby` at, rather than the same string twice. */}
-          {showSystemButtons && (
-            <span id="lamp-hint" className="sr-only">
+          <span id="lamp-hint" className="sr-only">
               Right-click, press Alt plus Enter, or press and hold, to point this
-              button somewhere else.
-            </span>
-          )}
-          {showSystemButtons ? [0, 1].map(slot => {
+            button somewhere else.
+          </span>
+          {[0, 1].map(slot => {
             // The OUTER two of the trio, not the first two: `statusLights` is
             // ordered light-to-deep on most skins, so [0] and [2] are the
             // widest pair the shell offers. iOS indexes `lights[0]`/`lights[2]`
@@ -441,36 +396,7 @@ const DeviceFooter: React.FC<DeviceFooterProps> = ({
                 hintId="lamp-hint"
               />
             );
-          }) : (
-            /* **The portal gets the parts and not the controls.**
-               `showSystemButtons` is off on every company-site screen, and is
-               off for exactly this reason: SAVED and SETTINGS are in-app
-               controls, and so are these — every pin resolves to `/minigames`
-               or `/settings/*`, which are dex routes. Two moulded lamps on a
-               company page that jump straight into the encyclopedia would put
-               dex navigation AND dex copy (the engraved TOOLS / CUSTOMIZE) on
-               a portal screen, which is the one thing the two products must
-               not share.
-
-               They are not removed, though. The portal deliberately reuses
-               this chassis so the two read as one brand, and a shell that
-               grows and loses parts between the two products is that decision
-               half-applied. So the portal wears the lamps as what they were
-               before v0.2.1: moulded, lit, breathing, unlabelled and
-               `aria-hidden` -- a part of the case rather than a button. */
-            [1, 3].map(n => (
-              <ChassisLamp
-                key={n}
-                className="flex-1 h-[var(--band-pill)] rounded-full"
-                size="var(--band-pill)"
-                fill={`var(--pill-lamp${n})`}
-                rim={`var(--pill-lamp${n}-edge)`}
-                bead={false}
-                period={5.7}
-                glow={1}
-              />
-            ))
-          )}
+          })}
         </div>
         {footerCenter ? (
           <div className="flex flex-1 min-h-0 items-center justify-center w-full">{footerCenter}</div>
@@ -501,10 +427,9 @@ const DeviceFooter: React.FC<DeviceFooterProps> = ({
             <Home size={28} className="pointer-events-none" aria-hidden="true" />
           </CapFace>
         </button>
-        {showSystemButtons && (
-          <button
-            type="button"
-            onClick={() => navigate('/settings')}
+        <button
+          type="button"
+          onClick={() => navigate('/settings')}
             aria-label="Settings"
             className={`${CAP_CLASS} hover:scale-[1.02]`}
           >
@@ -514,9 +439,8 @@ const DeviceFooter: React.FC<DeviceFooterProps> = ({
                 aria-hidden="true"
                 style={{ filter: 'drop-shadow(0 1px 0 rgba(0,0,0,0.5))' }}
               />
-            </CapFace>
-          </button>
-        )}
+          </CapFace>
+        </button>
       </div>
     </footer>
   );

@@ -38,13 +38,6 @@ interface DeviceLayoutProps {
   isFlipped?: boolean;
   backFace?: React.ReactNode;
   onTitleTap?: () => void;
-  /**
-   * SAVED and SETTINGS sit on the chassis itself, matching iOS `DeviceChassis`,
-   * so they are reachable from every screen without each one wiring them up.
-   * Every company-site screen turns them off — they are in-app controls, and
-   * the site is not the app.
-   */
-  showSystemButtons?: boolean;
 }
 
 
@@ -62,7 +55,6 @@ const DeviceLayout: React.FC<DeviceLayoutProps> = ({
   isFlipped: isFlippedProp = false,
   backFace: backFaceProp,
   onTitleTap: onTitleTapProp,
-  showSystemButtons = true,
   // `showWordmark` used to sit here, dead since iOS v0.6.9 retired the island
   // wordmark and kept only as call-site compatibility for the splash. The
   // splash is gone with the fork (v8#1) and it was that prop's only caller, so
@@ -84,9 +76,6 @@ const DeviceLayout: React.FC<DeviceLayoutProps> = ({
    * half-dex. The route already knows, `appRoutes.ts` already answers, and the
    * answer cannot be got wrong at a call site that does not exist.
    *
-   * `showSystemButtons` stays a prop: it predates this, every site screen
-   * already passes it, and it is the flag `DeviceFooter`'s separation tests are
-   * written against.
    */
   const { pathname } = useLocation();
   const onSite = site ?? isSitePath(pathname);
@@ -491,7 +480,6 @@ const DeviceLayout: React.FC<DeviceLayoutProps> = ({
             onBack={onBack}
             showBack={showBack}
             onHome={onHome}
-            showSystemButtons={showSystemButtons}
           />
         )}
           </div>

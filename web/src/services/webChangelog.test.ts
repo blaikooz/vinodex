@@ -75,8 +75,8 @@ describe('the web changelog', () => {
     // Raised to 6 by v0.4.0's own landing, and to 8 by v0.4.2's — which also
     // paid the debt v0.4.1 left, having grown the log to 7 without moving the
     // floor. The discipline stands: the log grows by one per release and the
-    // floor follows it. At 52 since v0.6.48.
-    expect(WEB_RELEASES.length, 'the changelog shrank — a release was deleted, not promoted').toBeGreaterThanOrEqual(52);
+    // floor follows it. At 53 since v0.6.49.
+    expect(WEB_RELEASES.length, 'the changelog shrank — a release was deleted, not promoted').toBeGreaterThanOrEqual(53);
     expect(releaseFor('0.1.0'), 'the first web release fell off the log').toBeDefined();
   });
 

@@ -12,12 +12,14 @@ import { isDexPath } from '../src/services/appRoutes';
  * encyclopedia. They deliberately share this chassis so the two read as one
  * brand — and, as of v0.3.0, so that the site reads as the studio's device with
  * the app not yet open on it. They must share nothing else.
- * `showSystemButtons={false}` is how every site screen says so, and it exists
- * because SAVED and SETTINGS are in-app controls.
+ * Since v0.6.49 the whole footer is the separation: `DeviceLayout` renders it
+ * only off-site (`!onSite`), so no site screen carries these controls at all --
+ * the per-prop half-measures (`showSystemButtons`, the marquee overrides) went
+ * with the ruling that deleted the dead site-mode branch.
  *
  * The marquee lamps are in-app controls too — **every pin resolves to
  * `/minigames` or `/settings/*`** — so making them buttons without following
- * that flag would have put dex navigation *and* dex copy (the engraved TOOLS /
+ * the footer at all would have put dex navigation and dex copy on OUR WORK.
  * CUSTOMIZE) on OUR WORK and CONTACT US.
  *
  * This is the test for that, and it is written from the route table rather
@@ -43,7 +45,7 @@ import { isDexPath } from '../src/services/appRoutes';
  * list of two prefixes, so a lamp pointed at a *new* dex route fails here
  * without this file being edited. The old version could not have said that.
  */
-const mount = (showSystemButtons: boolean) =>
+const mount = () =>
   render(
     <MemoryRouter>
       <DeviceFooter
@@ -52,7 +54,6 @@ const mount = (showSystemButtons: boolean) =>
         showBack
         onBack={vi.fn()}
         onHome={vi.fn()}
-        showSystemButtons={showSystemButtons}
         onReassignLamp={vi.fn()}
       />
     </MemoryRouter>,
@@ -63,71 +64,26 @@ describe('<DeviceFooter />', () => {
   afterEach(cleanup);
 
   it('gives the dex two lamp buttons, named for their pins', () => {
-    mount(true);
+    mount();
     for (const pin of DEFAULTS) {
       expect(screen.getByRole('button', { name: pin })).toBeTruthy();
     }
     expect(document.querySelectorAll('.lamp-hit')).toHaveLength(2);
   });
 
-  it('gives the site the moulded lamps and no controls', () => {
-    // The parts stay — a shell that grows and loses pieces between the two
-    // products is the shared-chassis decision half-applied — but they are
-    // decoration there, exactly as they were before v0.2.1.
-    mount(false);
-    expect(document.querySelectorAll('.lamp-hit')).toHaveLength(0);
-    expect(document.querySelectorAll('.band-pills .recessed-lamp')).toHaveLength(2);
-    expect(document.querySelector('.band-pills')?.getAttribute('aria-hidden')).toBe('true');
-  });
-
-  it('puts no dex destination on a site screen', () => {
-    // Stated over the WHOLE vocabulary, not just the shipped pair. An earlier
-    // draft iterated `DEFAULTS` — two of the five — which is a test that would
-    // have passed while a site band offered SETTINGS, DATA or ACCESS.
-    // `MARQUEE_PINS` is the set a lamp can actually hold.
-    mount(false);
+  it('every pin in the vocabulary resolves to a dex route', () => {
+    // Stated over the WHOLE vocabulary, not just the shipped pair, and over
+    // `isDexPath` -- the same classifier the boot, the skin and the
+    // screensaver read. Since v0.6.49 the site never renders this band at
+    // all (DeviceLayout gates it on `!onSite`), so "no dex destination on a
+    // site screen" is structural; this pin keeps the half that can still
+    // drift, which is a lamp pointed somewhere that stops being the app.
     for (const route of MARQUEE_PINS.map(pinRoute)) {
       expect(
         isDexPath(route),
         `${route} is not a dex route — this test's premise has moved`,
       ).toBe(true);
     }
-
-    const named = [...document.querySelectorAll('button')]
-      .map(b => (b.getAttribute('aria-label') ?? b.textContent ?? '').trim());
-    for (const pin of MARQUEE_PINS) {
-      expect(named, `${pin} reached a site screen`).not.toContain(pin);
-    }
   });
 
-  it('hides SAVED and SETTINGS on the site, as it always did', () => {
-    // The rule the lamps now follow, restated so the two cannot drift apart.
-    mount(false);
-    expect(screen.queryByRole('button', { name: 'Collection' })).toBeNull();
-    expect(screen.queryByRole('button', { name: 'Settings' })).toBeNull();
-    expect(screen.getByRole('button', { name: 'Back' })).toBeTruthy();
-    expect(screen.getByRole('button', { name: 'Home' })).toBeTruthy();
-  });
-
-  it('prints the marquee override, and its glyph, rather than the screen name', () => {
-    // The site's one-word panel (v8#8). Asserted on the band because the
-    // override is the band's job — `useMarqueeScript` is untouched, and a
-    // regression here would be a site screen quietly showing dex copy.
-    render(
-      <MemoryRouter>
-        <DeviceFooter
-          title="HORIZON/GODOT"
-          marqueeTitle="WELCOME"
-          skin="CLASSIC"
-          showBack
-          onBack={vi.fn()}
-          onHome={vi.fn()}
-          showSystemButtons={false}
-        />
-      </MemoryRouter>,
-    );
-    const marquee = document.querySelector('.terminal-marquee');
-    expect(marquee?.textContent).toContain('WELCOME');
-    expect(marquee?.textContent).not.toContain('HORIZON/GODOT');
-  });
 });

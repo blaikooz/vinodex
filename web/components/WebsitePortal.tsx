@@ -242,7 +242,7 @@ export const PortalHome: React.FC<PortalHomeProps> = props => (
   // this release -- the cold-start fallback launched the dex from the front
   // page. The cap stays moulded into the shell and inert, which is the same
   // answer the band already gives for SAVED and SETTINGS on a site screen.
-  <DeviceLayout title="HORIZON/GODOT" subtitle="" showBack={false} onHome={props.onHome} showSystemButtons={false}>
+  <DeviceLayout title="HORIZON/GODOT" subtitle="" showBack={false} onHome={props.onHome}>
     <div className={`flex-1 min-h-0 w-full flex flex-col items-center relative overflow-hidden ${screenGround}`}>
       <RetroGrid />
       <div className="relative w-full h-full z-10 flex flex-col p-[var(--pad-screen)] gap-[var(--gap-grid)]">
@@ -333,7 +333,7 @@ interface OurAppsListProps {
 }
 
 export const OurAppsList: React.FC<OurAppsListProps> = ({ onBack, onHome, onSelectProject }) => (
-  <DeviceLayout title="OUR WORK" subtitle="" showBack onBack={onBack} onHome={onHome} showSystemButtons={false} centerHeaderText>
+  <DeviceLayout title="OUR WORK" subtitle="" showBack onBack={onBack} onHome={onHome} centerHeaderText>
     <div className={`flex-1 min-h-0 w-full flex flex-col relative overflow-hidden ${screenGround}`}>
       <RetroGrid />
       <div
@@ -411,7 +411,7 @@ const ProjectMark: React.FC<{ project: Project; large?: boolean }> = ({ project,
 );
 
 export const ProjectSplash: React.FC<ProjectSplashProps> = ({ project, onBack, onHome, onOpenApp }) => (
-  <DeviceLayout title={project.name} subtitle="" showBack onBack={onBack} onHome={onHome} showSystemButtons={false} centerHeaderText>
+  <DeviceLayout title={project.name} subtitle="" showBack onBack={onBack} onHome={onHome} centerHeaderText>
     <div className={`flex-1 min-h-0 w-full flex flex-col relative overflow-hidden ${screenGround}`}>
       <RetroGrid />
       <div
@@ -488,7 +488,7 @@ export const ProjectSplash: React.FC<ProjectSplashProps> = ({ project, onBack, o
  * with generous line-height; the pixel face is kept for the headings.
  */
 const InfoPage: React.FC<{ title: string; onBack: () => void; onHome: () => void; children: React.ReactNode }> = ({ title, onBack, onHome, children }) => (
-  <DeviceLayout title={title} subtitle="" showBack onBack={onBack} onHome={onHome} showSystemButtons={false} centerHeaderText>
+  <DeviceLayout title={title} subtitle="" showBack onBack={onBack} onHome={onHome} centerHeaderText>
     <div className={`flex-1 min-h-0 w-full flex flex-col relative overflow-hidden ${screenGround}`}>
       <RetroGrid />
       <div
@@ -576,7 +576,7 @@ export const WhoWeAre: React.FC<{ onBack: () => void; onHome: () => void }> = ({
 );
 
 export const ContactUs: React.FC<{ onBack: () => void; onHome: () => void; onPrivacy: () => void }> = ({ onBack, onHome, onPrivacy }) => (
-  <DeviceLayout title="CONTACT US" subtitle="" showBack onBack={onBack} onHome={onHome} showSystemButtons={false} centerHeaderText>
+  <DeviceLayout title="CONTACT US" subtitle="" showBack onBack={onBack} onHome={onHome} centerHeaderText>
     <div className={`flex-1 min-h-0 w-full flex flex-col relative overflow-hidden ${screenGround}`}>
       <RetroGrid />
       <div
@@ -652,7 +652,7 @@ export const NotFound: React.FC<{ path: string; onHome: () => void; onOpenApp: (
     return () => { meta.remove(); };
   }, []);
   return (
-    <DeviceLayout title="NOT FOUND" subtitle="" showBack onBack={onHome} onHome={onHome} showSystemButtons={false} centerHeaderText site>
+    <DeviceLayout title="NOT FOUND" subtitle="" showBack onBack={onHome} onHome={onHome} centerHeaderText site>
       <div className={`flex-1 min-h-0 w-full flex flex-col relative overflow-hidden ${screenGround}`}>
         <RetroGrid />
         <div

@@ -68,6 +68,17 @@ export interface WebRelease {
 // 0.6.1x, not 0.6.2: the firmware line owns 0.6.2 through 0.9.2, and the
 // two-clocks test refuses any version the device already wore.
 const CURRENT: WebRelease = {
+  version: '0.6.49',
+  date: '2026-08-30',
+  headline: 'DEAD CODE, LIVE CAPS',
+  notes: [
+    'Housekeeping by ruling: the footer\'s unreachable site-mode half is gone -- the company site never renders the button band, so the switches for hiding its controls there guarded doors with no rooms behind them.',
+    'One of those switches was quietly holding a real feature shut: workshop-fitted button caps never painted the band. They do now.',
+  ],
+};
+
+/** The release before this one, promoted when 0.6.49 landed. */
+const PREVIOUS_0_6_48: WebRelease = {
   version: '0.6.48',
   date: '2026-08-30',
   headline: 'STAMPS THAT MOVE',
@@ -604,6 +615,7 @@ const PREVIOUS_0_4_2: WebRelease = {
 
 /** Newest first. A new release is prepended by promoting `CURRENT`. */
 const PREVIOUS: WebRelease[] = [
+  PREVIOUS_0_6_48,
   PREVIOUS_0_6_47,
   PREVIOUS_0_6_46,
   PREVIOUS_0_6_45,
