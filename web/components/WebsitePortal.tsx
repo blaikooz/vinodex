@@ -288,7 +288,7 @@ export const PortalHome: React.FC<PortalHomeProps> = props => (
           <h1 className="font-retro text-xl sm:text-3xl tracking-widest text-[var(--lcd-accent)] leading-none">
             HORIZON/GODOT
           </h1>
-          <p className="font-retro text-heading sm:text-title tracking-widest text-[var(--lcd-text)]">
+          <p className="font-retro text-heading sm:text-title tracking-widest text-[var(--lcd-text)] text-balance">
             PLAYFUL TOOLS, MADE WELL.
           </p>
           <p className="mx-auto max-w-md text-caption sm:text-body normal-case text-[var(--lcd-subtext)] leading-snug">

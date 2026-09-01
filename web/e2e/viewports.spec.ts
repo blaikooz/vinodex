@@ -161,7 +161,25 @@ for (const [name, width, height] of SIZES) {
         expect(m!.w, 'chassis does not fill the width').toBeCloseTo(m!.vw, 0);
         expect(m!.h, 'chassis does not fill the height').toBeCloseTo(m!.vh, 0);
         expect(m!.top, 'chassis does not start at the top').toBeCloseTo(0, 0);
-      }
+          }
+
+      // The clipping report (2026-08-31): tile labels that wrapped and cut
+      // off mid-glyph on small screens. Every label stays inside its tile,
+      // on every rung of the ladder.
+      const clipped = await page.evaluate(() => {
+        const out: string[] = [];
+        for (const tile of Array.from(document.querySelectorAll('.portal-home-tile'))) {
+          const t = tile.getBoundingClientRect();
+          const label = tile.querySelector('span:nth-of-type(2)');
+          if (!label) continue;
+          const l = label.getBoundingClientRect();
+          if (l.bottom > t.bottom + 0.5 || l.right > t.right + 0.5 || l.left < t.left - 0.5) {
+            out.push(`${label.textContent}: ${Math.round(l.right - l.left)}x${Math.round(l.bottom - l.top)} in ${Math.round(t.right - t.left)}x${Math.round(t.bottom - t.top)}`);
+          }
+        }
+        return out;
+      });
+      expect(clipped, `tile labels clipped:\n${clipped.join('\n')}`).toEqual([]);
     });
 
     /**
