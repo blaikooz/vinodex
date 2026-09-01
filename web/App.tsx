@@ -674,7 +674,7 @@ const App: React.FC = () => {
 
   return (
     <div
-      className="antialiased text-gray-900 bg-gray-900 min-h-screen overflow-hidden"
+      className="antialiased text-gray-900 bg-gray-900 min-h-dvh overflow-hidden"
       style={{ paddingTop: 'var(--install-banner-h, 0px)' }}
     >
       {showIntroCard && (

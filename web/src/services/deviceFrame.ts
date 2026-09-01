@@ -67,9 +67,13 @@ export const DEVICE_FRAME_STAGE = 'flex justify-center items-center p-0 md:lands
  * lets `PageRoom.growth(pageHeight:step:)` take up the slack from the measured
  * page height.
  *
- * Mobile is deliberately excluded: below `md` the box is `w-full h-full` inside
- * an `h-screen` stage, exactly as it has always been, so the dynamic-viewport /
- * URL-bar behaviour that currently renders correctly on a phone is not touched.
+ * Mobile is deliberately excluded: below `md` the box is `w-full h-full`
+ * inside an `h-dvh` stage. It was `h-screen` (100vh) until 2026-08-31, and
+ * 100vh on iOS Safari is the LARGEST viewport — toolbars collapsed — so with
+ * the toolbar showing, the footer band hung below the visible screen (the
+ * owner's Safari screenshots: MENU marquee and PRIVACY/SUPPORT cut off).
+ * `dvh` follows the toolbars as they come and go, which is the actual
+ * meaning of "fill whatever viewport it's in".
  */
 export const DEVICE_FRAME_BOX = 'w-full h-full md:landscape:h-[var(--device-frame-h)] md:landscape:w-[522px]';
 

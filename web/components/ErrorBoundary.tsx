@@ -33,7 +33,7 @@ export default class ErrorBoundary extends React.Component<React.PropsWithChildr
       <main
         role="alert"
         data-error-screen
-        className="min-h-screen flex items-center justify-center p-6"
+        className="min-h-dvh flex items-center justify-center p-6"
         style={{ backgroundColor: 'var(--lcd-page)', color: 'var(--lcd-body-text)' }}
       >
         <div className="max-w-sm w-full flex flex-col gap-4 rounded-card border p-5" style={{ borderColor: 'var(--surface-line-strong)', backgroundColor: 'var(--surface-raised)' }}>

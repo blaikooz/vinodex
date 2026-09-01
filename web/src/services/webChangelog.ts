@@ -68,6 +68,17 @@ export interface WebRelease {
 // 0.6.1x, not 0.6.2: the firmware line owns 0.6.2 through 0.9.2, and the
 // two-clocks test refuses any version the device already wore.
 const CURRENT: WebRelease = {
+  version: '0.6.60',
+  date: '2026-08-31',
+  headline: 'THE HONEST VIEWPORT',
+  notes: [
+    'Safari on iPhone measures a page against its tallest self - toolbars hidden - so the device was drawn a toolbar too tall and its bottom edge hung below the screen: the MENU marquee on the dex, the PRIVACY and SUPPORT links on the site.',
+    'The frame now follows the dynamic viewport instead, growing and shrinking as the toolbars come and go. The chassis ends where the screen does, in the browser and on the home screen alike.',
+  ],
+};
+
+/** The release before this one, promoted when 0.6.60 landed. */
+const PREVIOUS_0_6_59: WebRelease = {
   version: '0.6.59',
   date: '2026-08-31',
   headline: 'NOTHING LEFT TO CLIP',
@@ -729,6 +740,7 @@ const PREVIOUS_0_4_2: WebRelease = {
 
 /** Newest first. A new release is prepended by promoting `CURRENT`. */
 const PREVIOUS: WebRelease[] = [
+  PREVIOUS_0_6_59,
   PREVIOUS_0_6_58,
   PREVIOUS_0_6_57,
   PREVIOUS_0_6_56,
